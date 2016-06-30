@@ -1,20 +1,24 @@
+/**
+ * Top level class
+ *
+ * @constructor
+ */
 function QObject() {
-    this.a=1;
 }
 
 QObject.prototype = Object.create(Object);
 
 /**
- * Copy all properties of one object to another
+ * Copy all properties of object2 to object1, or object1 to self if object2 not set
  *
  * @returns {*} Changed object
- * @param object1
- * @param object2
+ * @param object1 Object
+ * @param object2 Object
  */
 QObject.prototype.apply = function (object1, object2) {
     var i;
-    var target = object2 || object1;
-    var source = object2 ? object1 : this;
+    var source = object2 || object1;
+    var target = object2 ? object1 : this;
 
     for (i in source)
         target[i] = source[i];
@@ -26,13 +30,13 @@ QObject.prototype.apply = function (object1, object2) {
  * Does not copy existed properties
  *
  * @returns {*} Changed object
- * @param object1
- * @param object2
+ * @param object1 Object
+ * @param object2 Object
  */
 QObject.prototype.applyIfNot = function (object1, object2) {
     var i, undefined = void 0;
-    var target = object2 || object1;
-    var source = object2 ? object1 : this;
+    var source = object2 || object1;
+    var target = object2 ? object1 : this;
 
     for (i in source)
         source[i] === undefined && ( target[i] = source[i] );
@@ -42,6 +46,5 @@ QObject.prototype.applyIfNot = function (object1, object2) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Sequence.prototype==
-module.exports.Base={};
-module.exports.Base.QObject = QObject;
+
+module.exports = QObject;
