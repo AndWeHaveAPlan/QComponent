@@ -64,7 +64,7 @@ function AbstractComponent(cfg) {
          */
         this._children = new ObservableSequence( new DQIndex( 'id' ) );
 
-        // instantly modify child components on append
+        /** instantly modify child components on append */
         this._children.on('add', function( child ){
             child.parent = self;
         });
@@ -87,7 +87,7 @@ function AbstractComponent(cfg) {
 
 AbstractComponent.prototype = new QObject({
 
-    // mutators
+    /** mutators */
     _setter: {
         default: function (name, value) {
             var oldValue = this._data[name];
@@ -97,7 +97,7 @@ AbstractComponent.prototype = new QObject({
         }
     },
 
-    // accessors
+    /** accessors */
     _getter: {
         default: function (name) {
             return this._data[name];
@@ -162,6 +162,10 @@ AbstractComponent.prototype = new QObject({
 AbstractComponent.eventManager = new EventManager();
 AbstractComponent._type = AbstractComponent.prototype._type;
 
+/** properties that need deep applying */
+var deepApply = ['_setter', '_getter'],
+    deepApplyHash = QObject.arrayToObject(deepApply);
+
 /**
  * Extends class
  * @param name String: Name of component
@@ -169,25 +173,19 @@ AbstractComponent._type = AbstractComponent.prototype._type;
  * @param [init] Function: Custom constructor
  */
 AbstractComponent.extend = function( name, cfg, init){
-    var deepApply = ['_setter', '_getter'],
-        deepApplyHash = QObject.arrayToObject(deepApply ),
-        cmpCfg = {}, i, val,
+    var i,
         overlays, proto,
 
         /** what is extending */
         original = components[this._type];
 
-    for( i in cfg ){
-        val = cfg[i];
-        if(!(i in deepApplyHash))
-            cmpCfg[i] = val;
-    }
 
-    // constructor;
+    /** constructor of new component */
     var Cmp = init || function(cfg){
             original.call(this, cfg);
         };
 
+    /** remove deep applied */
     overlays = deepApply.reduce( function( storage, deepName ){
         if( deepName in cfg ){
             storage[deepName] = cfg[deepName];
