@@ -4,7 +4,7 @@
 var assert = require('chai').assert;
 
 var Base = require('../Base');
-var Component = Base.Component;
+var Component = Base.Component.AbstractComponent;
 var QObject = Base.QObject;
 var SimplePipe = Base.Pipes.SimplePipe;
 var EventManager = Base.EventManager;
@@ -15,8 +15,8 @@ describe("Advanced piping", function () {
 
         var eventManager = new EventManager();
 
-        var comp3 = new Component("comp3");
-        var comp4 = new Component("comp4");
+        var comp3 = new Component({id: "comp3"});
+        var comp4 = new Component({id: "comp4"});
 
         eventManager.registerComponent("comp3", comp3);
         eventManager.registerComponent("comp4", comp4);
@@ -46,8 +46,8 @@ describe("Advanced piping", function () {
     it("late binding", function () {
         var eventManager = new EventManager();
 
-        var comp3 = new Component("comp3");
-        var comp4 = new Component("comp4");
+        var comp3 = new Component({id: "comp3"});
+        var comp4 = new Component({id: "comp4"});
 
         eventManager.registerComponent("comp3", comp3);
         eventManager.registerComponent("comp4", comp4);

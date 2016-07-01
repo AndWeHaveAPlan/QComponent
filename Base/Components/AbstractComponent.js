@@ -18,11 +18,11 @@ var QObject = require('./../QObject'),
  */
 function createMulticastDelegate() {
     var delegate =
-        function () {
-            for (var i = 0, _i = flist.length; i < _i; i++) {
-                flist[i].apply(this, arguments);
-            }
-        },
+            function () {
+                for (var i = 0, _i = flist.length; i < _i; i++) {
+                    flist[i].apply(this, arguments);
+                }
+            },
         flist = delegate.flist = [];
 
     delegate.addFunction = function (fn) {
@@ -64,7 +64,7 @@ function AbstractComponent(cfg) {
          */
         this._children = new ObservableSequence( new DQIndex( 'id' ) );
 
-        // instantly modify child components on append
+        /** instantly modify child components on append */
         this._children.on('add', function( child ){
             child.parent = self;
         });
@@ -78,16 +78,15 @@ function AbstractComponent(cfg) {
      */
     this._onPropertyChanged = createMulticastDelegate();
 
-    if(!this.eventManager)
-        this.eventManager = AbstractComponent.eventManager;
+    if(!this._eventManager)
+        this._eventManager = new EventManager();
 
-    if (this.id)
-        this.eventManager.registerComponent(this.id, this);
+    this._eventManager.registerComponent(this.id, this);
 }
 
 AbstractComponent.prototype = new QObject({
 
-    // mutators
+    /** mutators */
     _setter: {
         default: function (name, value) {
             var oldValue = this._data[name];
@@ -97,7 +96,7 @@ AbstractComponent.prototype = new QObject({
         }
     },
 
-    // accessors
+    /** accessors */
     _getter: {
         default: function (name) {
             return this._data[name];
@@ -150,17 +149,11 @@ AbstractComponent.prototype = new QObject({
     _type: 'AbstractComponent'
 });
 
-
-//new QObject();
-//console.log((AbstractComponent.prototype.apply = function(){}).toString())
-//console.log(AbstractComponent.prototype.apply({a:1},{b:2}))
-/**
- * Some kind of static field
- *
- * @type EventManager
- */
-AbstractComponent.eventManager = new EventManager();
 AbstractComponent._type = AbstractComponent.prototype._type;
+
+/** properties that need deep applying */
+var deepApply = ['_setter', '_getter'],
+    deepApplyHash = QObject.arrayToObject(deepApply);
 
 /**
  * Extends class
@@ -169,25 +162,19 @@ AbstractComponent._type = AbstractComponent.prototype._type;
  * @param [init] Function: Custom constructor
  */
 AbstractComponent.extend = function( name, cfg, init){
-    var deepApply = ['_setter', '_getter'],
-        deepApplyHash = QObject.arrayToObject(deepApply ),
-        cmpCfg = {}, i, val,
+    var i,
         overlays, proto,
 
         /** what is extending */
         original = components[this._type];
 
-    for( i in cfg ){
-        val = cfg[i];
-        if(!(i in deepApplyHash))
-            cmpCfg[i] = val;
-    }
 
-    // constructor;
+    /** constructor of new component */
     var Cmp = init || function(cfg){
             original.call(this, cfg);
         };
 
+    /** remove deep applied */
     overlays = deepApply.reduce( function( storage, deepName ){
         if( deepName in cfg ){
             storage[deepName] = cfg[deepName];

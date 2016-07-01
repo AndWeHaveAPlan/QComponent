@@ -3,7 +3,7 @@
  */
 
 var QObject = require("./../QObject");
-var Component = require("./../Component");
+var Component = require("../Components/AbstractComponent");
 var AbstractPipe = require("./AbstractPipe");
 
 /**
