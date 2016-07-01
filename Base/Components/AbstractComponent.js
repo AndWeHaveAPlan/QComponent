@@ -84,8 +84,6 @@ function Component(cfg) {
 
 Component.prototype = new QObject({
 
-    deepApply: ['_setter', '_getter'],
-
     // mutators
     _setter: {
         default: function (name, value) {
@@ -124,6 +122,7 @@ Component.prototype = new QObject({
         var mutator = this._setter[name] || this._setter.default;
 
         mutator.call(this, name, value);
+        return this;
     },
 
     /**
@@ -142,7 +141,7 @@ Component.prototype = new QObject({
      */
     addChild: function( component ){
         this._children.push(component);
-
+        return this;
     }
 });
 
@@ -156,7 +155,7 @@ Component.prototype = new QObject({
  * @type EventManager
  */
 Component.eventManager = new EventManager();
-
+Component.extend =
 
 
 module.exports = Component;

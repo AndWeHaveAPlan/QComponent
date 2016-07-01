@@ -11,8 +11,18 @@ module.exports = (function(){
     };
     UIComponent.prototype = Object.create(Abstract.prototype);
     UIComponent.prototype.apply({
-        a:1
+        a: 1
+
     });
 
+    return UIComponent;
+});
+
+
+module.exports = (function(){
+    'use strict';
+    var UIComponent = require('./AbstractComponent').extend({
+        a: 1
+    });
     return UIComponent;
 })();
