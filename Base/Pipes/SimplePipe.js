@@ -16,10 +16,9 @@ var AbstractPipe = require("./AbstractPipe");
  */
 function SimplePipe(source, target) {
     AbstractPipe.call(this, source, target);
-
 }
 
-SimplePipe.prototype = Object.create(AbstractPipe);
-SimplePipe.prototype.constructor = SimplePipe;
+SimplePipe.prototype = Object.create(AbstractPipe.prototype);
+SimplePipe.prototype.constructor = AbstractPipe;
 
 module.exports = SimplePipe;

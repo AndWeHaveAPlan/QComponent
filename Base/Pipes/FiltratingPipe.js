@@ -25,8 +25,7 @@ function FiltratingPipe(source, target) {
     this._filters = [];
 }
 
-FiltratingPipe.prototype = Object.create(AbstractPipe);
-FiltratingPipe.prototype.constructor = FiltratingPipe;
+FiltratingPipe.prototype = Object.create(AbstractPipe.prototype);
 
 /**
  *
@@ -38,21 +37,24 @@ FiltratingPipe.prototype.addFilter = function (filterFunction) {
 
 /**
  *
- * @param newVal
+ * @param value
+ * @param component
  */
-FiltratingPipe.prototype.applyFilters = function (newVal) {
+FiltratingPipe.prototype.process = function (value, component) {
     var filters = this._filters;
     var length = filters.length;
 
     var result = true;
 
     for (var i = 0; i < length; i++) {
-        if (!filters[i](newVal)) {
+        if (!filters[i](value)) {
             result = false;
+            break;
         }
     }
 
-    return result;
+    if (result)
+        component.set(this.targetPropertyName, value);
 };
 
 module.exports = FiltratingPipe;

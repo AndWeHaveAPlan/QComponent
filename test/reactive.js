@@ -40,7 +40,6 @@ describe("Reactive tests", function () {
 
         comp1.set("testSourceProp", "testValue1");
         comp1.set("testTargetProp", "hsrt gbdxgh stxdgnfc");
-
         eventManager.registerPipe(
             new SimplePipe(
                 {component: "comp1", property: "testSourceProp"},
@@ -113,5 +112,36 @@ describe("Reactive tests", function () {
 
         comp3.set("testSourceProp", 6);
         assert.equal(comp4.get("testTargetProp"), 6);
+    });
+
+    it("should create custom mutating pipes", function () {
+
+        var eventManager = new EventManager();
+
+        var comp3 = new Component("comp3");
+        var comp4 = new Component("comp4");
+
+        eventManager.registerComponent("comp3", comp3);
+        eventManager.registerComponent("comp4", comp4);
+
+        comp3.set("testSourceProp", {a: 2, b: 3});
+        comp4.set("testTargetProp", 2);
+
+        var fPipe = new Base.Pipes.MutatingPipe(
+            {component: "comp3", property: "testSourceProp"},
+            {component: "comp4", property: "testTargetProp"}
+        );
+
+        fPipe.addMutator(function (a) {
+            return a.a + a.b;
+        });
+        fPipe.addMutator(function (a) {
+            return a + 8;
+        });
+
+        eventManager.registerPipe(fPipe);
+
+        comp3.set("testSourceProp", {a: 2, b: 3});
+        assert.equal(comp4.get("testTargetProp"), 13);
     });
 });

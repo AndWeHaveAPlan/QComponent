@@ -44,12 +44,7 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
                     var targetComponent = self._registredComponents[targetComponentName];
                     if (targetComponent) {
 
-                        if (currentPipe instanceof FiltratingPipe) {
-                            if (currentPipe.applyFilters(newValue))
-                                targetComponent.set(targetProperty, newValue);
-                        } else {
-                            targetComponent.set(targetProperty, newValue);
-                        }
+                        currentPipe.process(newValue, targetComponent);
                     }
                 }
             }

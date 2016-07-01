@@ -23,7 +23,15 @@ function AbstractPipe(source, target) {
     this.targetPropertyName = target.property;
 }
 
-AbstractPipe.prototype = Object.create(QObject);
-AbstractPipe.constructor = AbstractPipe;
+AbstractPipe.prototype = Object.create(QObject.prototype);
+
+/**
+ *
+ * @param value
+ * @param component
+ */
+AbstractPipe.prototype.process = function (value, component) {
+    component.set(this.targetPropertyName, value);
+};
 
 module.exports = AbstractPipe;
