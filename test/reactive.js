@@ -4,7 +4,7 @@
 var assert = require('chai').assert;
 
 var Base = require('../Base');
-var Component = Base.Component;
+var Component = Base.Component.AbstractComponent;
 var QObject = Base.QObject;
 var SimplePipe=Base.Pipes.SimplePipe;
 
@@ -31,7 +31,7 @@ describe("Reactive tests", function () {
 
 
     it("should create pipes to self", function () {
-        var comp1 = new Component("comp1");
+        var comp1 = new Component({id: "comp1"});
 
         comp1.set("testSourceProp","testValue1");
         comp1.set("testTargetProp","hsrt gbdxgh stxdgnfc");
@@ -49,16 +49,16 @@ describe("Reactive tests", function () {
 
 
     it("should create pipes to other components", function () {
-        var comp1 = new Component("comp1");
-        var comp2 = new Component("comp2");
+        var comp1 = new Component({id: "comp1"});
+        var comp2 = new Component({id: "comp2"});
 
         comp1.set("testSourceProp","testValue1");
         comp2.set("testTargetProp","hsrt gbdxgh stxdgnfc");
 
         Component.eventManager.registerPipe(
             new SimplePipe(
-                {component:"comp1",property:"testSourceProp"},
-                {component:"comp2",property:"testTargetProp"}
+                {component:"comp1", property:"testSourceProp"},
+                {component:"comp2", property:"testTargetProp"}
             )
         );
 

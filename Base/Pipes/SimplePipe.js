@@ -3,7 +3,7 @@
  */
 
 var QObject = require("./../QObject");
-var Component = require("./../Component");
+var Component = require("./../Components/AbstractComponent");
 var AbstractPipe = require("./AbstractPipe");
 
 /**
@@ -16,7 +16,6 @@ var AbstractPipe = require("./AbstractPipe");
  */
 function SimplePipe(source, target) {
     AbstractPipe.call(this, source, target);
-
 }
 
 SimplePipe.prototype = Object.create(AbstractPipe);

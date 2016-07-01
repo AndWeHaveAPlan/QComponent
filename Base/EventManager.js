@@ -7,7 +7,7 @@
  */
 
 var QObject = require("./QObject");
-var Component = require("./Component");
+var Component = require("./Components/AbstractComponent");
 
 /**
  * TODO Что то надо с этим делать :(
@@ -31,7 +31,7 @@ EventManager.prototype.getOnValueChangedEventListener = function(){
     var self = this;
 
     return function (sender, name, newValue, OldValue) {
-        var componentPipes = self._registredPipes[sender.cname];
+        var componentPipes = self._registredPipes[sender.id];
         if (componentPipes) {
             var propertyPipes = componentPipes[name];
             if (propertyPipes) {

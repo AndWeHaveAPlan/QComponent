@@ -1,18 +1,22 @@
 {
-  "name": "QComponent",
+  "name": "Quokka",
   "version": "0.0.1",
   "description": "",
   "main": "Base.js",
   "scripts": {
     "test": "_mocha",
-    "coverage": "istanbul cover _mocha -- -R spec"
+    "coverage": "istanbul cover _mocha -- -R spec",
+    "prepublish": "require-self"
   },
   "author": "",
   "license": "BSD-2-Clause",
   "dependencies": {
     "nvm": "*",
     "z-observable": "*",
-    "observable-sequence": "*"
+    "observable-sequence": "*",
+    "require-self": "^0.x",
+    "z-lib-structure-dqIndex": "*",
+    "tiny-uuid": "*"
   },
   "devDependencies": {
     "chai": "*",

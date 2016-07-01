@@ -3,7 +3,7 @@
  */
 
 var QObject = require("./../QObject");
-var Component = require("./../Component");
+var Component = require("./../Components/AbstractComponent");
 
 /**
  *
@@ -14,8 +14,6 @@ var Component = require("./../Component");
  * @abstract
  */
 function AbstractPipe(source, target) {
-    QObject.call(this, {});
-
     this.sourceComponent = source.component;
     this.sourcePropertyName = source.property;
 
@@ -23,7 +21,7 @@ function AbstractPipe(source, target) {
     this.targetPropertyName = target.property;
 }
 
-AbstractPipe.prototype = Object.create(QObject);
+AbstractPipe.prototype = new QObject();
 AbstractPipe.constructor = AbstractPipe;
 
 module.exports = AbstractPipe;
