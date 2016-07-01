@@ -37,14 +37,24 @@ MutatingPipe.prototype.addMutator = function (mutatorFunction) {
 
 /**
  *
- * @param value
+ * @param changedKey
  * @param component
+ * @private
  */
-MutatingPipe.prototype.process = function (value, component) {
+MutatingPipe.prototype._process = function (changedKey, component) {
     var mutators = this._mutators;
     var length = mutators.length;
+    var args = [];
 
-    for (var i = 0; i < length; i++) {
+    for (var source in this.sourceBindings) {
+        if (this.sourceBindings.hasOwnProperty(source)) {
+            args.push(this.sourceBindings[source].value);
+        }
+    }
+
+    var value = mutators[0].apply(this, args);
+
+    for (var i = 1; i < length; i++) {
         value = mutators[i](value);
     }
 

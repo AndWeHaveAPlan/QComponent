@@ -31,22 +31,19 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
     var self = this;
 
     return function (sender, name, newValue, oldValue) {
-        var componentPipes = self._registredPipes[sender.cname];
-        if (componentPipes) {
-            var propertyPipes = componentPipes[name];
-            if (propertyPipes) {
-                for (var i = 0; i < propertyPipes.length; i++) {
-                    var currentPipe = propertyPipes[i];
+        var key = sender.cname + '.' + name;
+        var propertyPipes = self._registredPipes[key];
 
-                    var targetComponentName = currentPipe.targetComponent;
-                    var targetProperty = currentPipe.targetPropertyName;
+        if (!propertyPipes) return;
 
-                    var targetComponent = self._registredComponents[targetComponentName];
-                    if (targetComponent) {
+        for (var i = 0; i < propertyPipes.length; i++) {
+            var currentPipe = propertyPipes[i];
 
-                        currentPipe.process(newValue, targetComponent);
-                    }
-                }
+            var targetComponentName = currentPipe.targetComponent;
+
+            var targetComponent = self._registredComponents[targetComponentName];
+            if (targetComponent) {
+                currentPipe.process(key, newValue, targetComponent);
             }
         }
     }
@@ -71,19 +68,8 @@ EventManager.prototype.registerComponent = function (componentName, component) {
 EventManager.prototype.createSimplePipe = function (source, target) {
 
     var newPipe = new SimplePipe(source, target);
-    var registeredPipes = this._registredPipes;
 
-    var sourceComponent = source.component;
-    var sourcePropertyName = source.property;
-
-    var sourceComponentPipe =
-        registeredPipes[sourceComponent] ?
-            registeredPipes[sourceComponent] :
-            registeredPipes[sourceComponent] = {};
-
-    (sourceComponentPipe[sourcePropertyName] ?
-        sourceComponentPipe[sourcePropertyName] :
-        sourceComponentPipe[sourcePropertyName] = []).push(newPipe);
+    this.registerPipe(newPipe);
 
     return newPipe;
 };
@@ -93,14 +79,27 @@ EventManager.prototype.createSimplePipe = function (source, target) {
  * @param pipe Pipe
  */
 EventManager.prototype.registerPipe = function (pipe) {
-    var sourceComponentPipe =
-        this._registredPipes[pipe.sourceComponent] ?
-            this._registredPipes[pipe.sourceComponent] :
-            this._registredPipes[pipe.sourceComponent] = {};
 
-    (sourceComponentPipe[pipe.sourcePropertyName] ?
-        sourceComponentPipe[pipe.sourcePropertyName] :
-        sourceComponentPipe[pipe.sourcePropertyName] = []).push(pipe);
+    var bindingSources = pipe.sourceBindings;
+    var length = bindingSources.length;
+    var component
+
+    for (var source in bindingSources) {
+        if (bindingSources.hasOwnProperty(source)) {
+
+            var currentSource = bindingSources[source];
+
+            component = this._registredComponents[currentSource.componentName];
+            currentSource.value = component ? component.get(currentSource.propertyName) : void(0);
+
+            var pipes = this._registredPipes[currentSource.key];
+            pipes ? pipes.push(pipe) : this._registredPipes[currentSource.key] = [pipe];
+        }
+    }
+
+    component = this._registredComponents[pipe.targetComponent];
+    if (component)
+        pipe.process(null, null, component);
 };
 
 module.exports = EventManager;

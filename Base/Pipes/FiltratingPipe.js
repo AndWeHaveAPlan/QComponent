@@ -37,14 +37,19 @@ FiltratingPipe.prototype.addFilter = function (filterFunction) {
 
 /**
  *
- * @param value
+ * @param changedKey
  * @param component
+ * @private
  */
-FiltratingPipe.prototype.process = function (value, component) {
+FiltratingPipe.prototype._process = function (changedKey, component) {
     var filters = this._filters;
     var length = filters.length;
-
     var result = true;
+
+
+    if (!changedKey) return;
+    var value = this.sourceBindings[changedKey].value;
+
 
     for (var i = 0; i < length; i++) {
         if (!filters[i](value)) {
