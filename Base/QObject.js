@@ -68,11 +68,30 @@
                     value: source[i]
                 } );
             return target;
+        },
+
+        /**
+         * Convert Array to hash Object
+         *
+         * @param arr Array: Array to convert
+         * @param [val=true] Any: value that would be setted to each member
+         * @returns {{hash}}
+         */
+        arrayToObject: function( arr, val ){
+            var i = 0, _i = arr.length,
+                newVal = val || true,
+                out = {};
+            if( arr === null || arr === void 0 ) return out;
+
+            for( ; i < _i; i++ ){
+                out[ arr[ i ] ] = newVal;
+            }
+            return out;
         }
     };
 
     // makes prototype properties not enumerable
     QObject.prototype = prototype.applyPrivate.call( {}, prototype );
-
+    prototype.apply(QObject, prototype);
     module.exports = QObject;
 })();

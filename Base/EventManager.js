@@ -11,7 +11,7 @@ var Component = require("./Components/AbstractComponent");
 
 /**
  * TODO Что то надо с этим делать :(
- * Пока кладется "статиком" в Component
+ * Пока кладется "статиком" в AbstractComponent
  *
  * @constructor
  */
@@ -53,7 +53,7 @@ EventManager.prototype.getOnValueChangedEventListener = function(){
 /**
  *
  * @param componentName String
- * @param component Component
+ * @param component AbstractComponent
  */
 EventManager.prototype.registerComponent = function (componentName, component) {
     this._registredComponents[componentName] = component;

@@ -11,12 +11,11 @@ module.exports = (function () {
      @arg [cfg]<object>: factory configuration
      @arg [cfg.versionControl=false]<boolean>: algorithm of component versioning. If false - factory would throw error on second definition of same component
      */
-    var Z = require('z-lib'),
-        component = require('./AbstractComponent'),
-        ComponentConstructorFactory = component.ConstructorFactory,
+    var component = require('./AbstractComponent'),
+        QObject = require('../QObject' ),
         Factory = function (cfg) {
-            Z.apply(this, cfg);
-            this.cmps = {};
+            this.apply(cfg);
+            this.cmps = component._knownComponents;
             this.stats = {};
             var _self = this;
             this.destroyCallback = function () {
@@ -24,7 +23,7 @@ module.exports = (function () {
             };
         };
 
-    Factory.prototype = {
+    Factory.prototype = new QObject({
         versionControl: false,
         versionComparator: function (a, b) {
             a = (a||'0.0.0').split('.');
@@ -38,7 +37,8 @@ module.exports = (function () {
             }
             return 0;
         },
-        /*
+
+        /**
         Factory.define - define component
          @arg name<string>: component constructor name
          @arg cfg<object>: component configuration (goes to prototype)
@@ -70,7 +70,7 @@ module.exports = (function () {
             builder._type = cmps[name].prototype._type = cmps[name]._type = name;
             return builder;
         },
-        build: function (what, cfg, iter){
+        build: function (what, cfg){
             cfg = cfg || {};
 
             if( typeof what === 'string' )
@@ -88,7 +88,9 @@ module.exports = (function () {
             //console.log(cfg._type)
             if(typeof constructor !== 'function')
                 throw new Error(cfg._type+'|'+what);
-            var cmp = new constructor( cfg, iter );
+
+            var cmp = new constructor( cfg );
+
 
             stats[cmp._type] = (stats[cmp._type] | 0) + 1;
 
@@ -100,6 +102,6 @@ module.exports = (function () {
                 stats = this.stats;
             stats[type]--;
         }
-    };
+    });
     return Factory;
 })();

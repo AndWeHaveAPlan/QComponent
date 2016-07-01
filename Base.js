@@ -5,13 +5,14 @@
 /**
  * Some kind of namespace
  *
- * @type {{QObject: (QObject|exports|module.exports), Component: (Component|exports|module.exports), Pipe: (Pipe|exports|module.exports)}}
+ * @type {{QObject: (QObject|exports|module.exports), Component: (AbstractComponent|exports|module.exports), Pipe: (Pipe|exports|module.exports)}}
  */
 module.exports = {
     QObject: require("./Base/QObject"),
     Component: {
         AbstractComponent: require("./Base/Components/AbstractComponent"),
-        UIComponent: require("./Base/Components/UIComponent")
+        UIComponent: require("./Base/Components/UIComponent"),
+        Factory: require("./Base/Components/Factory")
     },
     Pipes: {
         AbstractPipe: require("./Base/Pipes/AbstractPipe"),
