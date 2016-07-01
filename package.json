@@ -1,0 +1,23 @@
+{
+  "name": "QComponent",
+  "version": "0.0.1",
+  "description": "",
+  "main": "Base.js",
+  "scripts": {
+    "test": "_mocha",
+    "coverage": "istanbul cover _mocha -- -R spec"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "nvm": "*",
+    "z-observable": "*",
+    "observable-sequence": "*"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "istanbul": "*",
+    "dom-lite": "*"
+  }
+}

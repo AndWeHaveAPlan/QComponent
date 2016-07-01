@@ -90,8 +90,9 @@ function Component(cname, parent) {
         Component.eventManager.registerComponent(cname, self);
 }
 
-Component.prototype = new QObject();
-
+Component.prototype = new QObject();//new QObject();
+//console.log((Component.prototype.apply = function(){}).toString())
+//console.log(Component.prototype.apply({a:1},{b:2}))
 /**
  * Some kind of static field
  *
