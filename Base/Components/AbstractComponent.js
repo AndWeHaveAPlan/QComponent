@@ -18,11 +18,11 @@ var QObject = require('./../QObject'),
  */
 function createMulticastDelegate() {
     var delegate =
-        function () {
-            for (var i = 0, _i = flist.length; i < _i; i++) {
-                flist[i].apply(this, arguments);
-            }
-        },
+            function () {
+                for (var i = 0, _i = flist.length; i < _i; i++) {
+                    flist[i].apply(this, arguments);
+                }
+            },
         flist = delegate.flist = [];
 
     delegate.addFunction = function (fn) {
@@ -78,11 +78,10 @@ function AbstractComponent(cfg) {
      */
     this._onPropertyChanged = createMulticastDelegate();
 
-    if(!this.eventManager)
-        this.eventManager = AbstractComponent.eventManager;
+    if(!this._eventManager)
+        this._eventManager = new EventManager();
 
-    if (this.id)
-        this.eventManager.registerComponent(this.id, this);
+    this._eventManager.registerComponent(this.id, this);
 }
 
 AbstractComponent.prototype = new QObject({
@@ -150,16 +149,6 @@ AbstractComponent.prototype = new QObject({
     _type: 'AbstractComponent'
 });
 
-
-//new QObject();
-//console.log((AbstractComponent.prototype.apply = function(){}).toString())
-//console.log(AbstractComponent.prototype.apply({a:1},{b:2}))
-/**
- * Some kind of static field
- *
- * @type EventManager
- */
-AbstractComponent.eventManager = new EventManager();
 AbstractComponent._type = AbstractComponent.prototype._type;
 
 /** properties that need deep applying */
