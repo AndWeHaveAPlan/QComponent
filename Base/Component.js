@@ -31,8 +31,10 @@ function createMulticastDelegate() {
  *
  * @constructor
  */
-function Component(cname, parent) {
+function Component(cname, cfg) {
     var self = this;
+
+    QObject.apply(this, cfg);
 
     /**
      * Name of this component
@@ -40,11 +42,19 @@ function Component(cname, parent) {
     this.cname = cname;
 
     /**
+     * Public properties
      *
      * @type {{}}
      * @private
      */
     this._data = {};
+
+    /**
+     * All internal Component must be registred here
+     *
+     * @type EventManager
+     */
+    this._eventManager = new EventManager();
 
     /**
      * Child Components
@@ -54,13 +64,6 @@ function Component(cname, parent) {
      * @private
      */
     this._childs = [];
-
-    /**
-     * Parent component
-     *
-     * @type Component
-     */
-    this._parent = parent;
 
     /**
      * Event. Fires with any changes made with get(...)
@@ -85,20 +88,11 @@ function Component(cname, parent) {
         }
     };
 
-
-    if (this.cname)
-        Component.eventManager.registerComponent(cname, self);
+    this._eventManager.registerComponent(this.cname, self)
 }
 
-Component.prototype = new QObject();//new QObject();
-//console.log((Component.prototype.apply = function(){}).toString())
-//console.log(Component.prototype.apply({a:1},{b:2}))
-/**
- * Some kind of static field
- *
- * @type EventManager
- */
-Component.eventManager = new EventManager();
+Component.prototype = Object.create(QObject);
+Component.constructor = Component;
 
 /**
  * Get property from component

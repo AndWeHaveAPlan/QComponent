@@ -14,7 +14,7 @@ var Component = require("./../Component");
  * @abstract
  */
 function AbstractPipe(source, target) {
-    QObject.call(this, {});
+    QObject.apply(this, {});
 
     this.sourceComponent = source.component;
     this.sourcePropertyName = source.property;

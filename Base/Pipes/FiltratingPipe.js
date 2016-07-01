@@ -38,17 +38,21 @@ FiltratingPipe.prototype.addFilter = function (filterFunction) {
 
 /**
  *
- * @param property Object
+ * @param newVal
  */
-FiltratingPipe.prototype.applyFilters = function (property) {
+FiltratingPipe.prototype.applyFilters = function (newVal) {
     var filters = this._filters;
     var length = filters.length;
 
+    var result = true;
+
     for (var i = 0; i < length; i++) {
-        property = filters[i](property);
+        if (!filters[i](newVal)) {
+            result = false;
+        }
     }
 
-    return property;
+    return result;
 };
 
 module.exports = FiltratingPipe;

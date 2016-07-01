@@ -8,10 +8,10 @@
 
 var QObject = require("./QObject");
 var Component = require("./Component");
+var FiltratingPipe = require("./Pipes/FiltratingPipe");
+var SimplePipe = require("./Pipes/SimplePipe");
 
 /**
- * TODO Что то надо с этим делать :(
- * Пока кладется "статиком" в Component
  *
  * @constructor
  */
@@ -27,10 +27,10 @@ EventManager.prototype = new QObject();
  *
  * @returns Function
  */
-EventManager.prototype.getOnValueChangedEventListener = function(){
+EventManager.prototype.getOnValueChangedEventListener = function () {
     var self = this;
 
-    return function (sender, name, newValue, OldValue) {
+    return function (sender, name, newValue, oldValue) {
         var componentPipes = self._registredPipes[sender.cname];
         if (componentPipes) {
             var propertyPipes = componentPipes[name];
@@ -42,8 +42,15 @@ EventManager.prototype.getOnValueChangedEventListener = function(){
                     var targetProperty = currentPipe.targetPropertyName;
 
                     var targetComponent = self._registredComponents[targetComponentName];
-                    if (targetComponent)
-                        targetComponent.set(targetProperty, newValue);
+                    if (targetComponent) {
+
+                        if (currentPipe instanceof FiltratingPipe) {
+                            if (currentPipe.applyFilters(newValue))
+                                targetComponent.set(targetProperty, newValue);
+                        } else {
+                            targetComponent.set(targetProperty, newValue);
+                        }
+                    }
                 }
             }
         }
@@ -59,6 +66,31 @@ EventManager.prototype.registerComponent = function (componentName, component) {
     this._registredComponents[componentName] = component;
     component.subscribe(this.getOnValueChangedEventListener());
 
+};
+
+/**
+ *
+ * @param source
+ * @param target
+ */
+EventManager.prototype.createSimplePipe = function (source, target) {
+
+    var newPipe = new SimplePipe(source, target);
+    var registeredPipes = this._registredPipes;
+
+    var sourceComponent = source.component;
+    var sourcePropertyName = source.property;
+
+    var sourceComponentPipe =
+        registeredPipes[sourceComponent] ?
+            registeredPipes[sourceComponent] :
+            registeredPipes[sourceComponent] = {};
+
+    (sourceComponentPipe[sourcePropertyName] ?
+        sourceComponentPipe[sourcePropertyName] :
+        sourceComponentPipe[sourcePropertyName] = []).push(newPipe);
+
+    return newPipe;
 };
 
 /**
