@@ -5,16 +5,18 @@
 /**
  * Some kind of namespace
  *
- * @type {{QObject: (QObject|exports|module.exports), Component: (Component|exports|module.exports), Pipe: (Pipe|exports|module.exports)}}
+ * @type {{QObject: (QObject|exports|module.exports), Component: (AbstractComponent|exports|module.exports), Pipe: (Pipe|exports|module.exports)}}
  */
 module.exports = {
     QObject: require("./Base/QObject"),
-    Component: require("./Base/Component"),
-    EventManager: require("./Base/EventManager"),
+    Component: {
+        AbstractComponent: require("./Base/Components/AbstractComponent"),
+        UIComponent: require("./Base/Components/UIComponent"),
+        Factory: require("./Base/Components/Factory")
+    },
     Pipes: {
         AbstractPipe: require("./Base/Pipes/AbstractPipe"),
         SimplePipe: require("./Base/Pipes/SimplePipe"),
-        FiltratingPipe: require("./Base/Pipes/FiltratingPipe"),
-        MutatingPipe: require("./Base/Pipes/MutatingPipe")
+        FiltratingPipe: require("./Base/Pipes/FiltratingPipe")
     }
 };
