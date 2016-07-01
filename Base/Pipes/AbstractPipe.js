@@ -2,8 +2,8 @@
  * Created by ravenor on 30.06.16.
  */
 
-var QObject = require("./QObject");
-var Component = require("./Component");
+var QObject = require("./../QObject");
+var Component = require("./../Component");
 
 /**
  *
@@ -11,8 +11,11 @@ var Component = require("./Component");
  * @param target {String, String}
  *
  * @constructor
+ * @abstract
  */
-function Pipe(source, target) {
+function AbstractPipe(source, target) {
+    QObject.call(this, {});
+
     this.sourceComponent = source.component;
     this.sourcePropertyName = source.property;
 
@@ -20,6 +23,7 @@ function Pipe(source, target) {
     this.targetPropertyName = target.property;
 }
 
-Pipe.prototype = new QObject();
+AbstractPipe.prototype = Object.create(QObject);
+AbstractPipe.constructor = AbstractPipe;
 
-module.exports = Pipe;
+module.exports = AbstractPipe;

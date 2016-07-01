@@ -10,5 +10,8 @@
 module.exports = {
     QObject: require("./Base/QObject"),
     Component: require("./Base/Component"),
-    Pipe: require("./Base/Pipe")
+    Pipes: {
+        AbstractPipe: require("./Base/Pipes/AbstractPipe"),
+        SimplePipe: require("./Base/Pipes/SimplePipe"),
+    }
 };

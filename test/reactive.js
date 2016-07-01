@@ -6,7 +6,7 @@ var assert = require('chai').assert;
 var Base = require('../Base');
 var Component = Base.Component;
 var QObject = Base.QObject;
-var Pipe=Base.Pipe;
+var SimplePipe=Base.Pipes.SimplePipe;
 
 describe("Reactive tests", function () {
 
@@ -37,7 +37,7 @@ describe("Reactive tests", function () {
         comp1.set("testTargetProp","hsrt gbdxgh stxdgnfc");
 
         Component.eventManager.registerPipe(
-            new Pipe(
+            new SimplePipe(
                 {component:"comp1",property:"testSourceProp"},
                 {component:"comp1",property:"testTargetProp"}
             )
@@ -56,11 +56,14 @@ describe("Reactive tests", function () {
         comp2.set("testTargetProp","hsrt gbdxgh stxdgnfc");
 
         Component.eventManager.registerPipe(
-            new Pipe(
+            new SimplePipe(
                 {component:"comp1",property:"testSourceProp"},
                 {component:"comp2",property:"testTargetProp"}
             )
         );
+
+        comp1._data={};
+        comp1.set(234,66);
 
         comp1.set("testSourceProp","newTestSourceValue");
         assert.equal(comp2.get("testTargetProp"), "newTestSourceValue");
