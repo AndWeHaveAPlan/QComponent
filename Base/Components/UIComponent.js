@@ -68,12 +68,3 @@ module.exports = (function(){
 
     return UIComponent;
 })();
-
-
-module.exports.Button = (function(){
-    'use strict';
-    var Button = module.exports.extend('Button', {
-        a: 1
-    });
-    return Button;
-})();
