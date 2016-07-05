@@ -63,7 +63,7 @@ module.exports = (function(){
                     /** comments can be multiline or singleline*/
                     inComment = false, commentType,
 
-                    tree = {items: []}, stack = [tree],
+                    tree = {items: []}, stack = [],
 
                     i, _i, s, sLast = '',
 
@@ -169,21 +169,40 @@ module.exports = (function(){
                             tokenStartCursor = cursor.clone(-2);
 
                         }else if(braceOpen[s]){
-                            /** brace open -> push it's type and position to stack */
+                            /** brace open -> */
+                            console.log(str.substr(lastTokenStart, i-lastTokenStart))
+                            pushItem({
+                                pos: lastTokenStart,
+                                data: str.substr(lastTokenStart, i-lastTokenStart),
+                                pureData: str.substr(lastTokenStart, i-lastTokenStart),
+                                type: 'text'
+                            }, lastTokenStartCursor);
 
+                            /** push it's type and position to stack */
                             braceStack.push({type: s, pos: i, cursor: cursor.clone(-1)});
+                            pushItem({
+                                data: '',
+                                type: 'brace',
+                                info: s
+                            }, cursor.clone(-1));
+
+                            /** tree sublevel */
+                            var newRoot = tree.items.pop();
+                            newRoot.items = [];
+                            tree.items.push(newRoot);
+                            stack.push(tree);
+                            tree = newRoot;
+
+
                         }else if(braceClose[s]){
                             /** brace close -> check that there is corresponding open one */
 
                             topBrace = braceStack.pop();
-                            if(topBrace && braceClose[s] === topBrace.type){
-                                pushItem({
-                                    pos: topBrace.pos,
-                                    data: str.substr(topBrace.pos, i - topBrace.pos+1),
-                                    pureData: str.substr(topBrace.pos, i - topBrace.pos+1),
-                                    type: 'brace',
-                                    info: braceClose[s]
-                                }, topBrace.cursor);
+                            if(topBrace && (braceClose[s] === topBrace.type)){
+                                tree.data = str.substr(topBrace.pos, i - topBrace.pos+1);
+                                tree.pureData = str.substr(topBrace.pos+1, i - topBrace.pos-1);
+                                tree = stack.pop();
+                                tokenStart = i+1;
                             }else{
                                 throw new Error('Invalid brace. opened: `'+(topBrace ? topBrace.type : 'No brace')+'`, closed: `'+s+'`')
                             }
@@ -202,9 +221,10 @@ module.exports = (function(){
                         }
 
                     }
-                        //TODO logics
-                    if(s === '\\4')
-                        escape = !escape;
+
+                    /*TODO logics
+                    if(s === '\\')
+                        escape = !escape;*/
                     sLast = s;
 
                     cursor.col++;
@@ -215,7 +235,7 @@ module.exports = (function(){
                     pureData: str.substr(lastPushedPos),
                     type: 'text'
                 }, lastPushedPosCursor);
-                return tree;
+                return tree.items[14];
             },
             replacer: function( from, to ){
                 from = new RegExp( from, 'g' );
@@ -291,8 +311,13 @@ var getPos = function( str, pos ){
     return {row: lines.length, col: col};
 };
 //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
-var pre = module.exports.tokenizer(require('fs' ).readFileSync('../../test/trash/tmp1.txt' )+'');
-console.log(JSON.stringify(pre.items ).replace(/\},\{/g,'}\n{'));//module.exports.tokenize(pre));
+
+var str = require('fs' ).readFileSync('../../test/trash/tmp1.txt' )+'',
+    d = +new Date();
+//for(var i = 0; i < 10; i++)
+    var pre = module.exports.tokenizer(str);
+//console.log(+new Date() - d);
+console.log(pre.items);//module.exports.tokenize(pre));
 console.log(3)
 
 /*

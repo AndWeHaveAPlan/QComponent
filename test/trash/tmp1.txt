@@ -23,20 +23,4 @@ a a  aaa
    bb
 div.mdl-/*comment*/grid //lulza
   foreach items/*tral*/
-/**/div.mdl-cell. "\'\' \'\' /*ni*/"{{/ijij}} mdl-cell--{{count|12/count}}-col.mdl-cell--{{count|12/count}}-col-tablet
-//      render this
-/*jajica*/
-    def UICancer
-      childrenType: raw
-
-    div
-      //USE ClosureScript
-
-        .click: () ->
-            if( store.pos {{}} < line.length ){
-                store.matched = true;
-           }else{
-                store.pos -= line.length + 1;
-            }
-        .mouseup() ->
-
+/**/div.mdl-cell. "\'\' \'\' /*ni*/"{{/ijij}} mdl-cell--{{count|12/count}}
