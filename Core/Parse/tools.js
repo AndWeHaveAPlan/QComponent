@@ -30,6 +30,27 @@ module.exports = (function(){
     });
     var SINGLELINECOMMENT = 1,
         MULTILINECOMMENT = 2;
+
+    var Pointer = function(cfg){
+        if(cfg){
+            this.col = cfg.col;
+            this.row = cfg.row;
+        }
+    };
+    Pointer.prototype = {
+        col: 1,
+        row: 1,
+        clone: function(i){
+            return new Pointer(this ).add(i);
+        },
+        add: function( i ){
+            if(i !== void 0)
+                this.col += i;
+
+            return this;
+        }
+    };
+
     var U = new QObject({
             /**
              * Tokenize string to QS tokens
@@ -46,13 +67,29 @@ module.exports = (function(){
 
                     i, _i, s, sLast = '',
 
+                    /** cursor position */
+                    cursor = new Pointer(),
+
                     tokenStart = 0, lastTokenStart,
-                    line, escape = false,
+                    tokenStartCursor = cursor.clone(),
+                    lastPushedPosCursor = cursor.clone(),
+                    lastTokenStartCursor = cursor.clone(),
+
+                    escape = false,
 
                     lastPushedPos,
-                    pushItem = function(item){
+                    pushItem = function(item, cur){
+                        cur = cur || tokenStartCursor;
                         lastPushedPos = item.pos + item.data.length;
-                        tree.items.push(item);
+
+                        tree.items.push({
+                            row: cur.row,
+                            col: cur.col,
+                            type: item.type,
+                            info: item.info,
+                            data: item.data,
+                            pureData: item.pureData
+                        });
                     };
 
                 /** replace bad line endings to good one*/
@@ -63,9 +100,14 @@ module.exports = (function(){
 
                     /** s - current symbol, sLast - previous symbol */
                     s = str.charAt(i);
+                    if(s=== '\n'){
+                        cursor.row++;
+                        cursor.col = 1;
+                    }
                     if(inComment || inQuote){
                         if(inComment){
                             if(commentType === SINGLELINECOMMENT && s === '\n'){
+                                /** close of one line comment */
                                 pushItem({
                                     pos: tokenStart,
                                     data: str.substr(tokenStart, i-tokenStart),
@@ -73,8 +115,10 @@ module.exports = (function(){
                                     pureData: str.substr(tokenStart+2, i-tokenStart-2),
                                 });
                                 tokenStart = i+1;
+                                tokenStartCursor = cursor.clone();
                                 inComment = false;
                             }else if(commentType === MULTILINECOMMENT && sLast === '*' && s === '/'){
+                                /** close of multi line comment */
                                 pushItem({
                                     pos: tokenStart,
                                     data: str.substr(tokenStart, i-tokenStart+1),
@@ -82,10 +126,12 @@ module.exports = (function(){
                                     pureData: str.substr(tokenStart+2, i-tokenStart-3),
                                 });
                                 tokenStart = i+1;
+                                tokenStartCursor = cursor.clone();
                                 inComment = false;
                             }
                         }else{ /** if inQuote */
                             if(s === quoteType){
+                                /** close of quote - check that it's same quote that was opened */
                                 pushItem({
                                     pos: tokenStart,
                                     data: str.substr(tokenStart, i-tokenStart+1),
@@ -93,26 +139,42 @@ module.exports = (function(){
                                     type: 'quote'
                                 });
                                 tokenStart = i+1;
+                                tokenStartCursor = cursor.clone();
                                 inQuote = false;
                             }
                         }
                     }else{
                         lastTokenStart = tokenStart;
+                        lastTokenStartCursor = tokenStartCursor.clone();
+
                         if(quotes[s] && !escape){
+                            /** quote open */
                             quoteType = s;
                             inQuote = true;
                             tokenStart = i;
+                            tokenStartCursor = cursor.clone(-1);
+
                         }else if(sLast === '/' && s === '*'){
+                            /** multi line comment open */
                             commentType = MULTILINECOMMENT;
                             inComment = true;
                             tokenStart = i-1;
+                            tokenStartCursor = cursor.clone(-2);
+
                         }else if(sLast === '/' && s === '/'){
+                            /** single line comment open */
                             commentType = SINGLELINECOMMENT;
                             inComment = true;
                             tokenStart = i-1;
+                            tokenStartCursor = cursor.clone(-2);
+
                         }else if(braceOpen[s]){
-                            braceStack.push({type: s, pos: i});
+                            /** brace open -> push it's type and position to stack */
+
+                            braceStack.push({type: s, pos: i, cursor: cursor.clone(-1)});
                         }else if(braceClose[s]){
+                            /** brace close -> check that there is corresponding open one */
+
                             topBrace = braceStack.pop();
                             if(topBrace && braceClose[s] === topBrace.type){
                                 pushItem({
@@ -121,34 +183,38 @@ module.exports = (function(){
                                     pureData: str.substr(topBrace.pos, i - topBrace.pos+1),
                                     type: 'brace',
                                     info: braceClose[s]
-                                });
+                                }, topBrace.cursor);
                             }else{
                                 throw new Error('Invalid brace. opened: `'+(topBrace ? topBrace.type : 'No brace')+'`, closed: `'+s+'`')
                             }
 
                         }
+
+                        /** if start of token changed in this brunch -> store intermediate data as text */
                         if(lastTokenStart < tokenStart){
                             pushItem({
                                 pos: lastTokenStart,
                                 data: str.substr(lastTokenStart, tokenStart-lastTokenStart),
                                 pureData: str.substr(lastTokenStart, tokenStart-lastTokenStart),
                                 type: 'text'
-                            });
+                            }, lastTokenStartCursor);
                             //tokenStart = i;
                         }
 
                     }
                         //TODO logics
-                    if(s === '\\')
+                    if(s === '\\4')
                         escape = !escape;
                     sLast = s;
+
+                    cursor.col++;
                 }
                 i !== lastPushedPos && pushItem({
                     pos: lastPushedPos,
                     data: str.substr(lastPushedPos),
                     pureData: str.substr(lastPushedPos),
                     type: 'text'
-                });
+                }, lastPushedPosCursor);
                 return tree;
             },
             replacer: function( from, to ){
@@ -225,8 +291,8 @@ var getPos = function( str, pos ){
     return {row: lines.length, col: col};
 };
 //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
-var pre = module.exports.tokenizer(require('fs' ).readFileSync('../../test/trash/tmp2.txt' )+'');
-console.log(pre);//module.exports.tokenize(pre));
+var pre = module.exports.tokenizer(require('fs' ).readFileSync('../../test/trash/tmp1.txt' )+'');
+console.log(JSON.stringify(pre.items ).replace(/\},\{/g,'}\n{'));//module.exports.tokenize(pre));
 console.log(3)
 
 /*
