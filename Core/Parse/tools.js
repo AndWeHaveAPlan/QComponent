@@ -13,7 +13,11 @@ module.exports = (function(){
                 x = space.replace(tabs, tab).length; // better - itterate by space string and do (length/tab_length|0)*tab_length
             });
             return x;
+        },
+        leftTrim = function( line ){
+            return line.replace( spaces, '' );
         };
+
     var DOUBLESLASH = 1,
         PAIRCOMMENT = 2,
 
@@ -43,6 +47,11 @@ module.exports = (function(){
         clone: function(i){
             return new Pointer(this ).add(i);
         },
+        nextLine: function(){
+            this.col = 1;
+            this.row++;
+            return this;
+        },
         add: function( i ){
             if(i !== void 0)
                 this.col += i;
@@ -63,6 +72,8 @@ module.exports = (function(){
                     /** comments can be multiline or singleline*/
                     inComment = false, commentType,
 
+                    line = {row: 1}, lines = [line],
+
                     tree = {items: []}, stack = [tree],
 
                     i, _i, s, sLast = '',
@@ -79,6 +90,8 @@ module.exports = (function(){
 
                     lastPushedPos,
                     pushItem = function(item, cur){
+                        if(item.data.trim() ==='')
+                            return;
                         cur = cur || tokenStartCursor;
                         lastPushedPos = item.pos + item.data.length;
 
@@ -90,6 +103,21 @@ module.exports = (function(){
                             data: item.data,
                             pureData: item.pureData
                         });
+                    },
+                    seal = function( line, tree ){
+                        if(line.row===22)debugger;
+                        var i, _i, item;
+                        for(i = 0, _i = tree.items.length; i < _i; i++){
+                            item = tree.items[i];
+                            if(item.type !== 'comment'){
+                                line.indent = item.col + spaceCount(item.data);
+                                item.pureData = leftTrim(item.pureData);
+                                line.first = item;
+                                break;
+                            }
+                        }
+
+                        line.items = tree.items;
                     };
 
                 /** replace bad line endings to good one*/
@@ -209,6 +237,27 @@ module.exports = (function(){
                         }
 
                     }
+
+                    if(s === '\n' && !braceStack.length && !inComment && !inQuote){
+                        /** SEAL */
+
+                        pushItem({
+                            pos: tokenStart,
+                            data: str.substr(tokenStart, i-tokenStart),
+                            pureData: str.substr(lastTokenStart, i-tokenStart),
+                            type: 'text'
+                        }, lastTokenStartCursor);
+                        tokenStart = i+1;
+                        tokenStartCursor = cursor.clone().nextLine();
+
+                        seal(line, tree);
+                        line.items = tree.items;
+                        line = {row: cursor.row};
+                        lines.push(line);
+
+                        tree = {items: []};
+                    }
+
                         //TODO logics
                     if(s === '\\4')
                         escape = !escape;
@@ -222,7 +271,8 @@ module.exports = (function(){
                     pureData: str.substr(lastPushedPos),
                     type: 'text'
                 }, lastPushedPosCursor);
-                return tree;
+                seal(line, tree);
+                return lines;
             },
             replacer: function( from, to ){
                 from = new RegExp( from, 'g' );
@@ -299,7 +349,7 @@ var getPos = function( str, pos ){
 };
 //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
 var pre = module.exports.tokenizer(require('fs' ).readFileSync('../../test/trash/tmp1.txt' )+'');
-console.log(JSON.stringify(pre.items ).replace(/\},\{/g,'}\n{'));//module.exports.tokenize(pre));
+pre.map(function(el){console.log([el.row,el.indent])});//module.exports.tokenize(pre));
 console.log(3)
 
 /*
