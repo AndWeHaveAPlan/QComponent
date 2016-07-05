@@ -171,19 +171,26 @@ module.exports = (function(){
                         }else if(braceOpen[s]){
                             /** brace open -> push it's type and position to stack */
 
+                            tokenStart = i;
+                            tokenStartCursor = cursor.clone();
+
                             braceStack.push({type: s, pos: i, cursor: cursor.clone(-1)});
                         }else if(braceClose[s]){
                             /** brace close -> check that there is corresponding open one */
 
                             topBrace = braceStack.pop();
                             if(topBrace && braceClose[s] === topBrace.type){
-                                pushItem({
-                                    pos: topBrace.pos,
-                                    data: str.substr(topBrace.pos, i - topBrace.pos+1),
-                                    pureData: str.substr(topBrace.pos, i - topBrace.pos+1),
-                                    type: 'brace',
-                                    info: braceClose[s]
-                                }, topBrace.cursor);
+                                //if(!braceStack.length){
+                                    pushItem( {
+                                        pos: topBrace.pos,
+                                        data: str.substr( topBrace.pos, i - topBrace.pos + 1 ),
+                                        pureData: str.substr( topBrace.pos, i - topBrace.pos + 1 ),
+                                        type: 'brace',
+                                        info: braceClose[s]
+                                    }, topBrace.cursor );
+                                //}
+                                tokenStart = i+1;
+                                tokenStartCursor = cursor.clone(1);
                             }else{
                                 throw new Error('Invalid brace. opened: `'+(topBrace ? topBrace.type : 'No brace')+'`, closed: `'+s+'`')
                             }
