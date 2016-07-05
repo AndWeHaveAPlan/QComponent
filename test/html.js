@@ -6,7 +6,7 @@ var factory = require('..' ).Component.Factory,
 
     UIComponent = require('..' ).Component.UIComponent;
 
-describe('dom', function () {
+describe('DOM', function () {
     var f = new factory(), obj;
     var document = require("dom-lite").document;
     ('a,b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
