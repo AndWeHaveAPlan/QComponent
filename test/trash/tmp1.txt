@@ -1,0 +1,42 @@
+ kk/*
+@alias: HBox
+//@tags: layout, container
+'@description: HBox - /*layout* / component. It children would be rendered horizontally.
+  By default children would be placed in equal space cells. You can specify widths by adding attributes `flex` and
+  `width`\`size` to children items. `width` and `size` are  the same, the only difference is that you can also use
+  `size` for layouting in VBox.
+@example:
+  ```qs
+  HBox
+   Button: Ok
+      flex: 1
+    Button: Apply
+      width: 200px
+    Button: Cancel
+      flex: 2
+    Spacer
+      flex: 3
+  ```
+@extend: component
+*/
+a a  aaa
+   bb
+div.mdl-/*comment*/grid //lulza
+  foreach items/*tral*/
+/**/div.mdl-cell. "\'\' \'\' /*ni*/"{{/ijij}} mdl-cell--{{count|12/count}}-col.mdl-cell--{{count|12/count}}-col-tablet
+//      render this
+/*jajica*/
+    def UICancer
+      childrenType: raw
+
+    div
+      //USE ClosureScript
+
+        .click: () ->
+            if( store.pos {{}} < line.length ){
+                store.matched = true;
+           }else{
+                store.pos -= line.length + 1;
+            }
+        .mouseup() ->
+
