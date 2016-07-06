@@ -143,7 +143,7 @@ module.exports = (function(){
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 2 )
                             } );
                             tokenStart = i + 1;
-                            tokenStartCursor = cursor.clone();
+                            tokenStartCursor = cursor.clone(1);
                             inComment = false;
                         }else if( commentType === MULTILINECOMMENT && sLast === '*' && s === '/' ){
                             /** close of multi line comment */
@@ -262,8 +262,8 @@ module.exports = (function(){
                         pureData: str.substr( lastTokenStart, i - tokenStart ),
                         type: 'text'
                     }, lastTokenStartCursor );
-                    tokenStart = i + 1;
-                    tokenStartCursor = cursor.clone().nextLine();
+                    lastPushedPos = tokenStart = i + 1;
+                    lastPushedPosCursor = tokenStartCursor = cursor.clone().nextLine();
 
                     seal( line, tree );
                     line.items = tree.items;
@@ -355,5 +355,12 @@ module.exports = (function(){
             };
         }
     } );
+/*
+    var testCase =
+'Button a\n\
+  Button c',
+    result = U.tokenizer(testCase);
+*/
+
     return U;
 })();
