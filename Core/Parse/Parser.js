@@ -89,7 +89,7 @@ module.exports = (function(){
 
                 escape = false,
 
-                lastPushedPos,
+                lastPushedPos = void 0,
                 pushItem = function( item, cur ){
                     if( item.data.trim() === '' )
                         return;
@@ -143,7 +143,7 @@ module.exports = (function(){
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 2 )
                             } );
                             tokenStart = i + 1;
-                            tokenStartCursor = cursor.clone();
+                            tokenStartCursor = cursor.clone(1);
                             inComment = false;
                         }else if( commentType === MULTILINECOMMENT && sLast === '*' && s === '/' ){
                             /** close of multi line comment */
@@ -262,8 +262,8 @@ module.exports = (function(){
                         pureData: str.substr( lastTokenStart, i - tokenStart ),
                         type: 'text'
                     }, lastTokenStartCursor );
-                    tokenStart = i + 1;
-                    tokenStartCursor = cursor.clone().nextLine();
+                    lastPushedPos = tokenStart = i + 1;
+                    lastPushedPosCursor = tokenStartCursor = cursor.clone().nextLine();
 
                     seal( line, tree );
                     line.items = tree.items;
@@ -291,10 +291,11 @@ module.exports = (function(){
         },
         metaDataExtractor: function( line ){
             var type, out = {}, first,
-                notComment = function( el ){return !(el.type === 'comment')},
-                getData = function( el ){return el.data};
+                notComment = function( el ){return el.type !== 'comment'; },
+                getData = function( el ){return el.data; };
             if( first = line.first ){
-                type = first.pureData.match( /[\s]*(#?[^\s\.#:{]*)/ )
+                type = first.pureData.match( /[\s]*(#?[^\s\.#:{]*)/ );
+
                 if( type && (type = type[0]) ){
                     out.type = type;
                     out.bonus = first.pureData.substr( type.length );
@@ -309,15 +310,6 @@ module.exports = (function(){
             return out;
         },
         treeBuilder: function( lines ){
-            /*var out = [],
-                items = lines.map( U.metaDataExtractor ),
-                item, i = 0, _i = items.length, line, indent;
-            do{
-                item = items[i];
-                if( lastIndent === void 0 )
-                    i++;
-            }while( i < _i )*/
-
             lines = lines.map( U.metaDataExtractor );
             var line,
                 padding, lastPadding = 0, i, _i, j,
@@ -363,35 +355,12 @@ module.exports = (function(){
             };
         }
     } );
-
-    //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
-    var pre = U.tokenizer( require( 'fs' ).readFileSync( '../../test/trash/tmp4.txt' ) + '' );
-    /*pre.map(function(el){
-        console.log(el.row+':'+el.indent+' '+el.items.map(function(item){
-                return item.col+':'+({text:'T',comment:'%',brace:'<',quote:'Q'}[item.type])+item.data.substr(0,30);}).join('|'));
-    });*/
-    //module.exports.tokenize(pre));
-    var tree = U.treeBuilder( pre );
-    console.dir( tree );
-    console.log( JSON.stringify(tree,null,2) );
+/*
+    var testCase =
+'Button a\n\
+  Button c',
+    result = U.tokenizer(testCase);
+*/
 
     return U;
 })();
-
-
-/*
-
-tree = {
-    col: 1,
-    row: 1,
-    pureLine: 'HBox o8faeh faeouh',
-    type: 'HBox',
-    rawLine: 'HBox o8faeh fa/!*faf*!/eouh',
-
-    rawChildren:  '    a\n    /!**!/b\n',
-    pureChildren: '    a\n        b\n',
-    children: [
-        {child1shit, parent: tree},
-        {child2shit, parent: tree}
-    ]
-}*/
