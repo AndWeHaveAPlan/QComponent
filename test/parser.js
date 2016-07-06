@@ -73,11 +73,26 @@ describe('Parser', function(){
         result = parser.treeBuilder(parser.tokenizer(testCase));
         assert.equal(compact(result), 'Button| a[Button| b[],Button| c[]]');
 
-        /* failing
+
         testCase = 'Button a\n  Button b\n  Button c';
         result = parser.treeBuilder(parser.tokenizer(testCase));
         assert.equal(compact(result), 'Button| a[Button| b[],Button| c[]]');
-        */
+    });
+    it('tokenizer test', function(){
+        var testCase, result;
 
+        testCase =
+'Button a\n\
+  Button b\n\
+  Button c';
+        result = parser.tokenizer(testCase);
+        assert.equal(result[0].row, 1);
+        assert.equal(result[1].row, 2);
+        assert.equal(result[2].row, 3);
+
+        assert.equal(result[0].col, 1);
+        assert.equal(result[1].col, 3);
+        assert.equal(result[2].col, 3);
+        //assert.equal(result)
     });
 });
