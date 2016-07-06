@@ -18,10 +18,7 @@ module.exports = (function(){
             return line.replace( spaces, '' );
         };
 
-    var DOUBLESLASH = 1,
-        PAIRCOMMENT = 2,
-
-        braces = ['()', '{}', '[]'],
+    var braces = ['()', '{}', '[]'],
         braceOpen = {},
         braceClose = {},
         braceType = {},
@@ -105,7 +102,6 @@ module.exports = (function(){
                         });
                     },
                     seal = function( line, tree ){
-                        if(line.row===22)debugger;
                         var i, _i, item;
                         for(i = 0, _i = tree.items.length; i < _i; i++){
                             item = tree.items[i];
@@ -147,12 +143,13 @@ module.exports = (function(){
                                 inComment = false;
                             }else if(commentType === MULTILINECOMMENT && sLast === '*' && s === '/'){
                                 /** close of multi line comment */
+                                debugger;
                                 pushItem({
                                     pos: tokenStart,
                                     data: str.substr(tokenStart, i-tokenStart+1),
                                     type: 'comment',
                                     pureData: str.substr(tokenStart+2, i-tokenStart-3),
-                                });
+                                },tokenStartCursor);
                                 tokenStart = i+1;
                                 tokenStartCursor = cursor.clone();
                                 inComment = false;
@@ -165,7 +162,7 @@ module.exports = (function(){
                                     data: str.substr(tokenStart, i-tokenStart+1),
                                     pureData: str.substr(tokenStart+1, i-tokenStart-1),
                                     type: 'quote'
-                                });
+                                },tokenStartCursor);
                                 tokenStart = i+1;
                                 tokenStartCursor = cursor.clone();
                                 inQuote = false;
@@ -196,33 +193,6 @@ module.exports = (function(){
                             tokenStart = i-1;
                             tokenStartCursor = cursor.clone(-2);
 
-                        }else if(braceOpen[s]){
-                            /** brace open -> push it's type and position to stack */
-
-                            tokenStart = i;
-                            tokenStartCursor = cursor.clone();
-
-                            braceStack.push({type: s, pos: i, cursor: cursor.clone(-1)});
-                        }else if(braceClose[s]){
-                            /** brace close -> check that there is corresponding open one */
-
-                            topBrace = braceStack.pop();
-                            if(topBrace && braceClose[s] === topBrace.type){
-                                //if(!braceStack.length){
-                                    pushItem( {
-                                        pos: topBrace.pos,
-                                        data: str.substr( topBrace.pos, i - topBrace.pos + 1 ),
-                                        pureData: str.substr( topBrace.pos, i - topBrace.pos + 1 ),
-                                        type: 'brace',
-                                        info: braceClose[s]
-                                    }, topBrace.cursor );
-                                //}
-                                tokenStart = i+1;
-                                tokenStartCursor = cursor.clone(1);
-                            }else{
-                                throw new Error('Invalid brace. opened: `'+(topBrace ? topBrace.type : 'No brace')+'`, closed: `'+s+'`')
-                            }
-
                         }
 
                         /** if start of token changed in this brunch -> store intermediate data as text */
@@ -233,7 +203,49 @@ module.exports = (function(){
                                 pureData: str.substr(lastTokenStart, tokenStart-lastTokenStart),
                                 type: 'text'
                             }, lastTokenStartCursor);
+                            tokenStartCursor = lastTokenStartCursor = cursor.clone();
                             //tokenStart = i;
+                        }
+                        if(braceOpen[s]){
+                            /** brace open -> push it's type and position to stack */
+                            pushItem({
+                                data: str.substr(tokenStart, i-tokenStart),
+                                pureData: str.substr(tokenStart, i-tokenStart),
+                                type: 'text'
+                            }, tokenStartCursor);
+
+                            tokenStart = i;
+                            tokenStartCursor = cursor.clone();
+                            pushItem({
+                                data: '@@@',
+                                pureData: '@@@',
+                                type: 'brace',
+                                info: s
+                            });
+                            var item = tree.items.pop();
+                            item.items = [];
+                            item.parent = tree;
+                            tree.items.push(item);
+                            //stack.push(item);
+                            tree = item;
+                            braceStack.push({type: s, pos: i, cursor: cursor.clone()});
+                        }else if(braceClose[s]){
+                            /** brace close -> check that there is corresponding open one */
+
+                            topBrace = braceStack.pop();
+                            if(topBrace && braceClose[s] === topBrace.type){
+
+
+                                tree.data = str.substr( topBrace.pos, i - topBrace.pos + 1 );
+                                tree.pureData = str.substr( topBrace.pos, i - topBrace.pos + 1 );
+                                tree = tree.parent;
+
+                                tokenStart = i+1;
+                                tokenStartCursor = cursor.clone(1);
+                            }else{
+                                throw new Error('Invalid brace. opened: `'+(topBrace ? topBrace.type : 'No brace')+'`, closed: `'+s+'`')
+                            }
+
                         }
 
                     }
@@ -281,75 +293,16 @@ module.exports = (function(){
                         throw new Error( 'util.replacer: not a string;' + data );
                     return data.replace( from, to );
                 };
-            },
-            preprocessor: function(str) {
-                var blocks = {};
+            }
+        } );
 
-                var lines = str.replace(RE_BLOCKS, function (match, mlc, slc, position) {
-                    //console.log(arguments)
-                    if(mlc || slc){
-                        var pos = getPos( str, position );
-                        pos.data = match;
-                        pos.comment = true;
-                        (blocks[pos.row] || (blocks[pos.row] = [])).push( pos );
-                        return match.replace(/[^\n\t]/g, ' ')
-                    }
-                    return mlc ? ' ' :         // multiline comment (replace with space)
-                        slc ? '' :          // single/multiline comment
-                            match;              // divisor, regex, or string, return as-is
-                } ).split('\n' ).forEach( function( line, r ){
-                    var row = r+ 1, pos;
-                    if(line.trim().length > 0){
-                        pos = {
-                            data: line.trim(),
-                            row: row,
-                            col: spaceCount(line)+1
-                        };
-                        (blocks[pos.row] || (blocks[pos.row] = [])).push( pos );
-                    }
-
-                });
-
-                return blocks;/*.sort(function(a,b){
-                    var res = a.row - b.row;
-                    return res || (a.col- b.col);
-                });*/
-            },
-
-    } ),
-    newLineReplacer = U.replacer(/(\r\n|\n\r)/, '\n');
     return U;
 })();
-var RE_BLOCKS = new RegExp([
-        /\/(\*)[^*]*\*+(?:[^*\/][^*]*\*+)*\//.source,           // $1: multi-line comment
-        /\/(\/)[^\n]*$/.source,                                 // $2 single-line comment
-        /"(?:[^"\\]*|\\[\S\s])*"|'(?:[^'\\]*|\\[\S\s])*'/.source, // - string, don't care about embedded eols
-        /(?:[$\w\)\]]|\+\+|--)\s*\/(?![*\/])/.source,           // - division operator
-        /\/(?=[^*\/])[^[/\\]*(?:(?:\[(?:\\.|[^\]\\]*)*\]|\\.)[^[/\\]*)*?\/[gim]*/.source
-    ].join('|'),                                            // - regex
-    'gm'  // note: global+multiline with replace() need test
-);
-
-// remove comments, keep other blocks
-var getPos = function( str, pos ){
-    var line = str.substr(0, pos),
-        lines = line.split('\n'),
-        allLines = str.split('\n'),
-        col = allLines.reduce(function(store, line){
-            if(!store.matched){
-                if( store.pos < line.length ){
-                    store.matched = true;
-                }else{
-                    store.pos -= line.length + 1;
-                }
-            }
-            return store;
-        }, {pos: pos, matched: false} ).pos + 1;
-    return {row: lines.length, col: col};
-};
 //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
 var pre = module.exports.tokenizer(require('fs' ).readFileSync('../../test/trash/tmp1.txt' )+'');
-pre.map(function(el){console.log([el.row,el.indent])});//module.exports.tokenize(pre));
+pre.map(function(el){console.log(el.row+':'+el.indent+' '+
+    el.items.map(function(item){return item.col+':'+({text:'T',comment:'%',brace:'<',quote:'Q'}[item.type])+item.data.substr(0,30)}).join('|')
+)});//module.exports.tokenize(pre));
 console.log(3)
 
 /*
