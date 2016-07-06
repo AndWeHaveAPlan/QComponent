@@ -3,13 +3,13 @@
  */
 module.exports = (function(){
     'use strict';
-    var Abstract = require('./AbstractComponent'),
+    var AbstractComponent = require('./AbstractComponent'),
         observable = require( 'z-observable' ),
         ObservableSequence = require('observable-sequence' ),
 
         Factory = new require( './Factory' );
 
-    var UIComponent = Abstract.extend('UIComponent', {
+    var UIComponent = AbstractComponent.extend('UIComponent', {
         on: observable.prototype.on,
         fire: observable.prototype.fire,
         _factory: new Factory(),
@@ -28,7 +28,6 @@ module.exports = (function(){
             });
         },
         _initChildren: function(){
-
 
             var iterator = new ObservableSequence( this.items || [] ).iterator(), item, ctor, type, cmp,
                 items = this.items = new ObservableSequence( [] );
@@ -54,13 +53,11 @@ module.exports = (function(){
                     cmp = this._factory.build( ctor, item, iterator );
                 }
                 this.addChild( cmp );
-
             }
-
 
         }
     }, function( cfg ){
-        Abstract.call(this, cfg);
+        AbstractComponent.call(this, cfg);
         observable.prototype._init.call(this);
         this.createEl();
         !this.leaf && this._initChildren();
