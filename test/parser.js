@@ -102,15 +102,20 @@ describe('Parser', function(){
     it('tokenizer long test', function(){
         var testCase, result;
 
-        var checks = ['row', 'col', 'type', 'pureData'];
+        var checks = ['row', 'col', 'type', 'pureData'],
+            wrongs = [];
         var tokenCompare = function(obj, check){
-            for(var i = 2, _i = check.length; i < _i; i++)
+            for(var i = 2, _i = check.length; i < _i; i++){
+                check[i] !== obj[checks[i]] && assert.fail(obj,
+                    {[checks[i]]: check[i]},
+                    'expected ' + checks[i] + ' to be ' + check[i] + ' but got ' + obj[checks[i]]
+                );
+            }
 
-
-                    check[i] !== obj[checks[i]] && assert.fail(obj,
-                        {[checks[i]]: check[i]},
-                        'expected ' + checks[i] + ' to be ' + check[i] + ' but got ' + obj[checks[i]]
-                    );
+            if(sub===1 && check[2] === 'text')
+                check[1] !== result[resNum-1][checks[1]] && wrongs.push('INDENT '+obj.row+':'+obj.col + '->' +check[0]+':'+check[1] + ' `'+obj.data+'`');
+            for(var i = 0, _i = check.length; i < _i; i++)
+                check[i] !== obj[checks[i]] && wrongs.push(result[resNum-1].col+' '+obj.row+':'+obj.col + '->' +check[0]+':'+check[1] + ' `'+obj.data+'`');
 
         };
 
@@ -120,29 +125,29 @@ describe('Parser', function(){
 
         var row, sub, rowNum, resNum = 0;
         
-        row = result[resNum++].items; sub = 0;
-        assert.equal(tokenCompare(row[sub++], [1, 1, 'text', 'kk']));
-        assert.equal(tokenCompare(row[sub++], [1, 4, 'comment']));
+        row = result[resNum++].items; sub = 0; rowNum = 1;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'kk']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 4, 'comment']));
         assert.equal(row.length, sub);
 
-        row = result[resNum++].items; sub = 0;
-        assert.equal(tokenCompare(row[sub++], [22, 1, 'text', 'a a  aaa']));
+        row = result[resNum++].items; sub = 0; rowNum = 22;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'a a  aaa']));
         assert.equal(row.length, sub);
 
-        row = result[resNum++].items; sub = 0;
-        assert.equal(tokenCompare(row[sub++], [23, 1, 'text', 'bb']));
+        row = result[resNum++].items; sub = 0; rowNum = 23;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'bb']));
         assert.equal(row.length, sub);
 
-        row = result[resNum++].items; sub = 0;
-        assert.equal(tokenCompare(row[sub++], [24, 1, 'text', 'div.mdl-']));
-        assert.equal(tokenCompare(row[sub++], [24, 9, 'comment', 'comment']));
-        assert.equal(tokenCompare(row[sub++], [24, 20, 'text', 'grid ']));
-        assert.equal(tokenCompare(row[sub++], [24, 25, 'comment', 'lulza']));
+        row = result[resNum++].items; sub = 0; rowNum = 24;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'div.mdl-']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 9, 'comment', 'comment']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 20, 'text', 'grid ']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 25, 'comment', 'lulza']));
         assert.equal(row.length, sub);
 
-        row = result[resNum++].items; sub = 0;
-        assert.equal(tokenCompare(row[sub++], [25, 1, 'text', 'foreach items']));
-        assert.equal(tokenCompare(row[sub++], [25, 9, 'comment', 'tral']));
+        row = result[resNum++].items; sub = 0; rowNum = 25;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'foreach items']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 9, 'comment', 'tral']));
         assert.equal(row.length, sub);
 
         row = result[resNum++].items; sub = 0; rowNum = 26;
@@ -193,6 +198,47 @@ describe('Parser', function(){
         assert.equal(tokenCompare(row[sub++], [rowNum, 19, 'text', ' ->']));
         assert.equal(row.length, sub);
 
+        row = result[resNum++].items; sub = 0; rowNum = 36;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 13, 'text', 'if']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 15, 'brace', '( store.pos {{}} < line.length )']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 47, 'brace', '{\n'+
+            '                store.matched = true;\n'+
+            '           }']));
+        assert.equal(tokenCompare(row[sub++], [38, 13, 'text', 'else']));
+        assert.equal(tokenCompare(row[sub++], [38, 17, 'brace', '{\n'+
+        '                store.pos -= line.length + 1;\n'+
+        '            }']));
+        assert.equal(row.length, sub);
+
+        row = result[resNum++].items; sub = 0; rowNum = 41;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 9, 'text', '.mouseup']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 17, 'brace', '()']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 19, 'text', ' ->']));
+        assert.equal(row.length, sub);
+
+        row = result[resNum++].items; sub = 0; rowNum = 42; // empty row
+        assert.equal(row.length, sub);
+
+        row = result[resNum++].items; sub = 0; rowNum = 43;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'Input i1']));
+        assert.equal(row.length, sub);
+
+        row = result[resNum++].items; sub = 0; rowNum = 44;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'Input i2']));
+        assert.equal(row.length, sub);
+
+        row = result[resNum++].items; sub = 0; rowNum = 45; // empty row
+        assert.equal(row.length, sub);
+
+        row = result[resNum++].items; sub = 0; rowNum = 46;
+        assert.equal(tokenCompare(row[sub++], [rowNum, 1, 'text', 'Button: ']));
+        assert.equal(tokenCompare(row[sub++], [rowNum, 9, 'brace', '{{\'У вас\'+ i1 +\'новых писем\'+ i2}}']));
+        assert.equal(row.length, sub);
+
+        if(wrongs.length) {
+            console.error(wrongs);
+            assert.fail(wrongs);
+        }
         //assert.equal(result)
     });
 });

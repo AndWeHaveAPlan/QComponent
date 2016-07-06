@@ -94,7 +94,7 @@ module.exports = (function(){
                     if( item.data.trim() === '' )
                         return;
                     cur = cur || tokenStartCursor;
-                    lastPushedPos = item.pos + item.data.length;
+                    lastPushedPos = i;
 
                     tree.items.push( {
                         row: cur.row,
@@ -200,7 +200,6 @@ module.exports = (function(){
                     /** if start of token changed in this brunch -> store intermediate data as text */
                     if( lastTokenStart < tokenStart ){
                         pushItem( {
-                            pos: lastTokenStart,
                             data: str.substr( lastTokenStart, tokenStart - lastTokenStart ),
                             pureData: str.substr( lastTokenStart, tokenStart - lastTokenStart ),
                             type: 'text'
@@ -242,7 +241,7 @@ module.exports = (function(){
                             tree.pureData = str.substr( topBrace.pos, i - topBrace.pos + 1 );
                             tree = tree.parent;
 
-                            tokenStart = i + 1;
+                            lastPushedPos = tokenStart = i + 1;
                             tokenStartCursor = cursor.clone( 1 );
                         }else{
                             throw new Error( 'Invalid brace. opened: `' + (topBrace ? topBrace.type : 'No brace') + '`, closed: `' + s + '`' );
@@ -283,6 +282,7 @@ module.exports = (function(){
                 pureData: str.substr( lastPushedPos ),
                 type: 'text'
             }, lastPushedPosCursor );
+            console.log('last', lastPushedPos)
             seal( line, tree );
             return lines;
         },
