@@ -84,11 +84,17 @@ function createComponent(tree) {
         newComponent.addChild(currentChild);
     }
 
-    var valueItem = items[0];
-    if (type === 'bind') {
-
-    } else if (type === 'text') {
-
+    // TODO itemsParts[1] is undefined
+    var valuePart = itemsParts[1].trim();
+    if (valuePart.length <= 0) {
+        valuePart = items[1];
+        if (valuePart.type === 'bind') {
+            console.log(valuePart.pureData);
+        } else if (valuePart.type === 'text') {
+            newComponent.set('value', valuePart.pureData);
+        }
+    } else {
+        newComponent.set('value', valuePart);
     }
 
     return newComponent;
@@ -103,7 +109,7 @@ var testTree = tree = [{
     bonus: ': 123',
     rawChildren: '  Button button1: {{\n1+2\n}}\n  Button: b',
     pureChildren: 'Button button1: {{\n1+2\n}}\nButton: b',
-    items: [{col: 1, row: 1, data: 'div: 123', pureData: 'div: 123', type: 'text'}],
+    items: [{col: 1, row: 1, data: 'def div: 123', pureData: 'def div: 123', type: 'text'}],
     children: [
         {
             col: 3,
