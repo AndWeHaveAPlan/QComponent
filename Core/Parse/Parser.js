@@ -137,7 +137,6 @@ module.exports = (function(){
                         if( commentType === SINGLELINECOMMENT && s === '\n' ){
                             /** close of one line comment */
                             pushItem( {
-                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart ),
                                 type: 'comment',
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 2 )
@@ -148,11 +147,11 @@ module.exports = (function(){
                         }else if( commentType === MULTILINECOMMENT && sLast === '*' && s === '/' ){
                             /** close of multi line comment */
                             pushItem( {
-                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart + 1 ),
                                 type: 'comment',
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 3 )
                             }, tokenStartCursor );
+                            //console.log('<',tokenStartCursor)
                             tokenStart = i + 1;
                             tokenStartCursor = cursor.clone();
                             inComment = false;
@@ -161,7 +160,6 @@ module.exports = (function(){
                         if( s === quoteType ){
                             /** close of quote - check that it's same quote that was opened */
                             pushItem( {
-                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart + 1 ),
                                 pureData: str.substr( tokenStart + 1, i - tokenStart - 1 ),
                                 type: 'quote'
@@ -188,7 +186,8 @@ module.exports = (function(){
                         inComment = true;
                         tokenStart = i - 1;
                         tokenStartCursor = cursor.clone( -2 );
-
+                        console.log(tokenStartCursor,cursor)
+                        //debugger;
                     }else if( sLast === '/' && s === '/' ){
                         /** single line comment open */
                         commentType = SINGLELINECOMMENT;
@@ -206,7 +205,7 @@ module.exports = (function(){
                             pureData: str.substr( lastTokenStart, tokenStart - lastTokenStart ),
                             type: 'text'
                         }, lastTokenStartCursor );
-                        tokenStartCursor = lastTokenStartCursor = cursor.clone();
+                        tokenStartCursor = lastTokenStartCursor = cursor.clone(-1);
                         //tokenStart = i;
                     }
                     if( braceOpen[s] ){
@@ -255,15 +254,13 @@ module.exports = (function(){
 
                 if( s === '\n' && !braceStack.length && !inComment && !inQuote ){
                     /** SEAL */
-
                     pushItem( {
-                        pos: tokenStart,
                         data: str.substr( tokenStart, i - tokenStart ),
                         pureData: str.substr( lastTokenStart, i - tokenStart ),
                         type: 'text'
                     }, lastTokenStartCursor );
                     lastPushedPos = tokenStart = i + 1;
-                    lastPushedPosCursor = tokenStartCursor = cursor.clone().nextLine();
+                    lastPushedPosCursor = tokenStartCursor = cursor.clone();//.nextLine();
 
                     seal( line, tree );
                     line.items = tree.items;
@@ -355,12 +352,12 @@ module.exports = (function(){
             };
         }
     } );
-/*
+
     var testCase =
-'Button a\n\
-  Button c',
+'div.mdl-/*comment*/grid //lulza\n',
     result = U.tokenizer(testCase);
-*/
+    
+
 
     return U;
 })();
