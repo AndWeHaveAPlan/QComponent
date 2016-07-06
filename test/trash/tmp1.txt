@@ -1,4 +1,4 @@
- kk/*
+kk/*
 @alias: HBox
 //@tags: layout, container
 '@description: HBox - /*layout* / component. It children would be rendered horizontally.
@@ -40,3 +40,7 @@ div.mdl-/*comment*/grid //lulza
             }
         .mouseup() ->
 
+Input i1
+Input i2
+
+Button: {{'У вас'+ i1 +'новых писем'+ i2}}
