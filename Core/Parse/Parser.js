@@ -3,7 +3,7 @@
  */
 module.exports = (function(){
     'use strict';
-    var QObject = require( '../../Base' ).QObject,
+    var QObject = require( '../../Base/QObject' ),
         spaces = /^\s*/,
         tabs = /\t/g,
         tab = new Array( 4 + 1 ).join( ' ' ),
@@ -86,16 +86,20 @@ module.exports = (function(){
                 tokenStartCursor = cursor.clone(),
                 lastPushedPosCursor = cursor.clone(),
                 lastTokenStartCursor = cursor.clone(),
+                cursors = new Array(str.length),
 
                 escape = false,
 
-                lastPushedPos = void 0,
+                lastPushedPos = 0,
                 pushItem = function( item, cur ){
                     if( item.data.trim() === '' )
                         return;
-                    cur = cur || tokenStartCursor;
-                    lastPushedPos = i;
 
+                    cur = cursors[item.pos];//cur || tokenStartCursor;
+                    cur = {col: cur[0], row: cur[1]};
+                    lastPushedPos = item.pos+item.data.length;
+                    //if(item.data === '  Button b')debugger;
+                    //console.log(cur.col, cur.row, str.substr(item.pos,3));
                     tree.items.push( {
                         row: cur.row,
                         col: cur.col,
@@ -110,6 +114,7 @@ module.exports = (function(){
                     for( i = 0, _i = tree.items.length; i < _i; i++ ){
                         item = tree.items[i];
                         if( item.type !== 'comment' ){
+                            //console.log('`'+item.data+'`'+item.col)
                             line.col = item.col + spaceCount( item.data );
                             item.pureData = leftTrim( item.pureData );
                             line.first = item;
@@ -128,15 +133,15 @@ module.exports = (function(){
 
                 /** s - current symbol, sLast - previous symbol */
                 s = str.charAt( i );
-                if( s === '\n' ){
-                    cursor.row++;
-                    cursor.col = 1;
-                }
+
+                cursors[i] = [cursor.col, cursor.row];
+
                 if( inComment || inQuote ){
                     if( inComment ){
                         if( commentType === SINGLELINECOMMENT && s === '\n' ){
                             /** close of one line comment */
                             pushItem( {
+                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart ),
                                 type: 'comment',
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 2 )
@@ -147,6 +152,7 @@ module.exports = (function(){
                         }else if( commentType === MULTILINECOMMENT && sLast === '*' && s === '/' ){
                             /** close of multi line comment */
                             pushItem( {
+                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart + 1 ),
                                 type: 'comment',
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 3 )
@@ -160,6 +166,7 @@ module.exports = (function(){
                         if( s === quoteType ){
                             /** close of quote - check that it's same quote that was opened */
                             pushItem( {
+                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart + 1 ),
                                 pureData: str.substr( tokenStart + 1, i - tokenStart - 1 ),
                                 type: 'quote'
@@ -186,7 +193,7 @@ module.exports = (function(){
                         inComment = true;
                         tokenStart = i - 1;
                         tokenStartCursor = cursor.clone( -2 );
-                        console.log(tokenStartCursor,cursor)
+                        //console.log(tokenStartCursor,cursor)
                         //debugger;
                     }else if( sLast === '/' && s === '/' ){
                         /** single line comment open */
@@ -200,6 +207,7 @@ module.exports = (function(){
                     /** if start of token changed in this brunch -> store intermediate data as text */
                     if( lastTokenStart < tokenStart ){
                         pushItem( {
+                            pos: lastTokenStart,
                             data: str.substr( lastTokenStart, tokenStart - lastTokenStart ),
                             pureData: str.substr( lastTokenStart, tokenStart - lastTokenStart ),
                             type: 'text'
@@ -210,6 +218,7 @@ module.exports = (function(){
                     if( braceOpen[s] ){
                         /** brace open -> push it's type and position to stack */
                         pushItem( {
+                            pos: tokenStart,
                             data: str.substr( tokenStart, i - tokenStart ),
                             pureData: str.substr( tokenStart, i - tokenStart ),
                             type: 'text'
@@ -218,6 +227,7 @@ module.exports = (function(){
                         tokenStart = i;
                         tokenStartCursor = cursor.clone();
                         pushItem( {
+                            pos: i,
                             data: '@@@',
                             pureData: '@@@',
                             type: 'brace',
@@ -254,6 +264,7 @@ module.exports = (function(){
                 if( s === '\n' && !braceStack.length && !inComment && !inQuote ){
                     /** SEAL */
                     pushItem( {
+                        pos: tokenStart,
                         data: str.substr( tokenStart, i - tokenStart ),
                         pureData: str.substr( lastTokenStart, i - tokenStart ),
                         type: 'text'
@@ -263,7 +274,7 @@ module.exports = (function(){
 
                     seal( line, tree );
                     line.items = tree.items;
-                    line = { row: cursor.row };
+                    line = { row: cursor.row +(s === '\n' ?1:0)};
                     lines.push( line );
 
                     tree = { items: [] };
@@ -275,6 +286,10 @@ module.exports = (function(){
                 sLast = s;
 
                 cursor.col++;
+                if( s === '\n' ){
+                    cursor.row++;
+                    cursor.col = 1;
+                }
             }
             i !== lastPushedPos && pushItem( {
                 pos: lastPushedPos,
@@ -282,7 +297,7 @@ module.exports = (function(){
                 pureData: str.substr( lastPushedPos ),
                 type: 'text'
             }, lastPushedPosCursor );
-            console.log('last', lastPushedPos)
+
             seal( line, tree );
             return lines;
         },
@@ -354,9 +369,9 @@ module.exports = (function(){
     } );
 
     var testCase =
-'div.mdl-/*comment*/grid //lulza\n',
+'Bu\n  Cu\n  Du',
     result = U.tokenizer(testCase);
-    
+
 
 
     return U;
