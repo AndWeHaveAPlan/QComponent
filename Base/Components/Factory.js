@@ -15,7 +15,7 @@ module.exports = (function () {
         QObject = require('../QObject' ),
         Factory = function (cfg) {
             this.apply(cfg);
-            this.cmps = component._knownComponents;
+            this.cmps = QObject._knownComponents;
             this.stats = {};
             var _self = this;
             this.destroyCallback = function () {
