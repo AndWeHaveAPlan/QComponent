@@ -89,12 +89,12 @@ module.exports = (function(){
 
                 escape = false,
 
-                lastPushedPos,
+                lastPushedPos = void 0,
                 pushItem = function( item, cur ){
                     if( item.data.trim() === '' )
                         return;
                     cur = cur || tokenStartCursor;
-                    lastPushedPos = item.pos + item.data.length;
+                    lastPushedPos = i;
 
                     tree.items.push( {
                         row: cur.row,
@@ -137,22 +137,21 @@ module.exports = (function(){
                         if( commentType === SINGLELINECOMMENT && s === '\n' ){
                             /** close of one line comment */
                             pushItem( {
-                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart ),
                                 type: 'comment',
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 2 )
                             } );
                             tokenStart = i + 1;
-                            tokenStartCursor = cursor.clone();
+                            tokenStartCursor = cursor.clone(1);
                             inComment = false;
                         }else if( commentType === MULTILINECOMMENT && sLast === '*' && s === '/' ){
                             /** close of multi line comment */
                             pushItem( {
-                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart + 1 ),
                                 type: 'comment',
                                 pureData: str.substr( tokenStart + 2, i - tokenStart - 3 )
                             }, tokenStartCursor );
+                            //console.log('<',tokenStartCursor)
                             tokenStart = i + 1;
                             tokenStartCursor = cursor.clone();
                             inComment = false;
@@ -161,7 +160,6 @@ module.exports = (function(){
                         if( s === quoteType ){
                             /** close of quote - check that it's same quote that was opened */
                             pushItem( {
-                                pos: tokenStart,
                                 data: str.substr( tokenStart, i - tokenStart + 1 ),
                                 pureData: str.substr( tokenStart + 1, i - tokenStart - 1 ),
                                 type: 'quote'
@@ -188,7 +186,8 @@ module.exports = (function(){
                         inComment = true;
                         tokenStart = i - 1;
                         tokenStartCursor = cursor.clone( -2 );
-
+                        console.log(tokenStartCursor,cursor)
+                        //debugger;
                     }else if( sLast === '/' && s === '/' ){
                         /** single line comment open */
                         commentType = SINGLELINECOMMENT;
@@ -201,12 +200,11 @@ module.exports = (function(){
                     /** if start of token changed in this brunch -> store intermediate data as text */
                     if( lastTokenStart < tokenStart ){
                         pushItem( {
-                            pos: lastTokenStart,
                             data: str.substr( lastTokenStart, tokenStart - lastTokenStart ),
                             pureData: str.substr( lastTokenStart, tokenStart - lastTokenStart ),
                             type: 'text'
                         }, lastTokenStartCursor );
-                        tokenStartCursor = lastTokenStartCursor = cursor.clone();
+                        tokenStartCursor = lastTokenStartCursor = cursor.clone(-1);
                         //tokenStart = i;
                     }
                     if( braceOpen[s] ){
@@ -243,7 +241,7 @@ module.exports = (function(){
                             tree.pureData = str.substr( topBrace.pos, i - topBrace.pos + 1 );
                             tree = tree.parent;
 
-                            tokenStart = i + 1;
+                            lastPushedPos = tokenStart = i + 1;
                             tokenStartCursor = cursor.clone( 1 );
                         }else{
                             throw new Error( 'Invalid brace. opened: `' + (topBrace ? topBrace.type : 'No brace') + '`, closed: `' + s + '`' );
@@ -255,15 +253,13 @@ module.exports = (function(){
 
                 if( s === '\n' && !braceStack.length && !inComment && !inQuote ){
                     /** SEAL */
-
                     pushItem( {
-                        pos: tokenStart,
                         data: str.substr( tokenStart, i - tokenStart ),
                         pureData: str.substr( lastTokenStart, i - tokenStart ),
                         type: 'text'
                     }, lastTokenStartCursor );
-                    tokenStart = i + 1;
-                    tokenStartCursor = cursor.clone().nextLine();
+                    lastPushedPos = tokenStart = i + 1;
+                    lastPushedPosCursor = tokenStartCursor = cursor.clone();//.nextLine();
 
                     seal( line, tree );
                     line.items = tree.items;
@@ -286,15 +282,17 @@ module.exports = (function(){
                 pureData: str.substr( lastPushedPos ),
                 type: 'text'
             }, lastPushedPosCursor );
+            console.log('last', lastPushedPos)
             seal( line, tree );
             return lines;
         },
         metaDataExtractor: function( line ){
             var type, out = {}, first,
-                notComment = function( el ){return !(el.type === 'comment')},
-                getData = function( el ){return el.data};
+                notComment = function( el ){return el.type !== 'comment'; },
+                getData = function( el ){return el.data; };
             if( first = line.first ){
-                type = first.pureData.match( /[\s]*(#?[^\s\.#:{]*)/ )
+                type = first.pureData.match( /[\s]*(#?[^\s\.#:{]*)/ );
+
                 if( type && (type = type[0]) ){
                     out.type = type;
                     out.bonus = first.pureData.substr( type.length );
@@ -309,15 +307,6 @@ module.exports = (function(){
             return out;
         },
         treeBuilder: function( lines ){
-            /*var out = [],
-                items = lines.map( U.metaDataExtractor ),
-                item, i = 0, _i = items.length, line, indent;
-            do{
-                item = items[i];
-                if( lastIndent === void 0 )
-                    i++;
-            }while( i < _i )*/
-
             lines = lines.map( U.metaDataExtractor );
             var line,
                 padding, lastPadding = 0, i, _i, j,
@@ -364,34 +353,11 @@ module.exports = (function(){
         }
     } );
 
-    //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
-    var pre = U.tokenizer( require( 'fs' ).readFileSync( '../../test/tokenize/tmp4.txt' ) + '' );
-    /*pre.map(function(el){
-        console.log(el.row+':'+el.indent+' '+el.items.map(function(item){
-                return item.col+':'+({text:'T',comment:'%',brace:'<',quote:'Q'}[item.type])+item.data.substr(0,30);}).join('|'));
-    });*/
-    //module.exports.tokenize(pre));
-    var tree = U.treeBuilder( pre );
-    console.dir( tree );
-    console.log( JSON.stringify(tree,null,2) );
+    var testCase =
+'div.mdl-/*comment*/grid //lulza\n',
+    result = U.tokenizer(testCase);
+    
+
 
     return U;
 })();
-
-
-/*
-
-tree = {
-    col: 1,
-    row: 1,
-    pureLine: 'HBox o8faeh faeouh',
-    type: 'HBox',
-    rawLine: 'HBox o8faeh fa/!*faf*!/eouh',
-
-    rawChildren:  '    a\n    /!**!/b\n',
-    pureChildren: '    a\n        b\n',
-    children: [
-        {child1shit, parent: tree},
-        {child2shit, parent: tree}
-    ]
-}*/
