@@ -1,10 +1,10 @@
 /**
  * Created by zibx on 6/26/16.
  */
-var factory = require('..' ).Component.Factory,
+var factory = require('..').Component.Factory,
     assert = require('chai').assert,
 
-    UIComponent = require('..' ).Component.UIComponent;
+    UIComponent = require('..').Component.UIComponent;
 
 describe('DOM', function () {
     var f = new factory(), obj;
@@ -19,14 +19,14 @@ describe('DOM', function () {
                 createEl: function () {
                     this.el = document.createElement(name);
                 },
-                addToTree: function(child){
+                addToTree: function (child) {
                     //console.log(child)
                     child.el && (this.el || this.parent.el).appendChild(child.el);
                     //(this.el || this.parent.el).appendChild(document.createTextNode('84'))
                 },
                 preInit: function () {
 
-                    if(this.value) {
+                    if (this.value) {
                         this.textNode = f.build('textNode', {value: this.value});
                         this._children.unshift(this.textNode);
                     }
@@ -47,7 +47,7 @@ describe('DOM', function () {
                 this.el.nodeValue = val;
             }
         },
-        createEl: function(){
+        createEl: function () {
             this.el = document.createTextNode('');
         }
     });
@@ -60,10 +60,10 @@ describe('DOM', function () {
 
             }]
         });
-        assert.equal( tree.el.outerHTML, '<h1><h2></h2><b></b><h1><b>10</b></h1></h1>' );
-        tree._children.get(2)._children.get(0).set('value',20);
+        assert.equal(tree.el.outerHTML, '<h1><h2></h2><b></b><h1><b></b></h1></h1>');
+        tree._children.get(2)._children.get(0).set('value', 20);
         var id = tree._children.get(2).id;
         console.log(tree._children.get.id)
-        assert.equal( tree.el.outerHTML, '<h1><h2></h2><b></b><h1><b>20</b></h1></h1>' );
+        assert.equal(tree.el.outerHTML, '<h1><h2></h2><b></b><h1><b>20</b></h1></h1>');
     });
 });

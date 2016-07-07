@@ -5,6 +5,10 @@
 var Base = require('../../Base');
 var Factory = Base.Component.Factory;
 var UIComponent = Base.Component.UIComponent;
+var QObject = Base.QObject;
+
+var Core = require('../../Core'),
+    parser = Core.Parse.Parser;
 
 var f = new Factory();
 
@@ -20,6 +24,17 @@ var f = new Factory();
                 child.el && (this.el || this.parent.el).appendChild(child.el);
                 //(this.el || this.parent.el).appendChild(document.createTextNode('84'))
             },
+            _getter: {
+                enabled: function () {
+                    return !!this._data.enabled || false;
+                }
+            },
+            _setter: {
+                enabled: function (val) {
+                    val = !!val;
+                    this._data.enabled = val;
+                }
+            }
         });
     });
 
@@ -75,68 +90,52 @@ function createComponent(tree) {
             ? declarationParts[2] ? declarationParts[2] : void(0)
             : declarationParts[1] ? declarationParts[1] : void(0);
 
-    var newComponent = f.build(className, {id: elementName});
+    var newComponent = {};
+    var value;
 
-    var i, _i;
-    for (i = 0, _i = tree.children ? tree.children.length : 0; i < _i; i++) {
-        var currentChild = createComponent(tree.children[i]);
-
-        newComponent.addChild(currentChild);
-    }
-
-    // TODO itemsParts[1] is undefined
     var valuePart = itemsParts[1].trim();
-    if (valuePart.length <= 0) {
+    if (valuePart.length <= 0 && valuePart.length > 1) {
         valuePart = items[1];
-        if (valuePart.type === 'bind') {
+        if (valuePart.type === 'brace') {
             console.log(valuePart.pureData);
         } else if (valuePart.type === 'text') {
-            newComponent.set('value', valuePart.pureData);
+            //newComponent.set('value', valuePart.pureData);
+            value = valuePart.pureData;
         }
     } else {
-        newComponent.set('value', valuePart);
+        //newComponent.set('value', valuePart);
+        value = valuePart;
     }
+
+
+    if (QObject._knownComponents[className]) {
+        newComponent = f.build(className, {id: elementName});
+        var i, _i;
+        for (i = 0, _i = tree.children ? tree.children.length : 0; i < _i; i++) {
+            var currentChild = createComponent(tree.children[i]);
+            if (currentChild instanceof UIComponent) {
+                newComponent.addChild(currentChild);
+            } else {
+                newComponent.set(currentChild.name, currentChild.value);
+            }
+        }
+
+        newComponent.set('value', value);
+
+    } else {
+        newComponent = {name: elementName, value: value};
+    }
+
 
     return newComponent;
 }
 
-var testTree = tree = [{
-    col: 1,
-    row: 1,
-    pureLine: 'def div: 123',
-    type: 'div',
-    rawLine: 'def div: 123',
-    bonus: ': 123',
-    rawChildren: '  Button button1: {{\n1+2\n}}\n  Button: b',
-    pureChildren: 'Button button1: {{\n1+2\n}}\nButton: b',
-    items: [{col: 1, row: 1, data: 'def div: 123', pureData: 'def div: 123', type: 'text'}],
-    children: [
-        {
-            col: 3,
-            row: 2,
-            pureLine: 'Button button1: {{\n1+2\n}}',
-            type: 'Button',
-            rawLine: '  Button button1: {{\n1+2\n}}',
-            bonus: ': {{\n1+2\n}}',
-            items: [{col: 1, row: 2, data: '  Button button1: ', pureData: 'Button button1: ', type: 'text'}, {
-                col: 12,
-                row: 2,
-                data: '{{\n1+2\n}}',
-                pureData: '{\n1+2\n}',
-                type: 'bind'
-            }]
-        },
-        {
-            col: 3,
-            row: 3,
-            pureLine: 'Button: b',
-            type: 'Button',
-            rawLine: '  Button: b',
-            bonus: ': b',
-            items: [{col: 1, row: 3, data: '  Button: b', pureData: 'Button: b ', type: 'text'}]
-        }
-    ]
-}];
+var testCase =
+    'div 123:\n' +
+    '  enabled: false\n' +
+    '  Button: a';
+
+testTree = parser.treeBuilder(parser.tokenizer(testCase));
 
 var test = module.exports.build(testTree);
 console.log(test);
