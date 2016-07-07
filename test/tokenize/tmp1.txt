@@ -40,3 +40,7 @@ div.mdl-/*comment*/grid //lulza
             }
         .mouseup() ->
 
+Input i1
+Input i2
+
+Button: {{'У вас'+ i1 +'новых писем'+ i2}}
