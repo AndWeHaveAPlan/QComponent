@@ -365,7 +365,7 @@ module.exports = (function(){
     } );
 
     //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
-    var pre = U.tokenizer( require( 'fs' ).readFileSync( '../../test/trash/tmp4.txt' ) + '' );
+    var pre = U.tokenizer( require( 'fs' ).readFileSync( '../../test/tokenize/tmp4.txt' ) + '' );
     /*pre.map(function(el){
         console.log(el.row+':'+el.indent+' '+el.items.map(function(item){
                 return item.col+':'+({text:'T',comment:'%',brace:'<',quote:'Q'}[item.type])+item.data.substr(0,30);}).join('|'));

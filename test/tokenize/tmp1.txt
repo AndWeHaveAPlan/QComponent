@@ -1,4 +1,4 @@
-kk/*
+ kk/*
 @alias: HBox
 //@tags: layout, container
 '@description: HBox - /*layout* / component. It children would be rendered horizontally.
