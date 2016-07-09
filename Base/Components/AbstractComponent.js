@@ -199,4 +199,4 @@ AbstractComponent.extend = function( name, cfg, init){
 };
 AbstractComponent._knownComponents = components;
 
-components['AbstractComponent'] = module.exports = AbstractComponent;
+components.AbstractComponent = module.exports = AbstractComponent;
