@@ -306,7 +306,7 @@ module.exports = (function(){
                 notComment = function( el ){return el.type !== 'comment'; },
                 getData = function( el ){return el.data; };
             if( first = line.first ){
-                type = first.pureData.match( /[\s]*(#?[^\s\.#:{]*)/ );
+                type = first.pureData.match( U.nameRegexp );
 
                 if( type && (type = type[0]) ){
                     out.type = type;
@@ -321,6 +321,7 @@ module.exports = (function(){
 
             return out;
         },
+        nameRegexp: /[\s]*(#?[^\s\.#:{]*)/,
         treeBuilder: function( lines ){
             lines = lines.map( U.metaDataExtractor );
             var line,
