@@ -6,7 +6,7 @@ var QObject = require('./../QObject'),
     EventManager = require('./../EventManager'),
     uuid = require('tiny-uuid'),
     ObservableSequence = require('observable-sequence'),
-    DQIndex = require('z-lib-structure-dqIndex')
+    DQIndex = require('z-lib-structure-dqIndex');
 
 /**
  * TODO: move to own file

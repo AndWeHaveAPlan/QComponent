@@ -52,6 +52,11 @@ module.exports = (function(){
                 }else if( type === 'string' ){
                     cmp = this._factory.build( ctor, item, iterator );
                 }
+
+                if(item.value){
+                    cmp.set('value', item.value);
+                }
+
                 this.addChild( cmp );
             }
 
