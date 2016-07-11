@@ -61,7 +61,7 @@ module.exports = (function(){
         delete item.first;
         item.items && item.items.map(clean);
     };
-    var U = new QObject( {
+    var U = {
         /**
          * Tokenize string to QS tokens
          */
@@ -367,7 +367,7 @@ module.exports = (function(){
                 return data.replace( from, to );
             };
         }
-    } );
+    };
 
     var testCase =
 'Bu\n  Cu\n  Du',
@@ -375,5 +375,5 @@ module.exports = (function(){
 
 
 
-    return U;
+    return new QObject(U);
 })();
