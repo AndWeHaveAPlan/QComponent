@@ -101,7 +101,8 @@ module.exports = (function() {
                         publics: publics,
                         defines: defines
                     };
-
+                source.defines = defines;
+                source.usage = usage;
                 for (i in KEYWORDS)
                     kw[i] = QObject.arrayToObject(KEYWORDS[i]);
 
@@ -118,8 +119,9 @@ module.exports = (function() {
 
                         this.observer.fire('defined', info.name);
                         defines[info.name] = info;
+                        info.path = source.id;
                         defineCheck[info.name] = true;
-                    } else if (type in kw.PUBLIC) {
+                    }/* else if (type in kw.PUBLIC) {
                         info = parsers.PUBLIC(bonus, item);
                         usage[info.type] = true;
                         publics[info.name] = info;
@@ -129,38 +131,105 @@ module.exports = (function() {
                         publicsCheck[info.name] = true;
                     } else if (type in shadow) {
 
-                    }
+                    }*/
                     //console.log(item.pureLine.match(nameRegexp));
                 }
 //console.log(out)
-                return out;
+                //return out;
 
             },
             getMetadata: function(){
-                var i, j,
-                    sources = this.sources, source, defines, type,
-                    localShadow = this.shadow = {};
+                var i, j, _j, k,
+                    sources = this.sources, source,
+                    defines, type, usage,
+                    localShadow = this.shadow = {},
+                    observe = new observable(),
+
+                    allDefines = {};
+                //console.log(this.sources)
+                //return;
 
                 for(i in sources){
                     source = sources[i];
-                    console.log(source)
                     defines = source.defines;
+                    usage = source.usage;
 
                     for( j in defines ){
-                        type = defines[j].type;
-
-                        if(type in localShadow){
-                            localShadow[type].wait(source);
-                        }else if(j in shadow){
-                            localShadow[j] = shadow[j];
-
-                        }else{
-
-                        }
+                        allDefines[j] = defines[j];
                     }
 
+                    for( j in usage ){
+                        if(j in shadow){
+                            if(!(j in localShadow))
+                                localShadow[j] = Object.create(shadow[j]);
+
+                            localShadow[j].defined = true;
+
+                            for( k in source.defines )
+                                (localShadow[j].subclasses || (localShadow[j].subclasses = [])).push(k);
+                        }else{
+                            localShadow[j] = {};
+                            for( k in source.defines )
+                                (localShadow[j].subclasses || (localShadow[j].subclasses = [])).push(k);
+                        }
+                    }
                 }
-                console.log(localShadow)
+
+                // after knowing all defines - try to parse their data
+
+                for(i in localShadow){
+                    if(localShadow[i].defined){
+                        var subs = localShadow[i].subclasses;
+                        for(j = 0, _j = subs.length; j < _j; j++){
+                            this.extractPublic(allDefines[subs[j]].item);
+                        }
+                    }
+                }
+
+
+                //console.log(localShadow)
+                //console.log(allDefines);
+            },
+            extractPublic: function (sub) {
+                var tree = sub.children, i, _i,
+                    parsers = this.parsers,
+                    item,
+                    bonus, info, type,
+                    KEYWORDS = this.KEYWORDS, kw = {},
+
+                    usage = {},
+
+                    publics = {},
+                    publicsCheck = {},
+                    out = {
+                        usage: usage,
+                        publics: publics
+                    };
+
+                for( i in KEYWORDS )
+                    kw[i] = QObject.arrayToObject( KEYWORDS[i] );
+
+                for(i = 0, _i = tree.length; i < _i; i++){
+                    item = tree[i];
+                    //console.log(item)
+                    type = item.type;
+                    bonus = item.bonus;
+
+                    if(type in kw.PUBLIC){
+                        info = parsers.PUBLIC(bonus, item);
+                        usage[info.type] = true;
+                        publics[info.name] = info;
+
+                        if(publicsCheck[info.name])
+                            throw new Error(info.name +' is already defined');
+                        publicsCheck[info.name] = true;
+                    }else if(type in shadow){
+
+                    }
+                    //console.log(item.pureLine.match(nameRegexp));
+                }
+
+                console.log('!',out);
             },
             remove: function (item) {
                 var id = this.get('id', item);
