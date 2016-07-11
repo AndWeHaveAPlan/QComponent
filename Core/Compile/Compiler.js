@@ -5,9 +5,8 @@ module.exports = (function() {
     'use strict';
     var QObject = require('../../Base/QObject'),
         parser = require('../Parse/Parser'),
-
         shadow = require('../Shadow');
-
+    
     var compiler = new QObject({
         KEYWORDS: {
             DEFINE: ['def', 'define'],
@@ -95,20 +94,12 @@ module.exports = (function() {
         }
     });
 
-    var tokens = parser.tokenizer(
-    'def UIComponent lol {{tt}}\n  '+
-    '   public Number cha: 3\n'+
-    '   String nu: kmmm\n'+
-    '   public div d1: {{nu+cha}}\n' +
-    '   public SpaceShip s1\n'+
-    '     div: {{cha}}\n' +
-    '\n' +
-    'def UIComponent SpaceShip\n' +
-    '   lol p1'),
+    /*var tokens = parser.tokenizer(
+    ),
         tree = parser.treeBuilder(tokens),
         linked = compiler.linker(tree);
     console.log(tree);
-    console.log(JSON.stringify(linked,null,2));
+    console.log(JSON.stringify(linked,null,2));*/
 
 
     return compiler;
