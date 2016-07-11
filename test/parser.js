@@ -110,7 +110,7 @@ describe('Parser', function(){
                     {[checks[i]]: check[i]},
                     'expected ' + checks[i] + ' to be ' + check[i] + ' but got ' + obj[checks[i]]
                 );
-            }
+            };
             var indentOk = false;
             if(sub===1 && check[2] === 'text')
                 if(check[1] === full.col) {
