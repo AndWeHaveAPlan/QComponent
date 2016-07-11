@@ -5,5 +5,9 @@ module.exports = {
     QObject: require("./Base/QObject"),
     Parse: {
         Parser: require("./Core/Parse/Parser")
+    },
+    Compile: {
+        Linker: require("./Core/Compile/Linker"),
+        Compiler: require("./Core/Compile/Compiler")
     }
 };
