@@ -6,7 +6,7 @@ var QObject = require('./../QObject'),
     EventManager = require('./../EventManager'),
     uuid = require('tiny-uuid'),
     ObservableSequence = require('observable-sequence'),
-    DQIndex = require('z-lib-structure-dqIndex')
+    DQIndex = require('z-lib-structure-dqIndex');
 
 /**
  * TODO: move to own file
@@ -42,7 +42,7 @@ function AbstractComponent(cfg) {
 
     this.apply(cfg);
 
-    if (!this.id)
+    if(!this.id)
         this.id = uuid();
 
     /**
@@ -52,17 +52,17 @@ function AbstractComponent(cfg) {
      */
     this._data = {};
 
-    if (!this.leaf) {
+    if (!this.leaf){
         /**
          * Child Components
          *
          * @type Array<AbstractComponent>
          * @private
          */
-        this._children = new ObservableSequence(new DQIndex('id'));
+        this._children = new ObservableSequence( new DQIndex( 'id' ) );
 
         /** instantly modify child components on append */
-        this._children.on('add', function (child) {
+        this._children.on('add', function( child ){
             child.parent = self;
         });
     }
@@ -75,7 +75,7 @@ function AbstractComponent(cfg) {
      */
     this._onPropertyChanged = createMulticastDelegate();
 
-    if (!this._eventManager)
+    if(!this._eventManager)
         this._eventManager = new EventManager();
 
     this._eventManager.registerComponent(this.id, this);
@@ -130,8 +130,8 @@ AbstractComponent.prototype = new QObject({
      *
      * @param callback Function
      */
-    subscribe: function (callback) {
-        this._onPropertyChanged.addFunction(callback);
+    subscribe: function (callback){
+        this._onPropertyChanged.addFunction( callback );
     },
 
     /**
@@ -139,7 +139,7 @@ AbstractComponent.prototype = new QObject({
      *
      * @param component AbstractComponent: AbstractComponent to add
      */
-    addChild: function (component) {
+    addChild: function( component ){
         this._children.push(component);
         return this;
     },

@@ -43,34 +43,104 @@ module.exports.build = function (input) {
 
     var i = 0;
 
-    var tree = input[i];
+    var createdComponents = [];
 
-    if (tree.items[0].pureData.substring(0, 4) === 'def ') {
-        //user component definition
-        var newComponent = defineComponent(tree);
+    for (i = 0; i < input.length; i++) {
 
-        //newComponent._eventManager.regis
+        var tree = input[i];
 
-        return newComponent;
-    } else {
-        //component creation
-        return createComponent(tree);
-
+        if (tree.items[0].pureData.substring(0, 4) === 'def ') {
+            //user component definition
+            defineComponent(tree);
+        } else {
+            //component creation
+            createdComponents.push(createComponent(tree));
+        }
     }
+
+    return createdComponents;
 };
 
+/**
+ *
+ * @param tree
+ * @returns {*[]}
+ */
 function defineComponent(tree) {
-    var items = tree.items;
+    var parsedDeclaration = parseDefinition(tree.items);
+
+    function generateChildren(node) {
+        if (node.children) {
+            var el = parseDefinition(node.items);
+            var children = [];
+
+            for (var i = 0; i < node.children.length; i++) {
+                children.push(generateChildren(node.children[i]));
+            }
+
+            return {item: el.className, id: el.elementName, value: el.value, items: children};
+
+        } else {
+            var p = parseDefinition(node.items);
+            return {item: p.className, id: p.elementName, value: p.value};
+        }
+    }
+
+    var generatedChildren = generateChildren(tree);
+
+
+    var ctor = QObject._knownComponents[parsedDeclaration.className];
+
+    ctor.extend(parsedDeclaration.elementName, {items: generatedChildren.items});
+
+    //TODO
+}
+
+function parseDefinition(items) {
     var itemsParts = items[0].pureData.split(":");
     var declarationParts = itemsParts[0].match(/\S+/g);
 
-    var parentClassName = declarationParts[1];
-    var newClassName = declarationParts[2];
+    var isPublic = declarationParts[0] === 'public';
+    var isDefinition = declarationParts[0] === 'def';
 
-    return [parentClassName, newClassName];
+    var className =
+        isPublic || isDefinition
+            ? declarationParts[1]
+            : declarationParts[0];
+
+    var elementName =
+        isPublic || isDefinition
+            ? declarationParts[2] ? declarationParts[2] : void(0)
+            : declarationParts[1] ? declarationParts[1] : void(0);
+
+    var value;
+
+    var valuePart = itemsParts[1].trim();
+    if (valuePart.length <= 0 && valuePart.length > 1) {
+        valuePart = items[1];
+        if (valuePart.type === 'brace') {
+            console.log(valuePart.pureData);
+        } else if (valuePart.type === 'text') {
+            value = valuePart.pureData;
+        }
+    } else {
+        value = valuePart;
+    }
+
+    return {
+        isPublic: isPublic,
+        isDefinition: isDefinition,
+        className: className,
+        elementName: elementName,
+        value: value
+    };
 }
 
-
+/**
+ *
+ * @param tree
+ * @returns {{}}
+ */
 function createComponent(tree) {
 
     var items = tree.items;
@@ -123,63 +193,22 @@ function createComponent(tree) {
         newComponent.set('value', value);
 
     } else {
-        newComponent = {name: elementName, value: value};
+        newComponent = {name: elementName, value: value, type: 'primitive'};
     }
-
 
     return newComponent;
 }
 
 var testCase =
-    'div 123:\n' +
-    '  enabled: false\n' +
-    '  Button: a';
+    'def div myDiv:\n' +
+    '  Button button1: b\n' +
+    '  Button: a\n' +
+    'myDiv: 444\n' +
+    '  div:' +
+    '    button b: efsgdfsgdfsg';
 
 testTree = parser.treeBuilder(parser.tokenizer(testCase));
 
 var test = module.exports.build(testTree);
 console.log(test);
 console.log('!');
-
-/*
-
- Ivan Kubota, [6 июля 2016 г., 16:15]:
- div: 123
- Button: a {{
- 1+2
- }}
- Button: b
-
- tree = [{
- col: 1,
- row: 1,
- pureLine: 'div: 123',
- type: 'div',
- rawLine: 'div: 123',
- bonus: ': 123',
- rawChildren:  '  Button: a {{\n1+2\n}}\n  Button: b',
- pureChildren: 'Button: a {{\n1+2\n}}\nButton: b',
- items: [{col:1, row:1, data: 'div: 123', pureData: 'div: 123', type: 'text'}],
- children: [
- {
- col: 3,
- row: 2,
- pureLine: 'Button: a {{\n1+2\n}}',
- type: 'Button',
- rawLine: '  Button: a {{\n1+2\n}}',
- bonus: ': a {{\n1+2\n}}',
- items: [{col:1, row:2, data: '  Button: a ', pureData: 'Button: a ', type: 'text'}, {col: 12, row: 2, data: '{{\n1+2\n}}', pureData: '{\n1+2\n}'}]
- },
- {
- col: 3,
- row: 3,
- pureLine: 'Button: b',
- type: 'Button',
- rawLine: '  Button: b',
- bonus: ': b',
- items: [{col:1, row:3, data: '  Button: b', pureData: 'Button: b ', type: 'text'}]
- }
- ]
- }
-
- */

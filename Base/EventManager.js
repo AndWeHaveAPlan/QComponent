@@ -83,7 +83,7 @@ EventManager.prototype.registerPipe = function (pipe) {
 
     var bindingSources = pipe.sourceBindings;
     var length = bindingSources.length;
-    var component
+    var component;
 
     for (var source in bindingSources) {
         if (bindingSources.hasOwnProperty(source)) {
