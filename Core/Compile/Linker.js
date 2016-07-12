@@ -139,28 +139,28 @@ module.exports = (function() {
             getMetadata: function(){
                 var i, j,
                     sources = this.sources, source, defines, type,
-                    localShadow = this.shadow = {};
+                    localShadow = this.shadow = {},
+
+                    depend = {},
+                    usage = {},
+                    allDefines = {};
 
                 for(i in sources){
                     source = sources[i];
-                    console.log(source)
                     defines = source.defines;
 
                     for( j in defines ){
                         type = defines[j].type;
-
-                        if(type in localShadow){
-                            localShadow[type].wait(source);
-                        }else if(j in shadow){
+                        if(j in shadow){
                             localShadow[j] = shadow[j];
-
-                        }else{
-
                         }
+                        allDefines[j] = defines[j];
+                        (depend[j] || (depend[j] = [])).push(type);
+                        (usage[type] || (usage[type] = [])).push(j);
                     }
 
                 }
-                console.log(localShadow)
+                console.log(depend, usage,localShadow)
             },
             remove: function (item) {
                 var id = this.get('id', item);
