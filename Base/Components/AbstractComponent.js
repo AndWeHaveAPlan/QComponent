@@ -6,28 +6,8 @@ var QObject = require('./../QObject'),
     EventManager = require('./../EventManager'),
     uuid = require('tiny-uuid'),
     ObservableSequence = require('observable-sequence'),
-    DQIndex = require('z-lib-structure-dqIndex');
-
-/**
- * TODO: move to own file
- *
- * @returns Function
- */
-function createMulticastDelegate() {
-    var delegate =
-            function () {
-                for (var i = 0, _i = flist.length; i < _i; i++) {
-                    flist[i].apply(this, arguments);
-                }
-            },
-        flist = delegate.flist = [];
-
-    delegate.addFunction = function (fn) {
-        flist.push(fn);
-    };
-
-    return delegate;
-}
+    DQIndex = require('z-lib-structure-dqIndex'),
+    MulticastDelegate = require('../MulticastDelegate');
 
 /**
  * Base class for all components
@@ -73,7 +53,7 @@ function AbstractComponent(cfg) {
      * @type Function
      * @private
      */
-    this._onPropertyChanged = createMulticastDelegate();
+    this._onPropertyChanged = new MulticastDelegate();
 
     if(!this._eventManager)
         this._eventManager = new EventManager();
