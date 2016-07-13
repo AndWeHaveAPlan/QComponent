@@ -13,6 +13,12 @@ module.exports = (function(){
         on: observable.prototype.on,
         fire: observable.prototype.fire,
         _factory: new Factory(),
+        createEl: function () {
+            this.el = document.createElement('div');
+        },
+        addToTree: function (child) {
+            child.el && (this.el || this.parent.el).appendChild(child.el);
+        },
         itemsSubscribe: function(  ){
             var _self = this;
             this._children.on('add', function(el){
