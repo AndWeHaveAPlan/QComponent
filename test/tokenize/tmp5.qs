@@ -46,3 +46,36 @@ Tabs
     a
   Tab: T3
     b
+
+
+var Render = function(cfg, parent){
+  this.children = parent.children;
+}
+
+
+
+def UIComponent M1
+  div: mi
+  render: {{children}}
+  div: m2
+  render: {{children}}
+
+M1
+  a: Link
+    href: ya.ru
+
+var M1 = function(cfg){
+   UIComponent.apply(this, arguments);
+
+   cfg.children //(a: Link)
+   var _children = new MagicCollection();
+   _children.push(new Div({value: 'mi', parent: this}));
+   _children.push(new Render({value: cfg.items, parent: this}));
+   _children.push(new Div({value: 'm2', parent: this}));
+   _children.push(new Render({value: cfg.items, parent: this}));
+};
+
+M1.prototype = Object.create(UIComponent.prototype);
+
+var m = new M1({});
+m.addChild(new a({value: 'Link', href: 'ya.ru'}));

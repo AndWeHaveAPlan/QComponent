@@ -10,6 +10,16 @@ module.exports = (function() {
         path = require('path'),
         observable = require('z-observable');
 
+    var removeFirstWord = function (item, word) {
+        var subItem = item.items[0], pos;
+        subItem.data = subItem.data.substr(pos = subItem.data.indexOf(word)+word.length);
+        subItem.col += pos;
+        subItem.pureData = subItem.data.substr(subItem.pureData.indexOf(word)+word.length);
+
+        if(subItem.data.length === 0)
+            item.items.shift();
+    };
+
     var Linker = function (cfg) {
             this.apply(cfg);
             this.sources = {};
@@ -40,15 +50,9 @@ module.exports = (function() {
                 },
                 PUBLIC: function (text, item) {
                     var type = text.match(parser.nameRegexp)[0],
-                        info, bonus = text.substr(text.indexOf(type) + type.length),
+                        info, bonus = text.substr(text.indexOf(type) + type.length);
 
-                        subItem = item.items[0], pos;
-
-                    subItem.data = subItem.data.substr(pos = subItem.data.indexOf(type)+type.length);
-                    subItem.col += pos;
-                    subItem.pureData = subItem.data.substr(pos = subItem.pureData.indexOf(type)+type.length);
-                    if(subItem.data.length === 0)
-                        item.items.shift();
+                    removeFirstWord(item, type);
 
                     type = type.trim();
 
@@ -58,6 +62,16 @@ module.exports = (function() {
                     item.public = true;
                     item.type = info.type = type;
 
+                    return info;
+                },
+                PRIVATE: function(text, item){
+                    var type = item.type,
+                        shadowParser = shadow[type] && shadow[type].argumentParser || shadow.QObject.argumentParser,
+                        info;
+                    removeFirstWord(item, type);
+                    info = shadowParser(text, item);
+
+                    info.type = type;
                     return info;
                 }
             },
@@ -82,13 +96,22 @@ module.exports = (function() {
                 this.sources[mapped.id] = mapped;
                 this._sourceAdded(mapped);
             },
+            /**
+             * Find defines
+             * @param source - {code: source, }
+             * @private
+             */
             _sourceAdded: function (source) {
                 // TODO make source observable.
                 // fire events defined and hash of global defines and perfile define.
                 // in source make list of its defines. remove on remove.
                 // listen class global defines and continue parsing from that position
                 var code = source.code,
+
+                    // tokenize
                     tokens = parser.tokenizer(code),
+
+                    // build tree
                     tree = parser.treeBuilder(tokens),
                     KEYWORDS = this.KEYWORDS,
                     parsers = this.parsers,
@@ -96,23 +119,14 @@ module.exports = (function() {
                     kw = {},
                     defines = source.defines = {},
                     defineCheck = {},
-
                     usage = source.usage = {},
 
-                    publics = {},
-                    publicsCheck = {},
-
-                    i, _i, item, type, bonus, info,
-
-                    out = {
-                        usage: usage,
-                        publics: publics,
-                        defines: defines
-                    };
+                    i, _i, item, type, bonus, info;
 
                 for (i in KEYWORDS)
                     kw[i] = QObject.arrayToObject(KEYWORDS[i]);
 
+                // find defines
                 for (i = 0, _i = tree.length; i < _i; i++) {
                     item = tree[i];
                     type = item.type;
@@ -123,25 +137,11 @@ module.exports = (function() {
                         usage[info.type] = true;
                         if (defineCheck[info.name])
                             throw new Error(info.name + ' is already defined');
-
-                        //this.observer.fire('defined', info.name);
                         defines[info.name] = info;
                         defineCheck[info.name] = true;
-                    }/* else if (type in kw.PUBLIC) {
-                        info = parsers.PUBLIC(bonus, item);
-                        usage[info.type] = true;
-                        publics[info.name] = info;
-
-                        if (publicsCheck[info.name])
-                            throw new Error(info.name + ' is already defined');
-                        publicsCheck[info.name] = true;
-                    } else if (type in shadow) {
-
-                    }*/
-                    //console.log(item.pureLine.match(nameRegexp));
+                    }
                 }
-//console.log(out)
-                return out;
+
 
             },
             getMetadata: function(){
@@ -171,7 +171,8 @@ module.exports = (function() {
                             localShadow[j] = {
                                 subclasses: {},
                                 public: {},
-                                depend: {}
+                                depend: {},
+                                private: {}
                             };
                         }
                         if(type in shadow){
@@ -179,19 +180,21 @@ module.exports = (function() {
                             this.apply(localShadow[type], {
                                 defined: true,
                                 subclasses: {},
-                                public: {}
+                                public: {},
+                                private: {}
                             });
 
                         }else{
                             localShadow[type] = {
                                 subclasses: {},
                                 public: {},
-                                depend: {}
+                                depend: {},
+                                private: {}
                             };
                         }
 
                         localShadow[type].subclasses[j] = defs[j];
-                        localShadow[j].depend[type] = localShadow[type];
+                        localShadow[j].depend[type] = true;
                         localShadow[j].type = type;
                     }
                 }
@@ -228,7 +231,9 @@ module.exports = (function() {
                     i, _i, child, kw = {},
                     KEYWORDS = this.KEYWORDS,
                     info,
-                    parsers = this.parsers;
+                    parsers = this.parsers,
+
+                    isPublic;
 
                 for (i in KEYWORDS)
                     kw[i] = QObject.arrayToObject(KEYWORDS[i]);
@@ -236,7 +241,8 @@ module.exports = (function() {
                 for(i = 0, _i = children.length; i < _i; i++){
                     child = children[i];
 
-                    if( child.type in kw.PUBLIC ){
+                    isPublic = child.type in kw.PUBLIC;
+                    if( isPublic ){
                         info = parsers.PUBLIC.call(child, child.bonus, child);
 
                         child.type = info.type;
@@ -250,11 +256,16 @@ module.exports = (function() {
                             localShadow[child.type] = shadow[child.type];
                             //console.log('!!', child.type);
                         }else {
-                            console.log(child)
+                            //console.log(child)
                             throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
                         }
                     }
-
+                    if( !isPublic ){
+                        info = parsers.PRIVATE.call(child, child.bonus, child);
+                        debugger;
+                        console.log(info, child.rawLine)
+                        localShadow[name].private[info.name] = info;
+                    }
 
                     //console.log(child.type)
                     child.children  && !localShadow[child.type].rawChildren && this.extractSub(child,localShadow, name, fileName);

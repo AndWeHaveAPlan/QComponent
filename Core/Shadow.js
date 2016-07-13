@@ -22,7 +22,7 @@ module.exports = {
         argumentParser: function (bonus, item) {
 
 
-            console.log(item)
+//            console.log(item)
 
 
             if(item.items[0].info === '{') {
