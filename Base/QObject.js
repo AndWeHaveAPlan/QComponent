@@ -43,7 +43,7 @@
                 target = object2 ? object1 : this;
 
             for( i in source )
-                source[i] === void 0 && ( target[i] = source[i] );
+                target[i] === void 0 && ( target[i] = source[i] );
 
             return target;
         },

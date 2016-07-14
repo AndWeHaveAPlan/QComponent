@@ -12,7 +12,7 @@ module.exports = {
         rawChildren: true
     }
 };
-
+var tools = require('./Compile/tools');
 
 ('a,b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
@@ -20,21 +20,13 @@ module.exports = {
 'table,tbody,td,textarea,th,thead,tr,u,ul,header').split(',').forEach(function (name) {
     module.exports[name] = {
         argumentParser: function (bonus, item) {
+            var splitted = tools.split(item.items, ':', 2),
+                subTokens = tools.split(splitted[0], ' ',2);
 
-
-//            console.log(item)
-
-
-            if(item.items[0].info === '{') {
-                !('props' in item) && (item.props = {});
-                item.props.cls = item.items.shift();
-            }
-
-            //if(name === 'div')debugger;
-
-            var tokens = item.items[0].data.split(':');
-
-            return {name: tokens[0].trim(), value: tokens[1]};
+            return {
+                cls: tools.detox(tools.trim(subTokens[0]), true),
+                name: tools.detox(tools.trim(subTokens[1])),
+                value: tools.detox(tools.trim(splitted[1]), true)};
         }
-    };;
+    };
 });

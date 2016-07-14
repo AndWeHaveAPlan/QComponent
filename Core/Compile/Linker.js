@@ -165,16 +165,20 @@ module.exports = (function() {
                                 subclasses: {},
                                 public: {},
                                 depend: {},
-                                private: {}
+                                private: {},
+                                children: [],
+                                pipes: []
                             };
                         }
                         if(type in shadow){
                             localShadow[type] = Object.create(shadow[type]);
-                            this.apply(localShadow[type], {
+                            this.applyIfNot(localShadow[type], {
                                 defined: true,
                                 subclasses: {},
                                 public: {},
-                                private: {}
+                                private: {},
+                                children: [],
+                                pipes: []
                             });
 
                         }else{
@@ -182,7 +186,9 @@ module.exports = (function() {
                                 subclasses: {},
                                 public: {},
                                 depend: {},
-                                private: {}
+                                private: {},
+                                children: [],
+                                pipes: []
                             };
                         }
 
@@ -219,14 +225,17 @@ module.exports = (function() {
                 var id = this.get('id', item);
                 delete this.sources[id];
             },
-            extractSub: function (sub, localShadow, name,fileName) {
+            extractSub: function (sub, localShadow, name,fileName, childrenHolder) {
                 var children = sub.children,
-                    i, _i, child, kw = {},
+                    i, _i, child, kw = {}, j,
                     KEYWORDS = this.KEYWORDS,
                     info,
                     parsers = this.parsers,
+                    pipes,
 
                     isPublic;
+
+                childrenHolder = childrenHolder || localShadow[name];
 
                 for (i in KEYWORDS)
                     kw[i] = QObject.arrayToObject(KEYWORDS[i]);
@@ -242,6 +251,7 @@ module.exports = (function() {
                         child.public = true;
                         localShadow[name].depend[info.type] = true;
                         localShadow[name].public[info.name] = info;
+                        childrenHolder.children.push(info);
                     }
                     if(!localShadow[child.type]) {
                         if(child.type in shadow) {
@@ -257,11 +267,25 @@ module.exports = (function() {
                         info = parsers.PRIVATE.call(child, child.bonus, child);
                         //debugger;
                         console.log(info, child.rawLine)
-                        localShadow[name].private[info.name] = info;
+                        if(info.name)
+                            localShadow[name].private[info.name] = info;
+                        childrenHolder.children.push(info);
                     }
-
+                    
+                    /** searching for pipes */
+                    for(j in info){
+                        if(info[j] instanceof Array){
+                            pipes = tools.getPipes(info[j]);
+                            if(pipes.length)
+                                localShadow[name].pipes = localShadow[name].pipes.concat(pipes); 
+                        }
+                    }
                     //console.log(child.type)
-                    child.children  && !localShadow[child.type].rawChildren && this.extractSub(child,localShadow, name, fileName);
+                    if(child.children  && !localShadow[child.type].rawChildren ) {
+                        info.children = [];
+
+                        this.extractSub(child, localShadow, name, fileName, info);
+                    }
                 }
 
                 console.log();
