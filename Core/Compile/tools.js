@@ -6,7 +6,8 @@ var tools = module.exports = (function() {
     var trimLeft = function(text){
         return text.replace(/^\s+/, '');
     };
-    var variableExtractor = require('./VariableExtractor');
+    var variableExtractor = require('./VariableExtractor'),
+        QObject = require('../../Base').QObject;
     return {
         removeFirstWord: function (item, word) {
             var subItem = item.items[0], pos;
@@ -59,6 +60,48 @@ var tools = module.exports = (function() {
                 out.push(item);
                 notEmpty = true;
             }
+            return out;
+        },
+        transformPipes: function (items) {
+            var out = [], i, _i = items.length, item, data,
+                unUsed, werePipes = false,
+                pipedOut = {vars: {}, items: out, isPipe: true}, vars;
+
+            for (i = 0, _i; i < _i; i++) {
+                item = items[i];
+                // oh, it's a pipe!
+                if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
+                    data = item.pureData.substr(2, item.pureData.length - 4);
+
+                    unUsed = Object.keys(vars = variableExtractor.parse(data).getUnDefined());
+                    if(unUsed.length){
+                        werePipes = true;
+
+                        QObject.apply(pipedOut.vars, vars);
+                        out.push({type: 'fn', pureData: data});
+                    }else{
+                        try {
+                            out.push({type: 'text', pureData: eval(data), col: item.col, row: item.row});
+                        }catch(e){
+                            throw new Error('Evaluation error: '+item.row+':'+item.col)
+                        }
+                    } //&& pipes.push({vars: unUsed, text: data});
+                    //debugger;
+                }else{
+                    out.push(item);
+                }
+            }
+            if(werePipes){
+                pipedOut.fn = pipedOut.items.map(function (item) {
+                    if(item.type === 'text')
+                        return '\''+item.pureData+'\'';// TODO: escape
+                    else
+                        return item.pureData;
+                }).join('+');
+                pipedOut.vars = Object.keys(pipedOut.vars);
+                return pipedOut;
+            }
+
             return out;
         },
         getPipes: function (items) {

@@ -323,9 +323,10 @@ module.exports = (function() {
                     /** searching for pipes */
                     for(j in info){
                         if(info[j] instanceof Array){
-                            pipes = tools.getPipes(info[j]);
-                            if(pipes.length) {
-                                localShadow[name].pipes = localShadow[name].pipes.concat(pipes);
+                            pipes = tools.transformPipes(info[j]);
+
+                            if(pipes.isPipe) {
+                                localShadow[name].pipes = localShadow[name].pipes.concat(pipes.vars);
 
                                 (info._pipes || (info._pipes = {}))[info.name] = pipes;
                                 (child.pipes || (child.pipes = {}))[info.name/*maybe j*/] = pipes;
