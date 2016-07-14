@@ -106,8 +106,10 @@ describe('Parser', function(){
             wrongs = [];
         var tokenCompare = function(obj, check){
             for(var i = 2, _i = check.length; i < _i; i++){
+                var tmp = {};
+                tmp[checks[i]] = check[i];
                 check[i] !== obj[checks[i]] && assert.fail(obj,
-                    {[checks[i]]: check[i]},
+                    tmp,
                     'expected ' + checks[i] + ' to be ' + check[i] + ' but got ' + obj[checks[i]]
                 );
             };

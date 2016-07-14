@@ -1,2 +1,2 @@
 def zhaba SpaceShip
-    int g
+    Number g

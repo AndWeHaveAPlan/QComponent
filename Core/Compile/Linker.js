@@ -8,15 +8,18 @@ module.exports = (function() {
 
         shadow = require('../Shadow'),
         path = require('path'),
-        observable = require('z-observable');
+        observable = require('z-observable'),
+        tools = require('./tools');
+
+    
 
     var Linker = function (cfg) {
             this.apply(cfg);
             this.sources = {};
-            this.observer = new observable();
+            /*this.observer = new observable();
             this.observer.on('defined', function (a,b) {
                 console.log(a,b)
-            })
+            })*/
         },
         linker = Linker.prototype = {
             shadow: {},
@@ -42,14 +45,26 @@ module.exports = (function() {
                     var type = text.match(parser.nameRegexp)[0],
                         info, bonus = text.substr(text.indexOf(type) + type.length);
 
+                    tools.removeFirstWord(item, type);
+
                     type = type.trim();
 
                     var shadowParser = shadow[type] && shadow[type].argumentParser || shadow.QObject.argumentParser;
 
                     info = shadowParser(bonus, item);
-                    console.log(type, bonus, info)
-                    info.type = type;
+                    item.public = true;
+                    item.type = info.type = type;
 
+                    return info;
+                },
+                PRIVATE: function(text, item){
+                    var type = item.type,
+                        shadowParser = shadow[type] && shadow[type].argumentParser || shadow.QObject.argumentParser,
+                        info;
+                    tools.removeFirstWord(item, type);
+                    info = shadowParser(text, item);
+
+                    info.type = type;
                     return info;
                 }
             },
@@ -74,13 +89,22 @@ module.exports = (function() {
                 this.sources[mapped.id] = mapped;
                 this._sourceAdded(mapped);
             },
+            /**
+             * Find defines
+             * @param source - {code: source, }
+             * @private
+             */
             _sourceAdded: function (source) {
                 // TODO make source observable.
                 // fire events defined and hash of global defines and perfile define.
                 // in source make list of its defines. remove on remove.
                 // listen class global defines and continue parsing from that position
                 var code = source.code,
+
+                    // tokenize
                     tokens = parser.tokenizer(code),
+
+                    // build tree
                     tree = parser.treeBuilder(tokens),
                     KEYWORDS = this.KEYWORDS,
                     parsers = this.parsers,
@@ -88,23 +112,14 @@ module.exports = (function() {
                     kw = {},
                     defines = source.defines = {},
                     defineCheck = {},
-
                     usage = source.usage = {},
 
-                    publics = {},
-                    publicsCheck = {},
-
-                    i, _i, item, type, bonus, info,
-
-                    out = {
-                        usage: usage,
-                        publics: publics,
-                        defines: defines
-                    };
+                    i, _i, item, type, bonus, info;
 
                 for (i in KEYWORDS)
                     kw[i] = QObject.arrayToObject(KEYWORDS[i]);
 
+                // find defines
                 for (i = 0, _i = tree.length; i < _i; i++) {
                     item = tree[i];
                     type = item.type;
@@ -115,56 +130,165 @@ module.exports = (function() {
                         usage[info.type] = true;
                         if (defineCheck[info.name])
                             throw new Error(info.name + ' is already defined');
-
-                        this.observer.fire('defined', info.name);
                         defines[info.name] = info;
                         defineCheck[info.name] = true;
-                    } else if (type in kw.PUBLIC) {
-                        info = parsers.PUBLIC(bonus, item);
-                        usage[info.type] = true;
-                        publics[info.name] = info;
-
-                        if (publicsCheck[info.name])
-                            throw new Error(info.name + ' is already defined');
-                        publicsCheck[info.name] = true;
-                    } else if (type in shadow) {
-
                     }
-                    //console.log(item.pureLine.match(nameRegexp));
                 }
-//console.log(out)
-                return out;
+
 
             },
             getMetadata: function(){
                 var i, j,
-                    sources = this.sources, source, defines, type,
-                    localShadow = this.shadow = {};
+                    sources = this.sources, source, defs, type,
+                    localShadow = this.shadow = {},
+
+                // define depends on 1 .. bunch of classes
+                    depend = {},
+                    subclasses = {},
+                    defines = {};
 
                 for(i in sources){
                     source = sources[i];
-                    console.log(source)
-                    defines = source.defines;
+                    defs = source.defines;
 
-                    for( j in defines ){
-                        type = defines[j].type;
+                    for( j in defs ){
+                        defs[j].id = source.id;
+                        type = defs[j].type;
 
-                        if(type in localShadow){
-                            localShadow[type].wait(source);
-                        }else if(j in shadow){
-                            localShadow[j] = shadow[j];
+                        defines[j] = defs[j];
+                        (depend[j] || (depend[j] = [])).push(type);
+                        (subclasses[type] || (subclasses[type] = [])).push(j);
+
+
+                        if(!(j in localShadow)) {
+                            localShadow[j] = {
+                                subclasses: {},
+                                public: {},
+                                depend: {},
+                                private: {},
+                                children: [],
+                                pipes: []
+                            };
+                        }
+                        if(type in shadow){
+                            localShadow[type] = Object.create(shadow[type]);
+                            this.applyIfNot(localShadow[type], {
+                                defined: true,
+                                subclasses: {},
+                                public: {},
+                                private: {},
+                                children: [],
+                                pipes: []
+                            });
 
                         }else{
-
+                            localShadow[type] = {
+                                subclasses: {},
+                                public: {},
+                                depend: {},
+                                private: {},
+                                children: [],
+                                pipes: []
+                            };
                         }
-                    }
 
+                        localShadow[type].subclasses[j] = defs[j];
+                        localShadow[j].depend[type] = true;
+                        localShadow[j].type = type;
+                    }
                 }
-                console.log(localShadow)
+
+                var isDefined = function(name){return (name in localShadow) && localShadow[name].defined; };
+
+                var subInfo;
+                for( i in depend ) if(depend.hasOwnProperty(i)){
+                    //console.log(i, depend[i]);
+                    if((i in localShadow) && localShadow[i].defined)
+                        continue;
+
+                    if(depend[i].filter(isDefined).length===depend[i].length){
+                        //console.log('do', i);
+
+                        subInfo = this.extractSub(defines[i].item, localShadow, i,defines[i].id);
+
+
+                    }
+                }
+                return localShadow;
+
+                /*console.log(depend);
+                console.log(subclasses);
+                console.log(localShadow);
+                console.log(defines)*/
             },
             remove: function (item) {
                 var id = this.get('id', item);
                 delete this.sources[id];
+            },
+            extractSub: function (sub, localShadow, name,fileName, childrenHolder) {
+                var children = sub.children,
+                    i, _i, child, kw = {}, j,
+                    KEYWORDS = this.KEYWORDS,
+                    info,
+                    parsers = this.parsers,
+                    pipes,
+
+                    isPublic;
+
+                childrenHolder = childrenHolder || localShadow[name];
+
+                for (i in KEYWORDS)
+                    kw[i] = QObject.arrayToObject(KEYWORDS[i]);
+
+                for(i = 0, _i = children.length; i < _i; i++){
+                    child = children[i];
+
+                    isPublic = child.type in kw.PUBLIC;
+                    if( isPublic ){
+                        info = parsers.PUBLIC.call(child, child.bonus, child);
+
+                        child.type = info.type;
+                        child.public = true;
+                        localShadow[name].depend[info.type] = true;
+                        localShadow[name].public[info.name] = info;
+                        childrenHolder.children.push(info);
+                    }
+                    if(!localShadow[child.type]) {
+                        if(child.type in shadow) {
+                            localShadow[name].depend[child.type] = true;
+                            localShadow[child.type] = shadow[child.type];
+                            //console.log('!!', child.type);
+                        }else {
+                            //console.log(child)
+                            throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+                        }
+                    }
+                    if( !isPublic ){
+                        info = parsers.PRIVATE.call(child, child.bonus, child);
+                        //debugger;
+                        console.log(info, child.rawLine)
+                        if(info.name)
+                            localShadow[name].private[info.name] = info;
+                        childrenHolder.children.push(info);
+                    }
+                    
+                    /** searching for pipes */
+                    for(j in info){
+                        if(info[j] instanceof Array){
+                            pipes = tools.getPipes(info[j]);
+                            if(pipes.length)
+                                localShadow[name].pipes = localShadow[name].pipes.concat(pipes); 
+                        }
+                    }
+                    //console.log(child.type)
+                    if(child.children  && !localShadow[child.type].rawChildren ) {
+                        info.children = [];
+
+                        this.extractSub(child, localShadow, name, fileName, info);
+                    }
+                }
+
+                console.log();
             }
         };
     Linker.prototype = new QObject(Linker.prototype);
