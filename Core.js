@@ -4,9 +4,10 @@
 module.exports = {
     QObject: require("./Base/QObject"),
     Parse: {
-        Parser: require("./Core/Parse/Parser")
+        Parser: require("./Core/Parse/Parser")        
     },
     Compile: {
+        tools: require("./Core/Compile/tools"),
         Linker: require("./Core/Compile/Linker"),
         Compiler: require("./Core/Compile/Compiler")
     }

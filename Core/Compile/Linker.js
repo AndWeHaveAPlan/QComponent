@@ -8,17 +8,10 @@ module.exports = (function() {
 
         shadow = require('../Shadow'),
         path = require('path'),
-        observable = require('z-observable');
+        observable = require('z-observable'),
+        tools = require('./tools');
 
-    var removeFirstWord = function (item, word) {
-        var subItem = item.items[0], pos;
-        subItem.data = subItem.data.substr(pos = subItem.data.indexOf(word)+word.length);
-        subItem.col += pos;
-        subItem.pureData = subItem.data.substr(subItem.pureData.indexOf(word)+word.length);
-
-        if(subItem.data.length === 0)
-            item.items.shift();
-    };
+    
 
     var Linker = function (cfg) {
             this.apply(cfg);
@@ -52,7 +45,7 @@ module.exports = (function() {
                     var type = text.match(parser.nameRegexp)[0],
                         info, bonus = text.substr(text.indexOf(type) + type.length);
 
-                    removeFirstWord(item, type);
+                    tools.removeFirstWord(item, type);
 
                     type = type.trim();
 
@@ -68,7 +61,7 @@ module.exports = (function() {
                     var type = item.type,
                         shadowParser = shadow[type] && shadow[type].argumentParser || shadow.QObject.argumentParser,
                         info;
-                    removeFirstWord(item, type);
+                    tools.removeFirstWord(item, type);
                     info = shadowParser(text, item);
 
                     info.type = type;
@@ -262,7 +255,7 @@ module.exports = (function() {
                     }
                     if( !isPublic ){
                         info = parsers.PRIVATE.call(child, child.bonus, child);
-                        debugger;
+                        //debugger;
                         console.log(info, child.rawLine)
                         localShadow[name].private[info.name] = info;
                     }
