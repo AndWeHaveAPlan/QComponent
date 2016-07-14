@@ -11,12 +11,6 @@ var exports = {};
  *
  */
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
-    /*preInit: function () {
-     if (this.value) {
-     this.textNode = this._factory.build('textNode', {value: this.value});
-     this._children.unshift(this.textNode);
-     }
-     },*/
     _setter: {
         value: function (key, val) {
             if (!this.textNode) {
@@ -32,7 +26,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
  *
  */
 exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
-    component: true,
+    leaf: true,
     createEl: function () {
         this.el = document.createTextNode('');
     },

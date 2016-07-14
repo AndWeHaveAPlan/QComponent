@@ -32,17 +32,17 @@ function AbstractComponent(cfg) {
      */
     this._data = {};
 
-    if (!this.leaf){
-        /**
-         * Child Components
-         *
-         * @type Array<AbstractComponent>
-         * @private
-         */
-        this._children = new ObservableSequence( new DQIndex( 'id' ) );
+    /**
+     * Own Components
+     *
+     * @type Array<AbstractComponent>
+     * @private
+     */
+    this._ownComponents = new ObservableSequence( new DQIndex( 'id' ) );
 
+    if (!this.leaf){
         /** instantly modify child components on append */
-        this._children.on('add', function( child ){
+        this._ownComponents.on('add', function( child ){
             child.parent = self;
         });
     }
@@ -119,10 +119,10 @@ AbstractComponent.prototype = new QObject({
      *
      * @param component AbstractComponent: AbstractComponent to add
      */
-    addChild: function( component ){
-        this._children.push(component);
+    /*addComponent: function( component ){
+        this._ownComponents.push(component);
         return this;
-    },
+    },*/
 
     _type: 'AbstractComponent'
 });
