@@ -13,7 +13,8 @@ module.exports = {
         AbstractComponent: require("./Base/Components/AbstractComponent"),
         UIComponent: require("./Base/Components/UIComponent"),
         UI: {
-            Primitives: require('./Base/Components/UI/Primitives')
+            Primitives: require('./Base/Components/UI/Primitives'),
+            Checkbox: require('./Base/Components/UI/Checkbox')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {
