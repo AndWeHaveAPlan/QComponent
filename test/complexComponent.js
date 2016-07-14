@@ -9,7 +9,7 @@ var AbstractComponent = Base.Component.AbstractComponent;
 var EventManager = Base.EventManager;
 
 function TestComponent(cfg){
-    AbstractComponent.apply( this, arguments );
+    AbstractComponent.call( this, cfg );
 
     this._comp1 = new AbstractComponent( { id: 'comp1' } );
     this._comp2 = new AbstractComponent( { id: 'comp2' } );
@@ -33,7 +33,6 @@ function TestComponent(cfg){
     );
 }
 TestComponent.prototype = Object.create(AbstractComponent.prototype);
-TestComponent.constructor = TestComponent;
 
 describe("Complex Components functionality", function () {
     it("should pipe internal components", function () {
