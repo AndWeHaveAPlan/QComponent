@@ -1,6 +1,8 @@
 (function(){
     'use strict';
 
+    var components = {};
+
     /**
      * Top level class
      *
@@ -87,11 +89,55 @@
                 out[ arr[ i ] ] = newVal;
             }
             return out;
+        },
+
+        extend: function (name, cfg, init) {
+            var i,
+                overlays, proto,
+
+                /** what is extending */
+                original = components[this._type];
+
+
+            /** constructor of new component */
+            var Cmp = init || function (cfg) {
+                    original.call(this, cfg);
+                };
+
+            /** remove deep applied */
+            overlays = deepApply.reduce(function (storage, deepName) {
+                if (deepName in cfg) {
+                    storage[deepName] = cfg[deepName];
+                    delete cfg[deepName];
+                }
+                return storage;
+            }, {});
+
+            proto = Cmp.prototype = Object.create(original.prototype).apply(cfg);
+
+            for (i in overlays) {
+                proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
+            }
+
+            Cmp._type = Cmp.prototype._type = name;
+            Cmp.extend = QObject.extend;
+
+            /** register to components */
+            components[name] = Cmp;
+
+            return Cmp;
         }
     };
 
     // makes prototype properties not enumerable
     QObject.prototype = prototype.applyPrivate.call( {}, prototype );
     prototype.apply(QObject, prototype);
+
+    var deepApply = ['_setter', '_getter'],
+        deepApplyHash = QObject.arrayToObject(deepApply);
+    QObject._knownComponents = components;
+
+    QObject.prototype._type="QObject";
+    QObject._knownComponents['QObject'] = QObject;
     module.exports = QObject;
 })();
