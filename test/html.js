@@ -50,7 +50,7 @@ describe('DOM', function () {
 
         assert.equal(cb.el.outerHTML, '<input type="checkbox">');
     });
-
+    
     it('content container', function () {
         var TestCompClass = UIComponent.extend('Checkbox', {
             createEl: function () {

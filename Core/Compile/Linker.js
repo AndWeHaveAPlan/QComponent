@@ -277,7 +277,7 @@ module.exports = (function() {
                             localShadow[name].private[info.name] = info;
                     }
                     if(isProperty){
-                        childrenHolder[info.name] = info;
+                        (childrenHolder.prop || (childrenHolder.prop = {}))[info.name] = info;
                     }else{
                         childrenHolder.children.push(info);
                     }
@@ -293,23 +293,27 @@ module.exports = (function() {
                         }
                     }
 
-                    if(localShadow[info.type] === void 0)debugger;
+
 
                     /** extract subs in dependence */
-                    if(!localShadow[info.type].defined){
-                        var firstNeed = defines[info.type];
+
+                    if(!localShadow[info.type] || !localShadow[info.type].defined){
+
+                        var firstNeed = defines[info.type] || (defines[info.type] = shadow[info.type]);
                         if(firstNeed === void 0)
                             throw new Error('Unknown class `' + info.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
-                        var firstNeedType = defines[defines[info.type].type];
 
-                        if(firstNeedType === void 0)
-                            throw new Error('Unknown class parent `' + defines[info.type].type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+                        if(firstNeed.type) {
+                            var firstNeedType = defines[firstNeed.type];
 
-                        if(!firstNeedType.defined) {
-                            type = defines[info.type].type;
-                            this.extractSub(defines[type].item, localShadow, type, defines[type].id, localShadow[type], defines);
+                            if (firstNeedType === void 0)
+                                throw new Error('Unknown class parent `' + defines[info.type].type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+
+                            if (!firstNeedType.defined) {
+                                type = defines[info.type].type;
+                                this.extractSub(defines[type].item, localShadow, type, defines[type].id, localShadow[type], defines);
+                            }
                         }
-
                         if(!firstNeed.defined) {
                             type = info.type;
                             this.extractSub(defines[type].item, localShadow, type, defines[type].id, localShadow[type], defines);
@@ -322,7 +326,9 @@ module.exports = (function() {
                             pipes = tools.getPipes(info[j]);
                             if(pipes.length) {
                                 localShadow[name].pipes = localShadow[name].pipes.concat(pipes);
-                                (child.pipes || (child.pipes = {}))[j] = pipes;
+
+                                (info._pipes || (info._pipes = {}))[info.name] = pipes;
+                                (child.pipes || (child.pipes = {}))[info.name/*maybe j*/] = pipes;
                             }
                         }
                     }
@@ -330,7 +336,7 @@ module.exports = (function() {
                     if(child.children  && !localShadow[child.type].rawChildren ) {
                         info.children = [];
 
-                        this.extractSub(child, localShadow, name, fileName, info);
+                        this.extractSub(child, localShadow, name, fileName, info, defines);
                     }
                 }
                 if(childrenHolder === localShadow[name])

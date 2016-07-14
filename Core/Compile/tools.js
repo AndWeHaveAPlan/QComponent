@@ -70,7 +70,7 @@ var tools = module.exports = (function() {
                 if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
                     data = item.pureData.substr(2, item.pureData.length - 4);
                     unUsed = Object.keys(variableExtractor.parse(data).getUnDefined());
-                    unUsed.length && pipes.push(unUsed);
+                    unUsed.length && pipes.push({vars: unUsed, text: data});
                     //debugger;
                 }
             }

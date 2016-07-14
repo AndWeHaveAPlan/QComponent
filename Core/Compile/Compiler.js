@@ -8,89 +8,109 @@ module.exports = (function() {
         shadow = require('../Shadow');
     
     var compiler = new QObject({
-        KEYWORDS: {
-            DEFINE: ['def', 'define'],
-            PUBLIC: ['pub', 'public']
+        compile: function(metadata){
+
+            var source = [],
+                vars = {_known: 'QObject._knownComponents', cls: void 0},
+                varDefs = [], i;
+
+            for(i in metadata)
+                source = source.concat(this.compileClass(metadata, i, vars));
+
+            for( i in vars )
+                varDefs.push(vars[i] === void 0 ? i : i+' = '+vars[i]);
+            return '\nvar '+varDefs.join(',\n\t')+';\n\n'+
+                source.join('\n');
         },
-        parsers: {
-            DEFINE: function (text, item) {
-                var tokens = text.trim().split(' ');/*,
-                    info = compiler.linker(item.children); // TODO recursion should happens later
+        compileClass: function(metadata, name, vars){
+            var item = metadata[name],
+                source;
+            vars[item.type] ='_known['+item.type+']';
 
-                info.type = tokens[0];
-                info.name = tokens[1];*/
+            source = [
 
-                //console.log('c',collected)
-
-                return {type: tokens[0], name: tokens[1], item: item};//info;
-            },
-            PUBLIC: function (text, item) {
-                var type = text.match(parser.nameRegexp)[0],
-                    info, bonus = text.substr(text.indexOf(type)+type.length);
-
-                type = type.trim();
-
-                var shadowParser = shadow[type] && shadow[type].argumentParser || shadow.QObject.argumentParser;
-
-                info = shadowParser(bonus, item);
-                console.log(type, bonus, info)
-                info.type = type;
-
-                return info;
-            }
+                item.type+'.extend(\''+name+'\', {}, function(){',
+                '    '+item.type+'.apply(this, arguments);',
+                '    var tmp, eventManager = this._eventManager, mutatingPipe;',
+                '',
+                item.children.map(this.compileChild.bind(this)).join(''),
+                this.makePublic(item.public),
+                '    this._init();',
+                '});'
+            ];
+            debugger;
+            return source;
         },
-        linker: function(tree){
-            var KEYWORDS = compiler.KEYWORDS,
-                parsers = compiler.parsers,
+        makePublic: function(props){
+            var i, prop, pipes, out = '', propVal;
+            for( i in props ){
+                prop = props[i];
+                pipes = prop._pipes;
+                if(pipes[i]){
+                    var pipe = this.getPipe(pipes[i]);
+                    out += '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n'+
+                        '\t    ['+
+                        pipe.vars.map(function(name){return 'this.id + \'.'+name+'\'';}).join(',')+
+                        '],\n'+
+                        '\t    {component: this.id, property: \''+ i +'\'}\n'+
+                        '\t);\n'+
+                        '\tmutatingPipe.addMutator(function ('+pipe.vars.join(',')+') {\n'+
+                        '\t    return '+pipe.text+';\n'+
+                        '\t});\n'+
+                        '\teventManager.registerPipe(mutatingPipe);\n';
 
-                kw = {},
-                defines = {},
-                defineCheck = {},
-
-                usage = {},
-
-                publics = {},
-                publicsCheck = {},
-
-                i, _i, item, type, bonus, info,
-
-                out = {
-                    usage: usage,
-                    publics: publics,
-                    defines: defines
-                };
-
-            for( i in KEYWORDS )
-                kw[i] = QObject.arrayToObject( KEYWORDS[i] );
-
-            for(i = 0, _i = tree.length; i < _i; i++){
-                item = tree[i];
-                type = item.type;
-                bonus = item.bonus;
-
-                if(type in kw.DEFINE){
-                    info = parsers.DEFINE(bonus, item);
-                    usage[info.type] = true;
-                    if(defineCheck[info.name])
-                        throw new Error(info.name +' is already defined');
-
-                    defines[info.name] = info;
-                    defineCheck[info.name] = true;
-                }else if(type in kw.PUBLIC){
-                    info = parsers.PUBLIC(bonus, item);
-                    usage[info.type] = true;
-                    publics[info.name] = info;
-
-                    if(publicsCheck[info.name])
-                        throw new Error(info.name +' is already defined');
-                    publicsCheck[info.name] = true;
-                }else if(type in shadow){
-
+                    //out += '\tPIPEtmp.set(\'' + i + '\', '+ prop +')\n';
+                }else {
+                    propVal = this.propertyGetter(prop);
+                    out += '\tthis.set(\'' + i + '\', '+ propVal +')\n';
                 }
-                //console.log(item.pureLine.match(nameRegexp));
             }
+            return out;
+        },
+        compileChild: function(child){
+            var out = '\ttmp = (function(tmp){\n'+
+                    '\t\teventManager.registerComponent(tmp.id, tmp);\n',
+                i, prop, propVal,
+                pipes;
+            for(i in child.prop){
+
+                prop = child.prop[i];
+                pipes = prop._pipes || {};
+
+
+                if(pipes[i]){
+                    var pipe = this.getPipe(pipes[i]);
+                    out += '\t\tmutatingPipe = new Base.Pipes.MutatingPipe(\n'+
+                    '\t\t    ['+
+                        pipe.vars.map(function(name){return 'this.id + \'.'+name+'\'';}).join(',')+
+                        '],\n'+
+                    '\t\t    {component: tmp.id, property: \''+ i +'\'}\n'+
+                    '\t\t);\n'+
+                    '\t\tmutatingPipe.addMutator(function ('+pipe.vars.join(',')+') {\n'+
+                    '\t\t    return '+pipe.text+';\n'+
+                    '\t\t});\n'+
+                    '\t\teventManager.registerPipe(mutatingPipe);\n';
+
+                    //out += '\t\tPIPEtmp.set(\'' + i + '\', '+ prop +')\n';
+                }else {
+                    propVal = this.propertyGetter(prop);
+                    out += '\t\ttmp.set(\'' + i + '\', '+ propVal +')\n';
+                }
+            }
+            out += '\t\treturn tmp;\n' +
+                '\t}).call( this, new '+child.type+'({'+
+                    (child.name ? 'id: \''+child.name+'\'':'')+'}) );\n'
+            out += '\tthis._ownComponents.push(tmp);\n\n';
 
             return out;
+
+        },
+        getPipe: function(items){
+            return items[0];
+        },
+        propertyGetter: function(prop){
+            console.log('****',prop, prop.value[0] && prop.value[0].items)
+            return '\''+prop.value+'\'';
         }
     });
 
