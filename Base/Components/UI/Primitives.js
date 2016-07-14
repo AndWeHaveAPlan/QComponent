@@ -1,4 +1,4 @@
-/**
+ /**
  * Created by ravenor on 13.07.16.
  */
 
@@ -26,7 +26,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
  *
  */
 exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
-    leaf: true,
+    //leaf: true,
     createEl: function () {
         this.el = document.createTextNode('');
     },

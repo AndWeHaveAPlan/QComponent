@@ -18,10 +18,6 @@ module.exports = (function () {
             this.el = document.createElement('div');
         },
 
-        addToTree: function (child) {
-            child.el && (this.el || this.parent.el).appendChild(child.el);
-        },
-
         _initChildren: function () {
 
             var iterator = new ObservableSequence(this.items || []).iterator(), item, ctor, type, cmp,
@@ -71,29 +67,27 @@ module.exports = (function () {
         AbstractComponent.call(this, cfg);
         observable.prototype._init.call(this);
 
+        /**
+         * Child Components
+         *
+         * @type Array<AbstractComponent>
+         * @private
+         */
+        this._children = new ObservableSequence(new DQIndex('id'));
+
         this.createEl();
+        this._initChildren();
 
-        if (!this.leaf) {
+        this._children.on('add', function (child) {
+            child.parent = self;
+            //insert to dom
+            child.el && self.el.appendChild(child.el);
+        });
+        this._children.on('remove', function (child) {
+            child.parent = null;
+            self.removeFromTree(child);
+        });
 
-            /**
-             * Child Components
-             *
-             * @type Array<AbstractComponent>
-             * @private
-             */
-            this._children = new ObservableSequence(new DQIndex('id'))
-
-            this._initChildren();
-            this._children.on('add', function (el) {
-                el.parent = self;
-                self.addToTree(el);
-                // best place to insert to dom.
-            });
-            this._children.on('remove', function (el) {
-                el.parent = null;
-                self.removeFromTree(el);
-            });
-        }
     });
 
     return UIComponent;
