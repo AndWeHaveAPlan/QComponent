@@ -31,6 +31,8 @@ module.exports = (function () {
             while (item = iterator.next()) {
                 if (item instanceof ContentContainer) {
                     this._contentContainer = item;
+                } else {
+                    this._eventManager.registerComponent(item.id, item);
                 }
 
                 this.el.appendChild(item.el);
