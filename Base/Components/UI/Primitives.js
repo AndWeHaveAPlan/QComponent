@@ -1,4 +1,4 @@
- /**
+/**
  * Created by ravenor on 13.07.16.
  */
 
@@ -12,12 +12,21 @@ var exports = {};
  */
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _setter: {
+        default: function (name, val) {
+            this.el.setAttribute(name, val);
+            this._data[name] = val;
+        },
         value: function (key, val) {
             if (!this.textNode) {
                 this.textNode = this._factory.build('textNode');
                 this._children.unshift(this.textNode);
             }
             this.textNode.set('value', val);
+        }
+    },
+    _getter: {
+        default: function (key) {
+            return this._data[key];
         }
     }
 });
@@ -59,17 +68,17 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
 exports['a'] = exports['HtmlPrimitive'].extend('a', {
     createEl: function () {
         this.el = document.createElement('a');
-    },
-    _setter: {
-        href: function (key, value) {
-            this.el.href = value;
-        }
-    },
-    _getter: {
-        href: function () {
-            return this.el.href;
-        }
     }
+    /*_setter: {
+     href: function (key, value) {
+     this.el.href = value;
+     }
+     },
+     _getter: {
+     href: function () {
+     return this.el.href;
+     }
+     }*/
 });
 
 module.exports = exports;
