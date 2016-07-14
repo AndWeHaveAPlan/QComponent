@@ -7,7 +7,12 @@ module.exports = {
     UIComponent: require('./Shadow/UIComponent'),
     HTMLComponent: require('./Shadow/HTMLComponent'),
     String: {},
-    Number: {},
+    Number: {
+        linkerSetter: function(value){
+            
+            
+        }
+    },
     Function: {
         rawChildren: true
     }
@@ -30,3 +35,5 @@ var tools = require('./Compile/tools');
         }
     };
 });
+for(var i in module.exports)
+    module.exports[i].defined = true;

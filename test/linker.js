@@ -22,7 +22,7 @@ describe('Linker', function() {
         fs.readdirSync(base).forEach(p.add.bind(p));
         var hu = p.getMetadata();
         debugger;
-        console.log(hu.lol);
+        console.log(hu.lol);//.children[3]);
         //p.remove('spaceShip.qs');
         //console.log(p)
     });
