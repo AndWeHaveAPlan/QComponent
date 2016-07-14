@@ -16,7 +16,8 @@
     "observable-sequence": "*",
     "require-self": "^0.x",
     "z-lib-structure-dqIndex": "*",
-    "tiny-uuid": "*"
+    "tiny-uuid": "*",
+    "esprima": "*"
   },
   "devDependencies": {
     "chai": "*",

@@ -6,6 +6,7 @@ var tools = module.exports = (function() {
     var trimLeft = function(text){
         return text.replace(/^\s+/, '');
     };
+    var variableExtractor = require('./VariableExtractor');
     return {
         removeFirstWord: function (item, word) {
             var subItem = item.items[0], pos;
@@ -61,14 +62,15 @@ var tools = module.exports = (function() {
             return out;
         },
         getPipes: function (items) {
-            var pipes = [], i, _i = items.length, item, data;
+            var pipes = [], i, _i = items.length, item, data, unUsed;
             for (i = 0, _i; i < _i; i++) {
                 item = items[i];
 
                 // oh, it's a pipe!
                 if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
                     data = item.pureData.substr(2, item.pureData.length - 4);
-
+                    unUsed = Object.keys(variableExtractor.parse(data).getUnDefined());
+                    unUsed.length && pipes.push(unUsed);
                     //debugger;
                 }
             }
