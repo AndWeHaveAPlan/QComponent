@@ -4,9 +4,11 @@
 module.exports = (function () {
     'use strict';
     var AbstractComponent = require('./AbstractComponent'),
+        ContentContainer = require('./ContentContainer'),
         observable = require('z-observable'),
         ObservableSequence = require('observable-sequence'),
         DQIndex = require('z-lib-structure-dqIndex'),
+        document = require("dom-lite").document,
         Factory = new require('./Factory');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
@@ -18,12 +20,31 @@ module.exports = (function () {
             this.el = document.createElement('div');
         },
 
+        /**
+         * Create own components
+         *
+         * @private
+         */
+        _init: function () {
+            var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
+
+            while (item = iterator.next()) {
+                if (item instanceof ContentContainer) {
+                    this._contentContainer = item;
+                }
+
+                this.el.appendChild(item.el);
+            }
+        },
+
+        /**
+         * Create children
+         *
+         * @private
+         */
         _initChildren: function () {
 
-            var iterator = new ObservableSequence(this.items || []).iterator(), item, ctor, type, cmp,
-                items = this.items = new ObservableSequence([]);
-
-            this.preInit && this.preInit();
+            var iterator = new ObservableSequence(this.items || []).iterator(), item, ctor, type, cmp;
 
             while (item = iterator.next()) {
                 if (typeof item === 'function')
@@ -67,26 +88,33 @@ module.exports = (function () {
         AbstractComponent.call(this, cfg);
         observable.prototype._init.call(this);
 
+        this._contentContainer = void(0);// this.el = document.createElement('div');
+
         /**
          * Child Components
          *
          * @type Array<AbstractComponent>
          * @private
          */
+
         this._children = new ObservableSequence(new DQIndex('id'));
-
-        this.createEl();
-        this._initChildren();
-
         this._children.on('add', function (child) {
             child.parent = self;
             //insert to dom
-            child.el && self.el.appendChild(child.el);
+            if (self._contentContainer && child.el) {
+                self._contentContainer.el.appendChild(child.el);
+            } else {
+                self.el.appendChild(child.el);
+            }
         });
         this._children.on('remove', function (child) {
             child.parent = null;
             self.removeFromTree(child);
         });
+
+        this.createEl();
+        this._init();
+        this._initChildren();
 
     });
 
