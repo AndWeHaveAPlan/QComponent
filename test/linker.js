@@ -20,7 +20,9 @@ describe('Linker', function() {
             }
         }});
         fs.readdirSync(base).forEach(p.add.bind(p));
-        console.log(p.getMetadata());
+        var hu = p.getMetadata();
+        debugger;
+        console.log(hu.lol);
         //p.remove('spaceShip.qs');
         //console.log(p)
     });
