@@ -326,6 +326,7 @@ module.exports = (function() {
                             pipes = tools.transformPipes(info[j]);
 
                             if(pipes.isPipe) {
+                                info[j] = pipes;
                                 localShadow[name].pipes = localShadow[name].pipes.concat(pipes.vars);
 
                                 (info._pipes || (info._pipes = {}))[info.name] = pipes;
