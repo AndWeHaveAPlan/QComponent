@@ -11,6 +11,7 @@ def UIComponent Checkbox
 
 var assert = require('chai').assert;
 var Base = require('../Base'),
+    QObject = Base.QObject,
     UIComponent = Base.Component.UIComponent,
 
 
@@ -48,33 +49,37 @@ var Base = require('../Base'),
         this._init();
     });
 
-/** +\- generated shit */
-var QObject = require('../Base').QObject;
 var _known = QObject._knownComponents,
     cls,
     UIComponent = _known['UIComponent'];
 
-UIComponent.extend('checkbox', {}, function(){
+Checkbox = UIComponent.extend('checkbox', {}, function(){
     UIComponent.apply(this, arguments);
-    var tmp, eventManager = this._eventManager, mutatingPipe,
-        input = _known.input;
+    var tmp, eventManager = this._eventManager, mutatingPipe;
 
-/* removed code */
-    tmp = (function(tmp){
-        eventManager.registerComponent(tmp.id, tmp);
-        tmp.set('type', 'checkbox')
+    tmp = (function(parent){
+        eventManager.registerComponent(this.id, this);
+        this.set('type', 'checkbox')
         mutatingPipe = new Base.Pipes.MutatingPipe(
-            [this.id + '.checked'],
-            {component: tmp.id, property: 'checked'}
+            [parent.id + '.checked'],
+            {component: this.id, property: 'checked'}
         );
         mutatingPipe.addMutator(function (checked) {
             return checked?'checked':void 0;
         });
         eventManager.registerPipe(mutatingPipe);
-        return tmp;
-    }).call( this, new input({id: 'i1'}) );
-    this._ownComponents.push(tmp);
+        mutatingPipe = new Base.Pipes.MutatingPipe(
+            [parent.id + '.checked'],
+            {component: this.id, property: 'value'}
+        );
+        mutatingPipe.addMutator(function (checked) {
+            return '1'+checked;
+        });
+        eventManager.registerPipe(mutatingPipe);
+        parent._ownComponents.push(this);
 
+        return this;
+    }).call( new _known['input']({id: 'i1'}), this );
 
     mutatingPipe = new Base.Pipes.MutatingPipe(
         [this.id + '.value'],
