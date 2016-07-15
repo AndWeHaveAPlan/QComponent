@@ -176,7 +176,7 @@ QObject._knownComponents['AbstractComponent'] = module.exports = AbstractCompone
  */
 
 var AbstractComponent = require('./AbstractComponent');
-var document = require("dom-lite").document;
+
 
 /**
  *
@@ -446,7 +446,7 @@ module.exports = (function () {
 
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
-var document = require("dom-lite").document;
+
 
 
 module.exports = UIComponent.extend('Checkbox', {
@@ -499,7 +499,7 @@ module.exports = UIComponent.extend('Checkbox', {
  */
 
 var UIComponent = require('../UIComponent');
-var document = require("dom-lite").document;
+
 
 var exports = {};
 
