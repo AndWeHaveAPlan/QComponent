@@ -40,12 +40,7 @@ var server = http.createServer(function(req, res){
             return res.end('<html><head>' +
                 '<script>module = {};</script>'+
                 '<script src="bundle.js"></script>' +
-                /*'<script>QObject = module.exports;</script>'+
-                '<script src="Base/Components/AbstractComponent.js"></script>' +
-                '<script>AbstractComponent = module.exports;</script>'+
-                '<script src="Base/Components/UIComponent.js"></script>' +
-                '<script>UIComponent = module.exports;</script>'+*/
-                '<script>QObject = Base.QObject; Q = '+compiled+';</script></head><body></body></html>');
+                '<script>QObject = Base.QObject; Q = '+compiled+';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
         }catch(e){
             return res.end(e);
         }
