@@ -9,6 +9,7 @@ var Core = require('../Core' ),
     path = require('path');
 
 describe('Linker', function() {
+    var chackboxMetaData;
     it('should extract metadata', function () {
         var base = './test/linker_data';
         var p = new Linker({mapping: {
@@ -20,9 +21,14 @@ describe('Linker', function() {
             }
         }});
         fs.readdirSync(base).forEach(p.add.bind(p));
-        
-        console.log(p.getMetadata());
+        var hu = p.getMetadata();
+        console.log(hu.Checkbox);//.children[3]);
+        console.log(hu.Checkbox.children);
+        chackboxMetaData = hu;//{Checkbox: hu.Checkbox};
         //p.remove('spaceShip.qs');
         //console.log(p)
+    });
+    it('should generate js', function(){
+        console.log(Core.Compile.Compiler.compile(chackboxMetaData));
     });
 });

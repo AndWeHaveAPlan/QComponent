@@ -23,7 +23,7 @@ module.exports = {
             LogicalComponent: require('./Base/Components/Logical/LogicalComponent'),
             Branch: require('./Base/Components/Logical/Branch'),
             Gate: require('./Base/Components/Logical/Gate'),
-            Timer: require('./Base/Components/Logical/Timer'),
+            Timer: require('./Base/Components/Logical/Timer')
         }
     },
     EventManager: require("./Base/EventManager"),
