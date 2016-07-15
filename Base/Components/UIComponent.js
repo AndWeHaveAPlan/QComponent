@@ -18,6 +18,8 @@ module.exports = (function () {
 
         createEl: function () {
             this.el = document.createElement('div');
+            this.el.style.overflow = 'hidden';
+            this.el.style.position = 'absolute';
         },
 
         /**
@@ -32,7 +34,7 @@ module.exports = (function () {
                 if (item instanceof ContentContainer) {
                     this._contentContainer = item;
                 } else {
-                    this._eventManager.registerComponent(item.id, item);
+                    this._eventManager.registerComponent(item);
                 }
 
                 this.el.appendChild(item.el);
@@ -83,6 +85,57 @@ module.exports = (function () {
         addChild: function (component) {
             this._children.push(component);
             return this;
+        },
+
+        _setter: {
+            left: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            right: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            top: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            bottom: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            height: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            width: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            }
         }
 
     }, function (cfg) {

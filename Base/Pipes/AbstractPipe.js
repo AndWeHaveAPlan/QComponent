@@ -31,6 +31,36 @@ function AbstractPipe(source, target) {
 
 AbstractPipe.prototype = Object.create(QObject.prototype);
 
+AbstractPipe.create = function () {
+
+};
+
+/**
+ *
+ * @param source
+ * @private
+ */
+AbstractPipe.prototype._parseInput = function (input) {
+
+    var newSourceBinding = {};
+
+    if (typeof input === 'string' || input instanceof String) {
+        var firstDotIndex = input.indexOf('.');
+        if (firstDotIndex < 0)return;
+
+        newSourceBinding.key = source;
+        newSourceBinding.componentName = source.substr(0, firstDotIndex);
+        newSourceBinding.propertyName = source.substr(firstDotIndex + 1);
+
+    } else {
+        newSourceBinding.key = source.component + '.' + source.property;
+        newSourceBinding.componentName = source.component;
+        newSourceBinding.propertyName = source.property;
+    }
+
+    this.sourceBindings[newSourceBinding.key] = newSourceBinding;
+};
+
 /**
  *
  * @param source

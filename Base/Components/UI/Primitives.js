@@ -49,7 +49,7 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
 /**
  *
  */
-('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
+('a,b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'input,label,li,ol,option,p,pre,span,sub,sup,' +
 'table,tbody,td,textarea,th,thead,tr,u,ul,header')
@@ -58,27 +58,10 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
             createEl: function () {
                 this.el = document.createElement(name);
+                this.el.style.overflow = 'hidden';
+                this.el.style.position = 'absolute';
             }
         });
     });
-
-/**
- *
- */
-exports['a'] = exports['HtmlPrimitive'].extend('a', {
-    createEl: function () {
-        this.el = document.createElement('a');
-    }
-    /*_setter: {
-     href: function (key, value) {
-     this.el.href = value;
-     }
-     },
-     _getter: {
-     href: function () {
-     return this.el.href;
-     }
-     }*/
-});
 
 module.exports = exports;
