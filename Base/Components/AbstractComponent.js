@@ -58,7 +58,7 @@ function AbstractComponent(cfg) {
     if(!this._eventManager)
         this._eventManager = new EventManager();
 
-    this._eventManager.registerComponent(this.id, this);
+    this._eventManager.registerComponent(this);
 }
 
 AbstractComponent.extend = QObject.extend;

@@ -8,28 +8,28 @@ var QObject = Base.QObject;
 var AbstractComponent = Base.Component.AbstractComponent;
 var EventManager = Base.EventManager;
 
-function TestComponent(cfg){
-    AbstractComponent.call( this, cfg );
+function TestComponent(cfg) {
+    AbstractComponent.call(this, cfg);
 
-    this._comp1 = new AbstractComponent( { id: 'comp1' } );
-    this._comp2 = new AbstractComponent( { id: 'comp2' } );
+    this._comp1 = new AbstractComponent({id: 'comp1'});
+    this._comp2 = new AbstractComponent({id: 'comp2'});
 
-    this._eventManager.registerComponent( 'comp1', this._comp1 );
-    this._eventManager.registerComponent( 'comp2', this._comp2 );
+    this._eventManager.registerComponent(this._comp1);
+    this._eventManager.registerComponent(this._comp2);
 
     this._eventManager.createSimplePipe(
-        { component: this.id, property: "testSourceProp" },
-        { component: "comp1", property: "testProp" }
+        {component: this.id, property: "testSourceProp"},
+        {component: "comp1", property: "testProp"}
     );
 
     this._eventManager.createSimplePipe(
-        { component: "comp1", property: "testProp" },
-        { component: this.id, property: "testTargetProp" }
+        {component: "comp1", property: "testProp"},
+        {component: this.id, property: "testTargetProp"}
     );
 
     this._eventManager.createSimplePipe(
-        { component: "comp2", property: "testProp" },
-        { component: this.id, property: "testTargetProp" }
+        {component: "comp2", property: "testProp"},
+        {component: this.id, property: "testTargetProp"}
     );
 }
 TestComponent.prototype = Object.create(AbstractComponent.prototype);
