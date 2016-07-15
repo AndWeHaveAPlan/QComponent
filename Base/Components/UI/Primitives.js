@@ -13,7 +13,11 @@ var exports = {};
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _setter: {
         default: function (name, val) {
-            this.el.setAttribute(name, val);
+            if(val === void 0){
+                this.el.removeAttribute(name);
+            }else{
+                this.el.setAttribute(name, val);
+            }
             this._data[name] = val;
         },
         value: function (key, val) {
