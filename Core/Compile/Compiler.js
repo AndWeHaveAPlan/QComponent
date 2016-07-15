@@ -25,11 +25,11 @@ module.exports = (function() {
         compileClass: function(metadata, name, vars){
             var item = metadata[name],
                 source;
-            vars[item.type] ='_known['+item.type+']';
+            vars[item.type] ='_known[\''+item.type+'\']';
 
             source = [
 
-                item.type+'.extend(\''+name+'\', {}, function(){',
+                'var '+ name +' = '+ item.type+'.extend(\''+name+'\', {}, function(){',
                 '    '+item.type+'.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe;',
                 '',
@@ -38,7 +38,6 @@ module.exports = (function() {
                 '    this._init();',
                 '});'
             ];
-            debugger;
             return source;
         },
         makePublic: function(props){
@@ -68,6 +67,12 @@ module.exports = (function() {
             return out;
         },
         compileChild: function(child){
+            var type = child.type;
+
+            if(!QObject._knownComponents[type] ||
+               !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent) )
+                return '';
+
             var out = '\ttmp = (function(parent){\n'+
                     '\t\teventManager.registerComponent(this.id, this);\n',
                 i, prop, propVal,
@@ -97,8 +102,8 @@ module.exports = (function() {
             }
             out += '\t\tparent._ownComponents.push(this);\n\n';
             out += '\t\treturn this;\n' +
-                '\t}).call( new '+child.type+'({'+
-                    (child.name ? 'id: \''+child.name+'\'':'')+'}), this );\n'
+                '\t}).call( new _known[\''+child.type/*TODO: escape*/+'\']({'+
+                    (child.name ? 'id: \''+child.name+'\'':'')+'}), this );\n';
 
             return out;
 
