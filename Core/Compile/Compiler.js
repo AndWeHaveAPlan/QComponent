@@ -11,7 +11,7 @@ module.exports = (function() {
         compile: function(metadata){
 
             var source = [],
-                vars = {_known: 'QObject._knownComponents', cls: void 0},
+                vars = {_known: 'QObject._knownComponents', cls: void 0, out: '{}'},
                 varDefs = [], i;
 
             for(i in metadata)
@@ -19,8 +19,9 @@ module.exports = (function() {
 
             for( i in vars )
                 varDefs.push(vars[i] === void 0 ? i : i+' = '+vars[i]);
-            return '\nvar '+varDefs.join(',\n\t')+';\n\n'+
-                source.join('\n');
+
+            return '(function(){\'use strict\';\nvar '+varDefs.join(',\n\t')+';\n\n'+
+                source.join('\n') + '\nreturn out;\n})()';
         },
         compileClass: function(metadata, name, vars){
             var item = metadata[name],
@@ -29,11 +30,11 @@ module.exports = (function() {
 
             source = [
 
-                'var '+ name +' = '+ item.type+'.extend(\''+name+'\', {}, function(){',
+                'var '+ name +' = out[\''+name+'\'] = '+ item.type+'.extend(\''+name+'\', {}, function(){',
                 '    '+item.type+'.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe;',
                 '',
-                item.children.map(this.compileChild.bind(this)).join(''),
+                item.children ? item.children.map(this.compileChild.bind(this)).join('') : '//no children\n',
                 this.makePublic(item.public),
                 '    this._init();',
                 '});'
@@ -45,7 +46,8 @@ module.exports = (function() {
             for( i in props ){
                 prop = props[i];
                 pipes = prop.value;
-                if(pipes.isPipe){
+
+                if(pipes && pipes.isPipe){
                     //var pipe = this.getPipe(pipes[i]);
                     out += '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n'+
                         '\t    ['+
@@ -112,7 +114,7 @@ module.exports = (function() {
             return items[0];
         },
         propertyGetter: function(prop){
-            console.log('****',prop, prop.value[0] && prop.value[0].items)
+            //console.log('****',prop, prop.value[0] && prop.value[0].items)
             return '\''+prop.value+'\'';
         }
     });

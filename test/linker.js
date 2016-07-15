@@ -24,7 +24,7 @@ describe('Linker', function() {
         var hu = p.getMetadata();
         console.log(hu.Checkbox);//.children[3]);
         console.log(hu.Checkbox.children);
-        chackboxMetaData = {checkbox: hu.Checkbox};
+        chackboxMetaData = hu;//{Checkbox: hu.Checkbox};
         //p.remove('spaceShip.qs');
         //console.log(p)
     });

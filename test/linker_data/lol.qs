@@ -12,6 +12,3 @@ def UIComponent lol
 def UIComponent zhaba
  Number length: 1
  public Number age: 0
- public Function kwa: ()->
-   return age +'kwa';
-   public Number p
