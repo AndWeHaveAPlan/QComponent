@@ -15,7 +15,8 @@ module.exports = {
         ContentContainer: require('./Base/Components/ContentContainer'),
         UI: {
             Primitives: require('./Base/Components/UI/Primitives'),
-            Checkbox: require('./Base/Components/UI/Checkbox')
+            Checkbox: require('./Base/Components/UI/Checkbox'),
+            HBox: require('./Base/Components/UI/HBox')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {

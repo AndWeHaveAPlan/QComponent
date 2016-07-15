@@ -80,4 +80,18 @@ describe('DOM', function () {
         assert.equal(testComp.el.outerHTML, '<div class="own"><a></a><a></a><div><div><a href="http://mzhvyachni.pu/"></a></div></div><b></b><b></b></div>');
     });
 
+    it('hbox', function () {
+        var hBox = new Base.Component.UI.HBox();
+
+        hBox.addChild(new Primitives.a().set('href', 'http://mzhvyachni.pu/').set('value', 'mzhvyachni'));
+        hBox.addChild(new Primitives.a().set('href', 'http://mzhvyachni.pu/').set('value', 'mzhvyachni'));
+        hBox.addChild(new Primitives.a().set('href', 'http://mzhvyachni.pu/').set('value', 'mzhvyachni'));
+        hBox.addChild(new Primitives.a().set('href', 'http://mzhvyachni.pu/').set('value', 'mzhvyachni'));
+        hBox.addChild(new Primitives.a().set('href', 'http://mzhvyachni.pu/').set('value', 'mzhvyachni'));
+
+        console.log(hBox.el.outerHTML);
+        assert.equal(hBox.el.outerHTML, '<div class="own"><a></a><a></a><div><div><a href="http://mzhvyachni.pu/"></a></div></div><b></b><b></b></div>');
+    });
+
+
 });
