@@ -7,17 +7,14 @@ module.exports = (function () {
         ContentContainer = require('./ContentContainer'),
         observable = require('z-observable'),
         ObservableSequence = require('observable-sequence'),
-        DQIndex = require('z-lib-structure-dqIndex');//,
-        //document = require("dom-lite").document,
-        //Factory = require('./Factory');
+        DQIndex = require('z-lib-structure-dqIndex');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
         on: observable.prototype.on,
         fire: observable.prototype.fire,
-        //_factory: new Factory(),
 
         createEl: function () {
-            this.el = document.createElement('div');
+            this.el = AbstractComponent.document.createElement('div');
             this.el.style.overflow = 'hidden';
             this.el.style.position = 'absolute';
         },

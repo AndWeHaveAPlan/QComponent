@@ -61,6 +61,7 @@ function AbstractComponent(cfg) {
     this._eventManager.registerComponent(this);
 }
 
+AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = new QObject({
 

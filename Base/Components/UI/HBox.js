@@ -4,11 +4,10 @@
 
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
-var document = require("dom-lite").document;
 
 module.exports = UIComponent.extend('HBox', {
     createEl: function () {
-        this.el = document.createElement('div');
+        this.el = UIComponent.document.createElement('div');
     },
     addChild: function (child) {
         var div = new Primitive.div();

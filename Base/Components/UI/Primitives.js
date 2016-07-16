@@ -3,7 +3,6 @@
  */
 
 var UIComponent = require('../UIComponent');
-var document = require("dom-lite").document;
 
 var exports = {};
 
@@ -13,16 +12,16 @@ var exports = {};
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _setter: {
         default: function (name, val) {
-            if(val === void 0){
+            if (val === void 0) {
                 this.el.removeAttribute(name);
-            }else{
+            } else {
                 this.el.setAttribute(name, val);
             }
             this._data[name] = val;
         },
         value: function (key, val) {
             if (!this.textNode) {
-                this.textNode = this._factory.build('textNode');
+                this.textNode = new exports['textNode'];
                 this._children.unshift(this.textNode);
             }
             this.textNode.set('value', val);
@@ -41,7 +40,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
 exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     //leaf: true,
     createEl: function () {
-        this.el = document.createTextNode('');
+        this.el = UIComponent.document.createTextNode('');
     },
     _setter: {
         value: function (key, val) {
@@ -61,7 +60,7 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
             createEl: function () {
-                this.el = document.createElement(name);
+                this.el = UIComponent.document.createElement(name);
                 this.el.style.overflow = 'hidden';
                 this.el.style.position = 'absolute';
             }

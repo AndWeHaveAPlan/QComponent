@@ -1,4 +1,4 @@
-(function(){
+(function () {
     'use strict';
 
     var components = {};
@@ -8,8 +8,8 @@
      *
      * @constructor
      */
-    function QObject( cfg ){
-        cfg && this.apply( cfg );
+    function QObject(cfg) {
+        cfg && this.apply(cfg);
     }
 
     var prototype = {
@@ -21,12 +21,12 @@
          * @param object1 Object
          * @param object2 Object
          */
-        apply: function( object1, object2 ){
+        apply: function (object1, object2) {
             var i,
                 source = object2 || object1,
                 target = object2 ? object1 : this;
 
-            for( i in source )
+            for (i in source)
                 target[i] = source[i];
             return target;
         },
@@ -39,12 +39,12 @@
          * @param object1 Object
          * @param object2 Object
          */
-        applyIfNot: function( object1, object2 ){
+        applyIfNot: function (object1, object2) {
             var i,
                 source = object2 || object1,
                 target = object2 ? object1 : this;
 
-            for( i in source )
+            for (i in source)
                 target[i] === void 0 && ( target[i] = source[i] );
 
             return target;
@@ -57,18 +57,18 @@
          * @param object2
          * @returns {*} Changed object
          */
-        applyPrivate: function( object1, object2 ){
+        applyPrivate: function (object1, object2) {
             var i,
                 source = object2 || object1,
                 target = object2 ? object1 : this;
 
-            for( i in source )
-                Object.defineProperty( target, i, {
+            for (i in source)
+                Object.defineProperty(target, i, {
                     enumerable: false,
                     configurable: false,
                     writable: false,
                     value: source[i]
-                } );
+                });
             return target;
         },
 
@@ -79,14 +79,14 @@
          * @param [val=true] Any: value that would be setted to each member
          * @returns {{hash}}
          */
-        arrayToObject: function( arr, val ){
+        arrayToObject: function (arr, val) {
             var i = 0, _i = arr.length,
                 newVal = val || true,
                 out = {};
-            if( arr === null || arr === void 0 ) return out;
+            if (arr === null || arr === void 0) return out;
 
-            for( ; i < _i; i++ ){
-                out[ arr[ i ] ] = newVal;
+            for (; i < _i; i++) {
+                out[arr[i]] = newVal;
             }
             return out;
         },
@@ -121,7 +121,8 @@
 
             Cmp._type = Cmp.prototype._type = name;
             Cmp.extend = QObject.extend;
-
+            Cmp.document = QObject.document;
+            
             /** register to components */
             components[name] = Cmp;
 
@@ -130,14 +131,21 @@
     };
 
     // makes prototype properties not enumerable
-    QObject.prototype = prototype.applyPrivate.call( {}, prototype );
+    QObject.prototype = prototype.applyPrivate.call({}, prototype);
     prototype.apply(QObject, prototype);
 
     var deepApply = ['_setter', '_getter'],
         deepApplyHash = QObject.arrayToObject(deepApply);
     QObject._knownComponents = components;
 
-    QObject.prototype._type="QObject";
+    QObject.prototype._type = "QObject";
     QObject._knownComponents['QObject'] = QObject;
+
+    if (typeof document === 'undefined') {
+        QObject.document = require("dom-lite").document;
+    } else {
+        QObject.document = document;
+    }
+
     module.exports = QObject;
 })();

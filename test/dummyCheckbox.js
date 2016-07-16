@@ -58,8 +58,8 @@ Checkbox = UIComponent.extend('checkbox', {}, function(){
     var tmp, eventManager = this._eventManager, mutatingPipe;
 
     tmp = (function(parent){
-        eventManager.registerComponent(this.id, this);
-        this.set('type', 'checkbox')
+        eventManager.registerComponent(this);
+        this.set('type', 'checkbox');
         mutatingPipe = new Base.Pipes.MutatingPipe(
             [parent.id + '.checked'],
             {component: this.id, property: 'checked'}

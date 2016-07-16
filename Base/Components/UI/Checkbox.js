@@ -4,12 +4,11 @@
 
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
-var document = require("dom-lite").document;
 
 
 module.exports = UIComponent.extend('Checkbox', {
     createEl: function () {
-        this.el = document.createElement('input');
+        this.el = UIComponent.document.createElement('input');
         this.el.setAttribute('type', 'checkbox');
     },
     _setter: {
