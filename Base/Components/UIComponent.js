@@ -15,8 +15,8 @@ module.exports = (function () {
 
         createEl: function () {
             this.el = AbstractComponent.document.createElement('div');
-            this.el.style.overflow = 'hidden';
-            this.el.style.position = 'absolute';
+            //this.el.style.overflow = 'hidden';
+            //this.el.style.position = 'absolute';
         },
 
         /**

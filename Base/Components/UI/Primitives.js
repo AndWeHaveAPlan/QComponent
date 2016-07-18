@@ -52,9 +52,30 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
 /**
  *
  */
+exports['input'] = exports['HtmlPrimitive'].extend('input', {
+    //leaf: true,
+    createEl: function () {
+        this.el = UIComponent.document.createElement('input');
+    },
+    _setter: {
+        value: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('value');
+            } else {
+                this.el.setAttribute('value', val);
+            }
+            this._data['value'] = val;
+        }
+    }
+});
+
+
+/**
+ *
+ */
 ('a,b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
-'input,label,li,ol,option,p,pre,span,sub,sup,' +
+'label,li,ol,option,p,pre,span,sub,sup,' +
 'table,tbody,td,textarea,th,thead,tr,u,ul,header')
     .split(',')
     .forEach(function (name) {

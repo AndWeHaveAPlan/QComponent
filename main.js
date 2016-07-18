@@ -42,7 +42,7 @@ var server = http.createServer(function(req, res){
                 '<script src="bundle.js"></script>' +
                 '<script>QObject = Base.QObject; Q = '+compiled+';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
         }catch(e){
-            return res.end(e);
+            return res.end(e.message);
         }
 
 

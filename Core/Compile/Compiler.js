@@ -5,10 +5,12 @@ module.exports = (function() {
     'use strict';
     var QObject = require('../../Base/QObject'),
         parser = require('../Parse/Parser'),
-        shadow = require('../Shadow');
-    
+        shadow = require('../Shadow'),
+        cmetadata={};
+
     var compiler = new QObject({
         compile: function(metadata){
+            cmetadata=metadata;
 
             var source = [],
                 vars = {_known: 'QObject._knownComponents', cls: void 0, out: '{}'},
@@ -71,7 +73,8 @@ module.exports = (function() {
         compileChild: function(child){
             var type = child.type;
 
-            if(!QObject._knownComponents[type] ||
+            if(!cmetadata[type])
+            if(!QObject._knownComponents[type]  ||
                !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent) )
                 return '';
 
@@ -102,6 +105,7 @@ module.exports = (function() {
                     out += '\t\tthis.set(\'' + i + '\', '+ propVal +')\n';
                 }
             }
+
             out += '\t\tparent._ownComponents.push(this);\n\n';
             out += '\t\treturn this;\n' +
                 '\t}).call( new _known[\''+child.type/*TODO: escape*/+'\']({'+
