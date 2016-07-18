@@ -47,7 +47,15 @@ module.exports = (function() {
     els.input.public = {
         type: {name: 'type', type: 'String', value: 'Text'},
         checked: {name: 'checked', type: 'String', value: void 0},
-        value: {name: 'value', type: 'String', value: ''}
+        value: {name: 'value', type: 'String', value: ''},
+        style: {name: 'style', type: 'String', value: ''},
+    };
+
+    els.h1.public = {
+        type: {name: 'type', type: 'String', value: 'Text'},
+        checked: {name: 'checked', type: 'String', value: void 0},
+        value: {name: 'value', type: 'String', value: ''},
+        style: {name: 'style', type: 'String', value: ''},
     };
 
     return els;
