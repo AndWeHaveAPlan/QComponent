@@ -76,7 +76,7 @@ module.exports = (function() {
                 return '';
 
             var out = '\ttmp = (function(parent){\n'+
-                    '\t\teventManager.registerComponent(this.id, this);\n',
+                    '\t\teventManager.registerComponent(this);\n',
                 i, prop, propVal,
                 pipes;
             for(i in child.prop){
