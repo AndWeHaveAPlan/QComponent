@@ -34,7 +34,7 @@ module.exports = (function() {
 
                 'var '+ name +' = out[\''+name+'\'] = '+ item.type+'.extend(\''+name+'\', {}, function(){',
                 '    '+item.type+'.apply(this, arguments);',
-                '    var tmp, eventManager = this._eventManager, mutatingPipe;',
+                '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this;',
                 '',
                 item.children ? item.children.map(this.compileChild.bind(this)).join('') : '//no children\n',
                 this.makePublic(item.public),
@@ -78,8 +78,14 @@ module.exports = (function() {
                !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent) )
                 return '';
 
-            var out = '\ttmp = (function(parent){\n'+
-                    '\t\teventManager.registerComponent(this);\n',
+            var rrr='';
+            if(child.children)
+                rrr=child.children.map(this.compileChild.bind(this)).join('');
+
+            var out = '\ttmp = (function(){\n'+
+                    '\t\teventManager.registerComponent(this);\n'+
+                    rrr,
+
                 i, prop, propVal,
                 pipes;
             for(i in child.prop){
@@ -109,7 +115,7 @@ module.exports = (function() {
             out += '\t\tparent._ownComponents.push(this);\n\n';
             out += '\t\treturn this;\n' +
                 '\t}).call( new _known[\''+child.type/*TODO: escape*/+'\']({'+
-                    (child.name ? 'id: \''+child.name+'\'':'')+'}), this );\n';
+                    (child.name ? 'id: \''+child.name+'\'':'')+'}) );\n';
 
             return out;
 

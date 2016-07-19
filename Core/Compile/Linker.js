@@ -293,10 +293,7 @@ module.exports = (function() {
                         }
                     }
 
-
-
                     /** extract subs in dependence */
-
                     if(!localShadow[info.type] || !localShadow[info.type].defined){
 
                         var firstNeed = defines[info.type] || (defines[info.type] = shadow[info.type]);
