@@ -3,7 +3,6 @@
  */
 
 var AbstractComponent = require('./AbstractComponent');
-var document = require("dom-lite").document;
 
 /**
  *
@@ -24,5 +23,5 @@ module.exports = AbstractComponent.extend('ContentContainer', {
 }, function (cfg) {
     AbstractComponent.call(this, cfg);
 
-    this.el = document.createElement('div');
+    this.el = AbstractComponent.document.createElement('div');
 });

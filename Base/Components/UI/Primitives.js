@@ -3,7 +3,6 @@
  */
 
 var UIComponent = require('../UIComponent');
-var document = require("dom-lite").document;
 
 var exports = {};
 
@@ -13,12 +12,16 @@ var exports = {};
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _setter: {
         default: function (name, val) {
-            this.el.setAttribute(name, val);
+            if (val === void 0) {
+                this.el.removeAttribute(name);
+            } else {
+                this.el.setAttribute(name, val);
+            }
             this._data[name] = val;
         },
         value: function (key, val) {
             if (!this.textNode) {
-                this.textNode = this._factory.build('textNode');
+                this.textNode = new exports['textNode'];
                 this._children.unshift(this.textNode);
             }
             this.textNode.set('value', val);
@@ -37,7 +40,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
 exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     //leaf: true,
     createEl: function () {
-        this.el = document.createTextNode('');
+        this.el = UIComponent.document.createTextNode('');
     },
     _setter: {
         value: function (key, val) {
@@ -49,36 +52,94 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
 /**
  *
  */
+exports['input'] = exports['HtmlPrimitive'].extend('input', {
+    //leaf: true,
+    createEl: function () {
+        this.el = UIComponent.document.createElement('input');
+    },
+    _setter: {
+        value: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('value');
+            } else {
+                this.el.setAttribute('value', val);
+            }
+            this._data['value'] = val;
+        },
+        type: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('type');
+            } else {
+                this.el.setAttribute('type', val);
+            }
+            this._data['type'] = val;
+        },
+        checked: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('checked');
+            } else {
+                this.el.setAttribute('checked', val);
+            }
+            this._data['checked'] = val;
+        }
+    }
+});
+
+exports['a'] = exports['HtmlPrimitive'].extend('a', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('a');
+    },
+    _setter: {
+        default: function (name, val) {
+            if (val === void 0) {
+                this.el.removeAttribute(name);
+            } else {
+                this.el.setAttribute(name, val);
+            }
+            this._data[name] = val;
+        },
+        value: function (key, val) {
+            if (!this.textNode) {
+                this.textNode = new exports['textNode'];
+                this._children.unshift(this.textNode);
+            }
+            this.textNode.set('value', val);
+        },
+        href: function (name, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('href');
+            } else {
+                this.el.setAttribute('href', val);
+            }
+            this._data['href'] = val;
+        }
+    },
+    _getter: {
+        default: function (key) {
+            return this._data[key];
+        },
+        href: function () {
+            return this._data['href'];
+        }
+    }
+});
+
+/**
+ *
+ */
 ('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
-'input,label,li,ol,option,p,pre,span,sub,sup,' +
+'label,li,ol,option,p,pre,span,sub,sup,' +
 'table,tbody,td,textarea,th,thead,tr,u,ul,header')
     .split(',')
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
             createEl: function () {
-                this.el = document.createElement(name);
+                this.el = UIComponent.document.createElement(name);
+                this.el.style.overflow = 'hidden';
+                this.el.style.position = 'absolute';
             }
         });
     });
-
-/**
- *
- */
-exports['a'] = exports['HtmlPrimitive'].extend('a', {
-    createEl: function () {
-        this.el = document.createElement('a');
-    }
-    /*_setter: {
-     href: function (key, value) {
-     this.el.href = value;
-     }
-     },
-     _getter: {
-     href: function () {
-     return this.el.href;
-     }
-     }*/
-});
 
 module.exports = exports;

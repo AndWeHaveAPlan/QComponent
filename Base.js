@@ -15,14 +15,15 @@ module.exports = {
         ContentContainer: require('./Base/Components/ContentContainer'),
         UI: {
             Primitives: require('./Base/Components/UI/Primitives'),
-            Checkbox: require('./Base/Components/UI/Checkbox')
+            Checkbox: require('./Base/Components/UI/Checkbox'),
+            HBox: require('./Base/Components/UI/HBox')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {
             LogicalComponent: require('./Base/Components/Logical/LogicalComponent'),
             Branch: require('./Base/Components/Logical/Branch'),
             Gate: require('./Base/Components/Logical/Gate'),
-            Timer: require('./Base/Components/Logical/Timer'),
+            Timer: require('./Base/Components/Logical/Timer')
         }
     },
     EventManager: require("./Base/EventManager"),
