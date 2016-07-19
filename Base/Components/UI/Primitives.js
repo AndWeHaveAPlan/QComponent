@@ -65,6 +65,22 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 this.el.setAttribute('value', val);
             }
             this._data['value'] = val;
+        },
+        type: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('type');
+            } else {
+                this.el.setAttribute('type', val);
+            }
+            this._data['type'] = val;
+        },
+        checked: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('checked');
+            } else {
+                this.el.setAttribute('checked', val);
+            }
+            this._data['checked'] = val;
         }
     }
 });
