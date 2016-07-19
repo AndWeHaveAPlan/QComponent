@@ -1,2 +1,2 @@
 def zhaba SpaceShip
-    Number g
+    public Number g

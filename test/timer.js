@@ -20,9 +20,9 @@ describe("Timer", function () {
     var comp4 = new Component({id: "comp4"});
     var timer = new Timer({id: "timer"});
 
-    eventManager.registerComponent("comp3", comp3);
-    eventManager.registerComponent("comp4", comp4);
-    eventManager.registerComponent("timer", timer);
+    eventManager.registerComponent(comp3);
+    eventManager.registerComponent(comp4);
+    eventManager.registerComponent(timer);
 
     comp4.set("testTargetProp", 2);
 

@@ -24,9 +24,9 @@ describe("Logical Components", function () {
 
         var branch = new Branch({id: "branch"});
 
-        eventManager.registerComponent("comp3", comp3);
-        eventManager.registerComponent("comp4", comp4);
-        eventManager.registerComponent("branch", branch);
+        eventManager.registerComponent(comp3);
+        eventManager.registerComponent(comp4);
+        eventManager.registerComponent(branch);
 
         comp4.set("testTargetProp", 2);
 
@@ -61,9 +61,9 @@ describe("Logical Components", function () {
 
         var gate = new Gate({id: "gate"});
 
-        eventManager.registerComponent("comp3", comp3);
-        eventManager.registerComponent("comp4", comp4);
-        eventManager.registerComponent("gate", gate);
+        eventManager.registerComponent(comp3);
+        eventManager.registerComponent(comp4);
+        eventManager.registerComponent(gate);
 
         comp4.set("testTargetProp", 2);
 

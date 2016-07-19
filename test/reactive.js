@@ -35,7 +35,7 @@ describe("Reactive tests", function () {
         var comp1 = new Component({id: "comp1"});
         var eventManager = new EventManager();
 
-        eventManager.registerComponent("comp1", comp1);
+        eventManager.registerComponent(comp1);
 
         comp1.set("testSourceProp", "testValue1");
         comp1.set("testTargetProp", "hsrt gbdxgh stxdgnfc");
@@ -58,8 +58,8 @@ describe("Reactive tests", function () {
         var comp1 = new Component({id: "comp1"});
         var comp2 = new Component({id: "comp2"});
 
-        eventManager.registerComponent("comp1", comp1);
-        eventManager.registerComponent("comp2", comp2);
+        eventManager.registerComponent(comp1);
+        eventManager.registerComponent(comp2);
 
         comp1.set("testSourceProp", "testValue1");
         comp2.set("testTargetProp", "hsrt gbdxgh stxdgnfc");
@@ -83,8 +83,8 @@ describe("Reactive tests", function () {
         var comp3 = new Component({id: "comp3"});
         var comp4 = new Component({id: "comp4"});
 
-        eventManager.registerComponent("comp3", comp3);
-        eventManager.registerComponent("comp4", comp4);
+        eventManager.registerComponent(comp3);
+        eventManager.registerComponent(comp4);
 
         comp3.set("testSourceProp", 45634634);
         comp4.set("testTargetProp", 2);
@@ -117,11 +117,11 @@ describe("Reactive tests", function () {
 
         var eventManager = new EventManager();
 
-        var comp3 = new Component("comp3");
-        var comp4 = new Component("comp4");
+        var comp3 = new Component({id: "comp3"});
+        var comp4 = new Component({id: "comp4"});
 
-        eventManager.registerComponent("comp3", comp3);
-        eventManager.registerComponent("comp4", comp4);
+        eventManager.registerComponent(comp3);
+        eventManager.registerComponent(comp4);
 
         comp3.set("testSourceProp", {a: 2, b: 3});
         comp4.set("testTargetProp", 2);

@@ -18,8 +18,8 @@ describe("Advanced piping", function () {
         var comp3 = new Component({id: "comp3"});
         var comp4 = new Component({id: "comp4"});
 
-        eventManager.registerComponent("comp3", comp3);
-        eventManager.registerComponent("comp4", comp4);
+        eventManager.registerComponent(comp3);
+        eventManager.registerComponent(comp4);
 
         comp4.set("testTargetProp", 2);
 
@@ -49,8 +49,8 @@ describe("Advanced piping", function () {
         var comp3 = new Component({id: "comp3"});
         var comp4 = new Component({id: "comp4"});
 
-        eventManager.registerComponent("comp3", comp3);
-        eventManager.registerComponent("comp4", comp4);
+        eventManager.registerComponent(comp3);
+        eventManager.registerComponent(comp4);
 
         comp3.set("testSourceProp1", "hello ");
         comp3.set("testSourceProp2", "multipipe!");

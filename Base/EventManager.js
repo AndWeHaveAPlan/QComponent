@@ -52,13 +52,11 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
 
 /**
  *
- * @param componentName String
  * @param component AbstractComponent
  */
-EventManager.prototype.registerComponent = function (componentName, component) {
-    this._registredComponents[componentName] = component;
+EventManager.prototype.registerComponent = function (component) {
+    this._registredComponents[component.id] = component;
     component.subscribe(this.getOnValueChangedEventListener());
-
 };
 
 /**
