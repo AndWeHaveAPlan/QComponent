@@ -34,7 +34,7 @@ module.exports = (function() {
 
                 'var '+ name +' = out[\''+name+'\'] = '+ item.type+'.extend(\''+name+'\', {}, function(){',
                 '    '+item.type+'.apply(this, arguments);',
-                '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this;',
+                '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, thisId=this.id;',
                 '',
                 item.children ? item.children.map(this.compileChild.bind(this)).join('') : '//no children\n',
                 this.makePublic(item.public),
@@ -70,17 +70,67 @@ module.exports = (function() {
             }
             return out;
         },
+        compileChild2: function(child){
+            var type = child.type;
+
+            if(!cmetadata[type])
+                if(!QObject._knownComponents[type]  ||
+                    !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent) )
+                    return '';
+
+            var rrr='';
+            if(child.children)
+                rrr=child.children.map(this.compileChild2.bind(this)).join('');
+
+            var out = '\ttmp = (function(parent){\n'+
+                    '\t\teventManager.registerComponent(this);\n'+
+                    rrr,
+
+                i, prop, propVal,
+                pipes;
+            for(i in child.prop){
+
+                prop = child.prop[i];
+                pipes = prop.value;
+                if(pipes.isPipe){
+                    //var pipe = this.getPipe(pipes[i]);
+                    out += '\t\tmutatingPipe = new Base.Pipes.MutatingPipe(\n'+
+                        '\t\t    ['+
+                        pipes.vars.map(function(name){return 'thisId + \'.'+name+'\'';}).join(',')+
+                        '],\n'+
+                        '\t\t    {component: this.id, property: \''+ i +'\'}\n'+
+                        '\t\t);\n'+
+                        '\t\tmutatingPipe.addMutator(function ('+pipes.vars.join(',')+') {\n'+
+                        '\t\t    return '+pipes.fn+';\n'+
+                        '\t\t});\n'+
+                        '\t\teventManager.registerPipe(mutatingPipe);\n';
+
+                    //out += '\t\tPIPEtmp.set(\'' + i + '\', '+ prop +')\n';
+                }else {
+                    propVal = this.propertyGetter(prop);
+                    out += '\t\tthis.set(\'' + i + '\', '+ propVal +')\n';
+                }
+            }
+
+            out += '\t\tparent.addChild(this);\n\n';
+            out += '\t\treturn this;\n' +
+                '\t}).call( new _known[\''+child.type/*TODO: escape*/+'\']({'+
+                (child.name ? 'id: \''+child.name+'\'':'')+'}), this );\n';
+
+            return out;
+
+        },
         compileChild: function(child){
             var type = child.type;
 
             if(!cmetadata[type])
-            if(!QObject._knownComponents[type]  ||
-               !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent) )
-                return '';
+                if(!QObject._knownComponents[type]  ||
+                    !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent) )
+                    return '';
 
             var rrr='';
             if(child.children)
-                rrr=child.children.map(this.compileChild.bind(this)).join('');
+                rrr=child.children.map(this.compileChild2.bind(this)).join('');
 
             var out = '\ttmp = (function(){\n'+
                     '\t\teventManager.registerComponent(this);\n'+
@@ -95,17 +145,15 @@ module.exports = (function() {
                 if(pipes.isPipe){
                     //var pipe = this.getPipe(pipes[i]);
                     out += '\t\tmutatingPipe = new Base.Pipes.MutatingPipe(\n'+
-                    '\t\t    ['+
-                        pipes.vars.map(function(name){return 'parent.id + \'.'+name+'\'';}).join(',')+
+                        '\t\t    ['+
+                        pipes.vars.map(function(name){return 'thisId + \'.'+name+'\'';}).join(',')+
                         '],\n'+
-                    '\t\t    {component: this.id, property: \''+ i +'\'}\n'+
-                    '\t\t);\n'+
-                    '\t\tmutatingPipe.addMutator(function ('+pipes.vars.join(',')+') {\n'+
-                    '\t\t    return '+pipes.fn+';\n'+
-                    '\t\t});\n'+
-                    '\t\teventManager.registerPipe(mutatingPipe);\n';
-
-                    //out += '\t\tPIPEtmp.set(\'' + i + '\', '+ prop +')\n';
+                        '\t\t    {component: this.id, property: \''+ i +'\'}\n'+
+                        '\t\t);\n'+
+                        '\t\tmutatingPipe.addMutator(function ('+pipes.vars.join(',')+') {\n'+
+                        '\t\t    return '+pipes.fn+';\n'+
+                        '\t\t});\n'+
+                        '\t\teventManager.registerPipe(mutatingPipe);\n';
                 }else {
                     propVal = this.propertyGetter(prop);
                     out += '\t\tthis.set(\'' + i + '\', '+ propVal +')\n';
@@ -115,7 +163,7 @@ module.exports = (function() {
             out += '\t\tparent._ownComponents.push(this);\n\n';
             out += '\t\treturn this;\n' +
                 '\t}).call( new _known[\''+child.type/*TODO: escape*/+'\']({'+
-                    (child.name ? 'id: \''+child.name+'\'':'')+'}) );\n';
+                (child.name ? 'id: \''+child.name+'\'':'')+'}) );\n';
 
             return out;
 
@@ -123,9 +171,9 @@ module.exports = (function() {
         getPipe: function(items){
             return items[0];
         },
-        propertyGetter: function(prop){
+        propertyGetter: function(prop) {
             //console.log('****',prop, prop.value[0] && prop.value[0].items)
-            return '\''+prop.value+'\'';
+            return '\'' + prop.value + '\'';
         }
     });
 
