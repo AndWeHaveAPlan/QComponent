@@ -14,13 +14,17 @@ def UIComponent TextBox
 
 
 def UIComponent main
+   String valueProxy: {{value}}
    TextBox hb1
        text: {{value}}
    Checkbox1 c1:
        checked: {{value}}
    HBox hbox:
        a:
+           value: {{value}}
+           href: {{value}}
        a:
+           value: "http://google.com"
    div d1:
        Checkbox1 c2:
-           checked: {{value}}
+           checked: {{valueProxy}}

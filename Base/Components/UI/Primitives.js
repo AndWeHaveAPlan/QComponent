@@ -85,11 +85,49 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
     }
 });
 
+exports['a'] = exports['HtmlPrimitive'].extend('a', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('a');
+    },
+    _setter: {
+        default: function (name, val) {
+            if (val === void 0) {
+                this.el.removeAttribute(name);
+            } else {
+                this.el.setAttribute(name, val);
+            }
+            this._data[name] = val;
+        },
+        value: function (key, val) {
+            if (!this.textNode) {
+                this.textNode = new exports['textNode'];
+                this._children.unshift(this.textNode);
+            }
+            this.textNode.set('value', val);
+        },
+        href: function (name, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('href');
+            } else {
+                this.el.setAttribute('href', val);
+            }
+            this._data['href'] = val;
+        }
+    },
+    _getter: {
+        default: function (key) {
+            return this._data[key];
+        },
+        href: function () {
+            return this._data['href'];
+        }
+    }
+});
 
 /**
  *
  */
-('a,b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
+('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
 'table,tbody,td,textarea,th,thead,tr,u,ul,header')
