@@ -23,3 +23,4 @@ def UIComponent main
        a:
    div d1:
        Checkbox1 c2:
+           checked: {{value}}
