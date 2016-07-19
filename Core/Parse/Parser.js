@@ -126,7 +126,7 @@ module.exports = (function(){
                 };
 
             /** replace bad line endings to good one*/
-            str = str.replace( /(\r\n|\n\r)/, '\n' );
+            str = str.replace( /(\r\n|\n\r)/g, '\n' );
 
             /** char by char parsing */
             for( i = 0, _i = str.length; i < _i; i++ ){
