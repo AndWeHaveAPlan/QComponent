@@ -21,10 +21,10 @@ def UIComponent main
        checked: {{value}}
    HBox hbox:
        a:
-           value: {{valueProxy}}
+           value: {{value}}
            href: {{href}}
        a:
-           value: {{valueProxy}}
+           value: {{value}}
            href: {{href}}
    div d1:
        Checkbox1 c2:
