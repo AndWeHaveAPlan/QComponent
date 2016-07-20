@@ -8,23 +8,24 @@ def UIComponent Checkbox1
 def UIComponent TextBox
    public String text: {{value}}
    input i1:
-     //style: position: relative; background: red;
      type: text
      value: {{text}}
 
 
 def UIComponent main
    String valueProxy: {{value}}
-   TextBox hb1
+   String href: "http://google.com"
+   TextBox:
        text: {{value}}
    Checkbox1 c1:
        checked: {{value}}
    HBox hbox:
        a:
-           value: {{value}}
-           href: {{value}}
+           value: {{valueProxy}}
+           href: {{href}}
        a:
-           value: "http://google.com"
+           value: {{valueProxy}}
+           href: {{href}}
    div d1:
        Checkbox1 c2:
-           checked: {{valueProxy}}
+           checked: {{value}}
