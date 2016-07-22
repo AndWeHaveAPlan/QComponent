@@ -22,7 +22,7 @@ function AbstractComponent(cfg) {
 
     this.apply(cfg);
 
-    if(!this.id)
+    if (!this.id)
         this.id = uuid();
 
     /**
@@ -38,11 +38,11 @@ function AbstractComponent(cfg) {
      * @type Array<AbstractComponent>
      * @private
      */
-    this._ownComponents = new ObservableSequence( new DQIndex( 'id' ) );
+    this._ownComponents = new ObservableSequence(new DQIndex('id'));
 
-    if (!this.leaf){
+    if (!this.leaf) {
         /** instantly modify child components on append */
-        this._ownComponents.on('add', function( child ){
+        this._ownComponents.on('add', function (child) {
             child.parent = self;
         });
     }
@@ -55,7 +55,7 @@ function AbstractComponent(cfg) {
      */
     this._onPropertyChanged = new MulticastDelegate();
 
-    if(!this._eventManager)
+    if (!this._eventManager)
         this._eventManager = new EventManager();
 
     this._eventManager.registerComponent(this);
@@ -88,9 +88,25 @@ AbstractComponent.prototype = new QObject({
      * @param name String
      */
     get: function (name) {
-        var accesor = this._getter[name] || this._getter.default;
 
-        return accesor.call(this, name);
+        var nameParts = name.split('.');
+        var ret = this;
+
+        if (nameParts.length > 1) {
+            for (var i = 0; i < nameParts.length; i++) {
+                if (ret instanceof AbstractComponent) {
+                    ret = ret.get(nameParts[i]);
+                } else {
+                    ret = ret[nameParts[i]];
+                }
+            }
+
+            return ret;
+
+        } else {
+            var accesor = this._getter[name] || this._getter.default;
+            return accesor.call(this, name);
+        }
     },
 
     /**
@@ -111,8 +127,8 @@ AbstractComponent.prototype = new QObject({
      *
      * @param callback Function
      */
-    subscribe: function (callback){
-        this._onPropertyChanged.addFunction( callback );
+    subscribe: function (callback) {
+        this._onPropertyChanged.addFunction(callback);
     },
 
     /**
@@ -121,9 +137,9 @@ AbstractComponent.prototype = new QObject({
      * @param component AbstractComponent: AbstractComponent to add
      */
     /*addComponent: function( component ){
-        this._ownComponents.push(component);
-        return this;
-    },*/
+     this._ownComponents.push(component);
+     return this;
+     },*/
 
     _type: 'AbstractComponent'
 });
