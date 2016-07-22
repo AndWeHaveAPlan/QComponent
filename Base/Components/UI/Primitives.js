@@ -44,7 +44,10 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     },
     _setter: {
         value: function (key, val) {
+            var oldValue = this._data['value'];
             this.el.nodeValue = val;
+            this._data['value'] = val;
+            this._onPropertyChanged(this, 'value', val, oldValue);
         }
     }
 });
@@ -55,7 +58,12 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
 exports['input'] = exports['HtmlPrimitive'].extend('input', {
     //leaf: true,
     createEl: function () {
+        var self = this;
         this.el = UIComponent.document.createElement('input');
+
+        this.el.addEventListener('click', function () {
+            self.el.style.background = "#00ff00";
+        });
     },
     _setter: {
         value: function (key, val) {
@@ -136,8 +144,8 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
             createEl: function () {
                 this.el = UIComponent.document.createElement(name);
-                this.el.style.overflow = 'hidden';
-                this.el.style.position = 'absolute';
+                //this.el.style.overflow = 'hidden';
+                //this.el.style.position = 'absolute';
             }
         });
     });

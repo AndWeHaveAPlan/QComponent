@@ -8,7 +8,7 @@ module.exports = (function () {
         shadow = require('../Shadow'),
         cmetadata = {};
 
-    var compiler = new QObject({
+    return new QObject({
         compile: function (metadata) {
             cmetadata = metadata;
 
@@ -50,7 +50,6 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    //var pipe = this.getPipe(pipes[i]);
                     out += '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
                         '\t    [' +
                         pipes.vars.map(function (name) {
@@ -63,8 +62,6 @@ module.exports = (function () {
                         '\t    return ' + pipes.fn + ';\n' +
                         '\t});\n' +
                         '\teventManager.registerPipe(mutatingPipe);\n';
-
-                    //out += '\tPIPEtmp.set(\'' + i + '\', '+ prop +')\n';
                 } else {
                     propVal = this.propertyGetter(prop);
                     out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
@@ -84,7 +81,7 @@ module.exports = (function () {
                 compiledChildren = child.children.map(this.compileChild2.bind(this)).join('');
 
             var out = '\ttmp = (function(parent){\n' +
-                '\t\teventManager.registerComponent(this);\n' + compiledChildren,
+                    '\t\teventManager.registerComponent(this);\n' + compiledChildren,
                 i, prop, propVal, pipes;
 
             if (child.value.isPipe) {
@@ -146,7 +143,7 @@ module.exports = (function () {
                 compiledChildren = child.children.map(this.compileChild2.bind(this)).join('');
 
             var out = '\ttmp = (function(){\n' +
-                '\t\teventManager.registerComponent(this);\n' + compiledChildren,
+                    '\t\teventManager.registerComponent(this);\n' + compiledChildren,
                 i, prop, propVal, pipes;
 
             for (i in child.prop) {
@@ -188,14 +185,4 @@ module.exports = (function () {
             return '\'' + prop.value + '\'';
         }
     });
-
-    /*var tokens = parser.tokenizer(
-     ),
-     tree = parser.treeBuilder(tokens),
-     linked = compiler.linker(tree);
-     console.log(tree);
-     console.log(JSON.stringify(linked,null,2));*/
-
-
-    return compiler;
 })();
