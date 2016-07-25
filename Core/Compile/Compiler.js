@@ -34,7 +34,7 @@ module.exports = (function () {
 
                 'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {}, function(){',
                 '    ' + item.type + '.apply(this, arguments);',
-                '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, thisId=this.id;',
+                '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 '',
                 item.children ? item.children.map(this.compileChild.bind(this)).join('') : '//no children\n',
                 this.makePublic(item.public),
@@ -43,6 +43,41 @@ module.exports = (function () {
             ];
             return source;
         },
+        makePipe: function (pipe, sourceComponent, targetProperty) {
+            var regEx = new RegExp('(self|top|' + pipe.vars.join('|') + ').([\\w^\\.]+)', 'g');
+            var vars = [];
+            var args = "";
+
+            var fn = pipe.fn.replace(regEx, function (m, cName, pName) {
+
+                var pNameClear=pName.replace('.','');
+                var v = {pname: pName, pnameClear:pNameClear, cname: '\''+cName+'\'', full: cName + pNameClear};
+                args+= v.full;
+
+                if(cName=='self')
+                    v.cname='this.id';
+                if(cName=='top')
+                    v.cname='self.id';
+
+                vars.push(v);
+
+                return cName + pNameClear;
+            });
+
+            var pipeString = '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
+                '\t    [' +
+                vars.map(function (name) {
+                    return name.cname + ' + \'.' + name.pname + '\'';
+                }).join(',') +
+                '],\n' +
+                '\t    {component: this.id, property: \'' + targetProperty + '\'}\n' +
+                '\t);\n' +
+                '\tmutatingPipe.addMutator(function (' + args + ') {\n' +
+                '\t    return ' + fn + ';\n' +
+                '\t});\n' +
+                '\teventManager.registerPipe(mutatingPipe);\n';
+            return pipeString;
+        },
         makePublic: function (props) {
             var i, prop, pipes, out = '', propVal;
             for (i in props) {
@@ -50,18 +85,7 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
-                        '\t    [' +
-                        pipes.vars.map(function (name) {
-                            return 'this.id + \'.' + name + '\'';
-                        }).join(',') +
-                        '],\n' +
-                        '\t    {component: this.id, property: \'' + i + '\'}\n' +
-                        '\t);\n' +
-                        '\tmutatingPipe.addMutator(function (' + pipes.vars.join(',') + ') {\n' +
-                        '\t    return ' + pipes.fn + ';\n' +
-                        '\t});\n' +
-                        '\teventManager.registerPipe(mutatingPipe);\n';
+                    out += this.makePipe(pipes, 'this.id', i);
                 } else {
                     propVal = this.propertyGetter(prop);
                     out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
@@ -86,18 +110,7 @@ module.exports = (function () {
 
             if (child.value.isPipe) {
                 var pipe = child.value;
-                out += '\t\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
-                    '\t\t    [' +
-                    pipe.vars.map(function (name) {
-                        return 'thisId + \'.' + name + '\'';
-                    }).join(',') +
-                    '],\n' +
-                    '\t\t    {component: this.id, property: \'value\'}\n' +
-                    '\t\t);\n' +
-                    '\t\tmutatingPipe.addMutator(function (' + pipe.vars.join(',') + ') {\n' +
-                    '\t\t    return ' + pipe.fn + ';\n' +
-                    '\t\t});\n' +
-                    '\t\teventManager.registerPipe(mutatingPipe);\n';
+                out += this.makePipe(pipe, 'self.id', 'value');
             }
 
             for (i in child.prop) {
@@ -105,18 +118,7 @@ module.exports = (function () {
                 pipes = prop.value;
                 if (pipes.isPipe) {
                     //var pipe = this.getPipe(pipes[i]);
-                    out += '\t\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
-                        '\t\t    [' +
-                        pipes.vars.map(function (name) {
-                            return 'thisId + \'.' + name + '\'';
-                        }).join(',') +
-                        '],\n' +
-                        '\t\t    {component: this.id, property: \'' + i + '\'}\n' +
-                        '\t\t);\n' +
-                        '\t\tmutatingPipe.addMutator(function (' + pipes.vars.join(',') + ') {\n' +
-                        '\t\t    return ' + pipes.fn + ';\n' +
-                        '\t\t});\n' +
-                        '\t\teventManager.registerPipe(mutatingPipe);\n';
+                    out += this.makePipe(pipes, 'self.id', i);
                 } else {
                     propVal = this.propertyGetter(prop);
                     out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
@@ -151,18 +153,7 @@ module.exports = (function () {
                 pipes = prop.value;
                 if (pipes.isPipe) {
                     //var pipe = this.getPipe(pipes[i]);
-                    out += '\t\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
-                        '\t\t    [' +
-                        pipes.vars.map(function (name) {
-                            return 'thisId + \'.' + name + '\'';
-                        }).join(',') +
-                        '],\n' +
-                        '\t\t    {component: this.id, property: \'' + i + '\'}\n' +
-                        '\t\t);\n' +
-                        '\t\tmutatingPipe.addMutator(function (' + pipes.vars.join(',') + ') {\n' +
-                        '\t\t    return ' + pipes.fn + ';\n' +
-                        '\t\t});\n' +
-                        '\t\teventManager.registerPipe(mutatingPipe);\n';
+                    out += this.makePipe(pipes, 'self.id', i);
                 } else {
                     propVal = this.propertyGetter(prop);
                     out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';

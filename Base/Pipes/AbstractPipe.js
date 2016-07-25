@@ -97,10 +97,16 @@ AbstractPipe.prototype._addInputSource = function (source) {
 AbstractPipe.prototype.process = function (key, value, component) {
 
     var sourceBinding = this.sourceBindings[key];
-    if (sourceBinding)
-        this.sourceBindings[key].value = value;
 
-    this._process(key, component);
+    var changed = false;
+
+    if (sourceBinding) {
+        changed = this.sourceBindings[key].value !== value;
+        this.sourceBindings[key].value = value;
+    }
+
+    if (changed)
+        this._process(key, component);
 };
 
 /**
