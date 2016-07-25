@@ -18,17 +18,12 @@ def UIComponent main
    String href: "http://google.com"
    HBox hbox:
        ListBox list:
-           a: {{top.value}}
-               href: {{top.value}}
-           a: {{top.value+1}}
-               href: {{top.href}}
-           a: {{top.valueProxy+2}}
-               href: {{top.href}}
-           a: {{top.valueProxy+3}}
-               href: {{top.href}}
+           ItemTemplate:
+               a:
+                   value: google.com
        div:
            TextBox t1:
-               text: {{top.selectedItem}}
+               text: {{top.sItem}}
            Checkbox1 cb1: {{top.valueProxy}}
            Checkbox1 cb2: {{cb1.value}}
            Checkbox1: {{top.value}}

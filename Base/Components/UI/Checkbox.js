@@ -10,6 +10,9 @@ module.exports = UIComponent.extend('Checkbox', {
     createEl: function () {
         this.el = UIComponent.document.createElement('input');
         this.el.setAttribute('type', 'checkbox');
+        this.el.addEventListener('change', function () {
+            this.set('checked', !this._data.checked);
+        });
     },
     _setter: {
         checked: function (key, value) {

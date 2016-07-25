@@ -17,6 +17,7 @@ module.exports = {
         UI: {
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
+            ListBox: require('./Base/Components/UI/ListBox'),
             HBox: require('./Base/Components/UI/HBox')
         },
         Factory: require("./Base/Components/Factory"),
@@ -35,7 +36,7 @@ module.exports = {
         MutatingPipe: require("./Base/Pipes/MutatingPipe")
     }
 };
-},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":10,"./Base/Components/UI/Primitives":11,"./Base/Components/UIComponent":12,"./Base/EventManager":13,"./Base/Pipes/AbstractPipe":15,"./Base/Pipes/FiltratingPipe":16,"./Base/Pipes/MutatingPipe":17,"./Base/Pipes/SimplePipe":18,"./Base/QObject":19}],2:[function(require,module,exports){
+},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/Primitives":14,"./Base/Components/UIComponent":15,"./Base/EventManager":16,"./Base/Pipes/AbstractPipe":18,"./Base/Pipes/FiltratingPipe":19,"./Base/Pipes/MutatingPipe":20,"./Base/Pipes/SimplePipe":21,"./Base/QObject":22}],2:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -60,7 +61,7 @@ function AbstractComponent(cfg) {
 
     this.apply(cfg);
 
-    if(!this.id)
+    if (!this.id)
         this.id = uuid();
 
     /**
@@ -76,11 +77,11 @@ function AbstractComponent(cfg) {
      * @type Array<AbstractComponent>
      * @private
      */
-    this._ownComponents = new ObservableSequence( new DQIndex( 'id' ) );
+    this._ownComponents = new ObservableSequence(new DQIndex('id'));
 
-    if (!this.leaf){
+    if (!this.leaf) {
         /** instantly modify child components on append */
-        this._ownComponents.on('add', function( child ){
+        this._ownComponents.on('add', function (child) {
             child.parent = self;
         });
     }
@@ -93,7 +94,7 @@ function AbstractComponent(cfg) {
      */
     this._onPropertyChanged = new MulticastDelegate();
 
-    if(!this._eventManager)
+    if (!this._eventManager)
         this._eventManager = new EventManager();
 
     this._eventManager.registerComponent(this);
@@ -102,6 +103,10 @@ function AbstractComponent(cfg) {
 AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = new QObject({
+
+    regenId:function(){
+        this.id = uuid();
+    },
 
     /** mutators */
     _setter: {
@@ -126,9 +131,28 @@ AbstractComponent.prototype = new QObject({
      * @param name String
      */
     get: function (name) {
-        var accesor = this._getter[name] || this._getter.default;
 
-        return accesor.call(this, name);
+        var nameParts = name.split('.');
+        var ret = this;
+
+        if (nameParts.length > 1) {
+            for (var i = 0; i < nameParts.length; i++) {
+                if (ret instanceof AbstractComponent) {
+                    ret = ret.get(nameParts[i]);
+                } else {
+                    ret = ret[nameParts[i]];
+                }
+
+                if (ret == void 0)
+                    return ret;
+            }
+
+            return ret;
+
+        } else {
+            var accesor = this._getter[name] || this._getter.default;
+            return accesor.call(this, name);
+        }
     },
 
     /**
@@ -138,6 +162,7 @@ AbstractComponent.prototype = new QObject({
      * @param value Object
      */
     set: function (name, value) {
+        //TODO implement dot notation
         var mutator = this._setter[name] || this._setter.default;
 
         mutator.call(this, name, value);
@@ -149,8 +174,8 @@ AbstractComponent.prototype = new QObject({
      *
      * @param callback Function
      */
-    subscribe: function (callback){
-        this._onPropertyChanged.addFunction( callback );
+    subscribe: function (callback) {
+        this._onPropertyChanged.addFunction(callback);
     },
 
     /**
@@ -159,9 +184,9 @@ AbstractComponent.prototype = new QObject({
      * @param component AbstractComponent: AbstractComponent to add
      */
     /*addComponent: function( component ){
-        this._ownComponents.push(component);
-        return this;
-    },*/
+     this._ownComponents.push(component);
+     return this;
+     },*/
 
     _type: 'AbstractComponent'
 });
@@ -172,7 +197,7 @@ AbstractComponent._type = AbstractComponent.prototype._type;
 
 
 QObject._knownComponents['AbstractComponent'] = module.exports = AbstractComponent;
-},{"../MulticastDelegate":14,"./../EventManager":13,"./../QObject":19,"observable-sequence":21,"tiny-uuid":23,"z-lib-structure-dqIndex":25}],3:[function(require,module,exports){
+},{"../MulticastDelegate":17,"./../EventManager":16,"./../QObject":22,"observable-sequence":24,"tiny-uuid":26,"z-lib-structure-dqIndex":28}],3:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -309,7 +334,7 @@ module.exports = (function () {
     return Factory;
 })();
 
-},{"../QObject":19,"./AbstractComponent":2}],5:[function(require,module,exports){
+},{"../QObject":22,"./AbstractComponent":2}],5:[function(require,module,exports){
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
@@ -453,6 +478,9 @@ module.exports = UIComponent.extend('Checkbox', {
     createEl: function () {
         this.el = UIComponent.document.createElement('input');
         this.el.setAttribute('type', 'checkbox');
+        this.el.addEventListener('change', function () {
+            this.set('checked', !this._data.checked);
+        });
     },
     _setter: {
         checked: function (key, value) {
@@ -493,7 +521,120 @@ module.exports = UIComponent.extend('Checkbox', {
         }
     }
 });
-},{"../UIComponent":12,"./Primitives":11}],10:[function(require,module,exports){
+},{"../UIComponent":15,"./Primitives":14}],10:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var QObject = require('../../QObject');
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+var ItemTemplate = require('./ItemTemplate');
+var ContentContainer = require('../ContentContainer');
+
+var ObservableSequence = require('observable-sequence');
+
+module.exports = UIComponent.extend('ContainerComponent', {
+    /**
+     * Create own components
+     *
+     * @private
+     */
+    _init: function () {
+        var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
+
+        while (item = iterator.next()) {
+
+            if (item instanceof ItemTemplate) {
+                this._itemTemplate = item;
+                continue;
+            }
+
+            if (item)
+                if (item instanceof ContentContainer) {
+                    this._contentContainer = item;
+                } else {
+                    this._eventManager.registerComponent(item);
+                }
+
+            this.el.appendChild(item.el);
+        }
+    },
+    addChild: function (child) {
+
+        if (child instanceof ItemTemplate) {
+            this._itemTemplate = child;
+        } else {
+            this._children.push(child);
+        }
+
+        return this;
+    },
+    _getter: {
+        selectedIndex: function (name, val) {
+            return this._data['selectedIndex'];
+        },
+        selectedItem: function (name, val) {
+            return this._data['selectedItem'];
+        },
+        value: function (name, val) {
+            this._setter.itemSource(name, val);
+        },
+        itemSource: function (name, val) {
+            return this._data['itemSource'];
+        }
+    },
+    _setter: {
+        selectedIndex: function (name, val) {
+            var oldVal = this._data['selectedIndex'];
+            this._data['selectedIndex'] = val;
+
+            this._data['selectedItem'] = this._children.get(val);
+
+            var children = this.el.childNodes;
+            if (oldVal != void(0) && oldVal < children.length)
+                children[oldVal].style.background = 'none';
+            if (val < children.length)
+                children[val].style.background = '#0000ff';
+
+            this._onPropertyChanged(this, 'selectedItem', this._data['selectedItem'], void 0);
+            this._onPropertyChanged(this, 'selectedIndex', val, oldVal);
+        },
+        value: function (name, val) {
+            var oldVal = this._data['itemSource'];
+            this._setter.itemSource(name, val);
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
+        },
+        itemSource: function (name, val) {
+            var oldVal = this._data['itemSource'];
+            var template = this._itemTemplate;
+
+            for (var i = 0, length = val.length; i < length; i++) {
+                var self = this;
+                var newComp = new UIComponent();
+                newComp._children = template._children;
+                newComp.el = template.el.cloneNode(true);
+                newComp._data = val[i];
+
+                var childNode = newComp.el;
+                childNode.style.clear = 'both';
+                childNode.style.position = 'relative';
+
+                (function (index) {
+                    childNode.addEventListener('click', function () {
+                        self.set('selectedIndex', index);
+                    });
+                })(i);
+
+                this._children.push(newComp);
+            }
+            this._data['itemSource'] = val;
+            this._onPropertyChanged(this, 'itemSource', val, oldVal);
+        }
+    }
+});
+},{"../../QObject":22,"../ContentContainer":3,"../UIComponent":15,"./ItemTemplate":12,"./Primitives":14,"observable-sequence":24}],11:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -520,7 +661,36 @@ module.exports = UIComponent.extend('HBox', {
         }
     }
 });
-},{"../UIComponent":12,"./Primitives":11}],11:[function(require,module,exports){
+},{"../UIComponent":15,"./Primitives":14}],12:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var UIComponent = require('./../UIComponent');
+
+/**
+ *
+ */
+module.exports = UIComponent.extend('ItemTemplate', {
+
+}, function (cfg) {
+    UIComponent.call(this, cfg);
+});
+},{"./../UIComponent":15}],13:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+var ContainerComponent = require('./ContainerComponent');
+
+module.exports = ContainerComponent.extend('ListBox', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('div');
+    }
+});
+},{"../UIComponent":15,"./ContainerComponent":10,"./Primitives":14}],14:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -567,7 +737,10 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     },
     _setter: {
         value: function (key, val) {
+            var oldValue = this._data['value'];
             this.el.nodeValue = val;
+            this._data['value'] = val;
+            this._onPropertyChanged(this, 'value', val, oldValue);
         }
     }
 });
@@ -578,7 +751,12 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
 exports['input'] = exports['HtmlPrimitive'].extend('input', {
     //leaf: true,
     createEl: function () {
+        var self = this;
         this.el = UIComponent.document.createElement('input');
+
+        this.el.addEventListener('click', function () {
+            self.el.style.background = "#00ff00";
+        });
     },
     _setter: {
         value: function (key, val) {
@@ -659,14 +837,14 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
             createEl: function () {
                 this.el = UIComponent.document.createElement(name);
-                this.el.style.overflow = 'hidden';
-                this.el.style.position = 'absolute';
+                //this.el.style.overflow = 'hidden';
+                //this.el.style.position = 'absolute';
             }
         });
     });
 
 module.exports = exports;
-},{"../UIComponent":12}],12:[function(require,module,exports){
+},{"../UIComponent":15}],15:[function(require,module,exports){
 /**
  * Created by zibx on 01.07.16.
  */
@@ -697,6 +875,9 @@ module.exports = (function () {
             var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
 
             while (item = iterator.next()) {
+
+                if(item )
+
                 if (item instanceof ContentContainer) {
                     this._contentContainer = item;
                 } else {
@@ -841,7 +1022,7 @@ module.exports = (function () {
 
     return UIComponent;
 })();
-},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":21,"z-lib-structure-dqIndex":25,"z-observable":27}],13:[function(require,module,exports){
+},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":24,"z-lib-structure-dqIndex":28,"z-observable":30}],16:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -946,7 +1127,7 @@ EventManager.prototype.registerPipe = function (pipe) {
 };
 
 module.exports = EventManager;
-},{"./Components/AbstractComponent":2,"./Pipes/FiltratingPipe":16,"./Pipes/SimplePipe":18,"./QObject":19}],14:[function(require,module,exports){
+},{"./Components/AbstractComponent":2,"./Pipes/FiltratingPipe":19,"./Pipes/SimplePipe":21,"./QObject":22}],17:[function(require,module,exports){
 /**
  * Created by ravenor on 12.07.16.
  */
@@ -990,7 +1171,7 @@ MulticastDelegate.createDelegate = function () {
 };
 
 module.exports = MulticastDelegate;
-},{}],15:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1090,10 +1271,16 @@ AbstractPipe.prototype._addInputSource = function (source) {
 AbstractPipe.prototype.process = function (key, value, component) {
 
     var sourceBinding = this.sourceBindings[key];
-    if (sourceBinding)
-        this.sourceBindings[key].value = value;
 
-    this._process(key, component);
+    var changed = false;
+
+    if (sourceBinding) {
+        changed = this.sourceBindings[key].value !== value;
+        this.sourceBindings[key].value = value;
+    }
+
+    if (changed)
+        this._process(key, component);
 };
 
 /**
@@ -1109,7 +1296,7 @@ AbstractPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = AbstractPipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":19}],16:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":22}],19:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1175,7 +1362,7 @@ FiltratingPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = FiltratingPipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":19,"./AbstractPipe":15}],17:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":22,"./AbstractPipe":18}],20:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1240,7 +1427,7 @@ MutatingPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = MutatingPipe;
-},{"../Components/AbstractComponent":2,"./../QObject":19,"./AbstractPipe":15}],18:[function(require,module,exports){
+},{"../Components/AbstractComponent":2,"./../QObject":22,"./AbstractPipe":18}],21:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1265,7 +1452,7 @@ SimplePipe.prototype = Object.create(AbstractPipe.prototype);
 SimplePipe.prototype.constructor = AbstractPipe;
 
 module.exports = SimplePipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":19,"./AbstractPipe":15}],19:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":22,"./AbstractPipe":18}],22:[function(require,module,exports){
 (function () {
     'use strict';
 
@@ -1390,7 +1577,7 @@ module.exports = SimplePipe;
             Cmp._type = Cmp.prototype._type = name;
             Cmp.extend = QObject.extend;
             Cmp.document = QObject.document;
-            
+
             /** register to components */
             components[name] = Cmp;
 
@@ -1417,7 +1604,7 @@ module.exports = SimplePipe;
 
     module.exports = QObject;
 })();
-},{"dom-lite":20}],20:[function(require,module,exports){
+},{"dom-lite":23}],23:[function(require,module,exports){
 
 
 /**
@@ -1825,7 +2012,7 @@ module.exports = {
 }
 
 
-},{"selector-lite":22}],21:[function(require,module,exports){
+},{"selector-lite":25}],24:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1984,7 +2171,7 @@ module.exports = (function () {
     };
     return ObservableArray;
 })();
-},{}],22:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 
 
 /*
@@ -2112,10 +2299,10 @@ module.exports = (function () {
 }(this)
 
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b};
 
-},{}],24:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2391,7 +2578,7 @@ module.exports = (function () {
     dequeue.prototype.forEach = dequeue.prototype.each;
     return dequeue;
 })();
-},{}],25:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /**
  * Created by zibx on 01.06.16.
  */
@@ -2522,7 +2709,7 @@ module.exports = (function () {
     Index.prototype.forEach = Index.prototype.each;
     return Index;
 })();
-},{"z-lib-structure-dequeue":24}],26:[function(require,module,exports){
+},{"z-lib-structure-dequeue":27}],29:[function(require,module,exports){
 /**
  * Created by Zibx on 10/14/2014.
  */(function(  ){
@@ -3341,7 +3528,7 @@ module.exports = (function () {
     (1,eval)('this')
 );
 
-},{}],27:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * Created by Ivan on 10/19/2014.
  */
@@ -3595,5 +3782,5 @@ module.exports = (function(){
     Z.Observable.prototype = proto;
     return Z.Observable;
 })();
-},{"z-lib":26}]},{},[1])(1)
+},{"z-lib":29}]},{},[1])(1)
 });
