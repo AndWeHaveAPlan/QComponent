@@ -99,6 +99,9 @@ AbstractComponent.prototype = new QObject({
                 } else {
                     ret = ret[nameParts[i]];
                 }
+
+                if (ret == void 0)
+                    return ret;
             }
 
             return ret;
@@ -116,6 +119,7 @@ AbstractComponent.prototype = new QObject({
      * @param value Object
      */
     set: function (name, value) {
+        //TODO implement dot notation
         var mutator = this._setter[name] || this._setter.default;
 
         mutator.call(this, name, value);
