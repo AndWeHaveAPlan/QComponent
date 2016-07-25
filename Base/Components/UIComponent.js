@@ -28,6 +28,9 @@ module.exports = (function () {
             var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
 
             while (item = iterator.next()) {
+
+                if(item )
+
                 if (item instanceof ContentContainer) {
                     this._contentContainer = item;
                 } else {

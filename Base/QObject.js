@@ -122,7 +122,7 @@
             Cmp._type = Cmp.prototype._type = name;
             Cmp.extend = QObject.extend;
             Cmp.document = QObject.document;
-            
+
             /** register to components */
             components[name] = Cmp;
 

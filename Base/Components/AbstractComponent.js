@@ -65,6 +65,10 @@ AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = new QObject({
 
+    regenId:function(){
+        this.id = uuid();
+    },
+
     /** mutators */
     _setter: {
         default: function (name, value) {
