@@ -35,16 +35,16 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
         var key = sender.id + '.' + name;
         var propertyPipes = self._registredPipes[key];
 
-        if (!propertyPipes) return;
+        if (propertyPipes) {
+            for (var i = 0; i < propertyPipes.length; i++) {
+                var currentPipe = propertyPipes[i];
 
-        for (var i = 0; i < propertyPipes.length; i++) {
-            var currentPipe = propertyPipes[i];
+                var targetComponentName = currentPipe.targetComponent;
 
-            var targetComponentName = currentPipe.targetComponent;
-
-            var targetComponent = self._registredComponents[targetComponentName];
-            if (targetComponent) {
-                currentPipe.process(key, newValue, targetComponent);
+                var targetComponent = self._registredComponents[targetComponentName];
+                if (targetComponent) {
+                    currentPipe.process(key, newValue, targetComponent);
+                }
             }
         }
     }

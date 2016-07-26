@@ -476,40 +476,25 @@ var UIComponent = require('../UIComponent');
 
 module.exports = UIComponent.extend('Checkbox', {
     createEl: function () {
+        var self = this;
         this.el = UIComponent.document.createElement('input');
         this.el.setAttribute('type', 'checkbox');
-        this.el.addEventListener('change', function () {
-            this.set('checked', !this._data.checked);
+        this.el.addEventListener('click', function (event) {
+            self.set('checked', this.checked);
         });
     },
     _setter: {
         checked: function (key, value) {
-
             var oldVal = this._data.checked;
-
-            if (!!value) {
-                this.el.setAttribute('checked', '');
-            } else {
-                this.el.removeAttribute('checked');
-            }
-
             this._data.checked = !!value;
-            this._onPropertyChanged(this, 'value', value, oldVal);
-            this._onPropertyChanged(this, 'checked', value, oldVal);
+
+            this.el.checked = this._data.checked;
+
+            this._onPropertyChanged(this, 'value', this._data.checked, oldVal);
+            this._onPropertyChanged(this, 'checked', this._data.checked, oldVal);
         },
         value: function (key, value) {
-
-            var oldVal = this._data.checked;
-
-            if (!!value) {
-                this.el.setAttribute('checked', '');
-            } else {
-                this.el.removeAttribute('checked');
-            }
-
-            this._data.checked = !!value;
-            this._onPropertyChanged(this, 'checked', value, oldVal);
-            this._onPropertyChanged(this, 'value', value, oldVal);
+            this.set('checked', value)
         }
     },
     _getter: {
@@ -535,41 +520,6 @@ var ContentContainer = require('../ContentContainer');
 var ObservableSequence = require('observable-sequence');
 
 module.exports = UIComponent.extend('ContainerComponent', {
-    /**
-     * Create own components
-     *
-     * @private
-     */
-    _init: function () {
-        var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
-
-        while (item = iterator.next()) {
-
-            if (item instanceof ItemTemplate) {
-                this._itemTemplate = item;
-                continue;
-            }
-
-            if (item)
-                if (item instanceof ContentContainer) {
-                    this._contentContainer = item;
-                } else {
-                    this._eventManager.registerComponent(item);
-                }
-
-            this.el.appendChild(item.el);
-        }
-    },
-    addChild: function (child) {
-
-        if (child instanceof ItemTemplate) {
-            this._itemTemplate = child;
-        } else {
-            this._children.push(child);
-        }
-
-        return this;
-    },
     _getter: {
         selectedIndex: function (name, val) {
             return this._data['selectedIndex'];
@@ -582,6 +532,9 @@ module.exports = UIComponent.extend('ContainerComponent', {
         },
         itemSource: function (name, val) {
             return this._data['itemSource'];
+        },
+        itemTemplate: function (name, val) {
+            return this._data['itemTemplate'];
         }
     },
     _setter: {
@@ -610,12 +563,18 @@ module.exports = UIComponent.extend('ContainerComponent', {
             var oldVal = this._data['itemSource'];
             var template = this._itemTemplate;
 
+            this._children.splice(0, this._children.length);
+
             for (var i = 0, length = val.length; i < length; i++) {
                 var self = this;
                 var newComp = new UIComponent();
-                newComp._children = template._children;
-                newComp.el = template.el.cloneNode(true);
-                newComp._data = val[i];
+                newComp = new template();
+
+                for(var key in val[i])
+                 if(val[i].hasOwnProperty(key))
+                     newComp.set(key,val[i][key]);
+
+                //newComp._data = val[i];
 
                 var childNode = newComp.el;
                 childNode.style.clear = 'both';
@@ -631,7 +590,13 @@ module.exports = UIComponent.extend('ContainerComponent', {
             }
             this._data['itemSource'] = val;
             this._onPropertyChanged(this, 'itemSource', val, oldVal);
-        }
+        },
+        itemTemplate: function (name, val) {
+            var oldVal = this._data['itemTemplate'];
+            this._itemTemplate=QObject._knownComponents[val];
+
+            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
+        },
     }
 });
 },{"../../QObject":22,"../ContentContainer":3,"../UIComponent":15,"./ItemTemplate":12,"./Primitives":14,"observable-sequence":24}],11:[function(require,module,exports){
@@ -1011,7 +976,11 @@ module.exports = (function () {
         });
         this._children.on('remove', function (child) {
             child.parent = null;
-            self.removeFromTree(child);
+            if (self._contentContainer && child.el) {
+                self._contentContainer.el.removeChild(child.el);
+            } else {
+                self.el.removeChild(child.el);
+            }
         });
 
         this.createEl();
@@ -1060,16 +1029,16 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
         var key = sender.id + '.' + name;
         var propertyPipes = self._registredPipes[key];
 
-        if (!propertyPipes) return;
+        if (propertyPipes) {
+            for (var i = 0; i < propertyPipes.length; i++) {
+                var currentPipe = propertyPipes[i];
 
-        for (var i = 0; i < propertyPipes.length; i++) {
-            var currentPipe = propertyPipes[i];
+                var targetComponentName = currentPipe.targetComponent;
 
-            var targetComponentName = currentPipe.targetComponent;
-
-            var targetComponent = self._registredComponents[targetComponentName];
-            if (targetComponent) {
-                currentPipe.process(key, newValue, targetComponent);
+                var targetComponent = self._registredComponents[targetComponentName];
+                if (targetComponent) {
+                    currentPipe.process(key, newValue, targetComponent);
+                }
             }
         }
     }
@@ -1241,22 +1210,19 @@ AbstractPipe.prototype._parseInput = function (input) {
  * @private
  */
 AbstractPipe.prototype._addInputSource = function (source) {
-
     var newSourceBinding = {};
 
-    if (typeof source === 'string' || source instanceof String) {
-        var firstDotIndex = source.indexOf('.');
-        if (firstDotIndex < 0)return;
-
-        newSourceBinding.key = source;
-        newSourceBinding.componentName = source.substr(0, firstDotIndex);
-        newSourceBinding.propertyName = source.substr(firstDotIndex + 1);
-
-    } else {
-        newSourceBinding.key = source.component + '.' + source.property;
-        newSourceBinding.componentName = source.component;
-        newSourceBinding.propertyName = source.property;
+    if (!(typeof source === 'string' || source instanceof String)) {
+        source = source.component + '.' + source.property;
     }
+
+    var propParts = source.split('.');
+
+    if (propParts.length < 2) return;
+
+    newSourceBinding.key = propParts.slice(0, 2).join('.');// source;
+    newSourceBinding.componentName = propParts[0];
+    newSourceBinding.propertyName = propParts.slice(1, propParts.length).join('.');
 
     this.sourceBindings[newSourceBinding.key] = newSourceBinding;
 };

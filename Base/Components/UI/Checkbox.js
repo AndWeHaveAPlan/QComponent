@@ -8,40 +8,25 @@ var UIComponent = require('../UIComponent');
 
 module.exports = UIComponent.extend('Checkbox', {
     createEl: function () {
+        var self = this;
         this.el = UIComponent.document.createElement('input');
         this.el.setAttribute('type', 'checkbox');
-        this.el.addEventListener('change', function () {
-            this.set('checked', !this._data.checked);
+        this.el.addEventListener('click', function (event) {
+            self.set('checked', this.checked);
         });
     },
     _setter: {
         checked: function (key, value) {
-
             var oldVal = this._data.checked;
-
-            if (!!value) {
-                this.el.setAttribute('checked', '');
-            } else {
-                this.el.removeAttribute('checked');
-            }
-
             this._data.checked = !!value;
-            this._onPropertyChanged(this, 'value', value, oldVal);
-            this._onPropertyChanged(this, 'checked', value, oldVal);
+
+            this.el.checked = this._data.checked;
+
+            this._onPropertyChanged(this, 'value', this._data.checked, oldVal);
+            this._onPropertyChanged(this, 'checked', this._data.checked, oldVal);
         },
         value: function (key, value) {
-
-            var oldVal = this._data.checked;
-
-            if (!!value) {
-                this.el.setAttribute('checked', '');
-            } else {
-                this.el.removeAttribute('checked');
-            }
-
-            this._data.checked = !!value;
-            this._onPropertyChanged(this, 'checked', value, oldVal);
-            this._onPropertyChanged(this, 'value', value, oldVal);
+            this.set('checked', value)
         }
     },
     _getter: {

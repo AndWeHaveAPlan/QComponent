@@ -50,14 +50,14 @@ module.exports = (function () {
 
             var fn = pipe.fn.replace(regEx, function (m, cName, pName) {
 
-                var pNameClear=pName.replace('.','');
-                var v = {pname: pName, pnameClear:pNameClear, cname: '\''+cName+'\'', full: cName + pNameClear};
-                args+= v.full;
+                var pNameClear = pName.replace('.', '');
+                var v = {pname: pName, pnameClear: pNameClear, cname: '\'' + cName + '\'', full: cName + pNameClear};
+                args += v.full;
 
-                if(cName=='self')
-                    v.cname='this.id';
-                if(cName=='top')
-                    v.cname='self.id';
+                if (cName == 'self')
+                    v.cname = 'this.id';
+                if (cName == 'top')
+                    v.cname = 'self.id';
 
                 vars.push(v);
 
@@ -108,10 +108,14 @@ module.exports = (function () {
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren,
                 i, prop, propVal, pipes;
 
-            if (child.value.isPipe) {
-                var pipe = child.value;
-                out += this.makePipe(pipe, 'self.id', 'value');
-            }
+            if (child.value)
+                if (child.value.isPipe) {
+                    var pipe = child.value;
+                    out += this.makePipe(pipe, 'self.id', 'value');
+                } else {
+                    propVal = this.propertyGetter(child);
+                    out += '\t\tthis.set(\'value\', ' + propVal + ')\n';
+                }
 
             for (i in child.prop) {
                 prop = child.prop[i];
@@ -148,6 +152,15 @@ module.exports = (function () {
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren,
                 i, prop, propVal, pipes;
 
+            if (child.value)
+                if (child.value.isPipe) {
+                    var pipe = child.value;
+                    out += this.makePipe(pipe, 'self.id', 'value');
+                } else {
+                    propVal = this.propertyGetter(child);
+                    out += '\t\tthis.set(\'value\', ' + propVal + ')\n';
+                }
+
             for (i in child.prop) {
                 prop = child.prop[i];
                 pipes = prop.value;
@@ -172,7 +185,10 @@ module.exports = (function () {
             return items[0];
         },
         propertyGetter: function (prop) {
-            //console.log('****',prop, prop.value[0] && prop.value[0].items)
+
+            if (Array.isArray(prop.value))
+                return prop.value[0].data;
+
             return '\'' + prop.value + '\'';
         }
     });

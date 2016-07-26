@@ -67,22 +67,19 @@ AbstractPipe.prototype._parseInput = function (input) {
  * @private
  */
 AbstractPipe.prototype._addInputSource = function (source) {
-
     var newSourceBinding = {};
 
-    if (typeof source === 'string' || source instanceof String) {
-        var firstDotIndex = source.indexOf('.');
-        if (firstDotIndex < 0)return;
-
-        newSourceBinding.key = source;
-        newSourceBinding.componentName = source.substr(0, firstDotIndex);
-        newSourceBinding.propertyName = source.substr(firstDotIndex + 1);
-
-    } else {
-        newSourceBinding.key = source.component + '.' + source.property;
-        newSourceBinding.componentName = source.component;
-        newSourceBinding.propertyName = source.property;
+    if (!(typeof source === 'string' || source instanceof String)) {
+        source = source.component + '.' + source.property;
     }
+
+    var propParts = source.split('.');
+
+    if (propParts.length < 2) return;
+
+    newSourceBinding.key = propParts.slice(0, 2).join('.');// source;
+    newSourceBinding.componentName = propParts[0];
+    newSourceBinding.propertyName = propParts.slice(1, propParts.length).join('.');
 
     this.sourceBindings[newSourceBinding.key] = newSourceBinding;
 };

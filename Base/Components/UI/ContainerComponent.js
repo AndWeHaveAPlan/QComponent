@@ -11,41 +11,6 @@ var ContentContainer = require('../ContentContainer');
 var ObservableSequence = require('observable-sequence');
 
 module.exports = UIComponent.extend('ContainerComponent', {
-    /**
-     * Create own components
-     *
-     * @private
-     */
-    _init: function () {
-        var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
-
-        while (item = iterator.next()) {
-
-            if (item instanceof ItemTemplate) {
-                this._itemTemplate = item;
-                continue;
-            }
-
-            if (item)
-                if (item instanceof ContentContainer) {
-                    this._contentContainer = item;
-                } else {
-                    this._eventManager.registerComponent(item);
-                }
-
-            this.el.appendChild(item.el);
-        }
-    },
-    addChild: function (child) {
-
-        if (child instanceof ItemTemplate) {
-            this._itemTemplate = child;
-        } else {
-            this._children.push(child);
-        }
-
-        return this;
-    },
     _getter: {
         selectedIndex: function (name, val) {
             return this._data['selectedIndex'];
@@ -58,6 +23,9 @@ module.exports = UIComponent.extend('ContainerComponent', {
         },
         itemSource: function (name, val) {
             return this._data['itemSource'];
+        },
+        itemTemplate: function (name, val) {
+            return this._data['itemTemplate'];
         }
     },
     _setter: {
@@ -86,12 +54,18 @@ module.exports = UIComponent.extend('ContainerComponent', {
             var oldVal = this._data['itemSource'];
             var template = this._itemTemplate;
 
+            this._children.splice(0, this._children.length);
+
             for (var i = 0, length = val.length; i < length; i++) {
                 var self = this;
                 var newComp = new UIComponent();
-                newComp._children = template._children;
-                newComp.el = template.el.cloneNode(true);
-                newComp._data = val[i];
+                newComp = new template();
+
+                for(var key in val[i])
+                 if(val[i].hasOwnProperty(key))
+                     newComp.set(key,val[i][key]);
+
+                //newComp._data = val[i];
 
                 var childNode = newComp.el;
                 childNode.style.clear = 'both';
@@ -107,6 +81,12 @@ module.exports = UIComponent.extend('ContainerComponent', {
             }
             this._data['itemSource'] = val;
             this._onPropertyChanged(this, 'itemSource', val, oldVal);
-        }
+        },
+        itemTemplate: function (name, val) {
+            var oldVal = this._data['itemTemplate'];
+            this._itemTemplate=QObject._knownComponents[val];
+
+            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
+        },
     }
 });

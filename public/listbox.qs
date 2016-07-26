@@ -1,9 +1,3 @@
-def UIComponent Checkbox1
-   public Boolean checked: {{top.value}}
-   div:
-       input i1:
-           type: checkbox
-           checked: {{top.checked?'checked':void 0}}
 
 def UIComponent TextBox
    public String text: {{top.value}}
@@ -11,6 +5,11 @@ def UIComponent TextBox
      type: text
      value: {{top.text}}
 
+def ItemTemplate listBoxItemTemplate
+   div:
+       value: {{top.name}}
+   a: google.com
+       href: google.com
 
 def UIComponent main
    public String valueProxy: {{top.value}}
@@ -18,12 +17,11 @@ def UIComponent main
    String href: "http://google.com"
    HBox hbox:
        ListBox list:
-           ItemTemplate:
-               a:
-                   value: google.com
+           itemTemplate: listBoxItemTemplate
+           itemSource: [{name:'item1'},{name:'item2'},{name:'item3'}]
        div:
-           TextBox t1:
-               text: {{top.sItem}}
-           Checkbox1 cb1: {{top.valueProxy}}
-           Checkbox1 cb2: {{cb1.value}}
-           Checkbox1: {{top.value}}
+           TextBox t1: selectedIndex
+               text: {{list.selectedIndex}}
+           Checkbox cb1: {{!cb2.checked || top.value}}
+           Checkbox cb2: {{!cb1.checked}}
+           Checkbox: {{top.value}}
