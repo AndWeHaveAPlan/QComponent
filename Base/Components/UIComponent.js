@@ -164,7 +164,11 @@ module.exports = (function () {
         });
         this._children.on('remove', function (child) {
             child.parent = null;
-            self.removeFromTree(child);
+            if (self._contentContainer && child.el) {
+                self._contentContainer.el.removeChild(child.el);
+            } else {
+                self.el.removeChild(child.el);
+            }
         });
 
         this.createEl();
