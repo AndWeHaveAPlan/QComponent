@@ -15,8 +15,8 @@ module.exports = (function () {
 
         createEl: function () {
             this.el = AbstractComponent.document.createElement('div');
-            //this.el.style.overflow = 'hidden';
-            //this.el.style.position = 'absolute';
+            this.el.style.overflow = 'hidden';
+            this.el.style.position = 'relative';
         },
 
         /**
@@ -88,6 +88,16 @@ module.exports = (function () {
         },
 
         _setter: {
+            disabled: function (key, val) {
+                var oldValue = this._data['disabled'];
+                if (val === void 0) {
+                    this.el.removeAttribute('disabled');
+                } else {
+                    this.el.setAttribute('disabled', val);
+                }
+                this._data['disabled'] = val;
+                this._onPropertyChanged(this, 'disabled', val, oldValue);
+            },
             left: function (name, val) {
                 this._data[name] = val;
                 if (val) {

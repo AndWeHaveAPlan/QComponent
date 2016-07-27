@@ -41,9 +41,15 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
 
                 var targetComponentName = currentPipe.targetComponent;
 
+                var val;
+                if (key == sender.id+'.'+currentPipe.sourceBindings[key].propertyName)
+                    val = newValue;
+                else
+                    val = sender.get(currentPipe.sourceBindings[key].propertyName);
+
                 var targetComponent = self._registredComponents[targetComponentName];
                 if (targetComponent) {
-                    currentPipe.process(key, newValue, targetComponent);
+                    currentPipe.process(key, val, targetComponent);
                 }
             }
         }
@@ -80,7 +86,7 @@ EventManager.prototype.createSimplePipe = function (source, target) {
 EventManager.prototype.registerPipe = function (pipe) {
 
     var bindingSources = pipe.sourceBindings;
-    var length = bindingSources.length;
+    //var length = bindingSources.length;
     var component;
 
     for (var source in bindingSources) {
@@ -96,9 +102,10 @@ EventManager.prototype.registerPipe = function (pipe) {
         }
     }
 
-    component = this._registredComponents[pipe.targetComponent];
-    if (component)
-        pipe.process(null, null, component);
+    /*component = this._registredComponents[pipe.targetComponent];
+     if (component)
+     pipe.process(null, null, component);
+     */
 };
 
 module.exports = EventManager;

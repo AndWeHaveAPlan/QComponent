@@ -37,8 +37,9 @@ var server = http.createServer(function(req, res){
             
             compiled = Core.Compile.Compiler.compile(subObj);
 
-            return res.end('<html><head>' +
-                '<script>module = {};</script>'+
+            return res.end('<html><head><meta charset="utf-8">' +
+                '<script>module = {};</script>' +
+                '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
                 '<script src="bundle.js"></script>' +
                 '<script>QObject = Base.QObject; Q = '+compiled+';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
         }catch(e){

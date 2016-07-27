@@ -58,7 +58,8 @@ MutatingPipe.prototype._process = function (changedKey, component) {
         value = mutators[i](value);
     }
 
-    component.set(this.targetPropertyName, value);
+    if (value != void(0))
+        component.set(this.targetPropertyName, value);
 };
 
 module.exports = MutatingPipe;

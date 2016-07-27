@@ -39,7 +39,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
             if (oldVal != void(0) && oldVal < children.length)
                 children[oldVal].style.background = 'none';
             if (val < children.length)
-                children[val].style.background = '#0000ff';
+                children[val].style.background = '#3b99fc'; //59 153 252
 
             this._onPropertyChanged(this, 'selectedItem', this._data['selectedItem'], void 0);
             this._onPropertyChanged(this, 'selectedIndex', val, oldVal);
@@ -61,9 +61,9 @@ module.exports = UIComponent.extend('ContainerComponent', {
                 var newComp = new UIComponent();
                 newComp = new template();
 
-                for(var key in val[i])
-                 if(val[i].hasOwnProperty(key))
-                     newComp.set(key,val[i][key]);
+                for (var key in val[i])
+                    if (val[i].hasOwnProperty(key))
+                        newComp.set(key, val[i][key]);
 
                 //newComp._data = val[i];
 
@@ -84,9 +84,23 @@ module.exports = UIComponent.extend('ContainerComponent', {
         },
         itemTemplate: function (name, val) {
             var oldVal = this._data['itemTemplate'];
-            this._itemTemplate=QObject._knownComponents[val];
+            this._itemTemplate = QObject._knownComponents[val];
 
             this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
         },
+        selectedItem: function (name, val) {
+            var oldVal = this._data['selectedItem'];
+            //this._data['selectedItem'] = val;
+
+            var itemComponent = this._children.get(this.get('selectedIndex'));
+
+            for (var key in val) {
+                if (val.hasOwnProperty(key)) {
+                    itemComponent.set(key, val[key]);
+                }
+            }
+
+            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
+        }
     }
 });

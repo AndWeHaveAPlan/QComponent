@@ -1,0 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+body {
+    font-family: 'Helvetica Neue', 'Segoe UI', 'liberation sans', sans-serif;
+    margin: 12px;
+}
+
+input {
+    font-size: 14px;
+}
