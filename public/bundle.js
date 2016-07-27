@@ -548,7 +548,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
             if (oldVal != void(0) && oldVal < children.length)
                 children[oldVal].style.background = 'none';
             if (val < children.length)
-                children[val].style.background = '#0000ff';
+                children[val].style.background = '#3b99fc'; //59 153 252
 
             this._onPropertyChanged(this, 'selectedItem', this._data['selectedItem'], void 0);
             this._onPropertyChanged(this, 'selectedIndex', val, oldVal);
@@ -570,9 +570,9 @@ module.exports = UIComponent.extend('ContainerComponent', {
                 var newComp = new UIComponent();
                 newComp = new template();
 
-                for(var key in val[i])
-                 if(val[i].hasOwnProperty(key))
-                     newComp.set(key,val[i][key]);
+                for (var key in val[i])
+                    if (val[i].hasOwnProperty(key))
+                        newComp.set(key, val[i][key]);
 
                 //newComp._data = val[i];
 
@@ -593,10 +593,24 @@ module.exports = UIComponent.extend('ContainerComponent', {
         },
         itemTemplate: function (name, val) {
             var oldVal = this._data['itemTemplate'];
-            this._itemTemplate=QObject._knownComponents[val];
+            this._itemTemplate = QObject._knownComponents[val];
 
             this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
         },
+        selectedItem: function (name, val) {
+            var oldVal = this._data['selectedItem'];
+            //this._data['selectedItem'] = val;
+
+            var itemComponent = this._children.get(this.get('selectedIndex'));
+
+            for (var key in val) {
+                if (val.hasOwnProperty(key)) {
+                    itemComponent.set(key, val[key]);
+                }
+            }
+
+            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
+        }
     }
 });
 },{"../../QObject":22,"../ContentContainer":3,"../UIComponent":15,"./ItemTemplate":12,"./Primitives":14,"observable-sequence":24}],11:[function(require,module,exports){
@@ -720,17 +734,29 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         this.el = UIComponent.document.createElement('input');
 
         this.el.addEventListener('click', function () {
-            self.el.style.background = "#00ff00";
+            self._onPropertyChanged(self, 'click', true, null);
+            self._onPropertyChanged(self, 'click', false, null);
         });
+        this.el.addEventListener('change', function () {
+            self.set('value', event.target.value);
+        });
+        /*this.el.addEventListener('keyup', function (event) {
+            if (self._data.type == 'text')
+                self.set('value', event.target.value);
+        });*/
     },
     _setter: {
         value: function (key, val) {
+            var oldVal=this._data['value'];
+
             if (val === void 0) {
-                this.el.removeAttribute('value');
+                this.el.value='';
             } else {
-                this.el.setAttribute('value', val);
+                this.el.value=val;
             }
             this._data['value'] = val;
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
         },
         type: function (key, val) {
             if (val === void 0) {
@@ -747,6 +773,35 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 this.el.setAttribute('checked', val);
             }
             this._data['checked'] = val;
+        }
+    }
+});
+
+/**
+ *
+ */
+exports['textarea'] = exports['HtmlPrimitive'].extend('textarea', {
+    //leaf: true,
+    createEl: function () {
+        var self = this;
+        this.el = UIComponent.document.createElement('textarea');
+
+        this.el.addEventListener('change', function () {
+            self.set('value', event.target.value);
+        });
+    },
+    _setter: {
+        value: function (key, val) {
+            var oldVal=this._data['value'];
+
+            if (val === void 0) {
+                this.el.value='';
+            } else {
+                this.el.value=val;
+            }
+            this._data['value'] = val;
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
         }
     }
 });
@@ -796,7 +851,7 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
 ('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
-'table,tbody,td,textarea,th,thead,tr,u,ul,header')
+'table,tbody,td,th,thead,tr,u,ul,header')
     .split(',')
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
@@ -827,8 +882,8 @@ module.exports = (function () {
 
         createEl: function () {
             this.el = AbstractComponent.document.createElement('div');
-            //this.el.style.overflow = 'hidden';
-            //this.el.style.position = 'absolute';
+            this.el.style.overflow = 'hidden';
+            this.el.style.position = 'relative';
         },
 
         /**
@@ -900,6 +955,16 @@ module.exports = (function () {
         },
 
         _setter: {
+            disabled: function (key, val) {
+                var oldValue = this._data['disabled'];
+                if (val === void 0) {
+                    this.el.removeAttribute('disabled');
+                } else {
+                    this.el.setAttribute('disabled', val);
+                }
+                this._data['disabled'] = val;
+                this._onPropertyChanged(this, 'disabled', val, oldValue);
+            },
             left: function (name, val) {
                 this._data[name] = val;
                 if (val) {
@@ -1035,9 +1100,15 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
 
                 var targetComponentName = currentPipe.targetComponent;
 
+                var val;
+                if (key == sender.id+'.'+currentPipe.sourceBindings[key].propertyName)
+                    val = newValue;
+                else
+                    val = sender.get(currentPipe.sourceBindings[key].propertyName);
+
                 var targetComponent = self._registredComponents[targetComponentName];
                 if (targetComponent) {
-                    currentPipe.process(key, newValue, targetComponent);
+                    currentPipe.process(key, val, targetComponent);
                 }
             }
         }
@@ -1074,7 +1145,7 @@ EventManager.prototype.createSimplePipe = function (source, target) {
 EventManager.prototype.registerPipe = function (pipe) {
 
     var bindingSources = pipe.sourceBindings;
-    var length = bindingSources.length;
+    //var length = bindingSources.length;
     var component;
 
     for (var source in bindingSources) {
@@ -1090,9 +1161,10 @@ EventManager.prototype.registerPipe = function (pipe) {
         }
     }
 
-    component = this._registredComponents[pipe.targetComponent];
-    if (component)
-        pipe.process(null, null, component);
+    /*component = this._registredComponents[pipe.targetComponent];
+     if (component)
+     pipe.process(null, null, component);
+     */
 };
 
 module.exports = EventManager;
@@ -1245,7 +1317,7 @@ AbstractPipe.prototype.process = function (key, value, component) {
         this.sourceBindings[key].value = value;
     }
 
-    if (changed)
+    //if (changed)
         this._process(key, component);
 };
 
@@ -1389,7 +1461,8 @@ MutatingPipe.prototype._process = function (changedKey, component) {
         value = mutators[i](value);
     }
 
-    component.set(this.targetPropertyName, value);
+    if (value != void(0))
+        component.set(this.targetPropertyName, value);
 };
 
 module.exports = MutatingPipe;

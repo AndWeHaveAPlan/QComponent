@@ -102,7 +102,7 @@ AbstractPipe.prototype.process = function (key, value, component) {
         this.sourceBindings[key].value = value;
     }
 
-    if (changed)
+    //if (changed)
         this._process(key, component);
 };
 

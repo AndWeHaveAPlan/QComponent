@@ -62,17 +62,29 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         this.el = UIComponent.document.createElement('input');
 
         this.el.addEventListener('click', function () {
-            self.el.style.background = "#00ff00";
+            self._onPropertyChanged(self, 'click', true, null);
+            self._onPropertyChanged(self, 'click', false, null);
         });
+        this.el.addEventListener('change', function () {
+            self.set('value', event.target.value);
+        });
+        /*this.el.addEventListener('keyup', function (event) {
+            if (self._data.type == 'text')
+                self.set('value', event.target.value);
+        });*/
     },
     _setter: {
         value: function (key, val) {
+            var oldVal=this._data['value'];
+
             if (val === void 0) {
-                this.el.removeAttribute('value');
+                this.el.value='';
             } else {
-                this.el.setAttribute('value', val);
+                this.el.value=val;
             }
             this._data['value'] = val;
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
         },
         type: function (key, val) {
             if (val === void 0) {
@@ -89,6 +101,35 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 this.el.setAttribute('checked', val);
             }
             this._data['checked'] = val;
+        }
+    }
+});
+
+/**
+ *
+ */
+exports['textarea'] = exports['HtmlPrimitive'].extend('textarea', {
+    //leaf: true,
+    createEl: function () {
+        var self = this;
+        this.el = UIComponent.document.createElement('textarea');
+
+        this.el.addEventListener('change', function () {
+            self.set('value', event.target.value);
+        });
+    },
+    _setter: {
+        value: function (key, val) {
+            var oldVal=this._data['value'];
+
+            if (val === void 0) {
+                this.el.value='';
+            } else {
+                this.el.value=val;
+            }
+            this._data['value'] = val;
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
         }
     }
 });
@@ -138,7 +179,7 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
 ('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
-'table,tbody,td,textarea,th,thead,tr,u,ul,header')
+'table,tbody,td,th,thead,tr,u,ul,header')
     .split(',')
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
