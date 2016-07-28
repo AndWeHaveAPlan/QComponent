@@ -10,17 +10,22 @@ var UIComponent = require('../UIComponent');
 module.exports = UIComponent.extend('NumberKeyboard', {
     createEl: function () {
         this.el = UIComponent.document.createElement('div');
-        this.el.style.width = '120px';
+        this.el.style.width = '200px';
         this.el.style.overflow = 'hidden';
+        this.el.style.margin='12px auto';
 
         function createButton(n) {
             var self = this;
             var el = document.createElement('input');
             el.type = 'submit';
-            n == '<<' ? el.style.width = '80px' : el.style.width = '40px';
-            el.style.height = '30px';
+            n == '<<' ? el.style.width = '66.66%' : el.style.width = '33.33%';
+            el.style.height = '50px';
             el.value = n;
             el.style.float = 'left';
+            el.style.background='#ffa834';
+            el.style.color='#fff';
+            el.style.border='1px solid #fff';
+
 
             el.addEventListener('mousedown', function (event) {
                 var ae = UIComponent.document.activeElement;
