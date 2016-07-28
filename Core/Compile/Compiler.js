@@ -84,7 +84,7 @@ module.exports = (function () {
                 '],\n' +
                 '\t    {component: this.id, property: \'' + targetProperty + '\'}\n' +
                 '\t);\n' +
-                '\tmutatingPipe.addMutator(function (' + args.join(',') + ') {\n' +
+                '\tmutatingPipe.addMutator(function (' + args.filter(function(item, i, ar){ return ar.indexOf(item) === i; }).join(',') + ') {\n' +
                 '\t    return ' + fn + ';\n' +
                 '\t});\n' +
                 '\teventManager.registerPipe(mutatingPipe);\n';

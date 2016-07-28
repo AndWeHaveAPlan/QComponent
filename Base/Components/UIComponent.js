@@ -146,12 +146,26 @@ module.exports = (function () {
                     this.el.style.removeProperty(name);
                 }
             },
+            float: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            overflow: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
             visibility: function (name, val) {
                 this._data[name] = val;
                 if (val) {
-                    this.el.style.display = 'initial';
-                } else {
-                    this.el.style.display = 'none';
+                    this.el.style.display = val;
                 }
             }
         }
