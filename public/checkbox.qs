@@ -1,4 +1,4 @@
-def UIComponent Checkbox1
+def UIComponent Checkbox
    public Boolean checked: {{value}}
    div:
        input i1:

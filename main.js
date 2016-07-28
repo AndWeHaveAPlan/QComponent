@@ -5,10 +5,13 @@ var http = require('http'), url  = require('url'), fs = require('fs'),
     Core = require('./Core');
 
 var server = http.createServer(function(req, res){
+    console.log(123)
     try {
         try {
-            var path = req.url.substr(1),
-                source = fs.readFileSync('public/' + path) + '';
+            var path = req.url.substr(1);
+            console.log(path)
+            var source = fs.readFileSync('public/' + path) + '';
+
         }catch(e){
             try {
                 source = fs.readFileSync(path) + '';
@@ -56,5 +59,7 @@ var server = http.createServer(function(req, res){
 
 });
 
-server.listen(8000);
-console.log('listen on 8000');
+var port = 8001;
+server.listen(port, 'localhost', function(err) {
+    console.log('listen on ' + port);
+});
