@@ -19,8 +19,8 @@ describe("variable extractor", function () {
         var vars = VariableExtractor.parse('l=a+c.f+ x.e +a.e+c;var a, d = 2+b+a.g.b.d');
         assert.deepEqual(vars.getFullUnDefined(), {
             l: { l: true },
-            c: { 'c,f': true, c: true },
-            x: { 'x,e': true },
+            c: { 'c.f': true, c: true },
+            x: { 'x.e': true },
             b: { b: true }});
     });
 });

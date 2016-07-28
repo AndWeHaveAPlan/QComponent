@@ -74,7 +74,7 @@ module.exports = (function () {
                 if(!wasList && needList){
                     list = list.reverse();
                     (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
-                        list.map(function(el){return el.name;})
+                        list.map(function(el){return el.name;}).join('.')
                         ] = true;
                 }
 
