@@ -154,7 +154,23 @@ module.exports = (function () {
                     this.el.style.removeProperty(name);
                 }
             },
+            border: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
             overflow: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            margin: function (name, val) {
                 this._data[name] = val;
                 if (val) {
                     this.el.style[name] = val;
