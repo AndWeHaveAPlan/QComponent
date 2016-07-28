@@ -5,7 +5,7 @@ module.exports = (function () {
     'use strict';
     var esprima;
 
-    var getVars = function(node){
+    var getVars = function(node, list){
         if(!node) return;
         var type = node.type,
             extractor = extractors[type],
@@ -15,9 +15,10 @@ module.exports = (function () {
 
             throw new Error('No extractor for type `'+ type +'`');
         }
-        extractor.call(scope,node);
+        extractor.call(scope, node, list);
         return scope;
     };
+
 
     var setter = function(key, value){
         return function(el){
@@ -56,9 +57,28 @@ module.exports = (function () {
         'BlockStatement': function(node){
             node.body.map(getVars, this.extend('block'));
         },
-        'MemberExpression': function(node){
-            getVars.call(this, node.object);
-            node.computed && getVars.call(this, node.property);
+        'MemberExpression': function(node, list){
+            var needList = list !== false,
+                wasList = !!list;
+
+            if(!needList || list === void 0)
+                getVars.call(this, node.object, false);
+
+            if(node.computed !== false)
+                getVars.call(this, node.property);
+            else if(needList){
+
+                list = list || [];
+                list.push(node.property);
+                getVars.call(this, node.object, list);
+                if(!wasList && needList){
+                    list = list.reverse();
+                    (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
+                        list.map(function(el){return el.name;})
+                        ] = true;
+                }
+
+            }
         },
         'FunctionExpression': function(node){
             var subScope = this.extend('function');
@@ -81,8 +101,20 @@ module.exports = (function () {
             });
             getVars.call(subScope,node.body);
         },
-        'Identifier': function(node){
-            this.used[node.name] = true;
+        'Identifier': function(node, list){
+
+            if(list && list.length) {
+                list.push(node);
+                /*list = list.reverse();
+                (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
+                    list.map(function(el){return el.name;})
+                ] = true;*/
+                //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
+            }else {
+                this.used[node.name] = true;
+                if(list === void 0)
+                    (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}))[node.name] = true;
+            }
         },
         'CatchClause': function(node){
             var subScope = this.extend('block');
@@ -95,6 +127,7 @@ module.exports = (function () {
             getVars.call(subScope,node.body);
         }
     };
+
     (function () {
         var setExtractor = function(name){
             extractors[name] = fn(getVars);
@@ -123,6 +156,7 @@ module.exports = (function () {
     var Scope = function(){
         this.declared = {};
         this.used = {};
+        this.deepUsed = {};
         this.subScopes = [];
         this.real = this;
     };
@@ -133,7 +167,7 @@ module.exports = (function () {
             this.declared[id.name] = init;
 
 
-            getVars.call(this, init, kind);
+            //getVars.call(this, init, kind); // TODO: test this comment!
         },
         'ArrayPattern': function(ids, inits, kind){
 
@@ -212,6 +246,29 @@ module.exports = (function () {
         });
         return undef;
     };
+    var getFullUnDefined = function (obj, collector) {
+        var deepUsed = obj.deepUsed;
+        /*console.log(deepUsed);
+        console.log(obj.used);
+        console.log(Object.keys(obj.declared))*/
+
+        var i, undef = {};
+        collector = Object.create(collector || {});
+        apply(collector, obj.declared);
+        for(i in deepUsed)
+            if(deepUsed.hasOwnProperty(i)){
+                if(!(i in collector)){
+                    apply(undef[i] || (undef[i] = {}),deepUsed[i]);
+                }
+            }
+
+        obj.subScopes.forEach(function(scope){
+            apply(undef, getFullUnDefined(scope, collector));
+        });
+        //console.log(undef)
+        return undef;
+
+    };
     var extractor = {
         parse: function (sourceCode) {
             esprima = esprima || require('esprima');
@@ -222,6 +279,9 @@ module.exports = (function () {
                 },
                 getUnDefined: function () {
                     return getUnDefined(this.getVars());
+                },
+                getFullUnDefined: function () {
+                    return getFullUnDefined(this.getVars());
                 }
             };
         }

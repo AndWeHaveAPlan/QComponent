@@ -7,6 +7,7 @@ module.exports = {
         Parser: require("./Core/Parse/Parser")        
     },
     Compile: {
+        VariableExtractor: require('./Core/Compile/VariableExtractor'),
         tools: require("./Core/Compile/tools"),
         Linker: require("./Core/Compile/Linker"),
         Compiler: require("./Core/Compile/Compiler")

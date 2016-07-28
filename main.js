@@ -44,7 +44,7 @@ var server = http.createServer(function(req, res){
                 '<script>module = {};</script>' +
                 '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
                 '<script src="bundle.js"></script>' +
-                '<script>QObject = Base.QObject; Q = '+compiled+';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
+                '<script>console.log("INIT");QObject = Base.QObject; Q = '+compiled+';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
         }catch(e){
             return res.end(e.message);
         }
