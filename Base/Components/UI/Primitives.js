@@ -68,10 +68,6 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         this.el.addEventListener('change', function () {
             self.set('value', event.target.value);
         });
-        /*this.el.addEventListener('keyup', function (event) {
-            if (self._data.type == 'text')
-                self.set('value', event.target.value);
-        });*/
     },
     _setter: {
         value: function (key, val) {
