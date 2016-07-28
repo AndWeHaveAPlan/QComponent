@@ -1,0 +1,66 @@
+/**
+
+ * Created by ravenor on 13.07.16.
+ */
+
+
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+
+module.exports = UIComponent.extend('NumberKeyboard', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('div');
+        this.el.style.width = '120px';
+        this.el.style.overflow = 'hidden';
+
+        function createButton(n) {
+            var self = this;
+            var el = document.createElement('input');
+            el.type = 'submit';
+            n == '<<' ? el.style.width = '80px' : el.style.width = '40px';
+            el.style.height = '30px';
+            el.value = n;
+            el.style.float = 'left';
+
+            el.addEventListener('mousedown', function (event) {
+                var ae = UIComponent.document.activeElement;
+                var val = el.value;
+
+                if (ae.type === 'text') {
+
+                    if (val == '<<') {
+                        var oldVal = ae.value;
+                        ae.value = oldVal.substr(0, oldVal.length - 1);
+                    } else {
+                        ae.value += val;
+                    }
+                    ae.dispatchEvent(new Event('change'));
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            el.addEventListener('change', function (event) {
+                el.value = n;
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            return el;
+        }
+
+        this.el.appendChild(createButton(7));
+        this.el.appendChild(createButton(8));
+        this.el.appendChild(createButton(9));
+        this.el.appendChild(createButton(4));
+        this.el.appendChild(createButton(5));
+        this.el.appendChild(createButton(6));
+        this.el.appendChild(createButton(1));
+        this.el.appendChild(createButton(2));
+        this.el.appendChild(createButton(3));
+        this.el.appendChild(createButton(0));
+        this.el.appendChild(createButton('<<'));
+
+    }
+});

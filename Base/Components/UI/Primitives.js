@@ -61,6 +61,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         var self = this;
         this.el = UIComponent.document.createElement('input');
 
+
         this.el.addEventListener('click', function () {
             self._onPropertyChanged(self, 'click', true, null);
             self._onPropertyChanged(self, 'click', false, null);
@@ -95,6 +96,14 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 this.el.removeAttribute('checked');
             } else {
                 this.el.setAttribute('checked', val);
+            }
+            this._data['checked'] = val;
+        },
+        disabled: function (key, val) {
+            if (val) {
+                this.el.disabled=true;
+            } else {
+                this.el.disabled=false;
             }
             this._data['checked'] = val;
         }

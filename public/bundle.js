@@ -18,7 +18,8 @@ module.exports = {
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             ListBox: require('./Base/Components/UI/ListBox'),
-            HBox: require('./Base/Components/UI/HBox')
+            HBox: require('./Base/Components/UI/HBox'),
+            NumberKeyboard: require('./Base/Components/UI/NumberKeyboard')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {
@@ -36,7 +37,7 @@ module.exports = {
         MutatingPipe: require("./Base/Pipes/MutatingPipe")
     }
 };
-},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/Primitives":14,"./Base/Components/UIComponent":15,"./Base/EventManager":16,"./Base/Pipes/AbstractPipe":18,"./Base/Pipes/FiltratingPipe":19,"./Base/Pipes/MutatingPipe":20,"./Base/Pipes/SimplePipe":21,"./Base/QObject":22}],2:[function(require,module,exports){
+},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/NumberKeyboard":14,"./Base/Components/UI/Primitives":15,"./Base/Components/UIComponent":16,"./Base/EventManager":17,"./Base/Pipes/AbstractPipe":19,"./Base/Pipes/FiltratingPipe":20,"./Base/Pipes/MutatingPipe":21,"./Base/Pipes/SimplePipe":22,"./Base/QObject":23}],2:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -197,7 +198,7 @@ AbstractComponent._type = AbstractComponent.prototype._type;
 
 
 QObject._knownComponents['AbstractComponent'] = module.exports = AbstractComponent;
-},{"../MulticastDelegate":17,"./../EventManager":16,"./../QObject":22,"observable-sequence":24,"tiny-uuid":26,"z-lib-structure-dqIndex":28}],3:[function(require,module,exports){
+},{"../MulticastDelegate":18,"./../EventManager":17,"./../QObject":23,"observable-sequence":25,"tiny-uuid":27,"z-lib-structure-dqIndex":29}],3:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -334,7 +335,7 @@ module.exports = (function () {
     return Factory;
 })();
 
-},{"../QObject":22,"./AbstractComponent":2}],5:[function(require,module,exports){
+},{"../QObject":23,"./AbstractComponent":2}],5:[function(require,module,exports){
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
@@ -506,7 +507,7 @@ module.exports = UIComponent.extend('Checkbox', {
         }
     }
 });
-},{"../UIComponent":15,"./Primitives":14}],10:[function(require,module,exports){
+},{"../UIComponent":16,"./Primitives":15}],10:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -613,7 +614,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
         }
     }
 });
-},{"../../QObject":22,"../ContentContainer":3,"../UIComponent":15,"./ItemTemplate":12,"./Primitives":14,"observable-sequence":24}],11:[function(require,module,exports){
+},{"../../QObject":23,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":25}],11:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -640,7 +641,7 @@ module.exports = UIComponent.extend('HBox', {
         }
     }
 });
-},{"../UIComponent":15,"./Primitives":14}],12:[function(require,module,exports){
+},{"../UIComponent":16,"./Primitives":15}],12:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -655,7 +656,7 @@ module.exports = UIComponent.extend('ItemTemplate', {
 }, function (cfg) {
     UIComponent.call(this, cfg);
 });
-},{"./../UIComponent":15}],13:[function(require,module,exports){
+},{"./../UIComponent":16}],13:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -669,7 +670,74 @@ module.exports = ContainerComponent.extend('ListBox', {
         this.el = UIComponent.document.createElement('div');
     }
 });
-},{"../UIComponent":15,"./ContainerComponent":10,"./Primitives":14}],14:[function(require,module,exports){
+},{"../UIComponent":16,"./ContainerComponent":10,"./Primitives":15}],14:[function(require,module,exports){
+/**
+
+ * Created by ravenor on 13.07.16.
+ */
+
+
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+
+module.exports = UIComponent.extend('NumberKeyboard', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('div');
+        this.el.style.width = '120px';
+        this.el.style.overflow = 'hidden';
+
+        function createButton(n) {
+            var self = this;
+            var el = document.createElement('input');
+            el.type = 'submit';
+            n == '<<' ? el.style.width = '80px' : el.style.width = '40px';
+            el.style.height = '30px';
+            el.value = n;
+            el.style.float = 'left';
+
+            el.addEventListener('mousedown', function (event) {
+                var ae = UIComponent.document.activeElement;
+                var val = el.value;
+
+                if (ae.type === 'text') {
+
+                    if (val == '<<') {
+                        var oldVal = ae.value;
+                        ae.value = oldVal.substr(0, oldVal.length - 1);
+                    } else {
+                        ae.value += val;
+                    }
+                    ae.dispatchEvent(new Event('change'));
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            el.addEventListener('change', function (event) {
+                el.value = n;
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            return el;
+        }
+
+        this.el.appendChild(createButton(7));
+        this.el.appendChild(createButton(8));
+        this.el.appendChild(createButton(9));
+        this.el.appendChild(createButton(4));
+        this.el.appendChild(createButton(5));
+        this.el.appendChild(createButton(6));
+        this.el.appendChild(createButton(1));
+        this.el.appendChild(createButton(2));
+        this.el.appendChild(createButton(3));
+        this.el.appendChild(createButton(0));
+        this.el.appendChild(createButton('<<'));
+
+    }
+});
+},{"../UIComponent":16,"./Primitives":15}],15:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -733,6 +801,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         var self = this;
         this.el = UIComponent.document.createElement('input');
 
+
         this.el.addEventListener('click', function () {
             self._onPropertyChanged(self, 'click', true, null);
             self._onPropertyChanged(self, 'click', false, null);
@@ -767,6 +836,14 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 this.el.removeAttribute('checked');
             } else {
                 this.el.setAttribute('checked', val);
+            }
+            this._data['checked'] = val;
+        },
+        disabled: function (key, val) {
+            if (val) {
+                this.el.disabled=true;
+            } else {
+                this.el.disabled=false;
             }
             this._data['checked'] = val;
         }
@@ -860,7 +937,7 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
     });
 
 module.exports = exports;
-},{"../UIComponent":15}],15:[function(require,module,exports){
+},{"../UIComponent":16}],16:[function(require,module,exports){
 /**
  * Created by zibx on 01.07.16.
  */
@@ -1009,12 +1086,26 @@ module.exports = (function () {
                     this.el.style.removeProperty(name);
                 }
             },
+            float: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
+            overflow: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style[name] = val;
+                } else {
+                    this.el.style.removeProperty(name);
+                }
+            },
             visibility: function (name, val) {
                 this._data[name] = val;
                 if (val) {
-                    this.el.style.display = 'initial';
-                } else {
-                    this.el.style.display = 'none';
+                    this.el.style.display = val;
                 }
             }
         }
@@ -1060,7 +1151,7 @@ module.exports = (function () {
 
     return UIComponent;
 })();
-},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":24,"z-lib-structure-dqIndex":28,"z-observable":30}],16:[function(require,module,exports){
+},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":25,"z-lib-structure-dqIndex":29,"z-observable":31}],17:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1105,7 +1196,7 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
                 var targetComponentName = currentPipe.targetComponent;
 
                 var val;
-                if (key == sender.id+'.'+currentPipe.sourceBindings[key].propertyName)
+                if (key == sender.id + '.' + currentPipe.sourceBindings[key].propertyName)
                     val = newValue;
                 else
                     val = sender.get(currentPipe.sourceBindings[key].propertyName);
@@ -1149,7 +1240,6 @@ EventManager.prototype.createSimplePipe = function (source, target) {
 EventManager.prototype.registerPipe = function (pipe) {
 
     var bindingSources = pipe.sourceBindings;
-    //var length = bindingSources.length;
     var component;
 
     for (var source in bindingSources) {
@@ -1162,19 +1252,19 @@ EventManager.prototype.registerPipe = function (pipe) {
 
             var pipes = this._registredPipes[currentSource.key];
             pipes ? pipes.push(pipe) : this._registredPipes[currentSource.key] = [pipe];
+
+
         }
     }
 
-    /*component = this._registredComponents[pipe.targetComponent];
-     if (component)
-     pipe.process(null, null, component);
-     */
+    component = this._registredComponents[pipe.targetComponent];
+    if (component)
+        pipe.process(null, null, component);
 };
 
 
-
 module.exports = EventManager;
-},{"./Components/AbstractComponent":2,"./Pipes/FiltratingPipe":19,"./Pipes/SimplePipe":21,"./QObject":22}],17:[function(require,module,exports){
+},{"./Components/AbstractComponent":2,"./Pipes/FiltratingPipe":20,"./Pipes/SimplePipe":22,"./QObject":23}],18:[function(require,module,exports){
 /**
  * Created by ravenor on 12.07.16.
  */
@@ -1218,7 +1308,7 @@ MulticastDelegate.createDelegate = function () {
 };
 
 module.exports = MulticastDelegate;
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1340,7 +1430,7 @@ AbstractPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = AbstractPipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":22}],19:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":23}],20:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1406,7 +1496,7 @@ FiltratingPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = FiltratingPipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":22,"./AbstractPipe":18}],20:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],21:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1472,7 +1562,7 @@ MutatingPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = MutatingPipe;
-},{"../Components/AbstractComponent":2,"./../QObject":22,"./AbstractPipe":18}],21:[function(require,module,exports){
+},{"../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],22:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1497,7 +1587,7 @@ SimplePipe.prototype = Object.create(AbstractPipe.prototype);
 SimplePipe.prototype.constructor = AbstractPipe;
 
 module.exports = SimplePipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":22,"./AbstractPipe":18}],22:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],23:[function(require,module,exports){
 (function () {
     'use strict';
 
@@ -1649,7 +1739,7 @@ module.exports = SimplePipe;
 
     module.exports = QObject;
 })();
-},{"dom-lite":23}],23:[function(require,module,exports){
+},{"dom-lite":24}],24:[function(require,module,exports){
 
 
 /**
@@ -2057,7 +2147,7 @@ module.exports = {
 }
 
 
-},{"selector-lite":25}],24:[function(require,module,exports){
+},{"selector-lite":26}],25:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2216,7 +2306,7 @@ module.exports = (function () {
     };
     return ObservableArray;
 })();
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 
 
 /*
@@ -2344,10 +2434,10 @@ module.exports = (function () {
 }(this)
 
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b};
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2623,7 +2713,7 @@ module.exports = (function () {
     dequeue.prototype.forEach = dequeue.prototype.each;
     return dequeue;
 })();
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * Created by zibx on 01.06.16.
  */
@@ -2754,7 +2844,7 @@ module.exports = (function () {
     Index.prototype.forEach = Index.prototype.each;
     return Index;
 })();
-},{"z-lib-structure-dequeue":27}],29:[function(require,module,exports){
+},{"z-lib-structure-dequeue":28}],30:[function(require,module,exports){
 /**
  * Created by Zibx on 10/14/2014.
  */(function(  ){
@@ -3573,7 +3663,7 @@ module.exports = (function () {
     (1,eval)('this')
 );
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /**
  * Created by Ivan on 10/19/2014.
  */
@@ -3827,5 +3917,5 @@ module.exports = (function(){
     Z.Observable.prototype = proto;
     return Z.Observable;
 })();
-},{"z-lib":29}]},{},[1])(1)
+},{"z-lib":30}]},{},[1])(1)
 });

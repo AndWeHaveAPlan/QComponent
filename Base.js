@@ -17,7 +17,8 @@ module.exports = {
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             ListBox: require('./Base/Components/UI/ListBox'),
-            HBox: require('./Base/Components/UI/HBox')
+            HBox: require('./Base/Components/UI/HBox'),
+            NumberKeyboard: require('./Base/Components/UI/NumberKeyboard')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {

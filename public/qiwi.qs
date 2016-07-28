@@ -6,43 +6,36 @@ def UIComponent TextBox
 
 def UIComponent Button
     public Boolean click: {{i1.click}}
+    public Boolean disabled
     input i1: {{top.value}}
+       disabled: {{top.disabled}}
        type: submit
        width: 80
        height: 30
 
-
-// DetailsPanel
-def UIComponent DetailsPanel
-    public Boolean click: {{b1.click}}
-    public String item: {{ ({done:checkBoxDone.checked, name:textBoxTaskName.value, description: textDescription.value}) }}
-    Checkbox checkBoxDone: {{top.value.done}}
-    input textBoxTaskName: {{top.value.name}}
-           type: text
-           width: 100%
-    textarea textDescription: {{top.value.description}}
-        width: 100%
-        height: 70
-    Button b1: Сохранить
-
-
-def ItemTemplate listBoxItemTemplate
-    Checkbox: {{top.done}}
-        disabled: true
-    div:
-        value: {{top.name}}
-
 def UIComponent main
-   top: 12px;
-   public String valueProxy: {{top.value}}
-   public String sItem: {{list.selectedItem}}
-   String href: "http://google.com"
-   HBox hbox:
-       ListBox list:
-           top: 20
-           selectedItem: {{ dp.click?dp.item:void 0 }}
-           itemTemplate: listBoxItemTemplate
-           itemSource: [{name:'Не тупить целый день на лепре',done: true, description:'Выпрями спину и убери руку от лица'},
-                        {name:'Купить хлеба',done: true, description:'При пожаре воруй, убивай, вступай в отношения с гусями'},
-                        {name:'Позвонить Геннадию',done: false, description:'какое-то описание'}]
-    DetailsPanel dp: {{list.selectedItem}}
+    public Boolean currentScreen: {{ b1.click?'s2':void 0 }}
+    div s1:
+        visibility: 'block'
+        visibility: {{top.currentScreen || top.currentScreen=='s1'?'none':'initial'}}
+        h2: Введите номер
+        div:
+            overflow: hidden
+            span: +7
+                float: left
+            TextBox number:
+        NumberKeyboard k1
+        Button b1: Далее
+            disabled: true
+            disabled: {{number.text.length!=10}}
+    div s2:
+        visibility: 'none'
+        visibility: {{top.currentScreen=='s2'?'initial':'none'}}
+        h2: Введите сумму
+        div:
+            overflow: hidden
+            TextBox sum:
+                float: left
+            span: рублей
+        NumberKeyboard k2
+        Button b2: Далее
