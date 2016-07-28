@@ -64,17 +64,19 @@ module.exports = (function () {
             if(!needList || list === void 0)
                 getVars.call(this, node.object, false);
 
+            node.property.computed = node.computed;
             if(node.computed !== false)
                 getVars.call(this, node.property);
-            else if(needList){
 
+
+            if(needList){
                 list = list || [];
                 list.push(node.property);
                 getVars.call(this, node.object, list);
                 if(!wasList && needList){
                     list = list.reverse();
                     (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
-                        list.map(function(el){return el.name;}).join('.')
+                            list.map(function(node){return (node.computed ? '~':'')+node.name;}).join('.')
                         ] = true;
                 }
 
