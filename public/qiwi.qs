@@ -31,6 +31,7 @@ def UIComponent main
     div s2:
         visibility: 'none'
         visibility: {{top.currentScreen=='s2'?'initial':'none'}}
+        h2: {{'+7'+number.text}}
         h2: Введите сумму
         div:
             overflow: hidden
