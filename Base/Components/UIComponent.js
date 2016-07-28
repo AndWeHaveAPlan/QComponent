@@ -29,13 +29,13 @@ module.exports = (function () {
 
             while (item = iterator.next()) {
 
-                if(item )
+                if (item)
 
-                if (item instanceof ContentContainer) {
-                    this._contentContainer = item;
-                } else {
-                    this._eventManager.registerComponent(item);
-                }
+                    if (item instanceof ContentContainer) {
+                        this._contentContainer = item;
+                    } else {
+                        this._eventManager.registerComponent(item);
+                    }
 
                 this.el.appendChild(item.el);
             }
@@ -144,6 +144,14 @@ module.exports = (function () {
                     this.el.style[name] = val;
                 } else {
                     this.el.style.removeProperty(name);
+                }
+            },
+            visibility: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style.display = 'initial';
+                } else {
+                    this.el.style.display = 'none';
                 }
             }
         }

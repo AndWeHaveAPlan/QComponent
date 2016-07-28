@@ -740,10 +740,6 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         this.el.addEventListener('change', function () {
             self.set('value', event.target.value);
         });
-        /*this.el.addEventListener('keyup', function (event) {
-            if (self._data.type == 'text')
-                self.set('value', event.target.value);
-        });*/
     },
     _setter: {
         value: function (key, val) {
@@ -896,13 +892,13 @@ module.exports = (function () {
 
             while (item = iterator.next()) {
 
-                if(item )
+                if (item)
 
-                if (item instanceof ContentContainer) {
-                    this._contentContainer = item;
-                } else {
-                    this._eventManager.registerComponent(item);
-                }
+                    if (item instanceof ContentContainer) {
+                        this._contentContainer = item;
+                    } else {
+                        this._eventManager.registerComponent(item);
+                    }
 
                 this.el.appendChild(item.el);
             }
@@ -1011,6 +1007,14 @@ module.exports = (function () {
                     this.el.style[name] = val;
                 } else {
                     this.el.style.removeProperty(name);
+                }
+            },
+            visibility: function (name, val) {
+                this._data[name] = val;
+                if (val) {
+                    this.el.style.display = 'initial';
+                } else {
+                    this.el.style.display = 'none';
                 }
             }
         }
@@ -1166,6 +1170,8 @@ EventManager.prototype.registerPipe = function (pipe) {
      pipe.process(null, null, component);
      */
 };
+
+
 
 module.exports = EventManager;
 },{"./Components/AbstractComponent":2,"./Pipes/FiltratingPipe":19,"./Pipes/SimplePipe":21,"./QObject":22}],17:[function(require,module,exports){

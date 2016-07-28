@@ -108,4 +108,6 @@ EventManager.prototype.registerPipe = function (pipe) {
      */
 };
 
+
+
 module.exports = EventManager;
