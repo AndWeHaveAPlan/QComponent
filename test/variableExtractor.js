@@ -23,4 +23,11 @@ describe("variable extractor", function () {
             x: { 'x.e': true },
             b: { b: true }});
     });
+    it("braces", function (){
+        var vars = VariableExtractor.parse('a.l[m]');
+        assert.deepEqual(vars.getFullUnDefined(), {
+            a: { 'a.l.~m': true },
+            m: { m: true}
+        });
+    });
 });
