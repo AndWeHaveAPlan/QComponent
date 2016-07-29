@@ -4,8 +4,6 @@
 module.exports = (function () {
     'use strict';
     var QObject = require('../../Base/QObject'),
-        parser = require('../Parse/Parser'),
-        shadow = require('../Shadow'),
         cmetadata = {};
 
     return new QObject({
@@ -65,25 +63,32 @@ module.exports = (function () {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
-                            var source = '';
+
+                            var pipeVar = pipe.vars[cName][fullName];
+                            var source = source = '\'' + fullName + '\'';
+                            ;
+
+                            if (cName[0] === '$') {
+                                //fullName=fullName.substring(1);
+                                source = 'self.id + \'.' + fullName.substring(1) + '\'';
+                            }
+                            if (cName == 'this') {
+                                source = 'this.id + \'.' + pipeVar.property.name + '\'';
+                            }
+                            pipeSources.push(source);
 
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
-                            fn = fn.replace(new RegExp(fullName, 'g'), mArg);
 
-                            if (fullName.indexOf('.') === -1) {
-                                source = 'self.id + \'.' + fullName + '\'';
-                            } else {
-                                source = '\'' + fullName + '\'';
-                            }
-
-                            pipeSources.push(source);
+                            console.log(fn);
+                            fn = fn.replace(new RegExp(fullName.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")), mArg);
+                            console.log(fn);
                         }
                     }
                 }
             }
 
-            var pipeString = '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
+            return '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
                 '\t    [' +
                 pipeSources.join(',') +
                 '],\n' +
@@ -93,7 +98,6 @@ module.exports = (function () {
                 '\t    return ' + fn + ';\n' +
                 '\t});\n' +
                 '\teventManager.registerPipe(mutatingPipe);\n';
-            return pipeString;
         },
         makePublic: function (props) {
             var i, prop, pipes, out = '', propVal;
@@ -168,7 +172,6 @@ module.exports = (function () {
             }
 
             return out;
-
         },
         propertyGetter: function (prop) {
             if (Array.isArray(prop.value))
