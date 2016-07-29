@@ -1,14 +1,14 @@
 def UIComponent TextBox
     public String text: {{ i1.value }}
-    input i1: {{value}}
+    input i1: {{$value}}
        type: text
        width: 100%
 
 def UIComponent Button
     public Boolean click: {{i1.click}}
     public Boolean disabled
-    input i1: {{value}}
-       disabled: {{disabled}}
+    input i1: {{$value}}
+       disabled: {{$disabled}}
        type: submit
        width: 80
        height: 30
@@ -18,7 +18,7 @@ def UIComponent main
     div s1:
         width: 200
         visibility: 'block'
-        visibility: {{currentScreen || currentScreen=='s1'?'none':'block'}}
+        visibility: {{$currentScreen || $currentScreen=='s1'?'none':'block'}}
         h2: Введите номер
         div:
             margin: 0 auto
@@ -36,7 +36,7 @@ def UIComponent main
     div s2:
         width: 200
         visibility: 'none'
-        visibility: {{currentScreen=='s2'?'block':'none'}}
+        visibility: {{$currentScreen=='s2'?'block':'none'}}
         h2: {{'+7'+number.text}}
         h2: Введите сумму
         div:
