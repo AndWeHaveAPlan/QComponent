@@ -30,7 +30,7 @@ module.exports = (function () {
                 source;
             vars[item.type] = '_known[\'' + item.type + '\']';
 
-            var out='';
+            var out = '';
             for (var i in item.prop) {
                 var prop = item.prop[i];
                 var pipes = prop.value;
@@ -56,35 +56,61 @@ module.exports = (function () {
             return source;
         },
         makePipe: function (pipe, sourceComponent, targetProperty) {
-            var regEx = new RegExp('(self|top|' + pipe.vars.join('|') + ').([\\w^\\.]+)', 'g');
-            var vars = [];
-            var args = [];
+            var pipeSources = [];
+            var mutatorArgs = [];
+            var fn = pipe.fn;
 
-            var fn = pipe.fn.replace(regEx, function (m, cName, pName) {
+            for (var cName in pipe.vars) {
+                if (pipe.vars.hasOwnProperty(cName)) {
+                    for (var fullName in pipe.vars[cName]) {
+                        if (pipe.vars[cName].hasOwnProperty(fullName)) {
+                            var source='';
 
-                var pNameClear = pName.replace('.', '');
-                var v = {pname: pName, pnameClear: pNameClear, cname: '\'' + cName + '\'', full: cName + pNameClear};
-                args.push(v.full);
 
-                if (cName == 'self')
-                    v.cname = 'this.id';
-                if (cName == 'top')
-                    v.cname = 'self.id';
 
-                vars.push(v);
+                            var mArg = fullName.replace(/\./g, '');
+                            mutatorArgs.push(mArg);
+                            fn = fn.replace(new RegExp(fullName, 'g'), mArg);
 
-                return cName + pNameClear;
-            });
+                            if (fullName.indexOf('.') === -1) {
+                                source = 'self.id + \'.' + fullName + '\'';
+                            } else {
+                                source = '\'' + fullName + '\'';
+                            }
+                            pipeSources.push(source);
+                        }
+                    }
+                }
+            }
+
+            /*
+             var regEx = new RegExp('(self|top|' + pipe.vars.join('|') + ').([\\w^\\.]+)', 'g');
+             var vars = [];
+             var args = [];
+
+             var fn = pipe.fn.replace(regEx, function (m, cName, pName) {
+
+             var pNameClear = pName.replace('.', '');
+             var v = {pname: pName, pnameClear: pNameClear, cname: '\'' + cName + '\'', full: cName + pNameClear};
+             args.push(v.full);
+
+             if (cName == 'self')
+             v.cname = 'this.id';
+             if (cName == 'top')
+             v.cname = 'self.id';
+
+             vars.push(v);
+
+             return cName + pNameClear;
+             });*/
 
             var pipeString = '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
                 '\t    [' +
-                vars.map(function (name) {
-                    return name.cname + ' + \'.' + name.pname + '\'';
-                }).join(',') +
+                pipeSources.join(',') +
                 '],\n' +
                 '\t    {component: this.id, property: \'' + targetProperty + '\'}\n' +
                 '\t);\n' +
-                '\tmutatingPipe.addMutator(function (' + args.filter(function(item, i, ar){ return ar.indexOf(item) === i; }).join(',') + ') {\n' +
+                '\tmutatingPipe.addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
                 '\t    return ' + fn + ';\n' +
                 '\t});\n' +
                 '\teventManager.registerPipe(mutatingPipe);\n';
