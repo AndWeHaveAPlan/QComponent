@@ -806,8 +806,8 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         var self = this;
         this.el = UIComponent.document.createElement('input');
 
-        this.el.addEventListener('click', function () {
-            self.fire('click');
+        this.el.addEventListener('click', function (e) {
+            self.fire('click', e);
         });
         this.el.addEventListener('change', function () {
             self.set('value', event.target.value);
@@ -961,8 +961,8 @@ module.exports = (function () {
                 this.el.style.position = 'relative';
             }
 
-            this.el.addEventListener('click', function () {
-                self.fire('click');
+            this.el.addEventListener('click', function (e) {
+                self.fire('click', e);
             });
             this.el.addEventListener('change', function () {
                 self.fire('change');
@@ -1634,7 +1634,8 @@ var observable = require('z-observable');
 
         on: observable.prototype.on,
         fire: observable.prototype.fire,
-
+        removableOn: observable.prototype.removableOn,
+        un: observable.prototype.un,
         /**
          * Copy all properties of object2 to object1, or object1 to self if object2 not set
          *
@@ -3081,13 +3082,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var waiter = function( fn ){
+            var wait = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            waiter.prototype = {
+            wait.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3097,7 +3098,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new waiter( function(  ){
+                    var W = new wait( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3146,7 +3147,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new waiter( fn );
+                return new wait( fn );
             };
         })()
     };

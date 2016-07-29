@@ -99,6 +99,15 @@ describe('Parser', function(){
 
 
 
+    it('tokenizer comments tests', function(){
+        var result = parser.tokenizer('(e/*haha*/m/**/h)'),
+            children = result[0].items[0].items;
+        assert.equal(children.length, 5);
+        assert.equal(children[0].pureData, 'e');
+        assert.equal(children[2].pureData, 'm');
+        assert.equal(children[4].pureData, 'h');
+
+    });
     it('tokenizer long test', function(){
         var testCase, result;
 
