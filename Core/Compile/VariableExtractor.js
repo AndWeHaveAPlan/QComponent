@@ -31,7 +31,7 @@ module.exports = (function () {
         'ExpressionStatement': 'expression',
         'ArrayExpression': '*elements',
         'ConditionalExpression,IfStatement': ['test', 'consequent', 'alternate'],
-        'Literal,BreakStatement,EmptyStatement,ThisExpression,ObjectPattern': null,
+        'BreakStatement,EmptyStatement,ThisExpression,ObjectPattern': null,
         'AssignmentExpression,BinaryExpression,LogicalExpression': ['left','right'],
         'ForInStatement': ['left','right','body'],
         'UnaryExpression,ThrowStatement,ReturnStatement,UpdateExpression': 'argument',
@@ -76,8 +76,20 @@ module.exports = (function () {
                 if(!wasList && needList){
                     list = list.reverse();
                     (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
-                            list.map(function(node){return (node.computed ? '~':'')+node.name;}).join('.')
-                        ] = true;
+                            list.map(function(node){
+                                if(node.type==='Literal')
+                                    return node.value.replace(/\./g,'\\.');
+                                return (node.computed ? '~':'')+node.name;
+                            }).join('.')
+                        ] = node;
+                    /*list.map(function(node){
+                            if(node.type==='Literal')
+                                return {value: node.value, type: 'text', computed: false};
+                            if(node.computed)
+                                return {value: node.name, type: 'name', computed: true};
+                            else
+                                return {value: node.name, type: 'name', computed: false};
+                        });*/
                 }
 
             }
@@ -108,14 +120,25 @@ module.exports = (function () {
             if(list && list.length) {
                 list.push(node);
                 /*list = list.reverse();
-                (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
-                    list.map(function(el){return el.name;})
-                ] = true;*/
+                 (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
+                 list.map(function(el){return el.name;})
+                 ] = true;*/
                 //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }else {
                 this.used[node.name] = true;
                 if(list === void 0)
                     (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}))[node.name] = true;
+            }
+        },
+        'Literal': function(node, list){
+
+            if(list && list.length) {
+                list.push(node);
+                /*list = list.reverse();
+                 (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
+                 list.map(function(el){return el.name;})
+                 ] = true;*/
+                //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }
         },
         'CatchClause': function(node){
