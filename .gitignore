@@ -1,3 +1,5 @@
 node_modules/*
 coverage/*
 .idea/*
+public/bungle.js
+public/test.qs
