@@ -5,18 +5,25 @@ module.exports = (function () {
     'use strict';
     var AbstractComponent = require('./AbstractComponent'),
         ContentContainer = require('./ContentContainer'),
-        observable = require('z-observable'),
         ObservableSequence = require('observable-sequence'),
         DQIndex = require('z-lib-structure-dqIndex');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
-        on: observable.prototype.on,
-        fire: observable.prototype.fire,
 
         createEl: function () {
-            this.el = AbstractComponent.document.createElement('div');
-            this.el.style.overflow = 'hidden';
-            this.el.style.position = 'relative';
+            var self = this;
+            if (!this.el) {
+                this.el = AbstractComponent.document.createElement('div');
+                this.el.style.overflow = 'hidden';
+                this.el.style.position = 'relative';
+            }
+
+            this.el.addEventListener('click', function () {
+                self.fire('click');
+            });
+            this.el.addEventListener('change', function () {
+                self.fire('change');
+            });
         },
 
         /**
@@ -189,7 +196,6 @@ module.exports = (function () {
     }, function (cfg) {
         var self = this;
         AbstractComponent.call(this, cfg);
-        observable.prototype._init.call(this);
 
         this._contentContainer = void(0);// this.el = document.createElement('div');
 

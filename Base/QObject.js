@@ -1,3 +1,5 @@
+var observable = require('z-observable');
+
 (function () {
     'use strict';
 
@@ -10,9 +12,13 @@
      */
     function QObject(cfg) {
         cfg && this.apply(cfg);
+        observable.prototype._init.call(this);
     }
 
     var prototype = {
+
+        on: observable.prototype.on,
+        fire: observable.prototype.fire,
 
         /**
          * Copy all properties of object2 to object1, or object1 to self if object2 not set
@@ -140,9 +146,8 @@
 
     QObject.prototype._type = "QObject";
     QObject._knownComponents['QObject'] = QObject;
-
     if (typeof document === 'undefined') {
-        QObject.document = require("dom-lite").document;
+        //QObject.document = require("dom-lite").document;
     } else {
         QObject.document = document;
     }
