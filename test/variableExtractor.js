@@ -50,4 +50,10 @@ describe("variable extractor", function () {
             EN: {'EN.MainWindow\\.Menu\\.File\\.Exit.~a': true}
         }), true);
     });
+
+    it("should work in simple cases", function (){
+        var vars = VariableExtractor.parse('this.val');
+        assert.deepEqual(vars.getUnDefined(), {this:true});
+        assert.equal(dontGiveAShitCompare(vars.getFullUnDefined(), {this:{'this.val':true}}), true);
+    });
 });

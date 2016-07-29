@@ -31,7 +31,7 @@ module.exports = (function () {
         'ExpressionStatement': 'expression',
         'ArrayExpression': '*elements',
         'ConditionalExpression,IfStatement': ['test', 'consequent', 'alternate'],
-        'BreakStatement,EmptyStatement,ThisExpression,ObjectPattern': null,
+        'BreakStatement,EmptyStatement,ObjectPattern': null,
         'AssignmentExpression,BinaryExpression,LogicalExpression': ['left','right'],
         'ForInStatement': ['left','right','body'],
         'UnaryExpression,ThrowStatement,ReturnStatement,UpdateExpression': 'argument',
@@ -128,6 +128,22 @@ module.exports = (function () {
                 this.used[node.name] = true;
                 if(list === void 0)
                     (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}))[node.name] = true;
+            }
+        },
+        'ThisExpression': function(node, list){
+
+            if(list && list.length) {
+                node.name = 'this';
+                list.push(node);
+                /*list = list.reverse();
+                 (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
+                 list.map(function(el){return el.name;})
+                 ] = true;*/
+                //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
+            }else {
+                this.used.this = true;
+                if(list === void 0)
+                    (this.deepUsed.this || (this.deepUsed.this= {})).this = true;
             }
         },
         'Literal': function(node, list){
