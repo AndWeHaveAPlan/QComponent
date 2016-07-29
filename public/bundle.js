@@ -198,7 +198,7 @@ AbstractComponent._type = AbstractComponent.prototype._type;
 
 
 QObject._knownComponents['AbstractComponent'] = module.exports = AbstractComponent;
-},{"../MulticastDelegate":18,"./../EventManager":17,"./../QObject":23,"observable-sequence":25,"tiny-uuid":27,"z-lib-structure-dqIndex":29}],3:[function(require,module,exports){
+},{"../MulticastDelegate":18,"./../EventManager":17,"./../QObject":23,"observable-sequence":24,"tiny-uuid":25,"z-lib-structure-dqIndex":27}],3:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -614,7 +614,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
         }
     }
 });
-},{"../../QObject":23,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":25}],11:[function(require,module,exports){
+},{"../../QObject":23,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":24}],11:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -806,10 +806,8 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         var self = this;
         this.el = UIComponent.document.createElement('input');
 
-
         this.el.addEventListener('click', function () {
-            self._onPropertyChanged(self, 'click', true, null);
-            self._onPropertyChanged(self, 'click', false, null);
+            self.fire('click');
         });
         this.el.addEventListener('change', function () {
             self.set('value', event.target.value);
@@ -950,18 +948,25 @@ module.exports = (function () {
     'use strict';
     var AbstractComponent = require('./AbstractComponent'),
         ContentContainer = require('./ContentContainer'),
-        observable = require('z-observable'),
         ObservableSequence = require('observable-sequence'),
         DQIndex = require('z-lib-structure-dqIndex');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
-        on: observable.prototype.on,
-        fire: observable.prototype.fire,
 
         createEl: function () {
-            this.el = AbstractComponent.document.createElement('div');
-            this.el.style.overflow = 'hidden';
-            this.el.style.position = 'relative';
+            var self = this;
+            if (!this.el) {
+                this.el = AbstractComponent.document.createElement('div');
+                this.el.style.overflow = 'hidden';
+                this.el.style.position = 'relative';
+            }
+
+            this.el.addEventListener('click', function () {
+                self.fire('click');
+            });
+            this.el.addEventListener('change', function () {
+                self.fire('change');
+            });
         },
 
         /**
@@ -1134,7 +1139,6 @@ module.exports = (function () {
     }, function (cfg) {
         var self = this;
         AbstractComponent.call(this, cfg);
-        observable.prototype._init.call(this);
 
         this._contentContainer = void(0);// this.el = document.createElement('div');
 
@@ -1172,7 +1176,7 @@ module.exports = (function () {
 
     return UIComponent;
 })();
-},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":25,"z-lib-structure-dqIndex":29,"z-observable":31}],17:[function(require,module,exports){
+},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":24,"z-lib-structure-dqIndex":27}],17:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1609,6 +1613,8 @@ SimplePipe.prototype.constructor = AbstractPipe;
 
 module.exports = SimplePipe;
 },{"./../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],23:[function(require,module,exports){
+var observable = require('z-observable');
+
 (function () {
     'use strict';
 
@@ -1621,9 +1627,13 @@ module.exports = SimplePipe;
      */
     function QObject(cfg) {
         cfg && this.apply(cfg);
+        observable.prototype._init.call(this);
     }
 
     var prototype = {
+
+        on: observable.prototype.on,
+        fire: observable.prototype.fire,
 
         /**
          * Copy all properties of object2 to object1, or object1 to self if object2 not set
@@ -1751,16 +1761,15 @@ module.exports = SimplePipe;
 
     QObject.prototype._type = "QObject";
     QObject._knownComponents['QObject'] = QObject;
-
     if (typeof document === 'undefined') {
-        QObject.document = require("dom-lite").document;
+        //QObject.document = require("dom-lite").document;
     } else {
         QObject.document = document;
     }
 
     module.exports = QObject;
 })();
-},{"dom-lite":24}],25:[function(require,module,exports){
+},{"z-observable":29}],24:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1919,138 +1928,10 @@ module.exports = (function () {
     };
     return ObservableArray;
 })();
-},{}],26:[function(require,module,exports){
-
-
-/*
- * @version    0.1.1
- * @date       2015-05-10
- * @stability  2 - Unstable
- * @author     Lauri Rooden <lauri@rooden.ee>
- * @license    MIT License
- */
-
-
-
-!function(exports) {
-	var undef
-	, selectorRe = /([.#:[])([-\w]+)(?:\((.+?)\)|([~^$*|]?)=(("|')(?:\\?.)*?\6|[-\w]+))?]?/g
-	, selectorLastRe = /([~\s>+]*)(?:("|')(?:\\?.)*?\2|\(.+?\)|[^\s+>])+$/
-	, selectorSplitRe = /\s*,\s*(?=(?:[^'"()]|"(?:\\?.)*?"|'(?:\\?.)*?'|\(.+?\))+$)/
-	, selectorCache = {}
-	, selectorMap = {
-		"any": "m(_,v)",
-		"empty": "!_.lastChild",
-		"enabled": "!m(_,':disabled')",
-		"first-child": "(a=_.parentNode)&&a.firstChild==_",
-		"first-of-type": "!p(_,_.tagName)",
-		"lang": "m(c(_,'[lang]'),'[lang|='+v+']')",
-		"last-child": "(a=_.parentNode)&&a.lastChild==_",
-		"last-of-type": "!n(_,_.tagName)",
-		"link": "m(_,'a[href]')",
-		"not": "!m(_,v)",
-		"nth-child": "(a=2,'odd'==v?b=1:'even'==v?b=0:a=1 in(v=v.split('n'))?(b=v[1],v[0]):(b=v[0],0),v=_.parentNode.childNodes,v=1+v.indexOf(_),0==a?v==b:('-'==a||0==(v-b)%a)&&(0<a||v<=b))",
-		"only-child": "(a=_.parentNode)&&a.firstChild==a.lastChild",
-		"only-of-type": "!p(_,_.tagName)&&!n(_,_.tagName)",
-		"optional": "!m(_,':required')",
-		"root": "(a=_.parentNode)&&!a.tagName",
-		".": "~_.className.split(/\\s+/).indexOf(a)",
-		"#": "_.id==a",
-		"^": "!a.indexOf(v)",
-		"|": "a.split('-')[0]==v",
-		"$": "a.slice(-v.length)==v",
-		"~": "~a.split(/\\s+/).indexOf(v)",
-		"*": "~a.indexOf(v)",
-		">>": "m(_.parentNode,v)",
-		"++": "m(_.previousSibling,v)",
-		"~~": "p(_,v)",
-		"": "c(_.parentNode,v)"
-	}
-
-	selectorMap["nth-last-child"] = selectorMap["nth-child"].replace("1+", "v.length-")
-
-	function selectorFn(str) {
-		// jshint evil:true
-		return selectorCache[str] ||
-		(selectorCache[str] = Function("m,c,n,p", "return function(_,v,a,b){return " +
-			str.split(selectorSplitRe).map(function(sel) {
-				var relation, from
-				, rules = ["_&&_.nodeType==1"]
-				, parentSel = sel.replace(selectorLastRe, function(_, _rel, a, start) {
-					from = start + _rel.length
-					relation = _rel.trim()
-					return ""
-				})
-				, tag = sel.slice(from).replace(selectorRe, function(_, op, key, subSel, fn, val, quotation) {
-					rules.push(
-						"((v='" +
-						(subSel || (quotation ? val.slice(1, -1) : val) || "").replace(/'/g, "\\'") +
-						"'),(a='" + key + "'),1)"
-						,
-						selectorMap[op == ":" ? key : op] ||
-						"(a=_.getAttribute(a))" +
-						(fn ? "&&" + selectorMap[fn] : val ? "==v" : "")
-					)
-					return ""
-				})
-
-				if (tag && tag != "*") rules[0] += "&&_.tagName=='" + tag.toUpperCase() + "'"
-				if (parentSel) rules.push("(v='" + parentSel + "')", selectorMap[relation + relation])
-				return rules.join("&&")
-			}).join("||") + "}"
-		)(matches, closest, next, prev))
-	}
-
-
-	function walk(next, el, sel, first, nextFn) {
-		var out = []
-		sel = selectorFn(sel)
-		for (; el; el = el[next] || nextFn && nextFn(el)) if (sel(el)) {
-			if (first) return el
-			out.push(el)
-		}
-		return first ? null : out
-	}
-
-	function find(node, sel, first) {
-		return walk("firstChild", node.firstChild, sel, first, function(el) {
-			var next = el.nextSibling
-			while (!next && ((el = el.parentNode) !== node)) next = el.nextSibling
-			return next
-		})
-	}
-
-	function matches(el, sel) {
-		return !!selectorFn(sel)(el)
-	}
-
-	function closest(el, sel) {
-		return walk("parentNode", el, sel, 1)
-	}
-
-	function next(el, sel) {
-		return walk("nextSibling", el.nextSibling, sel, 1)
-	}
-
-	function prev(el, sel) {
-		return walk("previousSibling", el.previousSibling, sel, 1)
-	}
-
-
-	exports.find = find
-	exports.fn = selectorFn
-	exports.matches = matches
-	exports.closest = closest
-	exports.next = next
-	exports.prev = prev
-	exports.selectorMap = selectorMap
-}(this)
-
-
-},{}],27:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports = function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b};
 
-},{}],28:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2326,7 +2207,7 @@ module.exports = (function () {
     dequeue.prototype.forEach = dequeue.prototype.each;
     return dequeue;
 })();
-},{}],29:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /**
  * Created by zibx on 01.06.16.
  */
@@ -2457,7 +2338,7 @@ module.exports = (function () {
     Index.prototype.forEach = Index.prototype.each;
     return Index;
 })();
-},{"z-lib-structure-dequeue":28}],30:[function(require,module,exports){
+},{"z-lib-structure-dequeue":26}],28:[function(require,module,exports){
 /**
  * Created by Zibx on 10/14/2014.
  */(function(  ){
@@ -3276,7 +3157,7 @@ module.exports = (function () {
     (1,eval)('this')
 );
 
-},{}],31:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * Created by Ivan on 10/19/2014.
  */
@@ -3530,5 +3411,5 @@ module.exports = (function(){
     Z.Observable.prototype = proto;
     return Z.Observable;
 })();
-},{"z-lib":30}]},{},[1])(1)
+},{"z-lib":28}]},{},[1])(1)
 });
