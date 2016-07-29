@@ -26,15 +26,17 @@ var server = http.createServer(function(req, res){
             id: 'id',
             code: 'code'
         }});
-
+        console.log('file exists. it`s qs!')
         p.add({
             id: path,
             code: source
         });
+        console.log('source added');
         try {
             var meta = p.getMetadata(),
                 subObj = {},
                 compiled;
+            console.log('metadata extracted');
             for(var i in meta)
                 meta[i].type && (subObj[i] = meta[i]);
             

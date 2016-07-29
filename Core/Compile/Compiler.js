@@ -154,7 +154,19 @@ module.exports = (function () {
                     out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
+            if(child.events) {
+                out += '\t\tthis._subscribeList = [];\n';
+                out += '\t\tthis._subscribe = function(){\n';
+                child.events.forEach(function (evt) {
+                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\''+evt.events+'\', function('+evt.args.join(',')+'){\n'+
+                        evt.fn+'\n}, this));\n';
+                });
+                out += '\t\t};\n';
+                out += '\t\tthis._subscribe();\n';
 
+
+
+            }
             if (this.nestingCount > 0) {
                 out += '\t\tparent.addChild(this);\n\n';
                 out += '\t\treturn this;\n' +

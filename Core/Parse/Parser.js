@@ -224,8 +224,8 @@ module.exports = (function(){
                             type: 'text'
                         }, tokenStartCursor );
 
-                        tokenStart = i;
-                        tokenStartCursor = cursor.clone();
+                        tokenStart = i+1;
+                        tokenStartCursor = cursor.clone(1);
                         pushItem( {
                             pos: i,
                             data: '@@@',
@@ -246,6 +246,12 @@ module.exports = (function(){
                         topBrace = braceStack.pop();
                         if( topBrace && braceClose[s] === topBrace.type ){
 
+                            pushItem( {
+                                pos: tokenStart,
+                                data: str.substr( tokenStart, i - tokenStart ),
+                                pureData: str.substr( tokenStart, i - tokenStart ),
+                                type: 'text'
+                            }, tokenStartCursor );
 
                             tree.data = str.substr( topBrace.pos, i - topBrace.pos + 1 );
                             tree.pureData = str.substr( topBrace.pos, i - topBrace.pos + 1 );
@@ -306,8 +312,12 @@ module.exports = (function(){
                 notComment = function( el ){return el.type !== 'comment'; },
                 getData = function( el ){return el.data; };
             if( first = line.first ){
-                type = first.pureData.match( U.nameRegexp );
-
+                /** possibility of event subscription */
+                if(first.pureData.charAt(0) === '.'){
+                    type = first.pureData.match(U.eventRegexp);
+                }else {
+                    type = first.pureData.match(U.nameRegexp);
+                }
                 if( type && (type = type[0]) ){
                     out.type = type;
                     out.bonus = first.pureData.substr( type.length );
@@ -322,6 +332,7 @@ module.exports = (function(){
             return out;
         },
         nameRegexp: /[\s]*(#?[^\s\.#:{]*)/,
+        eventRegexp: /[\s]*(\.[^\s\.#:{]*)/,
         treeBuilder: function( lines ){
             lines = lines.map( U.metaDataExtractor );
             var line,
