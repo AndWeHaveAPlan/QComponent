@@ -37,7 +37,7 @@ module.exports = {
         MutatingPipe: require("./Base/Pipes/MutatingPipe")
     }
 };
-},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":10,"./Base/Components/UI/HBox":12,"./Base/Components/UI/ListBox":14,"./Base/Components/UI/NumberKeyboard":15,"./Base/Components/UI/Primitives":16,"./Base/Components/UIComponent":9,"./Base/EventManager":17,"./Base/Pipes/AbstractPipe":19,"./Base/Pipes/FiltratingPipe":20,"./Base/Pipes/MutatingPipe":21,"./Base/Pipes/SimplePipe":22,"./Base/QObject":23}],2:[function(require,module,exports){
+},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/NumberKeyboard":14,"./Base/Components/UI/Primitives":15,"./Base/Components/UIComponent":16,"./Base/EventManager":17,"./Base/Pipes/AbstractPipe":19,"./Base/Pipes/FiltratingPipe":20,"./Base/Pipes/MutatingPipe":21,"./Base/Pipes/SimplePipe":22,"./Base/QObject":23}],2:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -198,7 +198,7 @@ AbstractComponent._type = AbstractComponent.prototype._type;
 
 
 QObject._knownComponents['AbstractComponent'] = module.exports = AbstractComponent;
-},{"../MulticastDelegate":18,"./../EventManager":17,"./../QObject":23,"observable-sequence":25,"tiny-uuid":27,"z-lib-structure-dqIndex":29}],3:[function(require,module,exports){
+},{"../MulticastDelegate":18,"./../EventManager":17,"./../QObject":23,"observable-sequence":24,"tiny-uuid":25,"z-lib-structure-dqIndex":27}],3:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -468,24 +468,505 @@ module.exports = (function () {
 })();
 },{"./LogicalComponent":7}],9:[function(require,module,exports){
 /**
+ * Created by ravenor on 13.07.16.
+ */
+
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+
+
+module.exports = UIComponent.extend('Checkbox', {
+    createEl: function () {
+        var self = this;
+        this.el = UIComponent.document.createElement('input');
+        this.el.setAttribute('type', 'checkbox');
+        this.el.addEventListener('click', function (event) {
+            self.set('checked', this.checked);
+        });
+    },
+    _setter: {
+        checked: function (key, value) {
+            var oldVal = this._data.checked;
+            this._data.checked = !!value;
+
+            this.el.checked = this._data.checked;
+
+            this._onPropertyChanged(this, 'value', this._data.checked, oldVal);
+            this._onPropertyChanged(this, 'checked', this._data.checked, oldVal);
+        },
+        value: function (key, value) {
+            this.set('checked', value)
+        }
+    },
+    _getter: {
+        checked: function () {
+            return this._data.checked;
+        },
+        value: function () {
+            return this._data.checked;
+        }
+    }
+});
+},{"../UIComponent":16,"./Primitives":15}],10:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var QObject = require('../../QObject');
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+var ItemTemplate = require('./ItemTemplate');
+var ContentContainer = require('../ContentContainer');
+
+var ObservableSequence = require('observable-sequence');
+
+module.exports = UIComponent.extend('ContainerComponent', {
+    _getter: {
+        selectedIndex: function (name, val) {
+            return this._data['selectedIndex'];
+        },
+        selectedItem: function (name, val) {
+            return this._data['selectedItem'];
+        },
+        value: function (name, val) {
+            this._setter.itemSource(name, val);
+        },
+        itemSource: function (name, val) {
+            return this._data['itemSource'];
+        },
+        itemTemplate: function (name, val) {
+            return this._data['itemTemplate'];
+        }
+    },
+    _setter: {
+        selectedIndex: function (name, val) {
+            var oldVal = this._data['selectedIndex'];
+            this._data['selectedIndex'] = val;
+
+            this._data['selectedItem'] = this._children.get(val);
+
+            var children = this.el.childNodes;
+            if (oldVal != void(0) && oldVal < children.length)
+                children[oldVal].style.background = 'none';
+            if (val < children.length)
+                children[val].style.background = '#3b99fc'; //59 153 252
+
+            this._onPropertyChanged(this, 'selectedItem', this._data['selectedItem'], void 0);
+            this._onPropertyChanged(this, 'selectedIndex', val, oldVal);
+        },
+        value: function (name, val) {
+            var oldVal = this._data['itemSource'];
+            this._setter.itemSource(name, val);
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
+        },
+        itemSource: function (name, val) {
+            var oldVal = this._data['itemSource'];
+            var template = this._itemTemplate;
+
+            this._children.splice(0, this._children.length);
+
+            for (var i = 0, length = val.length; i < length; i++) {
+                var self = this;
+                var newComp = new UIComponent();
+                newComp = new template();
+
+                for (var key in val[i])
+                    if (val[i].hasOwnProperty(key))
+                        newComp.set(key, val[i][key]);
+
+                //newComp._data = val[i];
+
+                var childNode = newComp.el;
+                childNode.style.clear = 'both';
+                childNode.style.position = 'relative';
+
+                (function (index) {
+                    childNode.addEventListener('click', function () {
+                        self.set('selectedIndex', index);
+                    });
+                })(i);
+
+                this._children.push(newComp);
+            }
+            this._data['itemSource'] = val;
+            this._onPropertyChanged(this, 'itemSource', val, oldVal);
+        },
+        itemTemplate: function (name, val) {
+            var oldVal = this._data['itemTemplate'];
+            this._itemTemplate = QObject._knownComponents[val];
+
+            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
+        },
+        selectedItem: function (name, val) {
+            var oldVal = this._data['selectedItem'];
+            //this._data['selectedItem'] = val;
+
+            var itemComponent = this._children.get(this.get('selectedIndex'));
+
+            for (var key in val) {
+                if (val.hasOwnProperty(key)) {
+                    itemComponent.set(key, val[key]);
+                }
+            }
+
+            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
+        }
+    }
+});
+},{"../../QObject":23,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":24}],11:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+
+module.exports = UIComponent.extend('HBox', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('div');
+    },
+    addChild: function (child) {
+        var div = new Primitive.div();
+        div.addChild(child);
+        this._children.push(div);
+
+        var children = this.el.childNodes;
+        var count = children.length;
+        for (var i = 0, length = children.length; i < length; i++) {
+            children[i].style.width = 100 / count + '%';
+            children[i].style.float = 'left';
+            children[i].style.position = 'relative';
+            children[i].style.height = '100%';
+        }
+    }
+});
+},{"../UIComponent":16,"./Primitives":15}],12:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var UIComponent = require('./../UIComponent');
+
+/**
+ *
+ */
+module.exports = UIComponent.extend('ItemTemplate', {
+
+}, function (cfg) {
+    UIComponent.call(this, cfg);
+});
+},{"./../UIComponent":16}],13:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+var ContainerComponent = require('./ContainerComponent');
+
+module.exports = ContainerComponent.extend('ListBox', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('div');
+    }
+});
+},{"../UIComponent":16,"./ContainerComponent":10,"./Primitives":15}],14:[function(require,module,exports){
+/**
+
+ * Created by ravenor on 13.07.16.
+ */
+
+
+var Primitive = require('./Primitives');
+var UIComponent = require('../UIComponent');
+
+module.exports = UIComponent.extend('NumberKeyboard', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('div');
+        this.el.style.width = '200px';
+        this.el.style.overflow = 'hidden';
+        this.el.style.margin='12px auto';
+
+        function createButton(n) {
+            var self = this;
+            var el = document.createElement('input');
+            el.type = 'submit';
+            n == '<<' ? el.style.width = '66.66%' : el.style.width = '33.33%';
+            el.style.height = '50px';
+            el.value = n;
+            el.style.float = 'left';
+            el.style.background='#ffa834';
+            el.style.color='#fff';
+            el.style.border='1px solid #fff';
+
+
+            el.addEventListener('mousedown', function (event) {
+                var ae = UIComponent.document.activeElement;
+                var val = el.value;
+
+                if (ae.type === 'text') {
+
+                    if (val == '<<') {
+                        var oldVal = ae.value;
+                        ae.value = oldVal.substr(0, oldVal.length - 1);
+                    } else {
+                        ae.value += val;
+                    }
+                    ae.dispatchEvent(new Event('change'));
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            el.addEventListener('change', function (event) {
+                el.value = n;
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            return el;
+        }
+
+        this.el.appendChild(createButton(7));
+        this.el.appendChild(createButton(8));
+        this.el.appendChild(createButton(9));
+        this.el.appendChild(createButton(4));
+        this.el.appendChild(createButton(5));
+        this.el.appendChild(createButton(6));
+        this.el.appendChild(createButton(1));
+        this.el.appendChild(createButton(2));
+        this.el.appendChild(createButton(3));
+        this.el.appendChild(createButton(0));
+        this.el.appendChild(createButton('<<'));
+
+    }
+});
+},{"../UIComponent":16,"./Primitives":15}],15:[function(require,module,exports){
+/**
+ * Created by ravenor on 13.07.16.
+ */
+
+var UIComponent = require('../UIComponent');
+
+var exports = {};
+
+/**
+ *
+ */
+exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
+    _setter: {
+        default: function (name, val) {
+            if (val === void 0) {
+                this.el.removeAttribute(name);
+            } else {
+                this.el.setAttribute(name, val);
+            }
+            this._data[name] = val;
+        },
+        value: function (key, val) {
+            if (!this.textNode) {
+                this.textNode = new exports['textNode'];
+                this._children.unshift(this.textNode);
+            }
+            this.textNode.set('value', val);
+        }
+    },
+    _getter: {
+        default: function (key) {
+            return this._data[key];
+        }
+    }
+});
+
+/**
+ *
+ */
+exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
+    //leaf: true,
+    createEl: function () {
+        this.el = UIComponent.document.createTextNode('');
+    },
+    _setter: {
+        value: function (key, val) {
+            var oldValue = this._data['value'];
+            this.el.nodeValue = val;
+            this._data['value'] = val;
+            this._onPropertyChanged(this, 'value', val, oldValue);
+        }
+    }
+});
+
+/**
+ *
+ */
+exports['input'] = exports['HtmlPrimitive'].extend('input', {
+    //leaf: true,
+    createEl: function () {
+        var self = this;
+        this.el = UIComponent.document.createElement('input');
+
+        this.el.addEventListener('click', function () {
+            self.fire('click');
+        });
+        this.el.addEventListener('change', function () {
+            self.set('value', event.target.value);
+        });
+    },
+    _setter: {
+        value: function (key, val) {
+            var oldVal=this._data['value'];
+
+            if (val === void 0) {
+                this.el.value='';
+            } else {
+                this.el.value=val;
+            }
+            this._data['value'] = val;
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
+        },
+        type: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('type');
+            } else {
+                this.el.setAttribute('type', val);
+            }
+            this._data['type'] = val;
+        },
+        checked: function (key, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('checked');
+            } else {
+                this.el.setAttribute('checked', val);
+            }
+            this._data['checked'] = val;
+        },
+        disabled: function (key, val) {
+            if (val) {
+                this.el.disabled=true;
+            } else {
+                this.el.disabled=false;
+            }
+            this._data['checked'] = val;
+        }
+    }
+});
+
+/**
+ *
+ */
+exports['textarea'] = exports['HtmlPrimitive'].extend('textarea', {
+    //leaf: true,
+    createEl: function () {
+        var self = this;
+        this.el = UIComponent.document.createElement('textarea');
+
+        this.el.addEventListener('change', function () {
+            self.set('value', event.target.value);
+        });
+    },
+    _setter: {
+        value: function (key, val) {
+            var oldVal=this._data['value'];
+
+            if (val === void 0) {
+                this.el.value='';
+            } else {
+                this.el.value=val;
+            }
+            this._data['value'] = val;
+
+            this._onPropertyChanged(this, 'value', val, oldVal);
+        }
+    }
+});
+
+exports['a'] = exports['HtmlPrimitive'].extend('a', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('a');
+    },
+    _setter: {
+        default: function (name, val) {
+            if (val === void 0) {
+                this.el.removeAttribute(name);
+            } else {
+                this.el.setAttribute(name, val);
+            }
+            this._data[name] = val;
+        },
+        value: function (key, val) {
+            if (!this.textNode) {
+                this.textNode = new exports['textNode'];
+                this._children.unshift(this.textNode);
+            }
+            this.textNode.set('value', val);
+        },
+        href: function (name, val) {
+            if (val === void 0) {
+                this.el.removeAttribute('href');
+            } else {
+                this.el.setAttribute('href', val);
+            }
+            this._data['href'] = val;
+        }
+    },
+    _getter: {
+        default: function (key) {
+            return this._data[key];
+        },
+        href: function () {
+            return this._data['href'];
+        }
+    }
+});
+
+/**
+ *
+ */
+('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
+'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
+'label,li,ol,option,p,pre,span,sub,sup,' +
+'table,tbody,td,th,thead,tr,u,ul,header')
+    .split(',')
+    .forEach(function (name) {
+        exports[name] = exports['HtmlPrimitive'].extend(name, {
+            createEl: function () {
+                this.el = UIComponent.document.createElement(name);
+                //this.el.style.overflow = 'hidden';
+                //this.el.style.position = 'absolute';
+            }
+        });
+    });
+
+module.exports = exports;
+},{"../UIComponent":16}],16:[function(require,module,exports){
+/**
  * Created by zibx on 01.07.16.
  */
 module.exports = (function () {
     'use strict';
     var AbstractComponent = require('./AbstractComponent'),
         ContentContainer = require('./ContentContainer'),
-        observable = require('z-observable'),
         ObservableSequence = require('observable-sequence'),
         DQIndex = require('z-lib-structure-dqIndex');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
-        on: observable.prototype.on,
-        fire: observable.prototype.fire,
 
         createEl: function () {
-            this.el = AbstractComponent.document.createElement('div');
-            this.el.style.overflow = 'hidden';
-            this.el.style.position = 'relative';
+            var self = this;
+            if (!this.el) {
+                this.el = AbstractComponent.document.createElement('div');
+                this.el.style.overflow = 'hidden';
+                this.el.style.position = 'relative';
+            }
+
+            this.el.addEventListener('click', function () {
+                self.fire('click');
+            });
+            this.el.addEventListener('change', function () {
+                self.fire('change');
+            });
         },
 
         /**
@@ -658,7 +1139,6 @@ module.exports = (function () {
     }, function (cfg) {
         var self = this;
         AbstractComponent.call(this, cfg);
-        observable.prototype._init.call(this);
 
         this._contentContainer = void(0);// this.el = document.createElement('div');
 
@@ -696,483 +1176,7 @@ module.exports = (function () {
 
     return UIComponent;
 })();
-},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":25,"z-lib-structure-dqIndex":29,"z-observable":31}],10:[function(require,module,exports){
-/**
- * Created by ravenor on 13.07.16.
- */
-
-var Primitive = require('./Primitives');
-var UIComponent = require('../UIComponent');
-
-
-module.exports = UIComponent.extend('Checkbox', {
-    createEl: function () {
-        var self = this;
-        this.el = UIComponent.document.createElement('input');
-        this.el.setAttribute('type', 'checkbox');
-        this.el.addEventListener('click', function (event) {
-            self.set('checked', this.checked);
-        });
-    },
-    _setter: {
-        checked: function (key, value) {
-            var oldVal = this._data.checked;
-            this._data.checked = !!value;
-
-            this.el.checked = this._data.checked;
-
-            this._onPropertyChanged(this, 'value', this._data.checked, oldVal);
-            this._onPropertyChanged(this, 'checked', this._data.checked, oldVal);
-        },
-        value: function (key, value) {
-            this.set('checked', value)
-        }
-    },
-    _getter: {
-        checked: function () {
-            return this._data.checked;
-        },
-        value: function () {
-            return this._data.checked;
-        }
-    }
-});
-},{"../UIComponent":9,"./Primitives":16}],11:[function(require,module,exports){
-/**
- * Created by ravenor on 13.07.16.
- */
-
-var QObject = require('../../QObject');
-var Primitive = require('./Primitives');
-var UIComponent = require('../UIComponent');
-var ItemTemplate = require('./ItemTemplate');
-var ContentContainer = require('../ContentContainer');
-
-var ObservableSequence = require('observable-sequence');
-
-module.exports = UIComponent.extend('ContainerComponent', {
-    _getter: {
-        selectedIndex: function (name, val) {
-            return this._data['selectedIndex'];
-        },
-        selectedItem: function (name, val) {
-            return this._data['selectedItem'];
-        },
-        value: function (name, val) {
-            this._setter.itemSource(name, val);
-        },
-        itemSource: function (name, val) {
-            return this._data['itemSource'];
-        },
-        itemTemplate: function (name, val) {
-            return this._data['itemTemplate'];
-        }
-    },
-    _setter: {
-        selectedIndex: function (name, val) {
-            var oldVal = this._data['selectedIndex'];
-            this._data['selectedIndex'] = val;
-
-            this._data['selectedItem'] = this._children.get(val);
-
-            var children = this.el.childNodes;
-            if (oldVal != void(0) && oldVal < children.length)
-                children[oldVal].style.background = 'none';
-            if (val < children.length)
-                children[val].style.background = '#3b99fc'; //59 153 252
-
-            this._onPropertyChanged(this, 'selectedItem', this._data['selectedItem'], void 0);
-            this._onPropertyChanged(this, 'selectedIndex', val, oldVal);
-        },
-        value: function (name, val) {
-            var oldVal = this._data['itemSource'];
-            this._setter.itemSource(name, val);
-
-            this._onPropertyChanged(this, 'value', val, oldVal);
-        },
-        itemSource: function (name, val) {
-            var oldVal = this._data['itemSource'];
-            var template = this._itemTemplate;
-
-            this._children.splice(0, this._children.length);
-
-            for (var i = 0, length = val.length; i < length; i++) {
-                var self = this;
-                var newComp = new UIComponent();
-                newComp = new template();
-
-                for (var key in val[i])
-                    if (val[i].hasOwnProperty(key))
-                        newComp.set(key, val[i][key]);
-
-                //newComp._data = val[i];
-
-                var childNode = newComp.el;
-                childNode.style.clear = 'both';
-                childNode.style.position = 'relative';
-
-                (function (index) {
-                    childNode.addEventListener('click', function () {
-                        self.set('selectedIndex', index);
-                    });
-                })(i);
-
-                this._children.push(newComp);
-            }
-            this._data['itemSource'] = val;
-            this._onPropertyChanged(this, 'itemSource', val, oldVal);
-        },
-        itemTemplate: function (name, val) {
-            var oldVal = this._data['itemTemplate'];
-            this._itemTemplate = QObject._knownComponents[val];
-
-            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
-        },
-        selectedItem: function (name, val) {
-            var oldVal = this._data['selectedItem'];
-            //this._data['selectedItem'] = val;
-
-            var itemComponent = this._children.get(this.get('selectedIndex'));
-
-            for (var key in val) {
-                if (val.hasOwnProperty(key)) {
-                    itemComponent.set(key, val[key]);
-                }
-            }
-
-            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
-        }
-    }
-});
-},{"../../QObject":23,"../ContentContainer":3,"../UIComponent":9,"./ItemTemplate":13,"./Primitives":16,"observable-sequence":25}],12:[function(require,module,exports){
-/**
- * Created by ravenor on 13.07.16.
- */
-
-var Primitive = require('./Primitives');
-var UIComponent = require('../UIComponent');
-
-module.exports = UIComponent.extend('HBox', {
-    createEl: function () {
-        this.el = UIComponent.document.createElement('div');
-    },
-    addChild: function (child) {
-        var div = new Primitive.div();
-        div.addChild(child);
-        this._children.push(div);
-
-        var children = this.el.childNodes;
-        var count = children.length;
-        for (var i = 0, length = children.length; i < length; i++) {
-            children[i].style.width = 100 / count + '%';
-            children[i].style.float = 'left';
-            children[i].style.position = 'relative';
-            children[i].style.height = '100%';
-        }
-    }
-});
-},{"../UIComponent":9,"./Primitives":16}],13:[function(require,module,exports){
-/**
- * Created by ravenor on 13.07.16.
- */
-
-var UIComponent = require('./../UIComponent');
-
-/**
- *
- */
-module.exports = UIComponent.extend('ItemTemplate', {
-
-}, function (cfg) {
-    UIComponent.call(this, cfg);
-});
-},{"./../UIComponent":9}],14:[function(require,module,exports){
-/**
- * Created by ravenor on 13.07.16.
- */
-
-var Primitive = require('./Primitives');
-var UIComponent = require('../UIComponent');
-var ContainerComponent = require('./ContainerComponent');
-
-module.exports = ContainerComponent.extend('ListBox', {
-    createEl: function () {
-        this.el = UIComponent.document.createElement('div');
-    }
-});
-},{"../UIComponent":9,"./ContainerComponent":11,"./Primitives":16}],15:[function(require,module,exports){
-/**
-
- * Created by ravenor on 13.07.16.
- */
-
-
-var Primitive = require('./Primitives');
-var UIComponent = require('../UIComponent');
-
-module.exports = UIComponent.extend('NumberKeyboard', {
-    createEl: function () {
-        this.el = UIComponent.document.createElement('div');
-        this.el.style.width = '200px';
-        this.el.style.overflow = 'hidden';
-        this.el.style.margin='12px auto';
-
-        function createButton(n) {
-            var self = this;
-            var el = document.createElement('input');
-            el.type = 'submit';
-            n == '<<' ? el.style.width = '66.66%' : el.style.width = '33.33%';
-            el.style.height = '50px';
-            el.value = n;
-            el.style.float = 'left';
-            el.style.background='#ffa834';
-            el.style.color='#fff';
-            el.style.border='1px solid #fff';
-
-
-            el.addEventListener('mousedown', function (event) {
-                var ae = UIComponent.document.activeElement;
-                var val = el.value;
-
-                if (ae.type === 'text') {
-
-                    if (val == '<<') {
-                        var oldVal = ae.value;
-                        ae.value = oldVal.substr(0, oldVal.length - 1);
-                    } else {
-                        ae.value += val;
-                    }
-                    ae.dispatchEvent(new Event('change'));
-                }
-
-                event.preventDefault();
-                event.stopPropagation();
-            });
-
-            el.addEventListener('change', function (event) {
-                el.value = n;
-                event.preventDefault();
-                event.stopPropagation();
-            });
-
-            return el;
-        }
-
-        this.el.appendChild(createButton(7));
-        this.el.appendChild(createButton(8));
-        this.el.appendChild(createButton(9));
-        this.el.appendChild(createButton(4));
-        this.el.appendChild(createButton(5));
-        this.el.appendChild(createButton(6));
-        this.el.appendChild(createButton(1));
-        this.el.appendChild(createButton(2));
-        this.el.appendChild(createButton(3));
-        this.el.appendChild(createButton(0));
-        this.el.appendChild(createButton('<<'));
-
-    }
-});
-},{"../UIComponent":9,"./Primitives":16}],16:[function(require,module,exports){
-/**
- * Created by ravenor on 13.07.16.
- */
-
-var UIComponent = require('../UIComponent');
-
-var exports = {};
-
-/**
- *
- */
-exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
-    _setter: {
-        default: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute(name);
-            } else {
-                this.el.setAttribute(name, val);
-            }
-            this._data[name] = val;
-        },
-        value: function (key, val) {
-            if (!this.textNode) {
-                this.textNode = new exports['textNode'];
-                this._children.unshift(this.textNode);
-            }
-            this.textNode.set('value', val);
-        }
-    },
-    _getter: {
-        default: function (key) {
-            return this._data[key];
-        }
-    }
-});
-
-/**
- *
- */
-exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
-    //leaf: true,
-    createEl: function () {
-        this.el = UIComponent.document.createTextNode('');
-    },
-    _setter: {
-        value: function (key, val) {
-            var oldValue = this._data['value'];
-            this.el.nodeValue = val;
-            this._data['value'] = val;
-            this._onPropertyChanged(this, 'value', val, oldValue);
-        }
-    }
-});
-
-/**
- *
- */
-exports['input'] = exports['HtmlPrimitive'].extend('input', {
-    //leaf: true,
-    createEl: function () {
-        var self = this;
-        this.el = UIComponent.document.createElement('input');
-
-
-        this.el.addEventListener('click', function () {
-            self._onPropertyChanged(self, 'click', true, null);
-            self._onPropertyChanged(self, 'click', false, null);
-        });
-        this.el.addEventListener('change', function () {
-            self.set('value', event.target.value);
-        });
-    },
-    _setter: {
-        value: function (key, val) {
-            var oldVal=this._data['value'];
-
-            if (val === void 0) {
-                this.el.value='';
-            } else {
-                this.el.value=val;
-            }
-            this._data['value'] = val;
-
-            this._onPropertyChanged(this, 'value', val, oldVal);
-        },
-        type: function (key, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('type');
-            } else {
-                this.el.setAttribute('type', val);
-            }
-            this._data['type'] = val;
-        },
-        checked: function (key, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('checked');
-            } else {
-                this.el.setAttribute('checked', val);
-            }
-            this._data['checked'] = val;
-        },
-        disabled: function (key, val) {
-            if (val) {
-                this.el.disabled=true;
-            } else {
-                this.el.disabled=false;
-            }
-            this._data['checked'] = val;
-        }
-    }
-});
-
-/**
- *
- */
-exports['textarea'] = exports['HtmlPrimitive'].extend('textarea', {
-    //leaf: true,
-    createEl: function () {
-        var self = this;
-        this.el = UIComponent.document.createElement('textarea');
-
-        this.el.addEventListener('change', function () {
-            self.set('value', event.target.value);
-        });
-    },
-    _setter: {
-        value: function (key, val) {
-            var oldVal=this._data['value'];
-
-            if (val === void 0) {
-                this.el.value='';
-            } else {
-                this.el.value=val;
-            }
-            this._data['value'] = val;
-
-            this._onPropertyChanged(this, 'value', val, oldVal);
-        }
-    }
-});
-
-exports['a'] = exports['HtmlPrimitive'].extend('a', {
-    createEl: function () {
-        this.el = UIComponent.document.createElement('a');
-    },
-    _setter: {
-        default: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute(name);
-            } else {
-                this.el.setAttribute(name, val);
-            }
-            this._data[name] = val;
-        },
-        value: function (key, val) {
-            if (!this.textNode) {
-                this.textNode = new exports['textNode'];
-                this._children.unshift(this.textNode);
-            }
-            this.textNode.set('value', val);
-        },
-        href: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('href');
-            } else {
-                this.el.setAttribute('href', val);
-            }
-            this._data['href'] = val;
-        }
-    },
-    _getter: {
-        default: function (key) {
-            return this._data[key];
-        },
-        href: function () {
-            return this._data['href'];
-        }
-    }
-});
-
-/**
- *
- */
-('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
-'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
-'label,li,ol,option,p,pre,span,sub,sup,' +
-'table,tbody,td,th,thead,tr,u,ul,header')
-    .split(',')
-    .forEach(function (name) {
-        exports[name] = exports['HtmlPrimitive'].extend(name, {
-            createEl: function () {
-                this.el = UIComponent.document.createElement(name);
-                //this.el.style.overflow = 'hidden';
-                //this.el.style.position = 'absolute';
-            }
-        });
-    });
-
-module.exports = exports;
-},{"../UIComponent":9}],17:[function(require,module,exports){
+},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":24,"z-lib-structure-dqIndex":27}],17:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1609,6 +1613,8 @@ SimplePipe.prototype.constructor = AbstractPipe;
 
 module.exports = SimplePipe;
 },{"./../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],23:[function(require,module,exports){
+var observable = require('z-observable');
+
 (function () {
     'use strict';
 
@@ -1621,9 +1627,13 @@ module.exports = SimplePipe;
      */
     function QObject(cfg) {
         cfg && this.apply(cfg);
+        observable.prototype._init.call(this);
     }
 
     var prototype = {
+
+        on: observable.prototype.on,
+        fire: observable.prototype.fire,
 
         /**
          * Copy all properties of object2 to object1, or object1 to self if object2 not set
@@ -1751,424 +1761,15 @@ module.exports = SimplePipe;
 
     QObject.prototype._type = "QObject";
     QObject._knownComponents['QObject'] = QObject;
-
     if (typeof document === 'undefined') {
-        QObject.document = require("dom-lite").document;
+        //QObject.document = require("dom-lite").document;
     } else {
         QObject.document = document;
     }
 
     module.exports = QObject;
 })();
-},{"dom-lite":24}],24:[function(require,module,exports){
-
-
-/**
- * @version    0.5.0
- * @date       2015-07-24
- * @stability  2 - Unstable
- * @author     Lauri Rooden <lauri@rooden.ee>
- * @license    MIT License
- */
-
-
-// Void elements: http://www.w3.org/html/wg/drafts/html/master/syntax.html#void-elements
-var voidElements = {
-	AREA:1, BASE:1, BR:1, COL:1, EMBED:1, HR:1, IMG:1, INPUT:1,
-	KEYGEN:1, LINK:1, MENUITEM:1, META:1, PARAM:1, SOURCE:1, TRACK:1, WBR:1
-}
-, hasOwn = Object.prototype.hasOwnProperty
-, selector = require("selector-lite")
-, elementGetters = {
-	getElementById: function(id) {
-		return selector.find(this, "#" + id, 1)
-	},
-	getElementsByTagName: function(tag) {
-		return selector.find(this, tag)
-	},
-	getElementsByClassName: function(sel) {
-		return selector.find(this, "." + sel.replace(/\s+/g, "."))
-	},
-	querySelector: function(sel) {
-		return selector.find(this, sel, 1)
-	},
-	querySelectorAll: function(sel) {
-		return selector.find(this, sel)
-	}
-}
-, Node = {
-	ELEMENT_NODE:                1,
-	TEXT_NODE:                   3,
-	PROCESSING_INSTRUCTION_NODE: 7,
-	COMMENT_NODE:                8,
-	DOCUMENT_NODE:               9,
-	DOCUMENT_TYPE_NODE:         10,
-	DOCUMENT_FRAGMENT_NODE:     11,
-	nodeName:        null,
-	parentNode:      null,
-	ownerDocument:   null,
-	childNodes:      null,
-	get nodeValue() {
-		return this.nodeType === 3 || this.nodeType === 8 ? this.data : null
-	},
-	set nodeValue(text) {
-		return this.nodeType === 3 || this.nodeType === 8 ? (this.data = text) : null
-	},
-	get textContent() {
-		return this.hasChildNodes() ? this.childNodes.map(function(child) {
-			return child[ child.nodeType == 3 ? "data" : "textContent" ]
-		}).join("") : this.nodeType === 3 ? this.data : ""
-	},
-	set textContent(text) {
-		if (this.nodeType === 3) return (this.data = text)
-		for (var node = this; node.firstChild;) node.removeChild(node.firstChild)
-		node.appendChild(node.ownerDocument.createTextNode(text))
-	},
-	get firstChild() {
-		return this.childNodes && this.childNodes[0] || null
-	},
-	get lastChild() {
-		return this.childNodes && this.childNodes[ this.childNodes.length - 1 ] || null
-	},
-	get previousSibling() {
-		return getSibling(this, -1)
-	},
-	get nextSibling() {
-		return getSibling(this, 1)
-	},
-	get innerHTML() {
-		return Node.toString.call(this)
-	},
-	set innerHTML(html) {
-		var match, child
-		, node = this
-		, tagRe = /<!(--([\s\S]*?)--|\[[\s\S]*?\]|[\s\S]*?)>|<(\/?)([^ \/>]+)([^>]*)>|[^<]+/mg
-		, attrRe = /([^= ]+)\s*=\s*(?:("|')((?:\\?.)*?)\2|(\S+))/g
-
-		for (; node.firstChild; ) node.removeChild(node.firstChild)
-
-		for (; (match = tagRe.exec(html)); ) {
-			if (match[3]) {
-				node = node.parentNode
-			} else if (match[4]) {
-				child = node.ownerDocument.createElement(match[4])
-				if (match[5]) {
-					match[5].replace(attrRe, setAttr)
-				}
-				node.appendChild(child)
-				if (!voidElements[child.tagName]) node = child
-			} else if (match[2]) {
-				node.appendChild(node.ownerDocument.createComment(htmlUnescape(match[2])))
-			} else if (match[1]) {
-				node.appendChild(node.ownerDocument.createDocumentType(match[1]))
-			} else {
-				node.appendChild(node.ownerDocument.createTextNode(htmlUnescape(match[0])))
-			}
-		}
-
-		return html
-
-		function setAttr(_, name, q, a, b) {
-			child.setAttribute(name, htmlUnescape(a || b || ""))
-		}
-	},
-	get outerHTML() {
-		return this.toString()
-	},
-	set outerHTML(html) {
-		var frag = this.ownerDocument.createDocumentFragment()
-		frag.innerHTML = html
-		this.parentNode.replaceChild(frag, this)
-		return html
-	},
-	get htmlFor() {
-		return this["for"]
-	},
-	set htmlFor(value) {
-		this["for"] = value
-	},
-	get className() {
-		return this["class"] || ""
-	},
-	set className(value) {
-		this["class"] = value
-	},
-	get style() {
-		return this.styleMap || (this.styleMap = new StyleMap())
-	},
-	set style(value) {
-		this.styleMap = new StyleMap(value)
-	},
-	hasChildNodes: function() {
-		return this.childNodes && this.childNodes.length > 0
-	},
-	appendChild: function(el) {
-		return this.insertBefore(el)
-	},
-	insertBefore: function(el, ref) {
-		var node = this
-		, childs = node.childNodes
-
-		if (el.nodeType == 11) {
-			while (el.firstChild) node.insertBefore(el.firstChild, ref)
-		} else {
-			if (el.parentNode) el.parentNode.removeChild(el)
-			el.parentNode = node
-
-			// If ref is null, insert el at the end of the list of children.
-			childs.splice(ref ? childs.indexOf(ref) : childs.length, 0, el)
-		}
-		return el
-	},
-	removeChild: function(el) {
-		var node = this
-		, index = node.childNodes.indexOf(el)
-		if (index == -1) throw new Error("NOT_FOUND_ERR")
-
-		node.childNodes.splice(index, 1)
-		el.parentNode = null
-		return el
-	},
-	replaceChild: function(el, ref) {
-		this.insertBefore(el, ref)
-		return this.removeChild(ref)
-	},
-	cloneNode: function(deep) {
-		var key
-		, node = this
-		, clone = new node.constructor(node.tagName || node.data)
-		clone.ownerDocument = node.ownerDocument
-
-		if (node.hasAttribute) {
-			for (key in node) if (node.hasAttribute(key)) clone[key] = node[key].valueOf()
-		}
-
-		if (deep && node.hasChildNodes()) {
-			node.childNodes.forEach(function(child) {
-				clone.appendChild(child.cloneNode(deep))
-			})
-		}
-		return clone
-	},
-	toString: function() {
-		return this.hasChildNodes() ? this.childNodes.reduce(function(memo, node) {
-			return memo + node
-		}, "") : ""
-	}
-}
-
-
-
-function extendNode(obj, extras) {
-	obj.prototype = Object.create(Node)
-	for (var key, i = 1; (extras = arguments[i++]); )
-		for (key in extras) obj.prototype[key] = extras[key]
-	obj.prototype.constructor = obj
-}
-
-function camelCase(str) {
-	return str.replace(/[ _-]+([a-z])/g, function(_, a) { return a.toUpperCase() })
-}
-
-function hyphenCase(str) {
-	return str.replace(/[A-Z]/g, "-$&").toLowerCase()
-}
-
-function htmlEscape(str) {
-	return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-}
-
-function htmlUnescape(str) {
-	return str.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&amp;/g, "&")
-}
-
-function StyleMap(style) {
-	var styleMap = this
-	if (style) style.split(/\s*;\s*/g).map(function(val) {
-		val = val.split(/\s*:\s*/)
-		if(val[1]) styleMap[val[0] == "float" ? "cssFloat" : camelCase(val[0])] = val[1]
-	})
-}
-
-StyleMap.prototype.valueOf = function() {
-	var styleMap = this
-	return Object.keys(styleMap).map(function(key) {
-		return (key == "cssFloat" ? "float: " : hyphenCase(key) + ": ") + styleMap[key]
-	}).join("; ")
-}
-
-function getSibling(node, step) {
-	var silbings = node.parentNode && node.parentNode.childNodes
-	, index = silbings && silbings.indexOf(node)
-
-	return silbings && index > -1 && silbings[ index + step ] || null
-}
-
-
-
-function DocumentFragment() {
-	this.childNodes = []
-}
-
-extendNode(DocumentFragment, {
-	nodeType: 11,
-	nodeName: "#document-fragment"
-})
-
-function Attr(node, name) {
-	this.ownerElement = node
-	this.name = name.toLowerCase()
-}
-
-Attr.prototype = {
-	get value() { return this.ownerElement.getAttribute(this.name) },
-	set value(val) { this.ownerElement.setAttribute(this.name, val) },
-	toString: function() {
-		return this.name + "=\"" + htmlEscape(this.value) + "\""
-	}
-}
-
-function escapeAttributeName(name) {
-	name = name.toLowerCase()
-	if (name === "constructor" || name === "attributes") return name.toUpperCase()
-	return name
-}
-
-function HTMLElement(tag) {
-	var element = this
-	element.nodeName = element.tagName = tag.toUpperCase()
-	element.localName = tag.toLowerCase()
-	element.childNodes = []
-}
-
-extendNode(HTMLElement, elementGetters, {
-	matches: function(sel) {
-		return selector.matches(this, sel)
-	},
-	closest: function(sel) {
-		return selector.closest(this, sel)
-	},
-	namespaceURI: "http://www.w3.org/1999/xhtml",
-	nodeType: 1,
-	localName: null,
-	tagName: null,
-	styleMap: null,
-	hasAttribute: function(name) {
-		name = escapeAttributeName(name)
-		return name != "style" ? hasOwn.call(this, name) :
-		!!(this.styleMap && Object.keys(this.styleMap).length)
-	},
-	getAttribute: function(name) {
-		name = escapeAttributeName(name)
-		return this.hasAttribute(name) ? "" + this[name] : null
-	},
-	setAttribute: function(name, value) {
-		this[escapeAttributeName(name)] = "" + value
-	},
-	removeAttribute: function(name) {
-		name = escapeAttributeName(name)
-		this[name] = ""
-		delete this[name]
-	},
-	toString: function() {
-		var attrs = this.attributes.join(" ")
-		return "<" + this.localName + (attrs ? " " + attrs : "") + ">" +
-		(voidElements[this.tagName] ? "" : this.innerHTML + "</" + this.localName + ">")
-	}
-})
-
-Object.defineProperty(HTMLElement.prototype, "attributes", {
-	get: function() {
-		var key
-		, attrs = []
-		, element = this
-		for (key in element) if (key === escapeAttributeName(key) && element.hasAttribute(key))
-			attrs.push(new Attr(element, escapeAttributeName(key)))
-		return attrs
-	}
-})
-
-function ElementNS(namespace, tag) {
-	var element = this
-	element.namespaceURI = namespace
-	element.nodeName = element.tagName = element.localName = tag
-	element.childNodes = []
-}
-
-ElementNS.prototype = HTMLElement.prototype
-
-function Text(data) {
-	this.data = data
-}
-
-extendNode(Text, {
-	nodeType: 3,
-	nodeName: "#text",
-	toString: function() {
-		return htmlEscape("" + this.data)
-	}
-})
-
-function Comment(data) {
-	this.data = data
-}
-
-extendNode(Comment, {
-	nodeType: 8,
-	nodeName: "#comment",
-	toString: function() {
-		return "<!--" + this.data + "-->"
-	}
-})
-
-function DocumentType(data) {
-	this.data = data
-}
-
-extendNode(DocumentType, {
-	nodeType: 10,
-	toString: function() {
-		return "<!" + this.data + ">"
-	}
-})
-
-function Document() {
-	this.childNodes = []
-	this.documentElement = this.createElement("html")
-	this.appendChild(this.documentElement)
-	this.body = this.createElement("body")
-	this.documentElement.appendChild(this.body)
-}
-
-function own(Element) {
-	return function($1, $2) {
-		var node = new Element($1, $2)
-		node.ownerDocument = this
-		return node
-	}
-}
-
-extendNode(Document, elementGetters, {
-	nodeType: 9,
-	nodeName: "#document",
-	createElement: own(HTMLElement),
-	createElementNS: own(ElementNS),
-	createTextNode: own(Text),
-	createComment: own(Comment),
-	createDocumentType: own(DocumentType), //Should be document.implementation.createDocumentType(name, publicId, systemId)
-	createDocumentFragment: own(DocumentFragment)
-})
-
-module.exports = {
-	document: new Document(),
-	StyleMap: StyleMap,
-	Node: Node,
-	HTMLElement: HTMLElement,
-	Document: Document
-}
-
-
-},{"selector-lite":26}],25:[function(require,module,exports){
+},{"z-observable":29}],24:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2327,138 +1928,10 @@ module.exports = (function () {
     };
     return ObservableArray;
 })();
-},{}],26:[function(require,module,exports){
-
-
-/*
- * @version    0.1.1
- * @date       2015-05-10
- * @stability  2 - Unstable
- * @author     Lauri Rooden <lauri@rooden.ee>
- * @license    MIT License
- */
-
-
-
-!function(exports) {
-	var undef
-	, selectorRe = /([.#:[])([-\w]+)(?:\((.+?)\)|([~^$*|]?)=(("|')(?:\\?.)*?\6|[-\w]+))?]?/g
-	, selectorLastRe = /([~\s>+]*)(?:("|')(?:\\?.)*?\2|\(.+?\)|[^\s+>])+$/
-	, selectorSplitRe = /\s*,\s*(?=(?:[^'"()]|"(?:\\?.)*?"|'(?:\\?.)*?'|\(.+?\))+$)/
-	, selectorCache = {}
-	, selectorMap = {
-		"any": "m(_,v)",
-		"empty": "!_.lastChild",
-		"enabled": "!m(_,':disabled')",
-		"first-child": "(a=_.parentNode)&&a.firstChild==_",
-		"first-of-type": "!p(_,_.tagName)",
-		"lang": "m(c(_,'[lang]'),'[lang|='+v+']')",
-		"last-child": "(a=_.parentNode)&&a.lastChild==_",
-		"last-of-type": "!n(_,_.tagName)",
-		"link": "m(_,'a[href]')",
-		"not": "!m(_,v)",
-		"nth-child": "(a=2,'odd'==v?b=1:'even'==v?b=0:a=1 in(v=v.split('n'))?(b=v[1],v[0]):(b=v[0],0),v=_.parentNode.childNodes,v=1+v.indexOf(_),0==a?v==b:('-'==a||0==(v-b)%a)&&(0<a||v<=b))",
-		"only-child": "(a=_.parentNode)&&a.firstChild==a.lastChild",
-		"only-of-type": "!p(_,_.tagName)&&!n(_,_.tagName)",
-		"optional": "!m(_,':required')",
-		"root": "(a=_.parentNode)&&!a.tagName",
-		".": "~_.className.split(/\\s+/).indexOf(a)",
-		"#": "_.id==a",
-		"^": "!a.indexOf(v)",
-		"|": "a.split('-')[0]==v",
-		"$": "a.slice(-v.length)==v",
-		"~": "~a.split(/\\s+/).indexOf(v)",
-		"*": "~a.indexOf(v)",
-		">>": "m(_.parentNode,v)",
-		"++": "m(_.previousSibling,v)",
-		"~~": "p(_,v)",
-		"": "c(_.parentNode,v)"
-	}
-
-	selectorMap["nth-last-child"] = selectorMap["nth-child"].replace("1+", "v.length-")
-
-	function selectorFn(str) {
-		// jshint evil:true
-		return selectorCache[str] ||
-		(selectorCache[str] = Function("m,c,n,p", "return function(_,v,a,b){return " +
-			str.split(selectorSplitRe).map(function(sel) {
-				var relation, from
-				, rules = ["_&&_.nodeType==1"]
-				, parentSel = sel.replace(selectorLastRe, function(_, _rel, a, start) {
-					from = start + _rel.length
-					relation = _rel.trim()
-					return ""
-				})
-				, tag = sel.slice(from).replace(selectorRe, function(_, op, key, subSel, fn, val, quotation) {
-					rules.push(
-						"((v='" +
-						(subSel || (quotation ? val.slice(1, -1) : val) || "").replace(/'/g, "\\'") +
-						"'),(a='" + key + "'),1)"
-						,
-						selectorMap[op == ":" ? key : op] ||
-						"(a=_.getAttribute(a))" +
-						(fn ? "&&" + selectorMap[fn] : val ? "==v" : "")
-					)
-					return ""
-				})
-
-				if (tag && tag != "*") rules[0] += "&&_.tagName=='" + tag.toUpperCase() + "'"
-				if (parentSel) rules.push("(v='" + parentSel + "')", selectorMap[relation + relation])
-				return rules.join("&&")
-			}).join("||") + "}"
-		)(matches, closest, next, prev))
-	}
-
-
-	function walk(next, el, sel, first, nextFn) {
-		var out = []
-		sel = selectorFn(sel)
-		for (; el; el = el[next] || nextFn && nextFn(el)) if (sel(el)) {
-			if (first) return el
-			out.push(el)
-		}
-		return first ? null : out
-	}
-
-	function find(node, sel, first) {
-		return walk("firstChild", node.firstChild, sel, first, function(el) {
-			var next = el.nextSibling
-			while (!next && ((el = el.parentNode) !== node)) next = el.nextSibling
-			return next
-		})
-	}
-
-	function matches(el, sel) {
-		return !!selectorFn(sel)(el)
-	}
-
-	function closest(el, sel) {
-		return walk("parentNode", el, sel, 1)
-	}
-
-	function next(el, sel) {
-		return walk("nextSibling", el.nextSibling, sel, 1)
-	}
-
-	function prev(el, sel) {
-		return walk("previousSibling", el.previousSibling, sel, 1)
-	}
-
-
-	exports.find = find
-	exports.fn = selectorFn
-	exports.matches = matches
-	exports.closest = closest
-	exports.next = next
-	exports.prev = prev
-	exports.selectorMap = selectorMap
-}(this)
-
-
-},{}],27:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 module.exports = function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b};
 
-},{}],28:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2734,7 +2207,7 @@ module.exports = (function () {
     dequeue.prototype.forEach = dequeue.prototype.each;
     return dequeue;
 })();
-},{}],29:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /**
  * Created by zibx on 01.06.16.
  */
@@ -2865,7 +2338,7 @@ module.exports = (function () {
     Index.prototype.forEach = Index.prototype.each;
     return Index;
 })();
-},{"z-lib-structure-dequeue":28}],30:[function(require,module,exports){
+},{"z-lib-structure-dequeue":26}],28:[function(require,module,exports){
 /**
  * Created by Zibx on 10/14/2014.
  */(function(  ){
@@ -3608,13 +3081,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var Waiter = function( fn ){
+            var waiter = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            Waiter.prototype = {
+            waiter.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3624,7 +3097,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new Waiter( function(  ){
+                    var W = new waiter( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3673,7 +3146,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new Waiter( fn );
+                return new waiter( fn );
             };
         })()
     };
@@ -3684,7 +3157,7 @@ module.exports = (function () {
     (1,eval)('this')
 );
 
-},{}],31:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * Created by Ivan on 10/19/2014.
  */
@@ -3938,5 +3411,5 @@ module.exports = (function(){
     Z.Observable.prototype = proto;
     return Z.Observable;
 })();
-},{"z-lib":30}]},{},[1])(1)
+},{"z-lib":28}]},{},[1])(1)
 });

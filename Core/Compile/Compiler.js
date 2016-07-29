@@ -42,8 +42,9 @@ module.exports = (function () {
                 }
             }
 
-            source = [
+            this.nestingCount = 0;
 
+            source = [
                 'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {}, function(){',
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
@@ -64,9 +65,7 @@ module.exports = (function () {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
-                            var source='';
-
-
+                            var source = '';
 
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
@@ -77,32 +76,12 @@ module.exports = (function () {
                             } else {
                                 source = '\'' + fullName + '\'';
                             }
+
                             pipeSources.push(source);
                         }
                     }
                 }
             }
-
-            /*
-             var regEx = new RegExp('(self|top|' + pipe.vars.join('|') + ').([\\w^\\.]+)', 'g');
-             var vars = [];
-             var args = [];
-
-             var fn = pipe.fn.replace(regEx, function (m, cName, pName) {
-
-             var pNameClear = pName.replace('.', '');
-             var v = {pname: pName, pnameClear: pNameClear, cname: '\'' + cName + '\'', full: cName + pNameClear};
-             args.push(v.full);
-
-             if (cName == 'self')
-             v.cname = 'this.id';
-             if (cName == 'top')
-             v.cname = 'self.id';
-
-             vars.push(v);
-
-             return cName + pNameClear;
-             });*/
 
             var pipeString = '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
                 '\t    [' +
@@ -131,50 +110,6 @@ module.exports = (function () {
             }
             return out;
         },
-        compileChild2: function (child) {
-            var type = child.type;
-
-            if (!cmetadata[type])
-                if (!QObject._knownComponents[type] || !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent))
-                    return '';
-
-            var compiledChildren = '';
-            if (child.children)
-                compiledChildren = child.children.map(this.compileChild2.bind(this)).join('');
-
-            var out = '\ttmp = (function(parent){\n' +
-                    '\t\teventManager.registerComponent(this);\n' + compiledChildren,
-                i, prop, propVal, pipes;
-
-            if (child.value)
-                if (child.value.isPipe) {
-                    var pipe = child.value;
-                    out += this.makePipe(pipe, 'self.id', 'value');
-                } else {
-                    propVal = this.propertyGetter(child);
-                    out += '\t\tthis.set(\'value\', ' + propVal + ')\n';
-                }
-
-            for (i in child.prop) {
-                prop = child.prop[i];
-                pipes = prop.value;
-                if (pipes.isPipe) {
-                    //var pipe = this.getPipe(pipes[i]);
-                    out += this.makePipe(pipes, 'self.id', i);
-                } else {
-                    propVal = this.propertyGetter(prop);
-                    out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
-                }
-            }
-
-            out += '\t\tparent.addChild(this);\n\n';
-            out += '\t\treturn this;\n' +
-                '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
-                (child.name ? 'id: \'' + child.name + '\'' : '') + '}), this );\n';
-
-            return out;
-
-        },
         compileChild: function (child) {
             var type = child.type;
 
@@ -183,12 +118,22 @@ module.exports = (function () {
                     return '';
 
             var compiledChildren = '';
-            if (child.children)
-                compiledChildren = child.children.map(this.compileChild2.bind(this)).join('');
+            if (child.children) {
+                this.nestingCount += 1;
+                compiledChildren = child.children.map(this.compileChild.bind(this)).join('');
+                this.nestingCount -= 1;
+            }
 
-            var out = '\ttmp = (function(){\n' +
-                    '\t\teventManager.registerComponent(this);\n' + compiledChildren,
-                i, prop, propVal, pipes;
+            var out = '';
+            if (this.nestingCount > 0) {
+                out = '\ttmp = (function(parent){\n' +
+                    '\t\teventManager.registerComponent(this);\n' + compiledChildren;
+
+            } else {
+                out = '\ttmp = (function(){\n' +
+                    '\t\teventManager.registerComponent(this);\n' + compiledChildren;
+            }
+            var i, prop, propVal, pipes;
 
             if (child.value)
                 if (child.value.isPipe) {
@@ -203,7 +148,6 @@ module.exports = (function () {
                 prop = child.prop[i];
                 pipes = prop.value;
                 if (pipes.isPipe) {
-                    //var pipe = this.getPipe(pipes[i]);
                     out += this.makePipe(pipes, 'self.id', i);
                 } else {
                     propVal = this.propertyGetter(prop);
@@ -211,22 +155,24 @@ module.exports = (function () {
                 }
             }
 
-            out += '\t\tparent._ownComponents.push(this);\n\n';
-            out += '\t\treturn this;\n' +
-                '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
-                (child.name ? 'id: \'' + child.name + '\'' : '') + '}) );\n';
+            if (this.nestingCount > 0) {
+                out += '\t\tparent.addChild(this);\n\n';
+                out += '\t\treturn this;\n' +
+                    '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
+                    (child.name ? 'id: \'' + child.name + '\'' : '') + '}), this );\n';
+            } else {
+                out += '\t\tparent._ownComponents.push(this);\n\n';
+                out += '\t\treturn this;\n' +
+                    '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
+                    (child.name ? 'id: \'' + child.name + '\'' : '') + '}) );\n';
+            }
 
             return out;
 
         },
-        getPipe: function (items) {
-            return items[0];
-        },
         propertyGetter: function (prop) {
-
             if (Array.isArray(prop.value))
                 return prop.value[0].data;
-
             return '\'' + prop.value + '\'';
         }
     });
