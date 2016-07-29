@@ -73,7 +73,7 @@ var tools = module.exports = (function() {
                 if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
                     data = item.pureData.substr(2, item.pureData.length - 4);
 
-                    unUsed = Object.keys(vars = variableExtractor.parse(data).getUnDefined());
+                    unUsed = Object.keys(vars = variableExtractor.parse(data).getFullUnDefined());
                     if(unUsed.length){
                         werePipes = true;
 
@@ -98,7 +98,7 @@ var tools = module.exports = (function() {
                     else
                         return item.pureData;
                 }).join('+');
-                pipedOut.vars = Object.keys(pipedOut.vars);
+                //pipedOut.vars = pipedOut.vars;
                 return pipedOut;
             }
 
@@ -112,7 +112,7 @@ var tools = module.exports = (function() {
                 // oh, it's a pipe!
                 if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
                     data = item.pureData.substr(2, item.pureData.length - 4);
-                    unUsed = Object.keys(variableExtractor.parse(data).getUnDefined());
+                    unUsed = Object.keys(variableExtractor.parse(data).getFullUnDefined());
                     unUsed.length && pipes.push({vars: unUsed, text: data});
                     //debugger;
                 }
