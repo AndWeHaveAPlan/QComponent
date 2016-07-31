@@ -59,8 +59,7 @@ var QObject = require('./../QObject'),
 function AbstractComponent(cfg) {
 
     var self = this;
-
-    this.apply(cfg);
+    Function.prototype.apply.call(QObject, this, arguments);
 
     if (!this.id)
         this.id = uuid();
@@ -103,7 +102,8 @@ function AbstractComponent(cfg) {
 
 AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
-AbstractComponent.prototype = new QObject({
+AbstractComponent.prototype = Object.create(QObject.prototype);
+QObject.prototype.apply(AbstractComponent.prototype, {
 
     regenId:function(){
         this.id = uuid();
@@ -3082,13 +3082,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var wait = function( fn ){
+            var Ждуля = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            wait.prototype = {
+            Ждуля.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3098,7 +3098,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new wait( function(  ){
+                    var W = new Ждуля( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3147,7 +3147,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new wait( fn );
+                return new Ждуля( fn );
             };
         })()
     };

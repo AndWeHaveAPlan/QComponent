@@ -48,13 +48,19 @@ module.exports = (function() {
                 fn;
 
             for(i = 0, _i = other.length; i < _i; i++){
+
                 token = other[i];
                 if(token.type === 'comment')
                     continue;
 
                 if(token.type === 'brace'){
-                    if(argsMatched)
+                    if(argsMatched) {
+                        if(token.info === '{'){
+                            rest = token.items;
+                            break;
+                        }
                         throw new Error({type: 'Arguments already matched', data: token});
+                    }
                     args = tools
                         .detox(
                             token.items.filter(itemFilter)
@@ -64,11 +70,19 @@ module.exports = (function() {
                     argsMatched = true;
                 }
                 if(token.type === 'text'){
+                    if(token.pureData.trim().indexOf('function')===0)
+                        continue;
+                    if(token.pureData.trim()==='')
+                        continue;
+                    
                     fnStart = token.pureData.trim().substr(0,2);
                     if(functionBody[fnStart]){
                         rest = other.slice(i);
                         tools.removeFirstWord({items: rest}, fnStart);
                         break;
+                    }else{
+                        console.log(token)
+                        throw new Error({type: 'Syntax error', data: token})
                     }
                 }
             }
@@ -77,11 +91,13 @@ module.exports = (function() {
                     return item.pureData;
                 })
                 .join('')
-            ].concat(
-                sub.map(function (item) {
-                    return item.pureLine;
-                })
-            );
+            ];
+            if(sub)
+                fn = fn.concat(
+                    sub.map(function (item) {
+                        return item.pureLine;
+                    })
+                );
 
             return {
                 args: args,
