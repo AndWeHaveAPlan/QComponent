@@ -19,8 +19,7 @@ var QObject = require('./../QObject'),
 function AbstractComponent(cfg) {
 
     var self = this;
-
-    this.apply(cfg);
+    Function.prototype.apply.call(QObject, this, arguments);
 
     if (!this.id)
         this.id = uuid();
@@ -63,7 +62,8 @@ function AbstractComponent(cfg) {
 
 AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
-AbstractComponent.prototype = new QObject({
+AbstractComponent.prototype = Object.create(QObject.prototype);
+QObject.prototype.apply(AbstractComponent.prototype, {
 
     regenId:function(){
         this.id = uuid();
