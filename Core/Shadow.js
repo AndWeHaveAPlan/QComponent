@@ -28,7 +28,7 @@ module.exports = (function() {
     var _knownComponents=Base.QObject._knownComponents;
     for(var className in _knownComponents) {
         if (_knownComponents.hasOwnProperty(className)) {
-            els[className] = {
+            var obj = {
                 argumentParser: function (bonus, item) {
                     var splitted = tools.split(item.items, ':', 2),
                         subTokens = tools.split(splitted[0], ' ', 2);
@@ -41,6 +41,10 @@ module.exports = (function() {
                 },
                 public:{}
             };
+            if(els[className])
+                Base.QObject.prototype.applyIfNot(els[className], obj);
+            else
+                els[className] = obj;
 
             for(var propertyName in _knownComponents[className].prototype._setter){
                 if(propertyName!=='default')

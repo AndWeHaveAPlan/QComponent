@@ -66,6 +66,9 @@ module.exports = (function() {
 
                     info.type = type;
                     return info;
+                },
+                EVENT: function (item, children) {
+                    return shadow.QObject.eventParser(item, children);
                 }
             },
             mapping: {
@@ -240,7 +243,7 @@ module.exports = (function() {
                     parsers = this.parsers,
                     pipes,
 
-                    isPublic, isProperty,
+                    isPublic, isProperty, isEvent,
 
                     type;
 
@@ -253,89 +256,96 @@ module.exports = (function() {
                     child = children[i];
 
                     isPublic = child.type in kw.PUBLIC;
+                    isEvent = child.type.charAt(0) === '.';
 
                     if( isPublic ) {
                         info = parsers.PUBLIC.call(child, child.bonus, child);
+                    }else if( isEvent ) {
+                        info = parsers.EVENT.call(child, child, child.children);
                     }else{
                         info = parsers.PRIVATE.call(child, child.bonus, child);
                     }
-
-                    isProperty = !(info.type in kws) && this.isProperty(info.type, sub.type, localShadow);
-                    if(isProperty){
-                        info.name = info.type;
-                        info.type = isProperty.type;
-                    }
-                    if(isPublic){
-                        if(!info.name.trim())
-                            throw new Error('Public property `' + info.type + '` must be named (' + fileName + ':' + child.row + ':' + child.col + ')')
-                        child.type = info.type;
-                        child.public = true;
-                        localShadow[name].depend[info.type] = true;
-                        localShadow[name].public[info.name] = info;
+                    if(isEvent) {
+                        (childrenHolder.events || (childrenHolder.events = [])).push(info);
                     }else{
-                        if(info.name)
-                            localShadow[name].private[info.name] = info;
-                    }
-                    if(isProperty){
-                        (childrenHolder.prop || (childrenHolder.prop = {}))[info.name] = info;
-                    }else{
-                        childrenHolder.children.push(info);
-                    }
-
-                    if(!localShadow[child.type] && !isProperty) {
-
-                        if(child.type in shadow) {
-                            localShadow[name].depend[child.type] = true;
-                            localShadow[child.type] = shadow[child.type];
-                            //console.log('!!', child.type);
-                        }else {
-                            throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+                        isProperty = !(info.type in kws) && this.isProperty(info.type, sub.type, localShadow);
+                        if (isProperty) {
+                            info.name = info.type;
+                            info.type = isProperty.type;
                         }
-                    }
+                        if (isPublic) {
+                            if (!info.name.trim())
+                                throw new Error('Public property `' + info.type + '` must be named (' + fileName + ':' + child.row + ':' + child.col + ')')
+                            child.type = info.type;
+                            child.public = true;
+                            localShadow[name].depend[info.type] = true;
+                            localShadow[name].public[info.name] = info;
+                        } else {
+                            if (info.name)
+                                localShadow[name].private[info.name] = info;
+                        }
+                        if (isProperty) {
+                            (childrenHolder.prop || (childrenHolder.prop = {}))[info.name] = info;
+                        } else {
+                            childrenHolder.children.push(info);
+                        }
 
-                    /** extract subs in dependence */
-                    if(!localShadow[info.type] || !localShadow[info.type].defined){
+                        if (!localShadow[child.type] && !isProperty) {
 
-                        var firstNeed = defines[info.type] || (defines[info.type] = shadow[info.type]);
-                        if(firstNeed === void 0)
-                            throw new Error('Unknown class `' + info.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+                            if (child.type in shadow) {
+                                localShadow[name].depend[child.type] = true;
+                                localShadow[child.type] = shadow[child.type];
+                                //console.log('!!', child.type);
+                            } else {
+                                throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+                            }
+                        }
 
-                        if(firstNeed.type) {
-                            var firstNeedType = defines[firstNeed.type];
+                        /** extract subs in dependence */
+                        if ((!localShadow[info.type] || !localShadow[info.type].defined)) {
 
-                            if (firstNeedType === void 0)
-                                throw new Error('Unknown class parent `' + defines[info.type].type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+                            var firstNeed = defines[info.type] || (defines[info.type] = shadow[info.type]);
+                            if (firstNeed === void 0)
+                                throw new Error('Unknown class `' + info.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
 
-                            if (!firstNeedType.defined) {
-                                type = defines[info.type].type;
+                            if (firstNeed.type) {
+                                var firstNeedType = defines[firstNeed.type];
+
+                                if (firstNeedType === void 0)
+                                    throw new Error('Unknown class parent `' + defines[info.type].type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+
+                                if (!firstNeedType.defined) {
+                                    type = defines[info.type].type;
+                                    this.extractSub(defines[type].item, localShadow, type, defines[type].id, localShadow[type], defines);
+                                }
+                            }
+                            if (!firstNeed.defined) {
+                                type = info.type;
                                 this.extractSub(defines[type].item, localShadow, type, defines[type].id, localShadow[type], defines);
                             }
                         }
-                        if(!firstNeed.defined) {
-                            type = info.type;
-                            this.extractSub(defines[type].item, localShadow, type, defines[type].id, localShadow[type], defines);
-                        }
-                    }
 
-                    /** searching for pipes */
-                    for(j in info){
-                        if(info[j] instanceof Array){
-                            pipes = tools.transformPipes(info[j]);
+                        /** searching for pipes */
+                        for (j in info) {
+                            if (info[j] instanceof Array) {
+                                pipes = tools.transformPipes(info[j]);
 
-                            if(pipes.isPipe) {
-                                info[j] = pipes;
-                                localShadow[name].pipes = localShadow[name].pipes.concat(pipes.vars);
+                                if (pipes.isPipe) {
+                                    info[j] = pipes;
+                                    localShadow[name].pipes = localShadow[name].pipes.concat(pipes.vars);
 
-                                (info._pipes || (info._pipes = {}))[info.name] = pipes;
-                                (child.pipes || (child.pipes = {}))[info.name/*maybe j*/] = pipes;
+                                    (info._pipes || (info._pipes = {}))[info.name] = pipes;
+                                    (child.pipes || (child.pipes = {}))[info.name/*maybe j*/] = pipes;
+                                }
                             }
                         }
-                    }
-                    //console.log(child.type)
-                    if(child.children  && !localShadow[child.type].rawChildren ) {
-                        info.children = [];
 
-                        this.extractSub(child, localShadow, name, fileName, info, defines);
+                        //console.log(child.type)
+                        if (child.children && !localShadow[child.type].rawChildren) {
+                            info.children = [];
+
+                            this.extractSub(child, localShadow, name, fileName, info, defines);
+                        }
                     }
                 }
                 if(childrenHolder === localShadow[name])

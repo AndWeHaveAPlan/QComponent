@@ -18,8 +18,8 @@ module.exports = (function () {
                 this.el.style.position = 'relative';
             }
 
-            this.el.addEventListener('click', function () {
-                self.fire('click');
+            this.el.addEventListener('click', function (e) {
+                self.fire('click', e);
             });
             this.el.addEventListener('change', function () {
                 self.fire('change');

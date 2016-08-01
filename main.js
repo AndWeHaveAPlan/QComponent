@@ -26,15 +26,17 @@ var server = http.createServer(function(req, res){
             id: 'id',
             code: 'code'
         }});
-
+        console.log('file exists. it`s qs!')
         p.add({
             id: path,
             code: source
         });
+        console.log('source added');
         try {
             var meta = p.getMetadata(),
                 subObj = {},
                 compiled;
+            console.log('metadata extracted');
             for(var i in meta)
                 meta[i].type && (subObj[i] = meta[i]);
             
@@ -46,6 +48,7 @@ var server = http.createServer(function(req, res){
                 '<script src="bundle.js"></script>' +
                 '<script>console.log("INIT");QObject = Base.QObject; Q = '+compiled+';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
         }catch(e){
+
             return res.end(e.message);
         }
 

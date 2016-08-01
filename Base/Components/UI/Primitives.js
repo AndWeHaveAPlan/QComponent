@@ -61,8 +61,8 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         var self = this;
         this.el = UIComponent.document.createElement('input');
 
-        this.el.addEventListener('click', function () {
-            self.fire('click');
+        this.el.addEventListener('click', function (e) {
+            self.fire('click', e);
         });
         this.el.addEventListener('change', function () {
             self.set('value', event.target.value);
