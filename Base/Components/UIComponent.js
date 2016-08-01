@@ -110,6 +110,10 @@ module.exports = (function () {
                 this._data['disabled'] = val;
                 this._onPropertyChanged(this, 'disabled', val, oldValue);
             },
+            style: function (key, val) {
+                this.el.style = val;
+                this._onPropertyChanged(this, 'style', val, null);
+            },
             left: function (name, val) {
                 this._data[name] = val;
                 if (val) {

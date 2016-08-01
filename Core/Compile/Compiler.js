@@ -28,6 +28,14 @@ module.exports = (function () {
                 source;
             vars[item.type] = '_known[\'' + item.type + '\']';
 
+            this._knownVars = [];
+            for (var key in item.private) {
+                if (item.private.hasOwnProperty(key)) {
+                    if (!item.private[key].children)
+                        this._knownVars.push(key);
+                }
+            }
+
             var out = '';
             for (var i in item.prop) {
                 var prop = item.prop[i];
@@ -65,12 +73,10 @@ module.exports = (function () {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
 
                             var pipeVar = pipe.vars[cName][fullName];
-                            var source = source = '\'' + fullName + '\'';
-                            ;
+                            var source = '\'' + fullName + '\'';
 
-                            if (cName[0] === '$') {
-                                //fullName=fullName.substring(1);
-                                source = 'self.id + \'.' + fullName.substring(1) + '\'';
+                            if (this._knownVars.indexOf(cName) !== -1) {
+                                source = source = 'self.id + \'.' + fullName + '\'';
                             }
                             if (cName == 'this') {
                                 source = 'this.id + \'.' + pipeVar.property.name + '\'';
@@ -158,18 +164,21 @@ module.exports = (function () {
                     out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
-            if(child.events) {
+            if (child.events) {
                 out += '\t\tthis._subscribeList = [];\n';
                 out += '\t\tthis._subscribe = function(){\n';
+
+               /* for (var i = 0; i < this._knownVars.length; i++) {
+                    var kv = this._knownVars[i];
+                    evt.fn.replace(new RegExp(kv, g), 'eventManager._registredComponents['+this._knownVars+']');
+                }*/
+
                 child.events.forEach(function (evt) {
-                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\''+evt.events+'\', function('+evt.args.join(',')+'){\n'+
-                        evt.fn+'\n}, this));\n';
+                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
+                        evt.fn + '\n}, this));\n';
                 });
                 out += '\t\t};\n';
                 out += '\t\tthis._subscribe();\n';
-
-
-
             }
             if (this.nestingCount > 0) {
                 out += '\t\tparent.addChild(this);\n\n';

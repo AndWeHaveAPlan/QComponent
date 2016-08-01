@@ -105,7 +105,7 @@ AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
 
-    regenId:function(){
+    regenId: function () {
         this.id = uuid();
     },
 
@@ -151,8 +151,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             return ret;
 
         } else {
-            var accesor = this._getter[name] || this._getter.default;
-            return accesor.call(this, name);
+            var accessor = this._getter[name] || this._getter.default;
+            return accessor.call(this, name);
         }
     },
 
@@ -163,10 +163,22 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      * @param value Object
      */
     set: function (name, value) {
-        //TODO implement dot notation
-        var mutator = this._setter[name] || this._setter.default;
+        var nameParts = name.split('.');
 
-        mutator.call(this, name, value);
+        if (nameParts.length > 1) {
+            var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
+            if (getted)
+                if (getted instanceof AbstractComponent) {
+                    getted.set(nameParts.unshift, value);
+                } else {
+                    getted[nameParts[nameParts.length - 1]] = value;
+                    this._onPropertyChanged(nameParts.splice(0, 1), value);
+                }
+        } else {
+            var mutator = this._setter[name] || this._setter.default;
+            mutator.call(this, name, value);
+        }
+
         return this;
     },
 
@@ -184,10 +196,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      *
      * @param component AbstractComponent: AbstractComponent to add
      */
-    /*addComponent: function( component ){
-     this._ownComponents.push(component);
-     return this;
-     },*/
 
     _type: 'AbstractComponent'
 });
@@ -1037,6 +1045,11 @@ module.exports = (function () {
             return this;
         },
 
+        _getter: {
+            style: function () {
+                return this.el.style;
+            }
+        },
         _setter: {
             disabled: function (key, val) {
                 var oldValue = this._data['disabled'];
@@ -1047,6 +1060,10 @@ module.exports = (function () {
                 }
                 this._data['disabled'] = val;
                 this._onPropertyChanged(this, 'disabled', val, oldValue);
+            },
+            style: function (key, val) {
+                this.el.style = val;
+                this._onPropertyChanged(this, 'style', val, null);
             },
             left: function (name, val) {
                 this._data[name] = val;
@@ -3082,13 +3099,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var Ждуля = function( fn ){
+            var waiter = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            Ждуля.prototype = {
+            waiter.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3098,7 +3115,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new Ждуля( function(  ){
+                    var W = new waiter( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3147,7 +3164,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new Ждуля( fn );
+                return new waiter( fn );
             };
         })()
     };

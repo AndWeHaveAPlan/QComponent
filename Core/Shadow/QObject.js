@@ -4,6 +4,7 @@
 module.exports = (function() {
     'use strict';
     var tools = require('../Compile/tools');
+    var VariableExtractor=require('../Compile/VariableExtractor');
     var itemFilter = function (item) {
         if (item.type === 'comment')
             return false;
@@ -36,7 +37,7 @@ module.exports = (function() {
                 .join(',')
                 .substr(1),
                 fnInfo = this.functionParser(splitted[1], children);
-            return {events: events, type: 'event', args: fnInfo.args, fn: fnInfo.fn};
+            return {events: events, type: 'event', args: fnInfo.args, fn: fnInfo.fn, vars: VariableExtractor.parse(fnInfo.fn).getFullUnDefined()};
 
         },
         functionParser: function (other, sub) {
