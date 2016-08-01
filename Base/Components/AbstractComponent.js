@@ -111,8 +111,9 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             return ret;
 
         } else {
-            var accesor = this._getter[name] || this._getter.default;
-            return accesor.call(this, name);
+            /*var accesor = this._prop[name] || this._getter[name] || this._getter.default;
+            return accesor.call(this, name);*/
+            return this._prop[name].get();
         }
     },
 

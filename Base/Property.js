@@ -5,44 +5,53 @@ module.exports = (function () {
     'use strict';
     /**
      * Factory of factories of properties
-     * setter calls on set and transform data
-     * validator checks that data is correct
-     * if data is correct - value is setted to data
      */
 
     var dataTypes = {
         Boolean: {
-            set: function(value){
-                return !!value;
+            set: function(){
+
             },
-            get: function(){
-                return !!this.parent._data[this.key];
+            get: function(key, value){
+                return value;
             },
-            validate: function (val) {
-                return val === !val;
+            validate: function (value) {
+                if(value !== !!value)
+                    return false;
             }
+        },
+        Variant: {
+            set: function(value){
+
+            },
+            get: function(key, value){
+                return value;
+            },
         }
     };
     //class Boolean extends Type
     var setter = function (value) {
-        var key = this.key;
-        var val = this._set.apply(this, arguments),
+        var key = this.key,
+            oldValue = this.parent._data[key],
             validate = this.validate;
-
-        if(!validate || (validate && validate(val)))
-            this.parent._data[key] = val;
-        else
+        
+        if((!validate || (validate && validate(value))) && value !== oldValue) {
+            if(this.set.call(this.parent, key, value, oldValue) !== false) {
+                this._onPropertyChanged(this, 'disabled', value, oldValue);
+                this.parent._data[key] = value;
+            }
+        }else
             return false;
     };
     var getter = function () {
-        return this._get(this.parent._data[this.key]);
+        return this._get.call(this.parent, this.key, this.parent._data[this.key]);
     };
 
     var Property = function(type, metadata, cfg, defaultValue){
         metadata = metadata || {};
 
 
-        var dataType = dataTypes[type],
+        var dataType = dataTypes[type] || dataTypes.Variant,
             proto = {parent: null};
         proto.type = metadata.type = type;
         proto.value = metadata.defaultValue = defaultValue;
@@ -77,19 +86,18 @@ module.exports = (function () {
         return new Property('String', 
             {description: text},
             {
-                set: function (name, val) {
-                    this._data[name] = val;
+                set: function (key, val) {
                     if (val) {
-                        this.el.style[name] = val;
+                        this.el.style[key] = val;
                     } else {
-                        this.el.style.removeProperty(name);
+                        this.el.style.removeProperty(key);
                     }
                 },
-                get: function (name) {
-                    return this._data[name];
+                get: function (key, value) {
+                    return value;
                 }
             }
-        )
-    }}
+        );
+    }};
     return Property;
 })();

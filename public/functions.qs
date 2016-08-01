@@ -1,4 +1,9 @@
 def UIComponent Button
+    public Boolean checked: {{value}}
+       description: ololo
+       get:
+       set:
+
     public Boolean click: {{i1.click}}
     public Boolean disabled
     input i1: {{value}}
