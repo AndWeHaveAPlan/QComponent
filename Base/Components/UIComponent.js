@@ -93,7 +93,14 @@ module.exports = (function () {
             this._children.push(component);
             return this;
         },
-
+        _prop: (function(){
+            return ('left,disabled,right,top,bottom,height,width,float,border,overflow,margin,visibility'
+                .split(',')
+                .reduce(function(store, key){
+                    store[key] = Property.generate.cssProperty('Element`s css property '+key);
+                    return store;
+                }));
+        })(),
         _setter: {
             disabled: function (key, val) {
                 var oldValue = this._data['disabled'];
