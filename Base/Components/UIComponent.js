@@ -110,13 +110,12 @@ module.exports = (function () {
                     }
 
                     this.el.disabled = val;
-
-                    return val;
                 },
                 get: function (key, value) {
                     return value;
                 }
-            })
+            });
+            out.type = Property.generate.attributeProperty('input type');
             return out;
         })()
     }, function (cfg) {

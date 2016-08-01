@@ -8,18 +8,7 @@ var AbstractComponent = require('./AbstractComponent');
  *
  */
 module.exports = AbstractComponent.extend('ContentContainer', {
-    _setter: {
-        value: function () {
-        },
-        default: function () {
-        }
-    },
-    _getter: {
-        value: function () {
-        },
-        default: function () {
-        }
-    }
+    
 }, function (cfg) {
     AbstractComponent.call(this, cfg);
 

@@ -37,7 +37,7 @@ module.exports = {
         MutatingPipe: require("./Base/Pipes/MutatingPipe")
     }
 };
-},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/NumberKeyboard":14,"./Base/Components/UI/Primitives":15,"./Base/Components/UIComponent":16,"./Base/EventManager":17,"./Base/Pipes/AbstractPipe":19,"./Base/Pipes/FiltratingPipe":20,"./Base/Pipes/MutatingPipe":21,"./Base/Pipes/SimplePipe":22,"./Base/QObject":23}],2:[function(require,module,exports){
+},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/NumberKeyboard":14,"./Base/Components/UI/Primitives":15,"./Base/Components/UIComponent":16,"./Base/EventManager":17,"./Base/Pipes/AbstractPipe":19,"./Base/Pipes/FiltratingPipe":20,"./Base/Pipes/MutatingPipe":21,"./Base/Pipes/SimplePipe":22,"./Base/QObject":24}],2:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -47,7 +47,8 @@ var QObject = require('./../QObject'),
     uuid = require('tiny-uuid'),
     ObservableSequence = require('observable-sequence'),
     DQIndex = require('z-lib-structure-dqIndex'),
-    MulticastDelegate = require('../MulticastDelegate');
+    MulticastDelegate = require('../MulticastDelegate'),
+    Property = require('../Property');
 
 /**
  * Base class for all components
@@ -85,7 +86,9 @@ function AbstractComponent(cfg) {
             child.parent = self;
         });
     }
-
+    
+    this._initProps(cfg || {});
+    
     /**
      * Event. Fires with any changes made with get(...)
      *
@@ -99,32 +102,27 @@ function AbstractComponent(cfg) {
 
     this._eventManager.registerComponent(this);
 }
-
+var defaultPropertyFactory = new Property('Variant', {description: 'Someshit'});
 AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
-
+    
+    _initProps: function (cfg) {
+        var prop = this._prop, i,
+            newProp = this._prop = {};
+        for( i in prop )
+            if( i in cfg)
+                newProp[i] = new prop[i](this, i, cfg[i]);
+            else
+                newProp[i] = new prop[i](this, i);
+    },
+    
     regenId:function(){
         this.id = uuid();
     },
 
-    /** mutators */
-    _setter: {
-        default: function (name, value) {
-            var oldValue = this._data[name];
-            this._data[name] = value;
-            //TODO проверки надо бы всякие
-            this._onPropertyChanged(this, name, value, oldValue);
-        }
-    },
-
-    /** accessors */
-    _getter: {
-        default: function (name) {
-            return this._data[name];
-        }
-    },
+    _prop: {},
 
     /**
      * Get property from component
@@ -151,8 +149,9 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             return ret;
 
         } else {
-            var accesor = this._getter[name] || this._getter.default;
-            return accesor.call(this, name);
+            /*var accesor = this._prop[name] || this._getter[name] || this._getter.default;
+            return accesor.call(this, name);*/
+            return name in this._prop ? this._prop[name].get() : void 0 ;
         }
     },
 
@@ -163,10 +162,24 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      * @param value Object
      */
     set: function (name, value) {
-        //TODO implement dot notation
-        var mutator = this._setter[name] || this._setter.default;
+        var nameParts = name.split('.');
 
-        mutator.call(this, name, value);
+        if (nameParts.length > 1) {
+            var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
+            if (getted)
+                if (getted instanceof AbstractComponent) {
+                    getted.set(nameParts.unshift(), value);
+                } else {
+                    getted[nameParts[nameParts.length - 1]] = value;
+                    this._onPropertyChanged(nameParts.splice(0, 1), value);
+                }
+        } else {
+            if(!this._prop[name]){
+                this._prop[name] = new defaultPropertyFactory(this, name);
+            }
+            return this._prop[name].set(value);
+        }
+
         return this;
     },
 
@@ -184,10 +197,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      *
      * @param component AbstractComponent: AbstractComponent to add
      */
-    /*addComponent: function( component ){
-     this._ownComponents.push(component);
-     return this;
-     },*/
 
     _type: 'AbstractComponent'
 });
@@ -198,7 +207,7 @@ AbstractComponent._type = AbstractComponent.prototype._type;
 
 
 QObject._knownComponents['AbstractComponent'] = module.exports = AbstractComponent;
-},{"../MulticastDelegate":18,"./../EventManager":17,"./../QObject":23,"observable-sequence":24,"tiny-uuid":25,"z-lib-structure-dqIndex":27}],3:[function(require,module,exports){
+},{"../MulticastDelegate":18,"../Property":23,"./../EventManager":17,"./../QObject":24,"observable-sequence":25,"tiny-uuid":26,"z-lib-structure-dqIndex":28}],3:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -209,18 +218,7 @@ var AbstractComponent = require('./AbstractComponent');
  *
  */
 module.exports = AbstractComponent.extend('ContentContainer', {
-    _setter: {
-        value: function () {
-        },
-        default: function () {
-        }
-    },
-    _getter: {
-        value: function () {
-        },
-        default: function () {
-        }
-    }
+    
 }, function (cfg) {
     AbstractComponent.call(this, cfg);
 
@@ -335,7 +333,7 @@ module.exports = (function () {
     return Factory;
 })();
 
-},{"../QObject":23,"./AbstractComponent":2}],5:[function(require,module,exports){
+},{"../QObject":24,"./AbstractComponent":2}],5:[function(require,module,exports){
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
@@ -419,6 +417,7 @@ module.exports = (function(){
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
+    var Property = require('../../Property');
 
     var Timer = LogicalComponent.extend('Timer', {
 
@@ -426,38 +425,38 @@ module.exports = (function () {
 
         _tick: function (self) {
             return function () {
-                self.set('tick');
-            }
+                self.set('tick', true);
+            };
         },
 
-        _setter: {
-            start: function (name, value) {
-                if (value)
-                    this.set('interval', value);
+        _prop: {
+            start: new Property('Variant', {description: 'start date'}, {
+                set: function (name, value) {
+                    
+                    if (value)
+                        this.set('interval', value);
 
-                if (this._intervalObj)
-                    clearInterval(this._intervalObj);
+                    if (this._intervalObj)
+                        clearInterval(this._intervalObj);
 
-                var int = this.get('interval');
-                var t = this._tick(this);
-                this._intervalObj = setInterval(t, int);
+                    var int = this.get('interval');
+                    var t = this._tick(this);
+                    this._intervalObj = setInterval(t, int);
+                }
+            }),
+            stop: new Property('Variant', {description: 'stop timer'}, {
+                set:function (name, value) {
+                    if (this._intervalObj)
+                        clearInterval(this._intervalObj);
 
-                this._onPropertyChanged(this, 'start', true, void(0));
-            },
-            stop: function (name, value) {
-                if (this._intervalObj)
-                    clearInterval(this._intervalObj);
-
-                this._onPropertyChanged(this, 'stop', true, void(0));
-            },
-            interval: function (name, value) {
-                var prev = this._data.interval;
-                this._data.interval = value;
-                this._onPropertyChanged(this, 'interval', this.get('interval'), void(0));
-            },
-            tick: function () {
-                this._onPropertyChanged(this, 'tick', true, void(0));
-            }
+                    this._onPropertyChanged(this, 'stop', true, void(0));
+                }
+            }),
+            interval: new Property('Variant', {description: 'timer interval'}, {
+                set: function (name, value) {},
+                get: Property.defaultGetter
+            }),
+            tick: new Property('Boolean', {description: 'timer interval'}, {})
         }
     }, function (cfg) {
         LogicalComponent.call(this, cfg);
@@ -466,7 +465,7 @@ module.exports = (function () {
 
     return Timer;
 })();
-},{"./LogicalComponent":7}],9:[function(require,module,exports){
+},{"../../Property":23,"./LogicalComponent":7}],9:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -614,7 +613,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
         }
     }
 });
-},{"../../QObject":23,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":24}],11:[function(require,module,exports){
+},{"../../QObject":24,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":25}],11:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -949,6 +948,7 @@ module.exports = (function () {
     var AbstractComponent = require('./AbstractComponent'),
         ContentContainer = require('./ContentContainer'),
         ObservableSequence = require('observable-sequence'),
+        Property = require('../Property'),
         DQIndex = require('z-lib-structure-dqIndex');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
@@ -1036,106 +1036,30 @@ module.exports = (function () {
             this._children.push(component);
             return this;
         },
+        _prop: (function(){
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,visibility'
+                .split(',')
+                .reduce(function(store, key){
+                    store[key] = Property.generate.cssProperty('Element`s css property '+key);
+                    return store;
+                }, {}));
+            out.disabled = new Property('Boolean', {description: 'disabled of element'}, {
+                set: function (key, val, oldValue) {
+                    if (!val) {
+                        this.el.removeAttribute('disabled');
+                    } else {
+                        this.el.setAttribute('disabled', 'disabled');
+                    }
 
-        _setter: {
-            disabled: function (key, val) {
-                var oldValue = this._data['disabled'];
-                if (val === void 0) {
-                    this.el.removeAttribute('disabled');
-                } else {
-                    this.el.setAttribute('disabled', val);
+                    this.el.disabled = val;
+                },
+                get: function (key, value) {
+                    return value;
                 }
-                this._data['disabled'] = val;
-                this._onPropertyChanged(this, 'disabled', val, oldValue);
-            },
-            left: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            right: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            top: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            bottom: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            height: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            width: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            float: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            border: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            overflow: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            margin: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            visibility: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style.display = val;
-                }
-            }
-        }
-
+            });
+            out.type = Property.generate.attributeProperty('input type');
+            return out;
+        })()
     }, function (cfg) {
         var self = this;
         AbstractComponent.call(this, cfg);
@@ -1176,7 +1100,7 @@ module.exports = (function () {
 
     return UIComponent;
 })();
-},{"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":24,"z-lib-structure-dqIndex":27}],17:[function(require,module,exports){
+},{"../Property":23,"./AbstractComponent":2,"./ContentContainer":3,"observable-sequence":25,"z-lib-structure-dqIndex":28}],17:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1289,7 +1213,7 @@ EventManager.prototype.registerPipe = function (pipe) {
 
 
 module.exports = EventManager;
-},{"./Components/AbstractComponent":2,"./Pipes/FiltratingPipe":20,"./Pipes/SimplePipe":22,"./QObject":23}],18:[function(require,module,exports){
+},{"./Components/AbstractComponent":2,"./Pipes/FiltratingPipe":20,"./Pipes/SimplePipe":22,"./QObject":24}],18:[function(require,module,exports){
 /**
  * Created by ravenor on 12.07.16.
  */
@@ -1455,7 +1379,7 @@ AbstractPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = AbstractPipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":23}],20:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":24}],20:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1521,7 +1445,7 @@ FiltratingPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = FiltratingPipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],21:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":24,"./AbstractPipe":19}],21:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1587,7 +1511,7 @@ MutatingPipe.prototype._process = function (changedKey, component) {
 };
 
 module.exports = MutatingPipe;
-},{"../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],22:[function(require,module,exports){
+},{"../Components/AbstractComponent":2,"./../QObject":24,"./AbstractPipe":19}],22:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -1612,7 +1536,131 @@ SimplePipe.prototype = Object.create(AbstractPipe.prototype);
 SimplePipe.prototype.constructor = AbstractPipe;
 
 module.exports = SimplePipe;
-},{"./../Components/AbstractComponent":2,"./../QObject":23,"./AbstractPipe":19}],23:[function(require,module,exports){
+},{"./../Components/AbstractComponent":2,"./../QObject":24,"./AbstractPipe":19}],23:[function(require,module,exports){
+/**
+ * Created by zibx on 01.08.16.
+ */
+module.exports = (function () {
+    'use strict';
+    /**
+     * Factory of factories of properties
+     */
+
+    var dataTypes = {
+        Boolean: {
+            set: function(){
+
+            },
+            get: function(key, value){
+                return value;
+            },
+            validate: function (value) {
+                if(value !== !!value)
+                    return false;
+            }
+        },
+        Variant: {
+            set: function(value){
+
+            },
+            get: function(key, value){
+                return value;
+            }
+        }
+    };
+    //class Boolean extends Type
+    var setter = function (value) {
+        var key = this.key,
+            oldValue = this.parent._data[key],
+            validate = this.validate;
+        
+        if((!validate || (validate && validate(value))) && value !== oldValue) {
+            if(this._set.call(this.parent, key, value, oldValue) !== false) {
+                this.parent._data[key] = value;
+                this.parent._onPropertyChanged(this.parent, key, value, oldValue);
+            }
+        }else
+            return false;
+    };
+    var getter = function () {
+        return this._get.call(this.parent, this.key, this.parent._data[this.key]);
+    };
+
+    var Property = function(type, metadata, cfg, defaultValue){
+        metadata = metadata || {};
+        cfg = cfg || {};
+
+        var dataType = dataTypes[type] || dataTypes.Variant,
+            proto = {parent: null};
+        proto.type = metadata.type = type;
+        proto.value = metadata.defaultValue = defaultValue;
+
+        var cls = function(parent, key, value){
+            this.parent = parent;
+            this.key = key;
+
+            if(arguments.length>2){
+                this.set(value) !== false || this.set(this.value);
+            }
+        };
+        cls.prototype = proto;
+        proto.metadata = metadata;
+        if(!('set' in cfg) && !('get' in cfg)){
+            proto._set = dataType.set;
+            proto._get = dataType.get;
+        }else{
+            proto._set = cfg.set;
+            proto._get = cfg.get;
+        }
+        if(('validate' in cfg) || (!('validate' in cfg) && ('validate' in dataType)) ){
+            proto.validate = cfg.validate || dataType.validate;
+        }
+
+        proto.set = setter;
+        proto.get = getter;
+        return cls;
+    };
+
+    Property.generate = {cssProperty: function (text) {
+        return new Property('String', 
+            {description: text},
+            {
+                set: function (key, val) {
+                    if (val) {
+                        this.el.style[key] = val;
+                    } else {
+                        this.el.style.removeProperty(key);
+                    }
+                },
+                get: function (key, value) {
+                    return value;
+                }
+            }
+        );
+    },
+        attributeProperty: function (text) {
+        return new Property('String', 
+            {description: text},
+            {
+                set: function (key, val) {
+                    if (!val) {
+                        this.el.removeAttribute(key);
+                    } else {
+                        this.el.setAttribute(key, val);
+                    }
+
+                    this.el[key] = val;
+                },
+                get: function (key, value) {
+                    return value;
+                }
+            }
+        );
+    }};
+    Property.defaultGetter = dataTypes.Variant.get;
+    return Property;
+})();
+},{}],24:[function(require,module,exports){
 var observable = require('z-observable');
 
 (function () {
@@ -1756,7 +1804,7 @@ var observable = require('z-observable');
     QObject.prototype = prototype.applyPrivate.call({}, prototype);
     prototype.apply(QObject, prototype);
 
-    var deepApply = ['_setter', '_getter'],
+    var deepApply = [/*'_setter', '_getter', */'_prop'],
         deepApplyHash = QObject.arrayToObject(deepApply);
     QObject._knownComponents = components;
 
@@ -1770,7 +1818,7 @@ var observable = require('z-observable');
 
     module.exports = QObject;
 })();
-},{"z-observable":29}],24:[function(require,module,exports){
+},{"z-observable":30}],25:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1929,10 +1977,10 @@ module.exports = (function () {
     };
     return ObservableArray;
 })();
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b};
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -2208,7 +2256,7 @@ module.exports = (function () {
     dequeue.prototype.forEach = dequeue.prototype.each;
     return dequeue;
 })();
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /**
  * Created by zibx on 01.06.16.
  */
@@ -2339,7 +2387,7 @@ module.exports = (function () {
     Index.prototype.forEach = Index.prototype.each;
     return Index;
 })();
-},{"z-lib-structure-dequeue":26}],28:[function(require,module,exports){
+},{"z-lib-structure-dequeue":27}],29:[function(require,module,exports){
 /**
  * Created by Zibx on 10/14/2014.
  */(function(  ){
@@ -3158,7 +3206,7 @@ module.exports = (function () {
     (1,eval)('this')
 );
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * Created by Ivan on 10/19/2014.
  */
@@ -3412,5 +3460,5 @@ module.exports = (function(){
     Z.Observable.prototype = proto;
     return Z.Observable;
 })();
-},{"z-lib":28}]},{},[1])(1)
+},{"z-lib":29}]},{},[1])(1)
 });

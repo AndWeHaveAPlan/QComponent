@@ -26,7 +26,7 @@ module.exports = (function () {
             },
             get: function(key, value){
                 return value;
-            },
+            }
         }
     };
     //class Boolean extends Type
@@ -36,9 +36,9 @@ module.exports = (function () {
             validate = this.validate;
         
         if((!validate || (validate && validate(value))) && value !== oldValue) {
-            if(this.set.call(this.parent, key, value, oldValue) !== false) {
-                this._onPropertyChanged(this, 'disabled', value, oldValue);
+            if(this._set.call(this.parent, key, value, oldValue) !== false) {
                 this.parent._data[key] = value;
+                this.parent._onPropertyChanged(this.parent, key, value, oldValue);
             }
         }else
             return false;
@@ -49,7 +49,7 @@ module.exports = (function () {
 
     var Property = function(type, metadata, cfg, defaultValue){
         metadata = metadata || {};
-
+        cfg = cfg || {};
 
         var dataType = dataTypes[type] || dataTypes.Variant,
             proto = {parent: null};
@@ -98,6 +98,26 @@ module.exports = (function () {
                 }
             }
         );
+    },
+        attributeProperty: function (text) {
+        return new Property('String', 
+            {description: text},
+            {
+                set: function (key, val) {
+                    if (!val) {
+                        this.el.removeAttribute(key);
+                    } else {
+                        this.el.setAttribute(key, val);
+                    }
+
+                    this.el[key] = val;
+                },
+                get: function (key, value) {
+                    return value;
+                }
+            }
+        );
     }};
+    Property.defaultGetter = dataTypes.Variant.get;
     return Property;
 })();
