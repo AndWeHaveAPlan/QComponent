@@ -141,7 +141,7 @@ var observable = require('z-observable');
     QObject.prototype = prototype.applyPrivate.call({}, prototype);
     prototype.apply(QObject, prototype);
 
-    var deepApply = ['_setter', '_getter'],
+    var deepApply = [/*'_setter', '_getter', */'_prop'],
         deepApplyHash = QObject.arrayToObject(deepApply);
     QObject._knownComponents = components;
 

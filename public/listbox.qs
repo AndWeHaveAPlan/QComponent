@@ -27,10 +27,10 @@ def UIComponent DetailsPanel
 
 
 def ItemTemplate listBoxItemTemplate
-    Checkbox: {{top.done}}
+    Checkbox: {{done}}
         disabled: true
     div:
-        value: {{top.name}}
+        value: {{name}}
 
 def UIComponent main
    top: 12px;

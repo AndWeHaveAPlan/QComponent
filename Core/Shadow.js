@@ -41,6 +41,7 @@ module.exports = (function() {
                 },
                 public:{}
             };
+            
             if(els[className])
                 Base.QObject.prototype.applyIfNot(els[className], obj);
             else

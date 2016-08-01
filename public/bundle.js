@@ -3082,13 +3082,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var Ждуля = function( fn ){
+            var wait = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            Ждуля.prototype = {
+            wait.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3098,7 +3098,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new Ждуля( function(  ){
+                    var W = new wait( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3147,7 +3147,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new Ждуля( fn );
+                return new wait( fn );
             };
         })()
     };

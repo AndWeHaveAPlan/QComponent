@@ -261,7 +261,7 @@ module.exports = (function() {
                     if( isPublic ) {
                         info = parsers.PUBLIC.call(child, child.bonus, child);
                     }else if( isEvent ) {
-                        info = parsers.EVENT.call(child, child, child.children);
+                        info = parsers.EVENT.call(child, child, child.children); // TODO: wrap in try catch and generate normal errors
                     }else{
                         info = parsers.PRIVATE.call(child, child.bonus, child);
                     }
