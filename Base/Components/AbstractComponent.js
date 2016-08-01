@@ -65,7 +65,7 @@ AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
 
-    regenId:function(){
+    regenId: function () {
         this.id = uuid();
     },
 
@@ -111,8 +111,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             return ret;
 
         } else {
-            var accesor = this._getter[name] || this._getter.default;
-            return accesor.call(this, name);
+            var accessor = this._getter[name] || this._getter.default;
+            return accessor.call(this, name);
         }
     },
 
@@ -123,10 +123,21 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      * @param value Object
      */
     set: function (name, value) {
-        //TODO implement dot notation
-        var mutator = this._setter[name] || this._setter.default;
+        var nameParts = name.split('.');
 
-        mutator.call(this, name, value);
+        if (nameParts.length > 1) {
+            var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
+            if (getted instanceof AbstractComponent) {
+                getted.set(nameParts.unshift, value);
+            } else {
+                getted[nameParts[nameParts.length-1]] = value;
+                this._onPropertyChanged(nameParts.splice(0,1), value);
+            }
+        } else {
+            var mutator = this._setter[name] || this._setter.default;
+            mutator.call(this, name, value);
+        }
+
         return this;
     },
 
@@ -144,10 +155,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      *
      * @param component AbstractComponent: AbstractComponent to add
      */
-    /*addComponent: function( component ){
-     this._ownComponents.push(component);
-     return this;
-     },*/
 
     _type: 'AbstractComponent'
 });
