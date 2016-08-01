@@ -123,7 +123,7 @@ var observable = require('z-observable');
             proto = Cmp.prototype = Object.create(original.prototype).apply(cfg);
 
             for (i in overlays) {
-                proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
+                proto[i] = QObject.apply(Object.create(proto[i] || {}), overlays[i]);
             }
 
             Cmp._type = Cmp.prototype._type = name;
