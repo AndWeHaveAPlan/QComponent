@@ -19,7 +19,8 @@ var observable = require('z-observable');
 
         on: observable.prototype.on,
         fire: observable.prototype.fire,
-
+        removableOn: observable.prototype.removableOn,
+        un: observable.prototype.un,
         /**
          * Copy all properties of object2 to object1, or object1 to self if object2 not set
          *
