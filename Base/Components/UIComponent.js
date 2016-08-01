@@ -94,6 +94,11 @@ module.exports = (function () {
             return this;
         },
 
+        _getter: {
+            style: function () {
+                return this.el.style;
+            }
+        },
         _setter: {
             disabled: function (key, val) {
                 var oldValue = this._data['disabled'];

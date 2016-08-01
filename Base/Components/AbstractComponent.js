@@ -127,12 +127,13 @@ QObject.prototype.apply(AbstractComponent.prototype, {
 
         if (nameParts.length > 1) {
             var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
-            if (getted instanceof AbstractComponent) {
-                getted.set(nameParts.unshift, value);
-            } else {
-                getted[nameParts[nameParts.length-1]] = value;
-                this._onPropertyChanged(nameParts.splice(0,1), value);
-            }
+            if (getted)
+                if (getted instanceof AbstractComponent) {
+                    getted.set(nameParts.unshift, value);
+                } else {
+                    getted[nameParts[nameParts.length - 1]] = value;
+                    this._onPropertyChanged(nameParts.splice(0, 1), value);
+                }
         } else {
             var mutator = this._setter[name] || this._setter.default;
             mutator.call(this, name, value);
