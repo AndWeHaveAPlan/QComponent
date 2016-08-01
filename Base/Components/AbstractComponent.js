@@ -7,7 +7,8 @@ var QObject = require('./../QObject'),
     uuid = require('tiny-uuid'),
     ObservableSequence = require('observable-sequence'),
     DQIndex = require('z-lib-structure-dqIndex'),
-    MulticastDelegate = require('../MulticastDelegate');
+    MulticastDelegate = require('../MulticastDelegate'),
+    Property = require('../Property');
 
 /**
  * Base class for all components
@@ -45,7 +46,9 @@ function AbstractComponent(cfg) {
             child.parent = self;
         });
     }
-
+    
+    this._initProps(cfg || {});
+    
     /**
      * Event. Fires with any changes made with get(...)
      *
@@ -59,32 +62,27 @@ function AbstractComponent(cfg) {
 
     this._eventManager.registerComponent(this);
 }
-
+var defaultPropertyFactory = new Property('Variant', {description: 'Someshit'});
 AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
-
+    
+    _initProps: function (cfg) {
+        var prop = this._prop, i,
+            newProp = this._prop = {};
+        for( i in prop )
+            if( i in cfg)
+                newProp[i] = new prop[i](this, i, cfg[i]);
+            else
+                newProp[i] = new prop[i](this, i);
+    },
+    
     regenId:function(){
         this.id = uuid();
     },
 
-    /** mutators */
-    _setter: {
-        default: function (name, value) {
-            var oldValue = this._data[name];
-            this._data[name] = value;
-            //TODO проверки надо бы всякие
-            this._onPropertyChanged(this, name, value, oldValue);
-        }
-    },
-
-    /** accessors */
-    _getter: {
-        default: function (name) {
-            return this._data[name];
-        }
-    },
+    _prop: {},
 
     /**
      * Get property from component
@@ -113,7 +111,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
         } else {
             /*var accesor = this._prop[name] || this._getter[name] || this._getter.default;
             return accesor.call(this, name);*/
-            return this._prop[name].get();
+            return name in this._prop ? this._prop[name].get() : void 0 ;
         }
     },
 
@@ -124,10 +122,24 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      * @param value Object
      */
     set: function (name, value) {
-        //TODO implement dot notation
-        var mutator = this._setter[name] || this._setter.default;
+        var nameParts = name.split('.');
 
-        mutator.call(this, name, value);
+        if (nameParts.length > 1) {
+            var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
+            if (getted)
+                if (getted instanceof AbstractComponent) {
+                    getted.set(nameParts.unshift(), value);
+                } else {
+                    getted[nameParts[nameParts.length - 1]] = value;
+                    this._onPropertyChanged(nameParts.splice(0, 1), value);
+                }
+        } else {
+            if(!this._prop[name]){
+                this._prop[name] = new defaultPropertyFactory(this, name);
+            }
+            return this._prop[name].set(value);
+        }
+
         return this;
     },
 
@@ -145,10 +157,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      *
      * @param component AbstractComponent: AbstractComponent to add
      */
-    /*addComponent: function( component ){
-     this._ownComponents.push(component);
-     return this;
-     },*/
 
     _type: 'AbstractComponent'
 });

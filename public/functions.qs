@@ -1,14 +1,14 @@
 def UIComponent Button
-    public Boolean checked: {{value}}
+    /*public Boolean checked: {{value}}
        description: ololo
        get:
-       set:
+       set:*/
 
     public Boolean click: {{i1.click}}
     public Boolean disabled
     input i1: {{value}}
        disabled: {{disabled}}
-       type: submit
+       type: button
        width: 80
        height: 30
 
