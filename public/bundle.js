@@ -175,7 +175,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                 }
         } else {
             if(!this._prop[name]){
-                this._prop[name] = new defaultPropertyFactory(this, name);
+                this._prop[name] = new (AbstractComponent.prototype._prop.default || defaultPropertyFactory)(this, name);
             }
             return this._prop[name].set(value);
         }
@@ -747,28 +747,39 @@ module.exports = UIComponent.extend('NumberKeyboard', {
  */
 
 var UIComponent = require('../UIComponent');
-
+var Property = require('../../Property');
 var exports = {};
 
 /**
  *
  */
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
+    _prop: {
+        value: new Property('String', {description: 'text content'}, {
+            set: function (name, val) {
+                if (!this.textNode) {
+                    this.textNode = new exports['textNode'];
+                    this._children.unshift(this.textNode);
+                }
+                this.textNode.set('value', val);
+            },
+            get: Property.defaultGetter
+        }),
+        default: new Property('String', {description: 'any '}, {
+            set: function (name, val) {
+                if (val === void 0) {
+                    this.el.removeAttribute(name);
+                } else {
+                    this.el.setAttribute(name, val);
+                }
+            },
+            get: Property.defaultGetter
+        })
+    },
     _setter: {
-        default: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute(name);
-            } else {
-                this.el.setAttribute(name, val);
-            }
-            this._data[name] = val;
-        },
+        
         value: function (key, val) {
-            if (!this.textNode) {
-                this.textNode = new exports['textNode'];
-                this._children.unshift(this.textNode);
-            }
-            this.textNode.set('value', val);
+            
         }
     },
     _getter: {
@@ -786,13 +797,13 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     createEl: function () {
         this.el = UIComponent.document.createTextNode('');
     },
-    _setter: {
-        value: function (key, val) {
-            var oldValue = this._data['value'];
-            this.el.nodeValue = val;
-            this._data['value'] = val;
-            this._onPropertyChanged(this, 'value', val, oldValue);
-        }
+    _prop: {
+        value: new Property('String', {description: 'text content'}, {
+            set: function (name, val) {
+                this.el.nodeValue = val;
+            },
+            get: Property.defaultGetter
+        })
     }
 });
 
@@ -812,27 +823,20 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
             self.set('value', event.target.value);
         });
     },
+    _prop: {
+        value: new Property('String', {},{
+            set: function (key, val) {
+                if (val === void 0) {
+                    this.el.value='';
+                } else {
+                    this.el.value=val;
+                }
+            }
+        })
+    },
     _setter: {
-        value: function (key, val) {
-            var oldVal=this._data['value'];
 
-            if (val === void 0) {
-                this.el.value='';
-            } else {
-                this.el.value=val;
-            }
-            this._data['value'] = val;
 
-            this._onPropertyChanged(this, 'value', val, oldVal);
-        },
-        type: function (key, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('type');
-            } else {
-                this.el.setAttribute('type', val);
-            }
-            this._data['type'] = val;
-        },
         checked: function (key, val) {
             if (val === void 0) {
                 this.el.removeAttribute('checked');
@@ -939,7 +943,7 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
     });
 
 module.exports = exports;
-},{"../UIComponent":16}],16:[function(require,module,exports){
+},{"../../Property":23,"../UIComponent":16}],16:[function(require,module,exports){
 /**
  * Created by zibx on 01.07.16.
  */
@@ -3130,13 +3134,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var wait = function( fn ){
+            var Ждуля = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            wait.prototype = {
+            Ждуля.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3146,7 +3150,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new wait( function(  ){
+                    var W = new Ждуля( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3195,7 +3199,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new wait( fn );
+                return new Ждуля( fn );
             };
         })()
     };

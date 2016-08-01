@@ -135,7 +135,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                 }
         } else {
             if(!this._prop[name]){
-                this._prop[name] = new defaultPropertyFactory(this, name);
+                this._prop[name] = new (AbstractComponent.prototype._prop.default || defaultPropertyFactory)(this, name);
             }
             return this._prop[name].set(value);
         }
