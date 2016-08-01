@@ -51,9 +51,6 @@ var server = http.createServer(function(req, res){
 
             return res.end(e.message);
         }
-
-
-
     }catch(e){
         return res.end('Поебень ('+path+')');
     }
