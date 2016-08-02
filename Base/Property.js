@@ -18,6 +18,8 @@ module.exports = (function () {
             validate: function (value) {
                 if(value !== !!value)
                     return false;
+                else
+                    return true;
             }
         },
         Variant: {
@@ -34,7 +36,7 @@ module.exports = (function () {
         var key = this.key,
             oldValue = this.parent._data[key],
             validate = this.validate;
-        
+
         if((!validate || (validate && validate(value))) && value !== oldValue) {
             if(this._set.call(this.parent, key, value, oldValue) !== false) {
                 this.parent._data[key] = value;
@@ -83,7 +85,7 @@ module.exports = (function () {
     };
 
     Property.generate = {cssProperty: function (text) {
-        return new Property('String', 
+        return new Property('String',
             {description: text},
             {
                 set: function (key, val) {
@@ -100,7 +102,7 @@ module.exports = (function () {
         );
     },
         attributeProperty: function (text) {
-        return new Property('String', 
+        return new Property('String',
             {description: text},
             {
                 set: function (key, val) {
