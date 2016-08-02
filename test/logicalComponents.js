@@ -76,15 +76,12 @@ describe("Logical Components", function () {
             {component: "comp4", property: "result"}
         ));
 
+        gate.set('open',true);
         comp3.set("testSourceProp1", 'must go');
         assert.equal(comp4.get("result"), 'must go');
 
-        gate.set('close');
+        gate.set('open',false);
         comp3.set("testSourceProp1", 'must stop');
         assert.equal(comp4.get("result"), 'must go');
-
-        gate.set('toggle');
-        comp3.set("testSourceProp1", 'must go again');
-        assert.equal(comp4.get("result"), 'must go again');
     });
 });
