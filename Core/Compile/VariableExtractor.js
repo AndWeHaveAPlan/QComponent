@@ -31,7 +31,7 @@ module.exports = (function () {
         'ExpressionStatement': 'expression',
         'ArrayExpression': '*elements',
         'ConditionalExpression,IfStatement': ['test', 'consequent', 'alternate'],
-        'BreakStatement,EmptyStatement,ObjectPattern': null,
+        'BreakStatement,EmptyStatement,ObjectPattern,DebuggerStatement': null,
         'AssignmentExpression,BinaryExpression,LogicalExpression': ['left','right'],
         'ForInStatement': ['left','right','body'],
         'UnaryExpression,ThrowStatement,ReturnStatement,UpdateExpression': 'argument',
