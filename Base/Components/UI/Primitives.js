@@ -88,7 +88,8 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                     this.el.value=val;
                 }
             }
-        })
+        }),
+        checked: new Property('Boolean')
     },
     _setter: {
 
