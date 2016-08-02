@@ -70,7 +70,7 @@ describe("Reactive tests", function () {
         );
 
         comp1._data = {};
-        comp1.set(234, 66);
+        //comp1.set(234, 66);
 
         comp1.set("testSourceProp", "newTestSourceValue");
         assert.equal(comp2.get("testTargetProp"), "newTestSourceValue");
