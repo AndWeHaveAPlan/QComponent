@@ -6,6 +6,7 @@ module.exports = (function () {
     var AbstractComponent = require('./AbstractComponent'),
         ContentContainer = require('./ContentContainer'),
         ObservableSequence = require('observable-sequence'),
+        Property = require('../Property'),
         DQIndex = require('z-lib-structure-dqIndex');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
@@ -93,115 +94,30 @@ module.exports = (function () {
             this._children.push(component);
             return this;
         },
+        _prop: (function(){
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,visibility'
+                .split(',')
+                .reduce(function(store, key){
+                    store[key] = Property.generate.cssProperty('Element`s css property '+key);
+                    return store;
+                }, {}));
+            out.disabled = new Property('Boolean', {description: 'disabled of element'}, {
+                set: function (key, val, oldValue) {
+                    if (!val) {
+                        this.el.removeAttribute('disabled');
+                    } else {
+                        this.el.setAttribute('disabled', 'disabled');
+                    }
 
-        _getter: {
-            style: function () {
-                return this.el.style;
-            }
-        },
-        _setter: {
-            disabled: function (key, val) {
-                var oldValue = this._data['disabled'];
-                if (val === void 0) {
-                    this.el.removeAttribute('disabled');
-                } else {
-                    this.el.setAttribute('disabled', val);
+                    this.el.disabled = val;
+                },
+                get: function (key, value) {
+                    return value;
                 }
-                this._data['disabled'] = val;
-                this._onPropertyChanged(this, 'disabled', val, oldValue);
-            },
-            style: function (key, val) {
-                this.el.style = val;
-                this._onPropertyChanged(this, 'style', val, null);
-            },
-            left: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            right: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            top: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            bottom: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            height: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            width: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            float: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            border: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            overflow: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            margin: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style[name] = val;
-                } else {
-                    this.el.style.removeProperty(name);
-                }
-            },
-            visibility: function (name, val) {
-                this._data[name] = val;
-                if (val) {
-                    this.el.style.display = val;
-                }
-            }
-        }
-
+            });
+            out.type = Property.generate.attributeProperty('input type');
+            return out;
+        })()
     }, function (cfg) {
         var self = this;
         AbstractComponent.call(this, cfg);
