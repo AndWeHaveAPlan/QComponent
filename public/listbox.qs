@@ -1,13 +1,13 @@
 def UIComponent TextBox
     public String text: {{ i1.value }}
-    input i1: {{top.value}}
+    input i1: {{value}}
        type: text
        width: 100%
 
 def UIComponent Button
     public Boolean click: {{i1.click}}
-    input i1: {{top.value}}
-       type: submit
+    input i1: {{value}}
+       type: button
        width: 80
        height: 30
 
@@ -16,11 +16,11 @@ def UIComponent Button
 def UIComponent DetailsPanel
     public Boolean click: {{b1.click}}
     public String item: {{ ({done:checkBoxDone.checked, name:textBoxTaskName.value, description: textDescription.value}) }}
-    Checkbox checkBoxDone: {{top.value.done}}
-    input textBoxTaskName: {{top.value.name}}
+    Checkbox checkBoxDone: {{value.done}}
+    input textBoxTaskName: {{value.name}}
            type: text
            width: 100%
-    textarea textDescription: {{top.value.description}}
+    textarea textDescription: {{value.description}}
         width: 100%
         height: 70
     Button b1: Сохранить
@@ -34,7 +34,7 @@ def ItemTemplate listBoxItemTemplate
 
 def UIComponent main
    top: 12px;
-   public String valueProxy: {{top.value}}
+   public String valueProxy: {{value}}
    public String sItem: {{list.selectedItem}}
    String href: "http://google.com"
    HBox hbox:

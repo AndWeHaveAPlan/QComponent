@@ -12,33 +12,6 @@ var Core = require('../../Core'),
 
 var f = new Factory();
 
-
-('div,Button')
-    .split(',')
-    .forEach(function (name) {
-        UIComponent.extend(name, {
-            createEl: function () {
-            },
-            addToTree: function (child) {
-                //console.log(child)
-                child.el && (this.el || this.parent.el).appendChild(child.el);
-                //(this.el || this.parent.el).appendChild(document.createTextNode('84'))
-            },
-            _getter: {
-                enabled: function () {
-                    return !!this._data.enabled || false;
-                }
-            },
-            _setter: {
-                enabled: function (val) {
-                    val = !!val;
-                    this._data.enabled = val;
-                }
-            }
-        });
-    });
-
-
 module.exports.build = function (input) {
 
     var i = 0;

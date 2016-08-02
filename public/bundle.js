@@ -86,9 +86,9 @@ function AbstractComponent(cfg) {
             child.parent = self;
         });
     }
-    
+
     this._initProps(cfg || {});
-    
+
     /**
      * Event. Fires with any changes made with get(...)
      *
@@ -107,22 +107,39 @@ AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
-    
+
+    _prop: {},
     _initProps: function (cfg) {
+
+        var overrided = [];
+
         var prop = this._prop, i,
             newProp = this._prop = {};
-        for( i in prop )
-            if( i in cfg)
-                newProp[i] = new prop[i](this, i, cfg[i]);
-            else
-                newProp[i] = new prop[i](this, i);
+        for (i in prop) {
+
+            if (prop.cfg && prop.cfg.overrideKey) {
+                overrided.push({prop: prop, key: i});
+            } else {
+                if (i in cfg)
+                    newProp[i] = new prop[i](this, i, cfg[i]);
+                else
+                    newProp[i] = new prop[i](this, i);
+            }
+        }
+
+        for (var i = 0; i < overrided.length; i++) {
+            var key = overrided[i].key;
+            var prop = overrided[i].prop;
+            if (prop.cfg.overrideKey in newProp) {
+                newProp[key] = newProp[prop.cfg.overrideKey];
+            }
+        }
     },
-    
-    regenId:function(){
+
+    regenId: function () {
         this.id = uuid();
     },
 
-    _prop: {},
 
     /**
      * Get property from component
@@ -149,9 +166,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             return ret;
 
         } else {
-            /*var accesor = this._prop[name] || this._getter[name] || this._getter.default;
-            return accesor.call(this, name);*/
-            return name in this._prop ? this._prop[name].get() : void 0 ;
+            return name in this._prop ? this._prop[name].get() : void 0;
         }
     },
 
@@ -174,7 +189,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     this._onPropertyChanged(nameParts.splice(0, 1), value);
                 }
         } else {
-            if(!this._prop[name]){
+            if (!this._prop[name]) {
                 this._prop[name] = new (AbstractComponent.prototype._prop.default || defaultPropertyFactory)(this, name);
             }
             return this._prop[name].set(value);
@@ -190,7 +205,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      */
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
-    },
+    }
+    ,
 
     /**
      * Add Child component
@@ -337,21 +353,21 @@ module.exports = (function () {
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
+    var Property = require('../../Property');
 
     var Branch = LogicalComponent.extend('Branch', {
-        _setter: {
-            input: function (name, value) {
-                if (!!value)
-                    this.set('ifTrue');
-                else
-                    this.set('ifFalse');
-            },
-            ifTrue: function () {
-                this._onPropertyChanged(this, 'ifTrue', true, void(0));
-            },
-            ifFalse: function () {
-                this._onPropertyChanged(this, 'ifFalse', false, void(0));
-            }
+        _prop: {
+            input: new Property('Boolean', {description: 'start date'}, {
+                set: function (name, value) {
+
+                    if (value)
+                        this.set('ifTrue', true);
+                    else
+                        this.set('ifFalse', false);
+                }
+            }),
+            ifTrue: new Property('Boolean', {description: 'start date'}),
+            ifFalse: new Property('Boolean', {description: 'start date'})
         }
     }, function (cfg) {
         LogicalComponent.call(this, cfg);
@@ -359,38 +375,24 @@ module.exports = (function () {
 
     return Branch;
 })();
-},{"./LogicalComponent":7}],6:[function(require,module,exports){
+},{"../../Property":23,"./LogicalComponent":7}],6:[function(require,module,exports){
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
+    var Property = require('../../Property');
 
     var Gate = LogicalComponent.extend('Branch', {
 
-        open: true,
 
+        _prop: {
+            input: new Property('Variant', {description: 'start date'}, {
+                set: function (name, value) {
 
-        _setter: {
-            input: function (name,val) {
-                if (this.open) {
-                    var prev = this._data['value'];
-                    this._data['value'] = val;
-                    this._onPropertyChanged(this, 'output', this._data['value'], prev);
+                    if (this.get('open')===true)
+                        this.set('output', value);
                 }
-            },
-            open: function () {
-                var prev = tris.open;
-                this.open = true;
-                this._onPropertyChanged(this, 'open', true, prev);
-            },
-            close: function () {
-                var prev = this.open;
-                this.open = false;
-                this._onPropertyChanged(this, 'open', false, prev);
-            },
-            toggle: function () {
-                this.open = !this.open;
-                this._onPropertyChanged(this, 'open', this.open, !this.open);
-            }
+            }),
+            open: new Property('Boolean', {description: 'start date'})
         }
     }, function (cfg) {
         LogicalComponent.call(this, cfg);
@@ -398,7 +400,7 @@ module.exports = (function () {
 
     return Gate;
 })();
-},{"./LogicalComponent":7}],7:[function(require,module,exports){
+},{"../../Property":23,"./LogicalComponent":7}],7:[function(require,module,exports){
 
 
 module.exports = (function(){
@@ -472,6 +474,7 @@ module.exports = (function () {
 
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
+var Property = require('../../Property');
 
 
 module.exports = UIComponent.extend('Checkbox', {
@@ -483,30 +486,15 @@ module.exports = UIComponent.extend('Checkbox', {
             self.set('checked', this.checked);
         });
     },
-    _setter: {
-        checked: function (key, value) {
-            var oldVal = this._data.checked;
-            this._data.checked = !!value;
-
-            this.el.checked = this._data.checked;
-
-            this._onPropertyChanged(this, 'value', this._data.checked, oldVal);
-            this._onPropertyChanged(this, 'checked', this._data.checked, oldVal);
-        },
-        value: function (key, value) {
-            this.set('checked', value)
-        }
+    _prop: {
+        checked: Property.generate.attributeProperty('checked'),
+        value: new Property('String', {},{overrideKey: 'checked'})
     },
-    _getter: {
-        checked: function () {
-            return this._data.checked;
-        },
-        value: function () {
-            return this._data.checked;
-        }
+    simlink: {
+
     }
 });
-},{"../UIComponent":16,"./Primitives":15}],10:[function(require,module,exports){
+},{"../../Property":23,"../UIComponent":16,"./Primitives":15}],10:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -516,104 +504,81 @@ var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 var ItemTemplate = require('./ItemTemplate');
 var ContentContainer = require('../ContentContainer');
+var Property = require('../../Property');
 
 var ObservableSequence = require('observable-sequence');
 
 module.exports = UIComponent.extend('ContainerComponent', {
-    _getter: {
-        selectedIndex: function (name, val) {
-            return this._data['selectedIndex'];
-        },
-        selectedItem: function (name, val) {
-            return this._data['selectedItem'];
-        },
-        value: function (name, val) {
-            this._setter.itemSource(name, val);
-        },
-        itemSource: function (name, val) {
-            return this._data['itemSource'];
-        },
-        itemTemplate: function (name, val) {
-            return this._data['itemTemplate'];
-        }
-    },
-    _setter: {
-        selectedIndex: function (name, val) {
-            var oldVal = this._data['selectedIndex'];
-            this._data['selectedIndex'] = val;
+    _prop: {
+        value: new Property('Variant', {description: 'Same as ItemSource', overrideKey: 'itemSource'}, {}, {}),
 
-            this._data['selectedItem'] = this._children.get(val);
+        selectedIndex: new Property('Number', {description: 'Index of current selected item'}, {
+            set: function (name, val) {
+                var oldVal = this._data['selectedIndex'];
 
-            var children = this.el.childNodes;
-            if (oldVal != void(0) && oldVal < children.length)
-                children[oldVal].style.background = 'none';
-            if (val < children.length)
-                children[val].style.background = '#3b99fc'; //59 153 252
+                var children = this.el.childNodes;
+                if (oldVal != void(0) && oldVal < children.length)
+                    children[oldVal].style.background = 'none';
+                if (val < children.length)
+                    children[val].style.background = '#3b99fc'; //qiwi color
 
-            this._onPropertyChanged(this, 'selectedItem', this._data['selectedItem'], void 0);
-            this._onPropertyChanged(this, 'selectedIndex', val, oldVal);
-        },
-        value: function (name, val) {
-            var oldVal = this._data['itemSource'];
-            this._setter.itemSource(name, val);
+                this.set('selectedItem', this._children.get(val));
+            },
+            get: Property.defaultGetter
+        }, -1),
+        selectedItem: new Property('Variant', {description: 'Index of current selected item'}, {
+            set: function (name, val) {
+                var oldVal = this._data['selectedItem'];
 
-            this._onPropertyChanged(this, 'value', val, oldVal);
-        },
-        itemSource: function (name, val) {
-            var oldVal = this._data['itemSource'];
-            var template = this._itemTemplate;
-
-            this._children.splice(0, this._children.length);
-
-            for (var i = 0, length = val.length; i < length; i++) {
-                var self = this;
-                var newComp = new UIComponent();
-                newComp = new template();
-
-                for (var key in val[i])
-                    if (val[i].hasOwnProperty(key))
-                        newComp.set(key, val[i][key]);
-
-                //newComp._data = val[i];
-
-                var childNode = newComp.el;
-                childNode.style.clear = 'both';
-                childNode.style.position = 'relative';
-
-                (function (index) {
-                    childNode.addEventListener('click', function () {
-                        self.set('selectedIndex', index);
-                    });
-                })(i);
-
-                this._children.push(newComp);
-            }
-            this._data['itemSource'] = val;
-            this._onPropertyChanged(this, 'itemSource', val, oldVal);
-        },
-        itemTemplate: function (name, val) {
-            var oldVal = this._data['itemTemplate'];
-            this._itemTemplate = QObject._knownComponents[val];
-
-            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
-        },
-        selectedItem: function (name, val) {
-            var oldVal = this._data['selectedItem'];
-            //this._data['selectedItem'] = val;
-
-            var itemComponent = this._children.get(this.get('selectedIndex'));
-
-            for (var key in val) {
-                if (val.hasOwnProperty(key)) {
-                    itemComponent.set(key, val[key]);
+                for (var key in val) {
+                    if (val.hasOwnProperty(key)) {
+                        val.set(key, val[key]);
+                    }
                 }
-            }
+                this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
+            },
+            get: Property.defaultGetter
 
-            this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
-        }
+        }, {}),
+        itemSource: new Property('Variant', {description: 'Index of current selected item'}, {
+            set: function (name, val) {
+                var template = this._itemTemplate;
+
+                this._children.splice(0, this._children.length);
+
+                for (var i = 0, length = val.length; i < length; i++) {
+                    var self = this;
+                    var newComp = new template();
+
+                    for (var key in val[i])
+                        if (val[i].hasOwnProperty(key))
+                            newComp.set(key, val[i][key]);
+
+                    var childNode = newComp.el;
+                    childNode.style.clear = 'both';
+                    childNode.style.position = 'relative';
+
+                    (function (index) {
+                        childNode.addEventListener('click', function () {
+                            self.set('selectedIndex', index);
+                        });
+                    })(i);
+
+                    this._children.push(newComp);
+                }
+            },
+            get: Property.defaultGetter
+        }, {}),
+        itemTemplate: new Property('String', {description: 'Visual presentation of items'}, {
+            set: function (name, val) {
+                var oldVal = this._data['itemTemplate'];
+                this._itemTemplate = QObject._knownComponents[val];
+            },
+            get: Property.defaultGetter
+        }, 'ItemTemplate')
     }
 });
-},{"../../QObject":24,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":25}],11:[function(require,module,exports){
+},{"../../Property":23,"../../QObject":24,"../ContentContainer":3,"../UIComponent":16,"./ItemTemplate":12,"./Primitives":15,"observable-sequence":25}],11:[function(require,module,exports){
 /**
  * Created by ravenor on 13.07.16.
  */
@@ -755,16 +720,6 @@ var exports = {};
  */
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _prop: {
-        value: new Property('String', {description: 'text content'}, {
-            set: function (name, val) {
-                if (!this.textNode) {
-                    this.textNode = new exports['textNode'];
-                    this._children.unshift(this.textNode);
-                }
-                this.textNode.set('value', val);
-            },
-            get: Property.defaultGetter
-        }),
         default: new Property('String', {description: 'any '}, {
             set: function (name, val) {
                 if (val === void 0) {
@@ -774,18 +729,19 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                 }
             },
             get: Property.defaultGetter
+        }),
+
+        value: new Property('String', {description: 'text content'}, {
+            set: function (name, val) {
+                if (!this.textNode) {
+                    this.textNode = new exports['textNode'];
+                    this._children.unshift(this.textNode);
+                }
+                this.textNode.set('value', val);
+            },
+            get: Property.defaultGetter
         })
-    },
-    _setter: {
-        
-        value: function (key, val) {
-            
-        }
-    },
-    _getter: {
-        default: function (key) {
-            return this._data[key];
-        }
+
     }
 });
 
@@ -824,35 +780,9 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         });
     },
     _prop: {
-        value: new Property('String', {},{
-            set: function (key, val) {
-                if (val === void 0) {
-                    this.el.value='';
-                } else {
-                    this.el.value=val;
-                }
-            }
-        })
-    },
-    _setter: {
-
-
-        checked: function (key, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('checked');
-            } else {
-                this.el.setAttribute('checked', val);
-            }
-            this._data['checked'] = val;
-        },
-        disabled: function (key, val) {
-            if (val) {
-                this.el.disabled=true;
-            } else {
-                this.el.disabled=false;
-            }
-            this._data['checked'] = val;
-        }
+        checked: Property.generate.attributeProperty('checked'),
+        value: Property.generate.attributeProperty('value'),
+        disabled: Property.generate.attributeProperty('value')
     }
 });
 
@@ -869,19 +799,8 @@ exports['textarea'] = exports['HtmlPrimitive'].extend('textarea', {
             self.set('value', event.target.value);
         });
     },
-    _setter: {
-        value: function (key, val) {
-            var oldVal=this._data['value'];
-
-            if (val === void 0) {
-                this.el.value='';
-            } else {
-                this.el.value=val;
-            }
-            this._data['value'] = val;
-
-            this._onPropertyChanged(this, 'value', val, oldVal);
-        }
+    _prop: {
+        value: Property.generate.attributeProperty('value')
     }
 });
 
@@ -889,38 +808,8 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
     createEl: function () {
         this.el = UIComponent.document.createElement('a');
     },
-    _setter: {
-        default: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute(name);
-            } else {
-                this.el.setAttribute(name, val);
-            }
-            this._data[name] = val;
-        },
-        value: function (key, val) {
-            if (!this.textNode) {
-                this.textNode = new exports['textNode'];
-                this._children.unshift(this.textNode);
-            }
-            this.textNode.set('value', val);
-        },
-        href: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('href');
-            } else {
-                this.el.setAttribute('href', val);
-            }
-            this._data['href'] = val;
-        }
-    },
-    _getter: {
-        default: function (key) {
-            return this._data[key];
-        },
-        href: function () {
-            return this._data['href'];
-        }
+    _prop: {
+        href: Property.generate.attributeProperty('href')
     }
 });
 
@@ -936,8 +825,6 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
             createEl: function () {
                 this.el = UIComponent.document.createElement(name);
-                //this.el.style.overflow = 'hidden';
-                //this.el.style.position = 'absolute';
             }
         });
     });
@@ -1040,11 +927,11 @@ module.exports = (function () {
             this._children.push(component);
             return this;
         },
-        _prop: (function(){
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,visibility'
+        _prop: (function () {
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display'
                 .split(',')
-                .reduce(function(store, key){
-                    store[key] = Property.generate.cssProperty('Element`s css property '+key);
+                .reduce(function (store, key) {
+                    store[key] = Property.generate.cssProperty('Element`s css property ' + key);
                     return store;
                 }, {}));
             out.disabled = new Property('Boolean', {description: 'disabled of element'}, {
@@ -1552,22 +1439,24 @@ module.exports = (function () {
 
     var dataTypes = {
         Boolean: {
-            set: function(){
+            set: function () {
 
             },
-            get: function(key, value){
+            get: function (key, value) {
                 return value;
             },
             validate: function (value) {
-                if(value !== !!value)
+                if ((value !== !!value) && (value !== 'true' && value !== 'false'))
                     return false;
+                else
+                    return true;
             }
         },
         Variant: {
-            set: function(value){
+            set: function (value) {
 
             },
-            get: function(key, value){
+            get: function (key, value) {
                 return value;
             }
         }
@@ -1577,46 +1466,47 @@ module.exports = (function () {
         var key = this.key,
             oldValue = this.parent._data[key],
             validate = this.validate;
-        
-        if((!validate || (validate && validate(value))) && value !== oldValue) {
-            if(this._set.call(this.parent, key, value, oldValue) !== false) {
+
+        if ((!validate || (validate && validate(value))) && value !== oldValue) {
+            if (this._set.call(this.parent, key, value, oldValue) !== false) {
                 this.parent._data[key] = value;
                 this.parent._onPropertyChanged(this.parent, key, value, oldValue);
             }
-        }else
+        } else
             return false;
     };
     var getter = function () {
         return this._get.call(this.parent, this.key, this.parent._data[this.key]);
     };
 
-    var Property = function(type, metadata, cfg, defaultValue){
+    var Property = function (type, metadata, cfg, defaultValue) {
         metadata = metadata || {};
         cfg = cfg || {};
+        this.cfg = cfg;
 
         var dataType = dataTypes[type] || dataTypes.Variant,
             proto = {parent: null};
         proto.type = metadata.type = type;
         proto.value = metadata.defaultValue = defaultValue;
 
-        var cls = function(parent, key, value){
+        var cls = function (parent, key, value) {
             this.parent = parent;
             this.key = key;
 
-            if(arguments.length>2){
+            if (arguments.length > 2) {
                 this.set(value) !== false || this.set(this.value);
             }
         };
         cls.prototype = proto;
         proto.metadata = metadata;
-        if(!('set' in cfg) && !('get' in cfg)){
+        if (!('set' in cfg) && !('get' in cfg)) {
             proto._set = dataType.set;
             proto._get = dataType.get;
-        }else{
+        } else {
             proto._set = cfg.set;
             proto._get = cfg.get;
         }
-        if(('validate' in cfg) || (!('validate' in cfg) && ('validate' in dataType)) ){
+        if (('validate' in cfg) || (!('validate' in cfg) && ('validate' in dataType))) {
             proto.validate = cfg.validate || dataType.validate;
         }
 
@@ -1625,42 +1515,46 @@ module.exports = (function () {
         return cls;
     };
 
-    Property.generate = {cssProperty: function (text) {
-        return new Property('String', 
-            {description: text},
-            {
-                set: function (key, val) {
-                    if (val) {
-                        this.el.style[key] = val;
-                    } else {
-                        this.el.style.removeProperty(key);
+    Property.generate = {
+        cssProperty: function (text) {
+            return new Property('String',
+                {description: text},
+                {
+                    set: function (key, val) {
+                        if (val) {
+                            this.el.style[key] = val;
+                        } else {
+                            this.el.style.removeProperty(key);
+                        }
+                    },
+                    get: function (key, value) {
+                        return value;
                     }
-                },
-                get: function (key, value) {
-                    return value;
                 }
-            }
-        );
-    },
+            );
+        },
         attributeProperty: function (text) {
-        return new Property('String', 
-            {description: text},
-            {
-                set: function (key, val) {
-                    if (!val) {
-                        this.el.removeAttribute(key);
-                    } else {
-                        this.el.setAttribute(key, val);
-                    }
+            return new Property('String',
+                {description: text},
+                {
+                    set: function (key, val) {
+                        if (!val) {
+                            this.el.removeAttribute(key);
+                            delete this.el[key];
+                        } else {
+                            this.el.setAttribute(key, val);
+                            this.el[key] = val;
+                        }
 
-                    this.el[key] = val;
-                },
-                get: function (key, value) {
-                    return value;
+                        this.el[key] = val;
+                    },
+                    get: function (key, value) {
+                        return value;
+                    }
                 }
-            }
-        );
-    }};
+            );
+        }
+    };
     Property.defaultGetter = dataTypes.Variant.get;
     return Property;
 })();
@@ -3134,13 +3028,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var Ждуля = function( fn ){
+            var waiter = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            Ждуля.prototype = {
+            waiter.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3150,7 +3044,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new Ждуля( function(  ){
+                    var W = new waiter( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3199,7 +3093,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new Ждуля( fn );
+                return new waiter( fn );
             };
         })()
     };

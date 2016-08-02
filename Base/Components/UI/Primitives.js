@@ -11,16 +11,6 @@ var exports = {};
  */
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _prop: {
-        value: new Property('String', {description: 'text content'}, {
-            set: function (name, val) {
-                if (!this.textNode) {
-                    this.textNode = new exports['textNode'];
-                    this._children.unshift(this.textNode);
-                }
-                this.textNode.set('value', val);
-            },
-            get: Property.defaultGetter
-        }),
         default: new Property('String', {description: 'any '}, {
             set: function (name, val) {
                 if (val === void 0) {
@@ -30,18 +20,19 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                 }
             },
             get: Property.defaultGetter
+        }),
+
+        value: new Property('String', {description: 'text content'}, {
+            set: function (name, val) {
+                if (!this.textNode) {
+                    this.textNode = new exports['textNode'];
+                    this._children.unshift(this.textNode);
+                }
+                this.textNode.set('value', val);
+            },
+            get: Property.defaultGetter
         })
-    },
-    _setter: {
-        
-        value: function (key, val) {
-            
-        }
-    },
-    _getter: {
-        default: function (key) {
-            return this._data[key];
-        }
+
     }
 });
 
@@ -80,35 +71,9 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         });
     },
     _prop: {
-        value: new Property('String', {},{
-            set: function (key, val) {
-                if (val === void 0) {
-                    this.el.value='';
-                } else {
-                    this.el.value=val;
-                }
-            }
-        })
-    },
-    _setter: {
-
-
-        checked: function (key, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('checked');
-            } else {
-                this.el.setAttribute('checked', val);
-            }
-            this._data['checked'] = val;
-        },
-        disabled: function (key, val) {
-            if (val) {
-                this.el.disabled=true;
-            } else {
-                this.el.disabled=false;
-            }
-            this._data['checked'] = val;
-        }
+        checked: Property.generate.attributeProperty('checked'),
+        value: Property.generate.attributeProperty('value'),
+        disabled: Property.generate.attributeProperty('value')
     }
 });
 
@@ -125,19 +90,8 @@ exports['textarea'] = exports['HtmlPrimitive'].extend('textarea', {
             self.set('value', event.target.value);
         });
     },
-    _setter: {
-        value: function (key, val) {
-            var oldVal=this._data['value'];
-
-            if (val === void 0) {
-                this.el.value='';
-            } else {
-                this.el.value=val;
-            }
-            this._data['value'] = val;
-
-            this._onPropertyChanged(this, 'value', val, oldVal);
-        }
+    _prop: {
+        value: Property.generate.attributeProperty('value')
     }
 });
 
@@ -145,38 +99,8 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
     createEl: function () {
         this.el = UIComponent.document.createElement('a');
     },
-    _setter: {
-        default: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute(name);
-            } else {
-                this.el.setAttribute(name, val);
-            }
-            this._data[name] = val;
-        },
-        value: function (key, val) {
-            if (!this.textNode) {
-                this.textNode = new exports['textNode'];
-                this._children.unshift(this.textNode);
-            }
-            this.textNode.set('value', val);
-        },
-        href: function (name, val) {
-            if (val === void 0) {
-                this.el.removeAttribute('href');
-            } else {
-                this.el.setAttribute('href', val);
-            }
-            this._data['href'] = val;
-        }
-    },
-    _getter: {
-        default: function (key) {
-            return this._data[key];
-        },
-        href: function () {
-            return this._data['href'];
-        }
+    _prop: {
+        href: Property.generate.attributeProperty('href')
     }
 });
 
@@ -192,8 +116,6 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
             createEl: function () {
                 this.el = UIComponent.document.createElement(name);
-                //this.el.style.overflow = 'hidden';
-                //this.el.style.position = 'absolute';
             }
         });
     });
