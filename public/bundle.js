@@ -30,6 +30,7 @@ module.exports = {
         }
     },
     EventManager: require("./Base/EventManager"),
+    Property: require("./Base/Property"),
     Pipes: {
         AbstractPipe: require("./Base/Pipes/AbstractPipe"),
         SimplePipe: require("./Base/Pipes/SimplePipe"),
@@ -37,7 +38,7 @@ module.exports = {
         MutatingPipe: require("./Base/Pipes/MutatingPipe")
     }
 };
-},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/NumberKeyboard":14,"./Base/Components/UI/Primitives":15,"./Base/Components/UIComponent":16,"./Base/EventManager":17,"./Base/Pipes/AbstractPipe":19,"./Base/Pipes/FiltratingPipe":20,"./Base/Pipes/MutatingPipe":21,"./Base/Pipes/SimplePipe":22,"./Base/QObject":24}],2:[function(require,module,exports){
+},{"./Base/Components/AbstractComponent":2,"./Base/Components/ContentContainer":3,"./Base/Components/Factory":4,"./Base/Components/Logical/Branch":5,"./Base/Components/Logical/Gate":6,"./Base/Components/Logical/LogicalComponent":7,"./Base/Components/Logical/Timer":8,"./Base/Components/UI/Checkbox":9,"./Base/Components/UI/HBox":11,"./Base/Components/UI/ListBox":13,"./Base/Components/UI/NumberKeyboard":14,"./Base/Components/UI/Primitives":15,"./Base/Components/UIComponent":16,"./Base/EventManager":17,"./Base/Pipes/AbstractPipe":19,"./Base/Pipes/FiltratingPipe":20,"./Base/Pipes/MutatingPipe":21,"./Base/Pipes/SimplePipe":22,"./Base/Property":23,"./Base/QObject":24}],2:[function(require,module,exports){
 /**
  * Created by ravenor on 30.06.16.
  */
@@ -337,8 +338,22 @@ module.exports = (function () {
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
+    var Property = require('../../Property');
 
     var Branch = LogicalComponent.extend('Branch', {
+        _prop: {
+            input: new Property('Boolean', {description: 'start date'}, {
+                set: function (name, value) {
+
+                    if (value)
+                        this.set('ifTrue', true);
+                    else
+                        this.set('ifFalse', false);
+                }
+            }),
+            ifTrue: new Property('Boolean', {description: 'start date'}),
+            ifFalse: new Property('Boolean', {description: 'start date'})
+        },
         _setter: {
             input: function (name, value) {
                 if (!!value)
@@ -359,15 +374,25 @@ module.exports = (function () {
 
     return Branch;
 })();
-},{"./LogicalComponent":7}],6:[function(require,module,exports){
+},{"../../Property":23,"./LogicalComponent":7}],6:[function(require,module,exports){
 module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
+    var Property = require('../../Property');
 
     var Gate = LogicalComponent.extend('Branch', {
 
-        open: true,
 
+        _prop: {
+            input: new Property('Variant', {description: 'start date'}, {
+                set: function (name, value) {
+
+                    if (this.get('open')===true)
+                        this.set('output', value);
+                }
+            }),
+            open: new Property('Boolean', {description: 'start date'})
+        },
 
         _setter: {
             input: function (name,val) {
@@ -398,7 +423,7 @@ module.exports = (function () {
 
     return Gate;
 })();
-},{"./LogicalComponent":7}],7:[function(require,module,exports){
+},{"../../Property":23,"./LogicalComponent":7}],7:[function(require,module,exports){
 
 
 module.exports = (function(){
@@ -1561,6 +1586,8 @@ module.exports = (function () {
             validate: function (value) {
                 if(value !== !!value)
                     return false;
+                else
+                    return true;
             }
         },
         Variant: {
@@ -1577,7 +1604,7 @@ module.exports = (function () {
         var key = this.key,
             oldValue = this.parent._data[key],
             validate = this.validate;
-        
+
         if((!validate || (validate && validate(value))) && value !== oldValue) {
             if(this._set.call(this.parent, key, value, oldValue) !== false) {
                 this.parent._data[key] = value;
@@ -1626,7 +1653,7 @@ module.exports = (function () {
     };
 
     Property.generate = {cssProperty: function (text) {
-        return new Property('String', 
+        return new Property('String',
             {description: text},
             {
                 set: function (key, val) {
@@ -1643,7 +1670,7 @@ module.exports = (function () {
         );
     },
         attributeProperty: function (text) {
-        return new Property('String', 
+        return new Property('String',
             {description: text},
             {
                 set: function (key, val) {
@@ -3134,13 +3161,13 @@ module.exports = (function () {
             return Array.prototype.concat.apply([],Z.toArray(args).map( Z.makeArray.bind(Z) ));
         },
         wait: (function(  ){
-            var Ждуля = function( fn ){
+            var wait = function( fn ){
                 this.counter = 0;
                 this.fn = [];
                 this.after(fn);
                 this._actions = {};
             };
-            Ждуля.prototype = {
+            wait.prototype = {
                 after: function( fn ){
                     this.fn.push(fn);
                     this.finished && this._try();
@@ -3150,7 +3177,7 @@ module.exports = (function () {
                 act: function( obj, after ){
                     var actions = this._actions,
                         _self = this;
-                    var W = new Ждуля( function(  ){
+                    var W = new wait( function(  ){
                         after();
                     } );
                     Z.each( obj, function( name, fn ){
@@ -3199,7 +3226,7 @@ module.exports = (function () {
                 }
             };
             return function( fn ){
-                return new Ждуля( fn );
+                return new wait( fn );
             };
         })()
     };
