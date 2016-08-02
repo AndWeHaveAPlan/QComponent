@@ -51,7 +51,7 @@ module.exports = (function () {
             this.nestingCount = 0;
 
             source = [
-                'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {}, function(){',
+                'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {_prop: {value: new Base.Property("Variant")}}, function(){',
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 '',
