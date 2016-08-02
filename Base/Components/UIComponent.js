@@ -94,11 +94,11 @@ module.exports = (function () {
             this._children.push(component);
             return this;
         },
-        _prop: (function(){
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,visibility'
+        _prop: (function () {
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display'
                 .split(',')
-                .reduce(function(store, key){
-                    store[key] = Property.generate.cssProperty('Element`s css property '+key);
+                .reduce(function (store, key) {
+                    store[key] = Property.generate.cssProperty('Element`s css property ' + key);
                     return store;
                 }, {}));
             out.disabled = new Property('Boolean', {description: 'disabled of element'}, {

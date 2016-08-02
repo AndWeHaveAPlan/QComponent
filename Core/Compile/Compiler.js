@@ -71,6 +71,28 @@ module.exports = (function () {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
+                            var source = '';
+
+                            var mArg = fullName.replace(/\./g, '');
+                            mutatorArgs.push(mArg);
+                            fn = fn.replace(new RegExp(fullName, 'g'), mArg);
+
+                            if (fullName.indexOf('.') === -1) {
+                                source = 'self.id + \'.' + fullName + '\'';
+                            } else {
+                                source = '\'' + fullName + '\'';
+                            }
+
+                            pipeSources.push(source);
+                        }
+                    }
+                }
+            }
+
+            /*for (var cName in pipe.vars) {
+                if (pipe.vars.hasOwnProperty(cName)) {
+                    for (var fullName in pipe.vars[cName]) {
+                        if (pipe.vars[cName].hasOwnProperty(fullName)) {
 
                             var pipeVar = pipe.vars[cName][fullName];
                             var source = '\'' + fullName + '\'';
@@ -92,7 +114,7 @@ module.exports = (function () {
                         }
                     }
                 }
-            }
+            }*/
 
             return '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
                 '\t    [' +
