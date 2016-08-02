@@ -29,6 +29,7 @@ module.exports = {
         }
     },
     EventManager: require("./Base/EventManager"),
+    Property: require("./Base/Property"),
     Pipes: {
         AbstractPipe: require("./Base/Pipes/AbstractPipe"),
         SimplePipe: require("./Base/Pipes/SimplePipe"),
