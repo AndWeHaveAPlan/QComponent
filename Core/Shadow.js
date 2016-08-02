@@ -41,12 +41,13 @@ module.exports = (function() {
                 },
                 public:{}
             };
+            
             if(els[className])
                 Base.QObject.prototype.applyIfNot(els[className], obj);
             else
                 els[className] = obj;
 
-            for(var propertyName in _knownComponents[className].prototype._setter){
+            for(var propertyName in _knownComponents[className].prototype._prop){
                 if(propertyName!=='default')
                 els[className].public[propertyName]= {
                     name: propertyName,
