@@ -25,7 +25,8 @@ module.exports = (function () {
         },
         compileClass: function (metadata, name, vars) {
             var item = metadata[name],
-                source;
+                source,
+                _self = this;
             vars[item.type] = '_known[\'' + item.type + '\']';
 
             this._knownVars = [];
@@ -41,7 +42,7 @@ module.exports = (function () {
                 var prop = item.prop[i];
                 var pipes = prop.value;
                 if (pipes.isPipe) {
-                    out += this.makePipe(pipes, 'self.id', i);
+                    out += this.makePipe(pipes, 'self.id', i, item);
                 } else {
                     var propVal = this.propertyGetter(prop);
                     out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
@@ -51,23 +52,24 @@ module.exports = (function () {
             this.nestingCount = 0;
 
             source = [
-                'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {}, function(){',
+                'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {_prop: {value: new Base.Property("Variant")}}, function(){',
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 '',
-                this.makePublic(item.public),
-                item.children ? item.children.map(this.compileChild.bind(this)).join('') : '//no children\n',
+                this.makePublic(item.public, item),
+                item.children ? item.children.map(function(el){
+                    return _self.compileChild(el, item);
+                }).join('') : '//no children\n',
                 '    this._init();',
                 '});'
             ];
             return source;
         },
-        makePipe: function (pipe, sourceComponent, targetProperty) {
+        makePipe: function (pipe, sourceComponent, targetProperty, def) {
             var pipeSources = [];
             var mutatorArgs = [];
             var fn = pipe.fn;
-
-            for (var cName in pipe.vars) {
+            /*for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
@@ -87,9 +89,8 @@ module.exports = (function () {
                         }
                     }
                 }
-            }
-
-            /*for (var cName in pipe.vars) {
+            }*/
+            for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
@@ -97,7 +98,7 @@ module.exports = (function () {
                             var pipeVar = pipe.vars[cName][fullName];
                             var source = '\'' + fullName + '\'';
 
-                            if (this._knownVars.indexOf(cName) !== -1) {
+                            if ((cName in def.public) || (cName in def.private) || cName === 'value') {
                                 source = source = 'self.id + \'.' + fullName + '\'';
                             }
                             if (cName == 'this') {
@@ -114,8 +115,7 @@ module.exports = (function () {
                         }
                     }
                 }
-            }*/
-
+            }
             return '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
                 '\t    [' +
                 pipeSources.join(',') +
@@ -127,22 +127,22 @@ module.exports = (function () {
                 '\t});\n' +
                 '\teventManager.registerPipe(mutatingPipe);\n';
         },
-        makePublic: function (props) {
+        makePublic: function (props, def) {
             var i, prop, pipes, out = '', propVal;
             for (i in props) {
                 prop = props[i];
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += this.makePipe(pipes, 'this.id', i);
+                    out += this.makePipe(pipes, 'this.id', i, def);
                 } else {
-                    propVal = this.propertyGetter(prop);
+                    propVal = this.propertyGetter(prop)
                     out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
             return out;
         },
-        compileChild: function (child) {
+        compileChild: function (child, parent) {
             var type = child.type;
 
             if (!cmetadata[type])
@@ -170,7 +170,7 @@ module.exports = (function () {
             if (child.value)
                 if (child.value.isPipe) {
                     var pipe = child.value;
-                    out += this.makePipe(pipe, 'self.id', 'value');
+                    out += this.makePipe(pipe, 'self.id', 'value', parent);
                 } else {
                     propVal = this.propertyGetter(child);
                     out += '\t\tthis.set(\'value\', ' + propVal + ')\n';
@@ -180,7 +180,7 @@ module.exports = (function () {
                 prop = child.prop[i];
                 pipes = prop.value;
                 if (pipes.isPipe) {
-                    out += this.makePipe(pipes, 'self.id', i);
+                    out += this.makePipe(pipes, 'self.id', i, parent);
                 } else {
                     propVal = this.propertyGetter(prop);
                     out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';

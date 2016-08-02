@@ -1,19 +1,11 @@
 def UIComponent Button
-    /*public Boolean checked: {{value}}
-       description: ololo
-       get:
-       set:*/
-
-    public Boolean click: {{i1.click}}
-    public Boolean disabled
-    input i1: {{value}}
-       disabled: {{disabled}}
+    input i: {{value}}a
+       public disabled: {{disabled}}
        type: button
        width: 80
        height: 30
 
 def UIComponent main
-
  div
    Button b2: text
      .click: function(e){

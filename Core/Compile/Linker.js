@@ -282,7 +282,7 @@ module.exports = (function() {
                             localShadow[name].public[info.name] = info;
                         } else {
                             if (info.name)
-                                localShadow[name].private[info.name] = info;
+                                (childrenHolder.private || (childrenHolder.private = {}))[info.name] = info;
                         }
                         if (isProperty) {
                             (childrenHolder.prop || (childrenHolder.prop = {}))[info.name] = info;
