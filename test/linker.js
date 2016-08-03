@@ -31,4 +31,17 @@ describe('Linker', function() {
     it('should generate js', function(){
         console.log(Core.Compile.Compiler.compile(chackboxMetaData));
     });
+    it('should extract props with :', function(){
+        var p = new Linker({mapping: {
+            id: function () {
+                return 'a';
+            },
+            code: function () {
+                return 'def UIComponent main\n embed e1\n  quality: high\n  src: http://www.macromedia.com/go/getfashplayer';
+            }
+        }});
+        p.add('');
+
+        console.log(p.getMetadata().main.children[0]);
+    });
 });
