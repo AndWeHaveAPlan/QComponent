@@ -95,6 +95,33 @@ exports['textarea'] = exports['HtmlPrimitive'].extend('textarea', {
     }
 });
 
+exports['embed'] = exports['HtmlPrimitive'].extend('embed', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('embed');
+    },
+    _prop: {
+        src: new Property( 'String', {description: 'Source url'},{
+            set: function(name, val){
+                setTimeout(function () {
+
+                    var parent = this.el.parentNode,
+                        el = this.el.cloneNode(true);
+
+                    if (val === void 0) {
+                        el.removeAttribute(name);
+                    } else {
+                        el.setAttribute(name, val);
+                    }
+                    parent.replaceChild(el, this.el);
+                    this.el = el;
+
+                }.bind(this), 0);
+
+            }
+        })
+    }
+});
+
 exports['a'] = exports['HtmlPrimitive'].extend('a', {
     createEl: function () {
         this.el = UIComponent.document.createElement('a');
@@ -107,10 +134,10 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
 /**
  *
  */
-('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
+('b,big,br,button,canvas,center,div,dl,dt,em,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
-'table,tbody,td,th,thead,tr,u,ul,header,embed')
+'table,tbody,td,th,thead,tr,u,ul,header')
     .split(',')
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
