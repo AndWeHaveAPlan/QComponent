@@ -11,6 +11,8 @@ def UIComponent main
      .click: function(e){
        console.log(e);
        console.log('you clicked on button2');
+       this.set('value', this.get('value')+1);
+       debugger;
      }
 
    Button b1: bb
