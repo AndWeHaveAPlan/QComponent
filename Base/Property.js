@@ -18,6 +18,8 @@ module.exports = (function () {
             validate: function (value) {
                 if(value !== !!value)
                     return false;
+                else
+                    return true;
             }
         },
         Variant: {

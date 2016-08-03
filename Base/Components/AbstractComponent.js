@@ -71,11 +71,14 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     _initProps: function (cfg) {
         var prop = this._prop, i,
             newProp = this._prop = {};
-        for( i in prop )
-            if( i in cfg)
+        for( i in prop ) {
+            if(i === 'default') {
+                newProp[i] = prop[i];
+            }else if (i in cfg) {
                 newProp[i] = new prop[i](this, i, cfg[i]);
-            else
+            }else
                 newProp[i] = new prop[i](this, i);
+        }
     },
     
     regenId:function(){
@@ -135,7 +138,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                 }
         } else {
             if(!this._prop[name]){
-                this._prop[name] = new (AbstractComponent.prototype._prop.default || defaultPropertyFactory)(this, name);
+                this._prop[name] = new (this._prop.default || defaultPropertyFactory)(this, name);
             }
             return this._prop[name].set(value);
         }
