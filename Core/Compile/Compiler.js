@@ -50,16 +50,23 @@ module.exports = (function () {
             }
 
             this.nestingCount = 0;
+            var props = [
+                {name: 'value', value: 'new Base.Property("Variant")'}
+            ];
+
+            var compiledChildren=item.children ? item.children.map(function (el) {
+                return _self.compileChild(el, item, props);
+            }).join('') : '//no children\n';
 
             source = [
-                'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {_prop: {value: new Base.Property("Variant")}}, function(){',
+                'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {_prop: {' +
+                    props.map(function(item){return item.name+': '+item.value; }).join(',\n') +
+                '}}, function(){',
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 '',
                 this.makePublic(item.public, item),
-                item.children ? item.children.map(function(el){
-                    return _self.compileChild(el, item);
-                }).join('') : '//no children\n',
+                compiledChildren,
                 '    this._init();',
                 '});'
             ];
@@ -69,27 +76,6 @@ module.exports = (function () {
             var pipeSources = [];
             var mutatorArgs = [];
             var fn = pipe.fn;
-            /*for (var cName in pipe.vars) {
-                if (pipe.vars.hasOwnProperty(cName)) {
-                    for (var fullName in pipe.vars[cName]) {
-                        if (pipe.vars[cName].hasOwnProperty(fullName)) {
-                            var source = '';
-
-                            var mArg = fullName.replace(/\./g, '');
-                            mutatorArgs.push(mArg);
-                            fn = fn.replace(new RegExp(fullName, 'g'), mArg);
-
-                            if (fullName.indexOf('.') === -1) {
-                                source = 'self.id + \'.' + fullName + '\'';
-                            } else {
-                                source = '\'' + fullName + '\'';
-                            }
-
-                            pipeSources.push(source);
-                        }
-                    }
-                }
-            }*/
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
@@ -97,13 +83,12 @@ module.exports = (function () {
 
                             var pipeVar = pipe.vars[cName][fullName];
                             var source = '\'' + fullName + '\'';
-
-                            if ((cName in def.public) || (cName in def.private) || cName === 'value') {
-                                source = source = 'self.id + \'.' + fullName + '\'';
-                            }
                             if (cName == 'this') {
                                 source = 'this.id + \'.' + pipeVar.property.name + '\'';
+                            } else if ((def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
+                                //source = source = 'self.id + \'.' + fullName + '\'';
                             }
+
                             pipeSources.push(source);
 
                             var mArg = fullName.replace(/\./g, '');
@@ -142,8 +127,9 @@ module.exports = (function () {
             }
             return out;
         },
-        compileChild: function (child, parent) {
-            var type = child.type;
+        compileChild: function (child, parent, props) {
+            var type = child.type,
+                _self = this;
 
             if (!cmetadata[type])
                 if (!QObject._knownComponents[type] || !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent))
@@ -152,17 +138,19 @@ module.exports = (function () {
             var compiledChildren = '';
             if (child.children) {
                 this.nestingCount += 1;
-                compiledChildren = child.children.map(this.compileChild.bind(this)).join('');
+                compiledChildren = child.children.map(function(item){
+                    return _self.compileChild(item, child, props);
+                }).join('');
                 this.nestingCount -= 1;
             }
 
             var out = '';
             if (this.nestingCount > 0) {
-                out = '\ttmp = (function(parent){\n' +
+                out = '\t;' + (child.name ? 'var '+child.name+' = ' : '') + '(function(parent){\n' +
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren;
 
             } else {
-                out = '\ttmp = (function(){\n' +
+                out = '\t;' + (child.name ? 'var '+child.name+' = ' : '') + ' (function(){\n' +
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren;
             }
             var i, prop, propVal, pipes;
@@ -176,7 +164,12 @@ module.exports = (function () {
                     out += '\t\tthis.set(\'value\', ' + propVal + ')\n';
                 }
 
+            if( child.name){
+                props.push({name: child.name, value: 'new Base.Property(\''+ child.type +'\')'})
+            }
+
             for (i in child.prop) {
+
                 prop = child.prop[i];
                 pipes = prop.value;
                 if (pipes.isPipe) {
@@ -189,11 +182,6 @@ module.exports = (function () {
             if (child.events) {
                 out += '\t\tthis._subscribeList = [];\n';
                 out += '\t\tthis._subscribe = function(){\n';
-
-               /* for (var i = 0; i < this._knownVars.length; i++) {
-                    var kv = this._knownVars[i];
-                    evt.fn.replace(new RegExp(kv, g), 'eventManager._registredComponents['+this._knownVars+']');
-                }*/
 
                 child.events.forEach(function (evt) {
                     out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
@@ -212,6 +200,10 @@ module.exports = (function () {
                 out += '\t\treturn this;\n' +
                     '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
                     (child.name ? 'id: \'' + child.name + '\'' : '') + '}) );\n';
+            }
+
+            if(child.name){
+                out+='self.set(\''+child.name+'\', '+child.name+')';
             }
 
             return out;
