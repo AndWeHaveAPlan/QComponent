@@ -22,6 +22,20 @@ module.exports = (function () {
                     return true;
             }
         },
+        Number: {
+            set: function () {
+
+            },
+            get: function (key, value) {
+                return value;
+            },
+            validate: function (value) {
+                if (typeof value !== 'number')
+                    return true;
+                else
+                    return true;
+            }
+        },
         Variant: {
             set: function (value) {
 
