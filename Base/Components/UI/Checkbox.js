@@ -4,6 +4,7 @@
 
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
+var Property = require('../../Property');
 
 
 module.exports = UIComponent.extend('Checkbox', {
@@ -15,26 +16,11 @@ module.exports = UIComponent.extend('Checkbox', {
             self.set('checked', this.checked);
         });
     },
-    _setter: {
-        checked: function (key, value) {
-            var oldVal = this._data.checked;
-            this._data.checked = !!value;
-
-            this.el.checked = this._data.checked;
-
-            this._onPropertyChanged(this, 'value', this._data.checked, oldVal);
-            this._onPropertyChanged(this, 'checked', this._data.checked, oldVal);
-        },
-        value: function (key, value) {
-            this.set('checked', value)
-        }
+    _prop: {
+        checked: Property.generate.attributeProperty('checked'),
+        value: new Property('String', {},{overrideKey: 'checked'})
     },
-    _getter: {
-        checked: function () {
-            return this._data.checked;
-        },
-        value: function () {
-            return this._data.checked;
-        }
+    simlink: {
+
     }
 });
