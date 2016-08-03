@@ -58,7 +58,7 @@ function AbstractComponent(cfg) {
     this._onPropertyChanged = new MulticastDelegate();
 
     if (!this._eventManager)
-        this._eventManager = new EventManager();
+        this._eventManager = new EventManager(this.id);
 
     this._eventManager.registerComponent(this);
 }
@@ -75,10 +75,11 @@ QObject.prototype.apply(AbstractComponent.prototype, {
 
         var prop = this._prop, i,
             newProp = this._prop = {};
+
         for (i in prop) {
-            if(i === 'default') {
+            if (i === 'default') {
                 newProp[i] = prop[i];
-            }else if (prop.cfg && prop.cfg.overrideKey) {
+            } else if (prop.cfg && prop.cfg.overrideKey) {
                 overrided.push({prop: prop, key: i});
             } else {
                 if (i in cfg)
@@ -150,7 +151,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     this._onPropertyChanged(nameParts.splice(0, 1), value);
                 }
         } else {
-            if(!this._prop[name]){
+            if (!this._prop[name]) {
                 this._prop[name] = new (this._prop.default || defaultPropertyFactory)(this, name);
             }
             return this._prop[name].set(value);
@@ -166,8 +167,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      */
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
-    }
-    ,
+    },
 
     /**
      * Add Child component

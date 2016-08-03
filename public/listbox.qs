@@ -15,9 +15,10 @@ def UIComponent Button
 // DetailsPanel
 def UIComponent DetailsPanel
     public Boolean click: {{b1.click}}
+    //public Variant huita: {{b1.click}}
     public String item: {{ ({done:checkBoxDone.checked, name:textBoxTaskName.value, description: textDescription.value}) }}
-    Checkbox checkBoxDone: {{value.done}}
-    input textBoxTaskName: {{value.name}}
+    Checkbox checkBoxDone: {{huita.done}}
+    input textBoxTaskName: {{huita.name}} thisId.huita.name  thisid.huita name
            type: text
            width: 100%
     textarea textDescription: {{value.description}}

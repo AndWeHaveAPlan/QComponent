@@ -15,9 +15,10 @@ var SimplePipe = require("./Pipes/SimplePipe");
  *
  * @constructor
  */
-function EventManager() {
+function EventManager(id) {
     this._registredComponents = {};
     this._registredPipes = {};
+    this.id = id;
 }
 
 EventManager.prototype = new QObject();
@@ -32,7 +33,12 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
 
     return function (sender, name, newValue, oldValue) {
         // TODO think about getting id through getter
+
         var key = sender.id + '.' + name;
+
+        if (sender.id == self.id)
+            key = name;
+
         var propertyPipes = self._registredPipes[key];
 
         if (propertyPipes) {

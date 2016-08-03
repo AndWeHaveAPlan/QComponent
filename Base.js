@@ -25,7 +25,8 @@ module.exports = {
             LogicalComponent: require('./Base/Components/Logical/LogicalComponent'),
             Branch: require('./Base/Components/Logical/Branch'),
             Gate: require('./Base/Components/Logical/Gate'),
-            Timer: require('./Base/Components/Logical/Timer')
+            Timer: require('./Base/Components/Logical/Timer'),
+            Random: require('./Base/Components/Logical/Random')
         }
     },
     EventManager: require("./Base/EventManager"),
