@@ -17,8 +17,7 @@ def UIComponent main
     public Boolean currentScreen: {{ b1.click?'s2':void 0 }}
     div s1:
         width: 200
-        visibility: 'block'
-        visibility: {{currentScreen || currentScreen=='s1'?'none':'block'}}
+        display: {{currentScreen || currentScreen=='s1'?'none':'block'}}
         h2: Введите номер
         div:
             margin: 0 auto
@@ -31,15 +30,14 @@ def UIComponent main
         NumberKeyboard k1
         Button b1: Далее
             .click: function(e){
-                        s1.visibility="none";
+                        s1.display="none";
             }
             float: right
             disabled: true
             disabled: {{number.text.length!=10}}
     div s2:
         width: 200
-        visibility: 'none'
-        visibility: {{currentScreen=='s2'?'block':'none'}}
+        display: {{currentScreen=='s2'?'block':'none'}}
         h2: {{'+7'+number.text}}
         h2: Введите сумму
         div:
