@@ -46,9 +46,9 @@ function AbstractComponent(cfg) {
             child.parent = self;
         });
     }
-
+    
     this._initProps(cfg || {});
-
+    
     /**
      * Event. Fires with any changes made with get(...)
      *
@@ -75,12 +75,15 @@ QObject.prototype.apply(AbstractComponent.prototype, {
 
         var prop = this._prop, i,
             newProp = this._prop = {};
+
         for (i in prop) {
 
             if (prop.cfg && prop.cfg.overrideKey) {
                 overrided.push({prop: prop, key: i});
             } else {
-                if (i in cfg)
+                if(i === 'default') {
+                    newProp[i] = prop[i];
+                }else if (i in cfg)
                     newProp[i] = new prop[i](this, i, cfg[i]);
                 else
                     newProp[i] = new prop[i](this, i);
@@ -95,8 +98,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             }
         }
     },
-
-    regenId: function () {
+    
+    regenId:function(){
         this.id = uuid();
     },
 
@@ -149,8 +152,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     this._onPropertyChanged(nameParts.splice(0, 1), value);
                 }
         } else {
-            if (!this._prop[name]) {
-                this._prop[name] = new (AbstractComponent.prototype._prop.default || defaultPropertyFactory)(this, name);
+            if(!this._prop[name]){
+                this._prop[name] = new (this._prop.default || defaultPropertyFactory)(this, name);
             }
             return this._prop[name].set(value);
         }
@@ -165,8 +168,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      */
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
-    }
-    ,
+    },
 
     /**
      * Add Child component

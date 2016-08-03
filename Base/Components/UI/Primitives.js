@@ -11,17 +11,6 @@ var exports = {};
  */
 exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _prop: {
-        default: new Property('String', {description: 'any '}, {
-            set: function (name, val) {
-                if (val === void 0) {
-                    this.el.removeAttribute(name);
-                } else {
-                    this.el.setAttribute(name, val);
-                }
-            },
-            get: Property.defaultGetter
-        }),
-
         value: new Property('String', {description: 'text content'}, {
             set: function (name, val) {
                 if (!this.textNode) {
@@ -29,6 +18,16 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                     this._children.unshift(this.textNode);
                 }
                 this.textNode.set('value', val);
+            },
+            get: Property.defaultGetter
+        }),
+        default: new Property('String', {description: 'any '}, {
+            set: function (name, val) {
+                if (val === void 0) {
+                    this.el.removeAttribute(name);
+                } else {
+                    this.el.setAttribute(name, val);
+                }
             },
             get: Property.defaultGetter
         })
@@ -110,7 +109,7 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
 ('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
-'table,tbody,td,th,thead,tr,u,ul,header')
+'table,tbody,td,th,thead,tr,u,ul,header,embed')
     .split(',')
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {

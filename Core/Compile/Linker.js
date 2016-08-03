@@ -268,7 +268,11 @@ module.exports = (function() {
                     if(isEvent) {
                         (childrenHolder.events || (childrenHolder.events = [])).push(info);
                     }else{
-                        isProperty = !(info.type in kws) && this.isProperty(info.type, sub.type, localShadow);
+                        isProperty = !(info.type in kws) &&
+                            (this.isProperty(info.type, sub.type, localShadow) ||
+                                this.isProperty('default', sub.type, localShadow)
+                            );
+
                         if (isProperty) {
                             info.name = info.type;
                             info.type = isProperty.type;
