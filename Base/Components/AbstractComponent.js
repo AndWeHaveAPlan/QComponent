@@ -77,13 +77,12 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             newProp = this._prop = {};
 
         for (i in prop) {
-
-            if (prop.cfg && prop.cfg.overrideKey) {
+            if(i === 'default') {
+                newProp[i] = prop[i];
+            }else if (prop.cfg && prop.cfg.overrideKey) {
                 overrided.push({prop: prop, key: i});
             } else {
-                if(i === 'default') {
-                    newProp[i] = prop[i];
-                }else if (i in cfg)
+                if (i in cfg)
                     newProp[i] = new prop[i](this, i, cfg[i]);
                 else
                     newProp[i] = new prop[i](this, i);
