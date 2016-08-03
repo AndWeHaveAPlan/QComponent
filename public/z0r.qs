@@ -1,20 +1,16 @@
 def UIComponent main
+ Timer t1
+  interval: 15000
+  enabled: true
+  .tick: ()=>{
+      console.log('tick');
+      r1.generate();
+  }
 
- /*Timer t1
-  interval: 10000
-  start: true
 
- Random: r1
-  type: number
+ Random r1:
   from: 0001
   to: 7631
-  generate: {{t1.tick}}
-*/
- input r1: 7631
-   type: number
-
- input r2: {{r1.value+1}}
-   type: number
 
  embed e1
   quality: high
@@ -22,8 +18,11 @@ def UIComponent main
   type: application/x-shockwave-flash
   width: 690
   height: 430
-  src: http://z0r.de/L/z0r-de_{{r1.value}}.swf
+  src: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
 
- /*button: Next
-  .click: ()->
-    t1.tick()*/
+ div
+     input: Next
+      type: button
+      .click: ()->
+        t1.start();
+        r1.generate();

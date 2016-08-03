@@ -45,7 +45,8 @@ module.exports = (function () {
                         this._eventManager.registerComponent(item);
                     }
 
-                this.el.appendChild(item.el);
+                if (item instanceof UIComponent)
+                    this.el.appendChild(item.el);
             }
         },
 
@@ -95,7 +96,7 @@ module.exports = (function () {
             return this;
         },
         _prop: (function () {
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display'
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display,background'
                 .split(',')
                 .reduce(function (store, key) {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);

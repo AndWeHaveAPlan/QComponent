@@ -38,10 +38,13 @@ module.exports = (function () {
             validate = this.validate;
 
         if ((!validate || (validate && validate(value))) && value !== oldValue) {
+            this.parent._data[key] = value;
             if (this._set.call(this.parent, key, value, oldValue) !== false) {
-                this.parent._data[key] = value;
                 this.parent._onPropertyChanged(this.parent, key, value, oldValue);
+            }else{
+                this.parent._data[key] = oldValue;
             }
+
         } else
             return false;
     };
