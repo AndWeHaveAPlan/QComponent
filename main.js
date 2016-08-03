@@ -42,7 +42,7 @@ var server = http.createServer(function(req, res){
             
             compiled = Core.Compile.Compiler.compile(subObj);
 
-            return res.end('<html><head><meta charset="utf-8">' +
+            return res.end('<html><head><meta charset="utf-8"> <meta name="referrer" content="no-referrer" />' +
                 '<script>module = {};</script>' +
                 '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
                 '<script src="bundle.js"></script>' +

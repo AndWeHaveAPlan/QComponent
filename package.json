@@ -6,7 +6,8 @@
   "scripts": {
     "test": "_mocha",
     "coverage": "istanbul cover _mocha -- -R spec",
-    "prepublish": "require-self"
+    "prepublish": "require-self",
+    "bundle": "browserify --standalone Base Base.js > public/bundle.js"
   },
   "author": "",
   "license": "BSD-2-Clause",
