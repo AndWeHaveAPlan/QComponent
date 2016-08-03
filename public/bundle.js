@@ -112,11 +112,14 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     _initProps: function (cfg) {
         var prop = this._prop, i,
             newProp = this._prop = {};
-        for( i in prop )
-            if( i in cfg)
+        for( i in prop ) {
+            if(i === 'default') {
+                newProp[i] = prop[i];
+            }else if (i in cfg) {
                 newProp[i] = new prop[i](this, i, cfg[i]);
-            else
+            }else
                 newProp[i] = new prop[i](this, i);
+        }
     },
     
     regenId:function(){
@@ -176,7 +179,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                 }
         } else {
             if(!this._prop[name]){
-                this._prop[name] = new (AbstractComponent.prototype._prop.default || defaultPropertyFactory)(this, name);
+                this._prop[name] = new (this._prop.default || defaultPropertyFactory)(this, name);
             }
             return this._prop[name].set(value);
         }
@@ -857,7 +860,8 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                     this.el.value=val;
                 }
             }
-        })
+        }),
+        checked: new Property('Boolean')
     },
     _setter: {
 
@@ -955,7 +959,7 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
 ('b,big,br,button,canvas,center,div,dl,dt,em,embed,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
-'table,tbody,td,th,thead,tr,u,ul,header')
+'table,tbody,td,th,thead,tr,u,ul,header,embed')
     .split(',')
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
