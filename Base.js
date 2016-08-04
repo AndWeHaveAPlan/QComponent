@@ -18,7 +18,8 @@ module.exports = {
             Checkbox: require('./Base/Components/UI/Checkbox'),
             ListBox: require('./Base/Components/UI/ListBox'),
             HBox: require('./Base/Components/UI/HBox'),
-            NumberKeyboard: require('./Base/Components/UI/NumberKeyboard')
+            NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
+            Page: require('./Base/Components/UI/Page')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {

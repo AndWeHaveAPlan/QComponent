@@ -146,7 +146,7 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
 ('b,big,br,button,canvas,center,div,dl,dt,em,' +
 'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
-'table,tbody,td,th,thead,tr,u,ul,header')
+'table,tbody,td,th,thead,tr,u,ul,header,marquee')
     .split(',')
     .forEach(function (name) {
         exports[name] = exports['HtmlPrimitive'].extend(name, {
