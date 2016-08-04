@@ -19,7 +19,8 @@ module.exports = {
             ListBox: require('./Base/Components/UI/ListBox'),
             HBox: require('./Base/Components/UI/HBox'),
             NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
-            Slider: require('./Base/Components/UI/Slider')
+            Slider: require('./Base/Components/UI/Slider'),
+            Page: require('./Base/Components/UI/Page')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {

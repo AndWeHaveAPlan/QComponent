@@ -23,8 +23,8 @@ def UIComponent main
   Random r1:
     from: 0001
     to: 7631
-
-  h1: URL: {{f1.value}}
+  marquee
+    h1: URL: {{f1.value}}
 
   Flash f1: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
     width: 100%
