@@ -1,34 +1,76 @@
 /**
  * Created by zibx on 15.07.16.
  */
-var http = require('http'), url  = require('url'), fs = require('fs'),
+var http = require('http'), url = require('url'), fs = require('fs'),
     Core = require('./Core'),
     debug = process.env.debug || true,
+    Path = require('path'),
     querystring = require('querystring');
 
-var server = http.createServer(function(req, res){
-    var reqUrl = url.parse(req.url,true);
-    try {
-        try {
-            var path = reqUrl.pathname.substring(1);
-            console.log(path);
-            var source = fs.readFileSync('public/' + path) + '';
+var header = '<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
+    '<script>module = {};</script>' +
 
-        }catch(e){
-            try {
-                source = fs.readFileSync(path) + '';
-            }catch(e){
-                //throw e;
-                return res.end('no file');
-            }
+    '<script src="bundle.js"></script>' +
+    '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
+    '<link rel="stylesheet" type="text/css" href="highlight.css">' +
+    '</head><body>';
+var footer = '</body></html>';
+
+function fsExists(path) {
+    try {
+        return fs.statSync(path);
+    } catch (e) {
+        return false;
+    }
+}
+
+function serveStatic(path) {
+    try {
+        return fs.readFileSync(path);
+    } catch (e) {
+        return '';
+    }
+}
+
+var server = http.createServer(function (req, res) {
+    var reqUrl = url.parse(req.url, true);
+    try {
+
+        var path = 'public/' + reqUrl.pathname.substring(1);
+
+        if (path.indexOf('css') !== -1 || path.indexOf('js') !== -1) {
+            return res.end(serveStatic(path));
         }
-        if(path.indexOf('.qs')===-1)
+
+        var s = fsExists(path);
+        if (s && !s.isDirectory()) {
+            var source = fs.readFileSync(path) + '';
+        } else {
+            var entries = fs.readdirSync(path);
+
+            var out = '';
+
+            for (var i = 0; i < entries.length; i++) {
+                var cEntry = entries[i];
+                var stat = fs.statSync(Path.join(path, cEntry));
+                if (!stat.isDirectory() && cEntry.indexOf('.qs') !== -1) {
+                    out += '<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>';
+                }
+            }
+
+            return res.end(header + out + footer);
+        }
+
+
+        if (path.indexOf('.qs') === -1)
             return res.end(source);
 
-        var p = new Core.Compile.Linker({mapping: {
-            id: 'id',
-            code: 'code'
-        }});
+        var p = new Core.Compile.Linker({
+            mapping: {
+                id: 'id',
+                code: 'code'
+            }
+        });
         console.log('file exists. it`s qs!')
         var obj = p.add({
             id: path,
@@ -40,40 +82,28 @@ var server = http.createServer(function(req, res){
                 subObj = {},
                 compiled;
             console.log('metadata extracted');
-            for(var i in meta)
+            for (var i in meta)
                 meta[i].type && (subObj[i] = meta[i]);
-            
-            if(!reqUrl.query.highlight) {
-                if(!reqUrl.query.high) {
-                    compiled = Core.Compile.Compiler.compile(subObj);
 
-                    return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
-                        '<script>module = {};</script>' +
-                        '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
-                        '<script src="bundle.js"></script>' +
-                        '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
-                }else{
-                    try {
-                        var h = new Function('', 'var module = {}; ' + fs.readFileSync('Core/Compile/Highlight.js') + '; return module.exports;')();
-                        var H = new h(meta);
-                        return res.end(H.high(obj.tokens));
-                    }catch(e){
-                        return res.end(e.message);
-                    }
-                }
-            }else {
+            if (!reqUrl.query.highlight) {
+                compiled = Core.Compile.Compiler.compile(subObj);
+
+                return res.end(header +
+                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script>' +
+                    footer);
+            } else {
 
                 source = source.replace(/\r\n/g, "\n");
                 source = source.replace(/>/g, "&gt;");
 
-                for (var i=0;i< obj.tokens.length;i++) {
+                for (var i = 0; i < obj.tokens.length; i++) {
                     var cToken = obj.tokens[i];
-                    for(var j=0;j<cToken.items.length;j++){
-                        var cItem=cToken.items[j];
+                    for (var j = 0; j < cToken.items.length; j++) {
+                        var cItem = cToken.items[j];
 
-                        switch(cItem.type){
+                        switch (cItem.type) {
                             case 'comment':
-                                source = source.replace(cItem.data, '<span class="comment">'+cItem.data+'</span>');
+                                source = source.replace(cItem.data, '<span class="comment">' + cItem.data + '</span>');
                                 break;
                         }
                     }
@@ -83,49 +113,49 @@ var server = http.createServer(function(req, res){
                     if (meta.hasOwnProperty(key)) {
                         var cType = meta[key];
                         if (cType.type) {
+                            source = source.replace(new RegExp(' ' + key + '', 'g'), '<span class="new_cls">$&</span>');
                         } else {
-                            source = source.replace(new RegExp(' '+key+'', 'g'), '<span class="cls">$&</span>');
+                            source = source.replace(new RegExp(' ' + key + '', 'g'), '<span class="cls">$&</span>');
                         }
 
                         for (var p in cType.public)
                             if (cType.public.hasOwnProperty(p)) {
                                 var cPub = cType.public[p];
-                                source = source.replace(new RegExp(' '+p+'.', 'g'), '<span class="property">$&</span>');
+                                source = source.replace(new RegExp(' ' + p + '.', 'g'), '<span class="property">$&</span>');
                             }
                         for (var pr in cType.private)
                             if (cType.private.hasOwnProperty(pr)) {
                                 var cPriv = cType.private[pr];
 
-                                source = source.replace(new RegExp(''+pr+'', 'g'), '<span class="property">$&</span>');
+                                source = source.replace(new RegExp('' + pr + '', 'g'), '<span class="property">$&</span>');
                             }
                     }
 
-                source = source.replace(/\n/g, "<br/>");
+                source = source.replace(/\n/g, "<br/>\n");
                 source = source.replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
                 source = source.replace(/ (?![^<]*>)/g, "&nbsp");
                 source = source.replace(/(def|define|public)/g, '<span class="keyword">$&</span>');
+                var x = 1,
+                    lines = source.split('\n');
 
-                return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
-                    '<script>module = {};</script>' +
-                    '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
-                    '<link rel="stylesheet" type="text/css" href="highlight.css">' +
-                    '</head><body><span class="highlight">' + source + '</span></body></html>');
+                return res.end(header + '<span class="highlight">' + lines.map(function (i) {
+                        return new Array((lines.length + '').length + 1 - (x + '').length).join('0') + x++ + '&nbsp;' + i;
+                    }).join('\n') + '</span><script src="highlight.js"></script></body></html>');
             }
 
-        }catch(e){
-            if(debug)throw e;
+        } catch (e) {
+            //if(debug)throw e;
             return res.end(e.message);
         }
-    }catch(e){
-        if(debug)throw e;
-        return res.end('Поебень ('+path+')');
+    } catch (e) {
+        //if (debug)throw e;
+        return res.end('Поебень (' + path + ')');
     }
-
 
 
 });
 
 var port = 8001;
-server.listen(port, 'localhost', function(err) {
+server.listen(port, 'localhost', function (err) {
     console.log('listen on ' + port);
 });
