@@ -306,6 +306,7 @@ module.exports = (function () {
         obj.subScopes.forEach(function(scope){
             apply(undef, getFullUnDefined(scope, collector));
         });
+        delete undef.Math;
         //console.log(undef)
         return undef;
 
