@@ -18,7 +18,8 @@ module.exports = {
             Checkbox: require('./Base/Components/UI/Checkbox'),
             ListBox: require('./Base/Components/UI/ListBox'),
             HBox: require('./Base/Components/UI/HBox'),
-            NumberKeyboard: require('./Base/Components/UI/NumberKeyboard')
+            NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
+            Slider: require('./Base/Components/UI/Slider')
         },
         Factory: require("./Base/Components/Factory"),
         Logical: {
@@ -26,7 +27,8 @@ module.exports = {
             Branch: require('./Base/Components/Logical/Branch'),
             Gate: require('./Base/Components/Logical/Gate'),
             Timer: require('./Base/Components/Logical/Timer'),
-            Random: require('./Base/Components/Logical/Random')
+            Random: require('./Base/Components/Logical/Random'),
+            Title: require('./Base/Components/Logical/Title')
         }
     },
     EventManager: require("./Base/EventManager"),
