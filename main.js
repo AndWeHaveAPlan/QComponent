@@ -73,9 +73,7 @@ var server = http.createServer(function(req, res){
                     if (meta.hasOwnProperty(key)) {
                         var cType = meta[key];
                         if (cType.type) {
-                            source = source.replace(new RegExp('('+cType.type+' *)? ('+key+')','g'), function($0,$1,$2){
-                                return $1?$0:'<span class="cls">'+$2+'</span>'
-                            });
+                            source = source.replace(new RegExp(' '+key+'', 'g'), '<span class="new_cls">$&</span>');
                         } else {
                             source = source.replace(new RegExp(' '+key+'', 'g'), '<span class="cls">$&</span>');
                         }
@@ -93,16 +91,23 @@ var server = http.createServer(function(req, res){
                             }
                     }
 
-                source = source.replace(/\n/g, "<br/>");
+                source = source.replace(/\n/g, "<br/>\n");
                 source = source.replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
                 source = source.replace(/ (?![^<]*>)/g, "&nbsp");
                 source = source.replace(/(def|define|public)/g, '<span class="keyword">$&</span>');
+                var x = 1,
+                    lines = source.split('\n');
 
                 return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
                     '<script>module = {};</script>' +
                     '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
                     '<link rel="stylesheet" type="text/css" href="highlight.css">' +
-                    '</head><body><span class="highlight">' + source + '</span></body></html>');
+                    '</head><body><span class="highlight">' + lines.map(function(i){
+
+
+
+                        return new Array((lines.length+'').length +1 - (x+'').length).join('0')+ x++  +'&nbsp;'+ i;
+                    }).join('\n') + '</span></body></html>');
             }
 
         }catch(e){
