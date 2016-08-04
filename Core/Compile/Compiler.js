@@ -97,7 +97,7 @@ module.exports = (function () {
                             mutatorArgs.push(mArg);
 
                             console.log(fn);
-                            fn = fn.replace(new RegExp(fullName.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")), mArg);
+                            fn = fn.replace(new RegExp(fullName.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), 'g'), mArg);
                             console.log(fn);
                         }
                     }
