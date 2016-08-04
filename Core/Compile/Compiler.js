@@ -76,6 +76,7 @@ module.exports = (function () {
             var pipeSources = [];
             var mutatorArgs = [];
             var fn = pipe.fn;
+
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {

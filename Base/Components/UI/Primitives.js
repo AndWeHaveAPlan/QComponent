@@ -20,7 +20,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                 this.textNode.set('value', val);
             },
             get: Property.defaultGetter
-        }),
+        })/*,
         default: new Property('String', {description: 'any '}, {
             set: function (name, val) {
                 if (val === void 0) {
@@ -30,7 +30,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                 }
             },
             get: Property.defaultGetter
-        })
+        })*/
 
     }
 });
@@ -117,6 +117,16 @@ exports['embed'] = exports['HtmlPrimitive'].extend('embed', {
                 }.bind(this), 0);
 
             }
+        }),
+        default: new Property('String', {description: 'any '}, {
+            set: function (name, val) {
+                if (val === void 0) {
+                    this.el.removeAttribute(name);
+                } else {
+                    this.el.setAttribute(name, val);
+                }
+            },
+            get: Property.defaultGetter
         })
     }
 });

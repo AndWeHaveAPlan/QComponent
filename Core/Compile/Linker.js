@@ -295,13 +295,13 @@ module.exports = (function() {
                             childrenHolder.children.push(info);
                         }
 
-                        if (!localShadow[child.type] && !isProperty) {
+                        if (!localShadow[child.type] ) {
 
                             if (child.type in shadow) {
                                 localShadow[name].depend[child.type] = true;
                                 localShadow[child.type] = shadow[child.type];
                                 //console.log('!!', child.type);
-                            } else {
+                            } else if (!isProperty){
                                 throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
                             }
                         }
