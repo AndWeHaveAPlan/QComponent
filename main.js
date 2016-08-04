@@ -3,14 +3,15 @@
  */
 var http = require('http'), url  = require('url'), fs = require('fs'),
     Core = require('./Core'),
-    debug = process.env.debug || true;
+    debug = process.env.debug || true,
+    querystring = require('querystring');;
 
 var server = http.createServer(function(req, res){
-    console.log(123)
+    var reqUrl = url.parse(req.url,true);
     try {
         try {
-            var path = req.url.substr(1);
-            console.log(path)
+            var path = reqUrl.pathname.substring(1);
+            console.log(path);
             var source = fs.readFileSync('public/' + path) + '';
 
         }catch(e){
@@ -29,7 +30,7 @@ var server = http.createServer(function(req, res){
             code: 'code'
         }});
         console.log('file exists. it`s qs!')
-        p.add({
+        var obj = p.add({
             id: path,
             code: source
         });
@@ -41,14 +42,66 @@ var server = http.createServer(function(req, res){
             console.log('metadata extracted');
             for(var i in meta)
                 meta[i].type && (subObj[i] = meta[i]);
-            
-            compiled = Core.Compile.Compiler.compile(subObj);
 
-            return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
-                '<script>module = {};</script>' +
-                '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
-                '<script src="bundle.js"></script>' +
-                '<script>console.log("INIT");QObject = Base.QObject; Q = '+compiled+';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
+            if(!reqUrl.query.highlight) {
+                compiled = Core.Compile.Compiler.compile(subObj);
+
+                return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
+                    '<script>module = {};</script>' +
+                    '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
+                    '<script src="bundle.js"></script>' +
+                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
+            }else {
+
+                source = source.replace(/\r\n/g, "\n");
+                source = source.replace(/>/g, "&gt;");
+
+                for (var i=0;i< obj.tokens.length;i++) {
+                    var cToken = obj.tokens[i];
+                    for(var j=0;j<cToken.items.length;j++){
+                        var cItem=cToken.items[j];
+
+                        switch(cItem.type){
+                            case 'comment':
+                                source = source.replace(cItem.data, '<span class="comment">'+cItem.data+'</span>');
+                                break;
+                        }
+                    }
+                }
+
+                for (var key in meta)
+                    if (meta.hasOwnProperty(key)) {
+                        var cType = meta[key];
+                        if (cType.type) {
+                        } else {
+                            source = source.replace(new RegExp(' '+key+'', 'g'), '<span class="cls">$&</span>');
+                        }
+
+                        for (var p in cType.public)
+                            if (cType.public.hasOwnProperty(p)) {
+                                var cPub = cType.public[p];
+                                source = source.replace(new RegExp(' '+p+'.', 'g'), '<span class="property">$&</span>');
+                            }
+                        for (var pr in cType.private)
+                            if (cType.private.hasOwnProperty(pr)) {
+                                var cPriv = cType.private[pr];
+
+                                source = source.replace(new RegExp(''+pr+'', 'g'), '<span class="property">$&</span>');
+                            }
+                    }
+
+                source = source.replace(/\n/g, "<br/>");
+                source = source.replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+                source = source.replace(/ (?![^<]*>)/g, "&nbsp");
+                source = source.replace(/(def|define|public)/g, '<span class="keyword">$&</span>');
+
+                return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
+                    '<script>module = {};</script>' +
+                    '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
+                    '<link rel="stylesheet" type="text/css" href="highlight.css">' +
+                    '</head><body><span class="highlight">' + source + '</span></body></html>');
+            }
+
         }catch(e){
             if(debug)throw e;
             return res.end(e.message);
