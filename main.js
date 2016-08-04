@@ -9,6 +9,7 @@ var http = require('http'), url = require('url'), fs = require('fs'),
 
 var header = '<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
     '<script>module = {};</script>' +
+    '<script src="highlight.js"></script>' +
     '<script src="bundle.js"></script>' +
     '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
     '<link rel="stylesheet" type="text/css" href="highlight.css">' +
