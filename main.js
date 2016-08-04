@@ -53,6 +53,7 @@ var server = http.createServer(function(req, res){
                     '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
             }else {
 
+                source = source.replace(/\r\n/g, "\n");
                 source = source.replace(/>/g, "&gt;");
 
                 for (var i=0;i< obj.tokens.length;i++) {
@@ -62,7 +63,7 @@ var server = http.createServer(function(req, res){
 
                         switch(cItem.type){
                             case 'comment':
-                                source = source.replace(cItem.data, '<span class="comment">$&</span>');
+                                source = source.replace(cItem.data, '<span class="comment">'+cItem.data+'</span>');
                                 break;
                         }
                     }
