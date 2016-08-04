@@ -4,7 +4,7 @@
 var http = require('http'), url  = require('url'), fs = require('fs'),
     Core = require('./Core'),
     debug = process.env.debug || true,
-    querystring = require('querystring');;
+    querystring = require('querystring');
 
 var server = http.createServer(function(req, res){
     var reqUrl = url.parse(req.url,true);
@@ -42,15 +42,25 @@ var server = http.createServer(function(req, res){
             console.log('metadata extracted');
             for(var i in meta)
                 meta[i].type && (subObj[i] = meta[i]);
-
+            
             if(!reqUrl.query.highlight) {
-                compiled = Core.Compile.Compiler.compile(subObj);
+                if(!reqUrl.query.high) {
+                    compiled = Core.Compile.Compiler.compile(subObj);
 
-                return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
-                    '<script>module = {};</script>' +
-                    '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
-                    '<script src="bundle.js"></script>' +
-                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
+                    return res.end('<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
+                        '<script>module = {};</script>' +
+                        '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
+                        '<script src="bundle.js"></script>' +
+                        '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script></body></html>');
+                }else{
+                    try {
+                        var h = new Function('', 'var module = {}; ' + fs.readFileSync('Core/Compile/Highlight.js') + '; return module.exports;')();
+                        var H = new h(meta);
+                        return res.end(H.high(obj.tokens));
+                    }catch(e){
+                        return res.end(e.message);
+                    }
+                }
             }else {
 
                 source = source.replace(/\r\n/g, "\n");

@@ -10,13 +10,17 @@ var tools = module.exports = (function() {
         QObject = require('../../Base').QObject;
     return {
         removeFirstWord: function (item, word) {
-            var subItem = item.items[0], pos;
+            var subItem = Object.create(item.items[0]), pos;
             subItem.data = subItem.data.substr(pos = subItem.data.indexOf(word) + word.length);
             subItem.col += pos;
             subItem.pureData = subItem.pureData.substr(subItem.pureData.indexOf(word) + word.length);
 
+            item = Object.create(item);
+            item.items = item.items.slice();
+            item.items[0] = subItem;
             if (subItem.data.length === 0)
-                item.items.shift();
+                item.items = item.items.slice(1);
+            return item;
         },
         renderItems: function (items, pure) {
             if (items && items.map)

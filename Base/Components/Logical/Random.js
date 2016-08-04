@@ -29,12 +29,14 @@ module.exports = (function () {
             randomNumber: new Property('Number', {description: 'Random integer'}, {
                 set: function (name, value) {
                 },
-                get: Property.defaultGetter
+                get: function(name, value){
+                    value === void 0 && this.set('randomNumber', value = this._getRandom());
+                    return value;
+                }
             }, 1)
         }
     }, function (cfg) {
         LogicalComponent.call(this, cfg);
-        this._data['randomNumber'] = this._getRandom();
     });
 
     return Random;

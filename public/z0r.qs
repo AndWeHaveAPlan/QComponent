@@ -1,12 +1,10 @@
 def UIComponent Flash
-  public Number width
-
   embed e1
     quality: high
     pluginspage: http://www.macromedia.com/go/getfashplayer
     type: application/x-shockwave-flash
-    width: {{width}}
-    public height: {{height}}
+    width: 100%
+    height: 100%
     src: {{value}}
 
 def UIComponent main
@@ -24,11 +22,12 @@ def UIComponent main
     from: 0001
     to: 7631
 
-  h1: URL: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
+  center
+    h1: URL: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
 
   Flash: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
-    width: 690
-    height: 430
+    width: 100%
+    height: 93%
 
   div
     input: Next
