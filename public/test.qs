@@ -1,3 +1,8 @@
+def UIComponent someshit
+  public Number a1
+  input: {{value}}
+  input: {{a1}}
 
 def UIComponent main
-   Checkbox c0: {{value}}
+  someshit: 23
+    a1: 10
