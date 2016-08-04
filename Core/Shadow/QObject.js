@@ -79,7 +79,7 @@ module.exports = (function() {
                     fnStart = token.pureData.trim().substr(0,2);
                     if(functionBody[fnStart]){
                         rest = other.slice(i);
-                        tools.removeFirstWord({items: rest}, fnStart);
+                        rest = tools.removeFirstWord({items: rest}, fnStart).items;
                         break;
                     }else{
                         console.log(token)
