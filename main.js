@@ -9,7 +9,7 @@ var http = require('http'), url = require('url'), fs = require('fs'),
 
 var header = '<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
     '<script>module = {};</script>' +
-    '<script src="highlight.js"></script>' +
+
     '<script src="bundle.js"></script>' +
     '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
     '<link rel="stylesheet" type="text/css" href="highlight.css">' +
@@ -38,7 +38,7 @@ var server = http.createServer(function (req, res) {
 
         var path = 'public/' + reqUrl.pathname.substring(1);
 
-        if(path.indexOf('css')!==-1 || path.indexOf('js')!==-1){
+        if (path.indexOf('css') !== -1 || path.indexOf('js') !== -1) {
             return res.end(serveStatic(path));
         }
 
@@ -138,9 +138,9 @@ var server = http.createServer(function (req, res) {
                 var x = 1,
                     lines = source.split('\n');
 
-                return res.end(header+'<span class="highlight">' + lines.map(function (i) {
+                return res.end(header + '<span class="highlight">' + lines.map(function (i) {
                         return new Array((lines.length + '').length + 1 - (x + '').length).join('0') + x++ + '&nbsp;' + i;
-                    }).join('\n') + '</span></body></html>');
+                    }).join('\n') + '</span><script src="highlight.js"></script></body></html>');
             }
 
         } catch (e) {
