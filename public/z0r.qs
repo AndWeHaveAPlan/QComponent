@@ -13,7 +13,6 @@ def UIComponent main
       r1.generate();
   }
 
-
  Random r1:
   from: 0001
   to: 7631
@@ -25,11 +24,10 @@ def UIComponent main
   quality: high
   pluginspage: 'http://www.macromedia.com/go/getfashplayer'
   type: application/x-shockwave-flash
-
   src: {{'http://z0r.de/L/z0r-de_'+r1.randomNumber+'.swf'}}
 
-
- input: Next
+ div
+  input: Next
      display: block
      type: button
      .click: ()->
