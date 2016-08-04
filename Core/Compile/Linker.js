@@ -91,6 +91,7 @@ module.exports = (function() {
 
                 this.sources[mapped.id] = mapped;
                 this._sourceAdded(mapped);
+                return mapped;
             },
             /**
              * Find defines
@@ -105,7 +106,7 @@ module.exports = (function() {
                 var code = source.code,
 
                     // tokenize
-                    tokens = parser.tokenizer(code),
+                    tokens = source.tokens = parser.tokenizer(code),
 
                     // build tree
                     tree = parser.treeBuilder(tokens),

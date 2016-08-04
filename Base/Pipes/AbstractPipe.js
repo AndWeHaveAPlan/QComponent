@@ -75,11 +75,17 @@ AbstractPipe.prototype._addInputSource = function (source) {
 
     var propParts = source.split('.');
 
-    if (propParts.length < 2) return;
-
-    newSourceBinding.key = propParts.slice(0, 2).join('.');// source;
-    newSourceBinding.componentName = propParts[0];
-    newSourceBinding.propertyName = propParts.slice(1, propParts.length).join('.');
+    if (propParts.length >= 2) {
+        newSourceBinding.key = propParts.slice(0, 2).join('.');// source;
+        newSourceBinding.componentName = propParts[0];
+        newSourceBinding.propertyName = propParts.slice(1, propParts.length).join('.');
+    } else if (propParts.length == 1) {
+        newSourceBinding.key = propParts[0];
+        newSourceBinding.componentName = '';
+        newSourceBinding.propertyName = propParts[0];
+    } else {
+        return;
+    }
 
     this.sourceBindings[newSourceBinding.key] = newSourceBinding;
 };
@@ -103,7 +109,7 @@ AbstractPipe.prototype.process = function (key, value, component) {
     }
 
     //if (changed)
-        this._process(key, component);
+    this._process(key, component);
 };
 
 /**

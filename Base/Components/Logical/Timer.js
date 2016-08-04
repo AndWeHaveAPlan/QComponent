@@ -41,7 +41,7 @@ module.exports = (function () {
                 },
                 get: Property.defaultGetter
             }, false),
-            interval: new Property('Variant', {description: 'timer interval'}, {
+            interval: new Property('Number', {description: 'timer interval'}, {
                 set: function (name, value) {
                     var enabled = this.get('enabled');
                     if (enabled) {
