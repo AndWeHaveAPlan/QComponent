@@ -73,6 +73,9 @@ var server = http.createServer(function(req, res){
                     if (meta.hasOwnProperty(key)) {
                         var cType = meta[key];
                         if (cType.type) {
+                            source = source.replace(new RegExp('('+cType.type+' *)? ('+key+')','g'), function($0,$1,$2){
+                                return $1?$0:'<span class="cls">'+$2+'</span>'
+                            });
                         } else {
                             source = source.replace(new RegExp(' '+key+'', 'g'), '<span class="cls">$&</span>');
                         }
