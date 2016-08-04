@@ -45,7 +45,7 @@ module.exports = (function () {
                     out += this.makePipe(pipes, 'self.id', i, item);
                 } else {
                     var propVal = this.propertyGetter(prop);
-                    out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
+                        out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
 
@@ -66,6 +66,7 @@ module.exports = (function () {
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 '',
                 this.makePublic(item.public, item),
+                this.makePublic(item.private, item),
                 compiledChildren,
                 '    this._init();',
                 '});'
@@ -186,7 +187,7 @@ module.exports = (function () {
 
                 child.events.forEach(function (evt) {
                     out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
-                        evt.fn + '\n}, this));\n';
+                        evt.fn + '\n}, self));\n';
                 });
                 out += '\t\t};\n';
                 out += '\t\tthis._subscribe();\n';
@@ -204,7 +205,7 @@ module.exports = (function () {
             }
 
             if(child.name){
-                out+='self.set(\''+child.name+'\', '+child.name+')';
+                out+='self.set(\''+child.name+'\', '+child.name+');';
             }
 
             return out;
@@ -212,6 +213,14 @@ module.exports = (function () {
         propertyGetter: function (prop) {
             if (Array.isArray(prop.value))
                 return prop.value[0].data;
+
+            if (prop.type==='Number')
+                return prop.value;
+
+            if (prop.type==='Boolean')
+                return prop.value;
+
+
             return '\'' + prop.value + '\'';
         }
     });

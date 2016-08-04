@@ -68,6 +68,7 @@ AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
 
+    _init: function(){},
     _prop: {},
     _initProps: function (cfg) {
 
