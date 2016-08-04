@@ -91,6 +91,7 @@ module.exports = (function(){
                 escape = false,
 
                 lastPushedPos = 0,
+                lastItem,
                 pushItem = function( item, cur ){
                     if( item.data.trim() === '' )
                         return;
@@ -100,7 +101,7 @@ module.exports = (function(){
                     lastPushedPos = item.pos+item.data.length;
                     //if(item.data === '  Button b')debugger;
                     //console.log(cur.col, cur.row, str.substr(item.pos,3));
-                    tree.items.push( {
+                    tree.items.push( lastItem = {
                         row: cur.row,
                         col: cur.col,
                         type: item.type,
@@ -109,6 +110,7 @@ module.exports = (function(){
                         pureData: item.pureData
                     } );
                 },
+                tmp,
                 seal = function( line, tree ){
                     var i, _i, item;
                     for( i = 0, _i = tree.items.length; i < _i; i++ ){
@@ -138,17 +140,27 @@ module.exports = (function(){
 
                 if( inComment || inQuote ){
                     if( inComment ){
-                        if( commentType === SINGLELINECOMMENT && s === '\n' ){
-                            /** close of one line comment */
-                            pushItem( {
-                                pos: tokenStart,
-                                data: str.substr( tokenStart, i - tokenStart ),
-                                type: 'comment',
-                                pureData: str.substr( tokenStart + 2, i - tokenStart - 2 )
-                            } );
-                            tokenStart = i + 1;
-                            tokenStartCursor = cursor.clone(1);
-                            inComment = false;
+                        if( commentType === SINGLELINECOMMENT){
+                            if(sLast === '.'){
+                                /** if it is url */
+                                tmp = str.substr(tokenStart, i - tokenStart+1);
+                                if(lastItem && !!lastItem.pureData.match(/\w+:$/) &&
+                                    !!tmp.match(/^\/\/\w+\.\w+$/)){
+                                    inComment = false;
+                                }
+                            }
+                            if( s === '\n' ) {
+                                /** close of one line comment */
+                                pushItem({
+                                    pos: tokenStart,
+                                    data: str.substr(tokenStart, i - tokenStart),
+                                    type: 'comment',
+                                    pureData: str.substr(tokenStart + 2, i - tokenStart - 2)
+                                });
+                                tokenStart = i + 1;
+                                tokenStartCursor = cursor.clone(1);
+                                inComment = false;
+                            }
                         }else if( commentType === MULTILINECOMMENT && sLast === '*' && s === '/' ){
                             /** close of multi line comment */
                             pushItem( {

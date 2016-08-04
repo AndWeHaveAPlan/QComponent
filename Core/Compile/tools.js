@@ -31,7 +31,7 @@ var tools = module.exports = (function() {
 
         },
         detox: function (items, safe) {
-            var i, _i = items.length, item, out = '';
+            var i, _i = items.length, item, out = '', lastItem;
             for(i = 0; i < _i; i++){
                 item = items[i];
                 if(item.type !== 'text') {
@@ -41,6 +41,7 @@ var tools = module.exports = (function() {
                         throw new Error('Invalid detox for `' + this.renderItems(items) + '`');
                 }
                 out += item.pureData;
+                lastItem = item;
             }
             return out;
         },
