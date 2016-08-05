@@ -45,7 +45,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
         }, {}),
         itemSource: new Property('Variant', {description: 'Index of current selected item'}, {
             set: function (name, val) {
-                var template = this._itemTemplate;
+                var template = QObject._knownComponents[this.get('itemTemplate')];
 
                 this._children.splice(0, this._children.length);
 
