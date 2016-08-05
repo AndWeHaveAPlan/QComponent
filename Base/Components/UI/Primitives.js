@@ -68,6 +68,12 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         this.el.addEventListener('change', function () {
             self.set('value', event.target.value);
         });
+        this.el.addEventListener('mouseup', function () {
+            self.set('value', event.target.value);
+        });
+        this.el.addEventListener('keyup', function () {
+            self.set('value', event.target.value);
+        });
     },
     _prop: {
         checked: Property.generate.attributeProperty('checked'),

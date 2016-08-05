@@ -43,27 +43,28 @@ module.exports = (function() {
                 },
                 PUBLIC: function (text, item) {
                     var type = text.match(parser.nameRegexp)[0],
-                        info, bonus = text.substr(text.indexOf(type) + type.length);
+                        info, bonus = text.substr(text.indexOf(type) + type.length),
+                        newItem;
 
-                    tools.removeFirstWord(item, type);
+                    newItem = tools.removeFirstWord(item, type);
 
                     type = type.trim();
 
                     var shadowParser = shadow[type] && shadow[type].argumentParser || shadow.QObject.argumentParser;
 
-                    info = shadowParser(bonus, item);
-                    item.public = true;
-                    item.type = info.type = type;
-
+                    info = shadowParser(bonus, newItem);
+                    newItem.public = true;
+                    newItem.type = info.type = type;
+                    info.item = newItem;
                     return info;
                 },
                 PRIVATE: function(text, item){
                     var type = item.type,
                         shadowParser = shadow[type] && shadow[type].argumentParser || shadow.QObject.argumentParser,
-                        info;
-                    tools.removeFirstWord(item, type);
-                    info = shadowParser(text, item);
-
+                        info, newItem;
+                    
+                    info = shadowParser(text, newItem = tools.removeFirstWord(item, type));
+                    info.item = newItem;
                     info.type = type;
                     return info;
                 },
@@ -266,6 +267,7 @@ module.exports = (function() {
                     }else{
                         info = parsers.PRIVATE.call(child, child.bonus, child);
                     }
+                    child = info.item;
                     if(isEvent) {
                         (childrenHolder.events || (childrenHolder.events = [])).push(info);
                     }else{

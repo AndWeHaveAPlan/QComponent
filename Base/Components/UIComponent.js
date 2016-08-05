@@ -136,10 +136,12 @@ module.exports = (function () {
         this._children.on('add', function (child) {
             child.parent = self;
             //insert to dom
-            if (self._contentContainer && child.el) {
-                self._contentContainer.el.appendChild(child.el);
-            } else {
-                self.el.appendChild(child.el);
+            if(child.el) { /** UI Component */
+                if (self._contentContainer && child.el) {
+                    self._contentContainer.el.appendChild(child.el);
+                } else {
+                    self.el.appendChild(child.el);
+                }
             }
         });
         this._children.on('remove', function (child) {

@@ -70,7 +70,8 @@ module.exports = (function () {
         metadata = metadata || {};
         cfg = cfg || {};
         this.cfg = cfg;
-
+        if('set' in metadata || 'get' in metadata)
+            throw new Error('do not put get\\set to metadata');
         var dataType = dataTypes[type] || dataTypes.Variant,
             proto = {parent: null};
         proto.type = metadata.type = type;
