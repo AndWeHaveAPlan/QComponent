@@ -20,18 +20,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                 this.textNode.set('value', val);
             },
             get: Property.defaultGetter
-        })/*,
-        default: new Property('String', {description: 'any '}, {
-            set: function (name, val) {
-                if (val === void 0) {
-                    this.el.removeAttribute(name);
-                } else {
-                    this.el.setAttribute(name, val);
-                }
-            },
-            get: Property.defaultGetter
-        })*/
-
+        })
     }
 });
 
