@@ -97,7 +97,13 @@ var observable = require('z-observable');
             }
             return out;
         },
-
+        
+        Error: function(msg, data){
+            var e = new Error(msg);
+            data && QObject.apply(e, data);
+            throw e;
+        },
+        
         extend: function (name, cfg, init) {
             var i,
                 overlays, proto,
