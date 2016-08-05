@@ -106,6 +106,7 @@ module.exports = (function(){
                         col: cur.col,
                         type: item.type,
                         info: item.info,
+                        _info: item._info,
                         data: item.data,
                         pureData: item.pureData
                     } );
@@ -243,7 +244,8 @@ module.exports = (function(){
                             data: '@@@',
                             pureData: '@@@',
                             type: 'brace',
-                            info: s
+                            info: s,
+                            _info: braceOpen[s]
                         } );
                         var item = tree.items.pop();
                         item.items = [];

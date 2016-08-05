@@ -10,13 +10,17 @@ var tools = module.exports = (function() {
         QObject = require('../../Base').QObject;
     return {
         removeFirstWord: function (item, word) {
-            var subItem = item.items[0], pos;
+            var subItem = Object.create(item.items[0]), pos;
             subItem.data = subItem.data.substr(pos = subItem.data.indexOf(word) + word.length);
             subItem.col += pos;
             subItem.pureData = subItem.pureData.substr(subItem.pureData.indexOf(word) + word.length);
 
+            item = Object.create(item);
+            item.items = item.items.slice();
+            item.items[0] = subItem;
             if (subItem.data.length === 0)
-                item.items.shift();
+                item.items = item.items.slice(1);
+            return item;
         },
         renderItems: function (items, pure) {
             if (items && items.map)
@@ -63,11 +67,12 @@ var tools = module.exports = (function() {
             }
             return out;
         },
-        transformPipes: function (items) {
-            var out = [], i, _i = items.length, item, data,
-                unUsed, werePipes = false,
-                pipedOut = {vars: {}, items: out, isPipe: true}, vars;
-
+        /** recursive parsing of braces */
+        _transformPipes: function(pipedOut, items){
+            var i, _i = items.length, item, data, 
+                unUsed, out = pipedOut.items, werePipes = false,
+                vars;
+            
             for (i = 0, _i; i < _i; i++) {
                 item = items[i];
                 // oh, it's a pipe!
@@ -88,10 +93,23 @@ var tools = module.exports = (function() {
                         }
                     } //&& pipes.push({vars: unUsed, text: data});
                     //debugger;
+                }else if(item.type === 'brace') {
+                    out.push({pureData: item.info, type: 'text'});
+                    this._transformPipes(pipedOut, item.items);
+                    out.push({pureData: item._info, type: 'text'});
                 }else{
-                    out.push(item);
+                    out.push({pureData: item.pureData, type: 'text'});
                 }
             }
+            return werePipes;
+        },
+        transformPipes: function (items) {
+            var out = [],
+                unUsed, werePipes = false,
+                pipedOut = {vars: {}, items: out, isPipe: true};
+
+            werePipes = werePipes || this._transformPipes(pipedOut, items);
+            
             if(werePipes){
                 pipedOut.fn = pipedOut.items.map(function (item) {
                     if(item.type === 'text')

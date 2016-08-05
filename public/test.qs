@@ -6,6 +6,7 @@ def UIComponent Flash
     pluginspage: http://www.macromedia.com/go/getfashplayer
     type: application/x-shockwave-flash
     width: 100%
+    public hu: ita
     public height: 100%
     src: {{value}}
 
@@ -28,6 +29,7 @@ def UIComponent main
   Flash f1: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
     width: 100%
     height: 90%
+    hu: 22
 
   div
     input: Next
