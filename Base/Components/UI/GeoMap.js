@@ -2,6 +2,7 @@
  * Created by ravenor on 13.07.16.
  */
 
+var Property = require('../../Property');
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 
@@ -18,12 +19,26 @@ module.exports = UIComponent.extend('GeoMap', {
 
         script.onload = function () {
             ymaps.ready(function () {
-                self.ymap = new ymaps.Map(self.id,{
+                self.ymap = new ymaps.Map(self.id, {
                     center: [55.76, 37.64],
                     zoom: 10
                 });
             });
         };
+    },
+    _prop: {
+        zoom: new Property('Number', {description: 'Map zoom level (setZoom for ymap)'}, {
+            get: Property.defaultGetter,
+            set: function (key, value) {
+                if (value > 18)
+                    value = 18;
+                if (value < 0)
+                    value = 0;
+                this.ymap.setZoom(value, {duration: 1000});
+
+                return value;
+            }
+        })
     },
     addChild: function (child) {
         var div = new Primitive.div();
