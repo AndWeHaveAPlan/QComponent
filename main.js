@@ -7,7 +7,10 @@ var http = require('http'), url = require('url'), fs = require('fs'),
     Path = require('path'),
     querystring = require('querystring');
 
-var header = '<html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer" />' +
+var header = '<!DOCTYPE HTML>' +
+    '<html><head>' +
+    '<meta charset="utf-8">' +
+    '<meta name="referrer" content="no-referrer">' +
     '<script>module = {};</script>' +
 
     '<script src="bundle.js"></script>' +
@@ -89,7 +92,7 @@ var server = http.createServer(function (req, res) {
                 compiled = Core.Compile.Compiler.compile(subObj);
 
                 return res.end(header +
-                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script>' +
+                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();/*document.body.appendChild(c.el);*/</script>' +
                     footer);
             } else {
 
