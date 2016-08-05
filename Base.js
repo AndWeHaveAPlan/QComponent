@@ -8,10 +8,10 @@
  * @type {{QObject: (QObject|exports|module.exports), Component: (AbstractComponent|exports|module.exports), Pipe: (Pipe|exports|module.exports)}}
  */
 module.exports = {
-    QObject: require("./Base/QObject"),
+    QObject: require('./Base/QObject'),
     Component: {
-        AbstractComponent: require("./Base/Components/AbstractComponent"),
-        UIComponent: require("./Base/Components/UIComponent"),
+        AbstractComponent: require('./Base/Components/AbstractComponent'),
+        UIComponent: require('./Base/Components/UIComponent'),
         ContentContainer: require('./Base/Components/ContentContainer'),
         UI: {
             Primitives: require('./Base/Components/UI/Primitives'),
@@ -20,9 +20,10 @@ module.exports = {
             HBox: require('./Base/Components/UI/HBox'),
             NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
             Slider: require('./Base/Components/UI/Slider'),
-            Page: require('./Base/Components/UI/Page')
+            Page: require('./Base/Components/UI/Page'),
+            DOMTools: require('./Base/Components/UI/DOMTools')
         },
-        Factory: require("./Base/Components/Factory"),
+        Factory: require('./Base/Components/Factory'),
         Logical: {
             LogicalComponent: require('./Base/Components/Logical/LogicalComponent'),
             Branch: require('./Base/Components/Logical/Branch'),
@@ -32,12 +33,12 @@ module.exports = {
             Title: require('./Base/Components/Logical/Title')
         }
     },
-    EventManager: require("./Base/EventManager"),
-    Property: require("./Base/Property"),
+    EventManager: require('./Base/EventManager'),
+    Property: require('./Base/Property'),
     Pipes: {
-        AbstractPipe: require("./Base/Pipes/AbstractPipe"),
-        SimplePipe: require("./Base/Pipes/SimplePipe"),
-        FiltratingPipe: require("./Base/Pipes/FiltratingPipe"),
-        MutatingPipe: require("./Base/Pipes/MutatingPipe")
+        AbstractPipe: require('./Base/Pipes/AbstractPipe'),
+        SimplePipe: require('./Base/Pipes/SimplePipe'),
+        FiltratingPipe: require('./Base/Pipes/FiltratingPipe'),
+        MutatingPipe: require('./Base/Pipes/MutatingPipe')
     }
 };
