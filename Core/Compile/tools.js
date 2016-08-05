@@ -78,8 +78,11 @@ var tools = module.exports = (function() {
                 // oh, it's a pipe!
                 if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
                     data = item.pureData.substr(2, item.pureData.length - 4);
-
-                    unUsed = Object.keys(vars = variableExtractor.parse(data).getFullUnDefined());
+                    try {
+                        unUsed = Object.keys(vars = variableExtractor.parse(data).getFullUnDefined());
+                    }catch(e){
+                        QObject.Error('Syntax error', {item: item, data: e});
+                    }
                     if(unUsed.length){
                         werePipes = true;
 
@@ -89,7 +92,7 @@ var tools = module.exports = (function() {
                         try {
                             out.push({type: 'text', pureData: eval(data), col: item.col, row: item.row});
                         }catch(e){
-                            throw new Error('Evaluation error: '+item.row+':'+item.col)
+                            QObject.Error('Evaluation error', {item: item, data: e});
                         }
                     } //&& pipes.push({vars: unUsed, text: data});
                     //debugger;
