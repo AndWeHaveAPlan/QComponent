@@ -335,8 +335,14 @@ module.exports = (function() {
                         /** searching for pipes */
                         for (j in info) {
                             if (info[j] instanceof Array) {
-                                pipes = tools.transformPipes(info[j]);
+                                try {
+                                    pipes = tools.transformPipes(info[j]);
+                                }catch(e){
 
+                                    throw new Error('Reactive expression error `'+ e.message +'` (' + fileName + ':' +
+                                        (e.item.row+e.data.lineNumber-1) + ':' +
+                                        (e.data.lineNumber===1?e.item.col+2+e.data.column:e.data.column) + ')');
+                                }
                                 if (pipes.isPipe) {
                                     info[j] = pipes;
                                     localShadow[name].pipes = localShadow[name].pipes.concat(pipes.vars);
