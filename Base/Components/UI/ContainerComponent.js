@@ -16,30 +16,19 @@ module.exports = UIComponent.extend('ContainerComponent', {
         value: new Property('Variant', {description: 'Same as ItemSource', overrideKey: 'itemSource'}, {}, {}),
 
         selectedIndex: new Property('Number', {description: 'Index of current selected item'}, {
-            set: function (name, val) {
-                var oldVal = this._data['selectedIndex'];
-
+            set: function (name, val, oldVal) {
                 var children = this.el.childNodes;
-                if (oldVal != void(0) && oldVal < children.length)
+                if (oldVal != -1 && oldVal < children.length)
                     children[oldVal].style.background = 'none';
                 if (val < children.length)
                     children[val].style.background = '#3b99fc'; //qiwi color
 
-                this.set('selectedItem', this._children.get(val));
+                this.set('selectedItem', this.get('itemSource')[val]);
             },
             get: Property.defaultGetter
         }, -1),
         selectedItem: new Property('Variant', {description: 'Index of current selected item'}, {
-            set: function (name, val) {
-                var oldVal = this._data['selectedItem'];
-
-                for (var key in val) {
-                    if (val.hasOwnProperty(key)) {
-                        val.set(key, val[key]);
-                    }
-                }
-                this._onPropertyChanged(this, 'itemTemplate', val, oldVal);
-            },
+            set: function (name, val, oldVal) {},
             get: Property.defaultGetter
 
         }, {}),
