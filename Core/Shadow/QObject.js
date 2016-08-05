@@ -27,8 +27,7 @@ module.exports = (function() {
             return {name: tools.detox(tools.trim(splitted[0])), value: tools.detox(tools.trim(splitted[1]), true)};
 
         },
-        eventParser: function (item, children) {
-            
+        eventParser: function (item, children) {            
             var splitted = tools.split(item.items, ':', 2);
             var events = tools
                 .detox(splitted[0].filter(function(el){return el.type !== 'comment'}))
@@ -37,8 +36,17 @@ module.exports = (function() {
                 .join(',')
                 .substr(1),
                 fnInfo = this.functionParser(splitted[1], children);
-            return {events: events, type: 'event', args: fnInfo.args, fn: fnInfo.fn, vars: VariableExtractor.parse(fnInfo.fn).getFullUnDefined()};
-
+            try {
+                return {
+                    events: events,
+                    type: 'event',
+                    args: fnInfo.args,
+                    fn: fnInfo.fn,
+                    vars: VariableExtractor.parse(fnInfo.fn).getFullUnDefined()
+                };
+            }catch(e){
+                throw {item: item, data: e, message: 'Syntax error'};
+            }
         },
         functionParser: function (other, sub) {
             var i, _i, token,
@@ -60,7 +68,7 @@ module.exports = (function() {
                             rest = token.items;
                             break;
                         }
-                        throw new Error({type: 'Arguments already matched', data: token});
+                        throw {type: 'Arguments already matched', data: token};
                     }
                     args = tools
                         .detox(
@@ -83,7 +91,7 @@ module.exports = (function() {
                         break;
                     }else{
                         console.log(token)
-                        throw new Error({type: 'Syntax error', data: token})
+                        throw new Error({message: {type: 'Syntax error', data: token}});
                     }
                 }
             }

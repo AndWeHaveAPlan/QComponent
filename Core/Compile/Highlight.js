@@ -25,7 +25,7 @@ module.exports = (function () {
         high: function(obj){
             var meta = this.metadata, out = '';
             out += obj.map(function(line){
-                console.log(line)
+                console.log(line);
                 return line.items.map(function(item){
 
                     return Highlighters[item.type](item, meta);

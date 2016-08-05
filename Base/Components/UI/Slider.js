@@ -2,7 +2,8 @@
  * Created by zibx on 03.08.16.
  */
 var UIComponent = require('../UIComponent');
-var Property = require('../../Property');
+var Property = require('../../Property'),
+    DOMTools = require('./DOMTools');
 
 
 module.exports = UIComponent.extend('Slider', {
@@ -49,17 +50,53 @@ module.exports = UIComponent.extend('Slider', {
         els.drag.addEventListener('mouseout', function(){
             els.drag.style.background = '#777';
         });
+        var n  = 0;
         var move = function(e){
-                console.log(e)
+            var perc = ( e.pageX - info.mainOffset.left)/info.width, pos,
+                step = info.step-0, from = info.from-0, to = info.to-0, delta = to-from;
+
+            perc<0 && (perc = 0);
+            perc>1 && (perc = 1);
+
+            if(step)
+                pos = (((delta+step-0.0000000001)*perc/step)|0)*step;
+            else
+                pos = delta*perc;
+
+            perc = pos/delta*100;
+
+            els.drag.style.left = perc +'%';
+            els.actual.style.width = perc +'%';
+
+            self.set('value', pos+from);
+                n++;
+            //if(n==20)debugger;
             },
             up = function () {
                 window.removeEventListener('mouseup', up);
                 window.removeEventListener('mousemove', move);
-            };
+            },
+            info;
         els.drag.addEventListener('mousedown', function(e){
+            n=0;
+            var offset = DOMTools.getOffset(els.drag);
+            info  = {
+                from: self.get('from'),
+                to: self.get('to'),
+                step: self.get('step'),
+                width: el.offsetWidth,
+                left: e.target.offsetLeft,
+                mainOffset: DOMTools.getOffset(el),
+                startOffset: offset,
+                x: e.clientX,
+                y: e.clientY
+            };
+
             window.addEventListener('mousemove', move);
             window.addEventListener('mouseup', up);
             els.drag.style.background = '#000';
+            e.preventDefault();
+            e.stopPropagation();
         });
 
 

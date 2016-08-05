@@ -1,5 +1,4 @@
 def UIComponent Flash
-  public Number width
 
   embed e1
     quality: high
@@ -15,6 +14,7 @@ def UIComponent main
   Timer t1
     interval: 15000
     enabled: true
+
     .tick: ()=>{
       console.log('tick');
       r1.generate();
@@ -35,5 +35,6 @@ def UIComponent main
     input: Next
       type: button
       .click: ()->
+        debugger;
         t1.start();
         r1.generate();

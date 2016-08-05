@@ -96,8 +96,10 @@ var server = http.createServer(function (req, res) {
                     footer);
             } else {
 
-                source = source.replace(/\r\n/g, "\n");
-                source = source.replace(/>/g, "&gt;");
+                source = source
+                    .replace(/\r\n/g, "\n")
+                    .replace(/>/g, "&gt;")
+                    .replace(/</g, "&lt;");
 
                 for (var i = 0; i < obj.tokens.length; i++) {
                     var cToken = obj.tokens[i];
