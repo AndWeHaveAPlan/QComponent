@@ -111,12 +111,24 @@ var tools = module.exports = (function() {
             werePipes = werePipes || this._transformPipes(pipedOut, items);
             
             if(werePipes){
-                pipedOut.fn = pipedOut.items.map(function (item) {
-                    if(item.type === 'text')
-                        return '\''+item.pureData+'\'';// TODO: escape
-                    else
-                        return item.pureData;
-                }).join('+');
+                pipedOut.fn =
+                    pipedOut
+                        .items
+                        .reduce(function(store, item){ /** glue text parts */
+                            if(store.last && store.last.type === 'text' && item.type === 'text'){
+                                store.last.pureData += item.pureData;
+                            }else{
+                                store.items.push(store.last = item);
+                            }
+                            return store;
+                        }, {items: [], last: void 0})
+                        .items
+                        .map(function (item) {
+                            if(item.type === 'text')
+                                return '\''+item.pureData+'\'';// TODO: escape
+                            else
+                                return item.pureData;
+                        }).join('+');
                 //pipedOut.vars = pipedOut.vars;
                 return pipedOut;
             }
