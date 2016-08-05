@@ -22,6 +22,7 @@ describe('Parser', function(){
                     'col': 1,
                     'data': 'Button a',
                     'info': void 0,
+                    '_info': void 0,
                     'pureData': 'Button a',
                     'row': 1,
                     'type': 'text'
@@ -31,6 +32,7 @@ describe('Parser', function(){
                         'col': 1,
                         'data': 'Button a',
                         'info': void 0,
+                        '_info': void 0,
                         'pureData': 'Button a',
                         'row': 1,
                         'type': 'text'
