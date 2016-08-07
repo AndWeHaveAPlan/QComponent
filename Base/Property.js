@@ -55,7 +55,7 @@ module.exports = (function () {
             this.parent._data[key] = value;
             if (this._set.call(this.parent, key, value, oldValue) !== false) {
                 this.parent._onPropertyChanged(this.parent, key, value, oldValue);
-            }else{
+            } else {
                 this.parent._data[key] = oldValue;
             }
 
@@ -70,19 +70,23 @@ module.exports = (function () {
         metadata = metadata || {};
         cfg = cfg || {};
         this.cfg = cfg;
-        if('set' in metadata || 'get' in metadata)
+        if ('set' in metadata || 'get' in metadata)
             throw new Error('do not put get\\set to metadata');
         var dataType = dataTypes[type] || dataTypes.Variant,
             proto = {parent: null};
         proto.type = metadata.type = type;
-        proto.value = metadata.defaultValue = defaultValue;
 
-        var cls = function (parent, key, value) {
+        if (arguments.length > 3) {
+            proto.setDefault = true;
+            proto.value = metadata.defaultValue = defaultValue;
+        }
+
+        var cls = function (parent, key) {
             this.parent = parent;
             this.key = key;
 
-            if (arguments.length > 2) {
-                this.set(value) !== false || this.set(this.value);
+            if (this.setDefault) {
+                this.parent._data[key] = this.value;
             }
         };
         cls.prototype = proto;

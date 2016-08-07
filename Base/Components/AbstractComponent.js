@@ -146,7 +146,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
             if (getted)
                 if (getted instanceof AbstractComponent) {
-                    getted.set(nameParts.unshift(), value);
+                    getted.set(nameParts[nameParts.length-1], value);
                 } else {
                     getted[nameParts[nameParts.length - 1]] = value;
                     this._onPropertyChanged(nameParts.splice(0, 1), value);
