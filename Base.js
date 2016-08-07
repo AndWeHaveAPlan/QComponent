@@ -39,9 +39,9 @@ module.exports = {
     EventManager: require('./Base/EventManager'),
     Property: require('./Base/Property'),
     Pipes: {
-        AbstractPipe: require('./Base/Pipes/AbstractPipe'),
-        SimplePipe: require('./Base/Pipes/SimplePipe'),
-        FiltratingPipe: require('./Base/Pipes/FiltratingPipe'),
-        MutatingPipe: require('./Base/Pipes/MutatingPipe')
+        AbstractPipe: require("./Base/Pipes/AbstractPipe"),
+        SimplePipe: require("./Base/Pipes/SimplePipe"),
+        FiltratingPipe: require("./Base/Pipes/FiltratingPipe"),
+        MutatingPipe: require("./Base/Pipes/MutatingPipe")
     }
 };

@@ -8,8 +8,8 @@ def UIComponent Indicator
 
     background: #ccc
     border: 5px solid black
-    height: 140
-    width: 200
+    height: 140px
+    width: 200px
 
     div
         position: absolute
@@ -21,7 +21,7 @@ def UIComponent Indicator
             position: absolute
             bottom: 0
             background: red
-            height: 10
+            height: 10px
             width: 50%
             transform-origin: right center
             transform: {{'rotate('+180/(max/displayValue)+'deg)'}}
@@ -78,23 +78,23 @@ def Page main
 
                 div
                     span: Control rods position: {{r1.controlRodsPosition}}
-                        width: 200
-                        padding: 12
+                        width: 200px
+                        padding: 12px
                     br
                     span: Temperature {{r1.temperature}}
-                        width: 200
-                        padding: 12
+                        width: 200px
+                        padding: 12px
 
                     span: {{r1.meltdown? 'Meltdown :(' : r1.danger ? 'Danger!' :'' }}
                         color: white
-                        width: 200
-                        padding: 12
+                        width: 200px
+                        padding: 12px
                         background: red
                         display: {{r1.meltdown||r1.danger?'block':'none'}}
         div
             div: Reactor control
             input: ↑ Rods up
-                width: 110
+                width: 110px
                 type: button
                 .click: ()->{
                     var cPos=r1.get('controlRodsPosition');
@@ -104,7 +104,7 @@ def Page main
                 }
             br
             input: ↓ Rods down
-                width: 110
+                width: 110px
                 type: button
                 .click: ()->{
                     var cPos=r1.get('controlRodsPosition');
