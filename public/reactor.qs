@@ -4,7 +4,7 @@ def UIComponent Indicator
     public Number max: 10
     public String description
 
-    Number position: {{value<min?min:value}}
+    Number displayValue: {{value<min?min:value>max?max:value}}
 
     background: #ccc
     border: 5px solid black
@@ -24,7 +24,7 @@ def UIComponent Indicator
             height: 10
             width: 50%
             transform-origin: right center
-            transform: {{'rotate('+180/(max/value)+'deg)'}}
+            transform: {{'rotate('+180/(max/displayValue)+'deg)'}}
             transition: 'all 0.2s ease'
         div: {{min}}
             position: absolute

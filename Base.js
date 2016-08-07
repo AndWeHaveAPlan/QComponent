@@ -21,6 +21,9 @@ module.exports = {
             NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
             Slider: require('./Base/Components/UI/Slider'),
             Page: require('./Base/Components/UI/Page'),
+            VBox: require('./Base/Components/UI/VBox'),
+            Image: require('./Base/Components/UI/Image'),
+            GeoMap: require('./Base/Components/UI/GeoMap'),
             DOMTools: require('./Base/Components/UI/DOMTools')
         },
         Factory: require('./Base/Components/Factory'),
