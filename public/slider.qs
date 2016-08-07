@@ -1,4 +1,4 @@
-def UIComponent main
+def Page main
  div
   Slider s1
     from: 10

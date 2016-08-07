@@ -2,6 +2,7 @@
  * Created by ravenor on 13.07.16.
  */
 
+var Property = require('../../Property');
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 
@@ -18,12 +19,44 @@ module.exports = UIComponent.extend('GeoMap', {
 
         script.onload = function () {
             ymaps.ready(function () {
-                self.ymap = new ymaps.Map(self.id,{
+                self.ymap = new ymaps.Map(self.id, {
                     center: [55.76, 37.64],
-                    zoom: 10
+                    zoom: self.get('zoom')
                 });
             });
         };
+    },
+    _prop: {
+        zoom: new Property('Number', {description: 'Map zoom level (setZoom for ymap)'}, {
+            get: Property.defaultGetter,
+            set: function (key, value) {
+                if (value > 18)
+                    value = 18;
+                if (value < 0)
+                    value = 0;
+
+                if (this.ymap)
+                    this.ymap.setZoom(value, {duration: 1000});
+
+                return value;
+            }
+        }, 10),
+        pin: new Property('Array', {description: 'Mark on map'}, {
+            get: Property.defaultGetter,
+            set: function (key, value) {
+                if (this.ymap) {
+                    this.ymap.geoObjects.removeAll();
+                    this.ymap.geoObjects.add(
+                        new ymaps.Placemark(value.coords, {
+                            iconCaption: value.name
+                        }, {
+                            preset: 'islands#blueCircleDotIconWithCaption',
+                            iconColor: value.color ? value.color : '#0095b6'
+                        })
+                    );
+                }
+            }
+        })
     },
     addChild: function (child) {
         var div = new Primitive.div();

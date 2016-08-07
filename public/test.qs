@@ -9,7 +9,7 @@ def UIComponent Flash
     public height: 100%
     src: {{value}}
 
-def UIComponent main
+def Page main
 
   Timer t1
     interval: 15000

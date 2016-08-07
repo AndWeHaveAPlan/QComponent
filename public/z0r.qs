@@ -7,7 +7,8 @@ def UIComponent Flash
     height: 100%
     src: {{value}}
 
-def UIComponent main
+def Page main
+  height:100%
   Title: z0r.qs
 
   Timer t1
