@@ -149,11 +149,11 @@ var server = http.createServer(function (req, res) {
             }
 
         } catch (e) {
-            //if(debug)throw e;
+            if(debug)throw e;
             return res.end(e.message);
         }
     } catch (e) {
-        //if (debug)throw e;
+        if (debug)throw e;
         return res.end('Поебень (' + path + ')');
     }
 
