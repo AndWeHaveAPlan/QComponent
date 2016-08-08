@@ -8,15 +8,9 @@ def Page main
     height:100%
 
     HBox hbox
-        flexDefinition: * 400
+        flexDefinition: 400
         height: 100%
         width: 100%
-        GeoMap gm:
-            zoom: 11
-            home: [55.794425,37.587836]
-            pins: {{[list.selectedItem]}}
-            height: 100%
-            width: 100%
 
         div
             ListBox list:
@@ -38,3 +32,10 @@ def Page main
             ListBox:
                 itemSource: {{gm.moveList}}
                 margin: 12px
+
+        GeoMap gm:
+            zoom: 11
+            home: [55.794425,37.587836]
+            pins: {{[list.selectedItem]}}
+            height: 100%
+            width: 100%
