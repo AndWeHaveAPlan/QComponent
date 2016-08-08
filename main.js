@@ -89,8 +89,9 @@ var server = http.createServer(function (req, res) {
                 subObj = {},
                 compiled;
             console.log('metadata extracted');
-            for (var i in meta)
-                meta[i].type && (subObj[i] = meta[i]);
+            for (var i in meta) {
+                meta[i] && meta[i].type && (subObj[i] = meta[i]);
+            }
 
             if (!reqUrl.query.highlight) {
                 compiled = Core.Compile.Compiler.compile(subObj);
@@ -153,11 +154,11 @@ var server = http.createServer(function (req, res) {
             }
 
         } catch (e) {
-            //if(debug)throw e;
+            if(debug)throw e;
             return res.end(e.message);
         }
     } catch (e) {
-        //if (debug)throw e;
+        if (debug)throw e;
         return res.end('Поебень (' + path + ')');
     }
 

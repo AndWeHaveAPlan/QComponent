@@ -14,6 +14,7 @@ module.exports = (function() {
             HTMLComponent: require('./Shadow/HTMLComponent'),
             String: {},
             Boolean: {},
+            Array: {},
             Number: {
                 linkerSetter: function (value) {
 
@@ -48,12 +49,13 @@ module.exports = (function() {
                 els[className] = obj;
 
             for(var propertyName in _knownComponents[className].prototype._prop){
-                //if(propertyName!=='default')
-                els[className].public[propertyName]= {
+                var prop = _knownComponents[className].prototype._prop[propertyName];
+                console.log(propertyName, prop.prototype.type)
+                els[className].public[propertyName] = {
                     name: propertyName,
-                    type: 'String',
+                    type: prop.prototype.type,
                     value: ''
-                }
+                };
             }
         }
     }
