@@ -42,9 +42,14 @@ module.exports = UIComponent.extend('ContainerComponent', {
                     var self = this;
                     var newComp = new template();
 
-                    for (var key in val[i])
-                        if (val[i].hasOwnProperty(key))
-                            newComp.set(key, val[i][key]);
+                    if((typeof val[i] != 'object')||Array.isArray(val[i])){
+                        newComp.set('value', val[i]);
+                    }else {
+                        for (var key in val[i])
+                            if (val[i].hasOwnProperty(key))
+
+                                newComp.set(key, val[i][key]);
+                    }
 
                     var childNode = newComp.el;
                     childNode.style.clear = 'both';

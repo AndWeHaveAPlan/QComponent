@@ -38,6 +38,7 @@ module.exports = (function () {
             }
 
             var out = '';
+            //var initSet='';
             for (var i in item.prop) {
                 var prop = item.prop[i];
                 var pipes = prop.value;
@@ -147,12 +148,14 @@ module.exports = (function () {
             }
 
             var out = '';
+            var initSet='';
+
             if (this.nestingCount > 0) {
-                out = '\t;' + (child.name ? 'var '+child.name+' = ' : '') + '(function(parent){\n' +
+                out = '\t' + (child.name ? 'var '+child.name+' = ' : 'tmp = ') + '(function(parent){\n' +
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren;
 
             } else {
-                out = '\t;' + (child.name ? 'var '+child.name+' = ' : '') + ' (function(){\n' +
+                out = '\t' + (child.name ? 'var '+child.name+' = ' : 'tmp = ') + ' (function(){\n' +
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren;
             }
             var i, prop, propVal, pipes;
@@ -163,7 +166,7 @@ module.exports = (function () {
                     out += this.makePipe(pipe, 'self.id', 'value', parent);
                 } else {
                     propVal = this.propertyGetter(child);
-                    out += '\t\tthis.set(\'value\', ' + propVal + ')\n';
+                    initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'value\', ' + propVal + ');\n';
                 }
 
             if( child.name){
@@ -178,7 +181,7 @@ module.exports = (function () {
                     out += this.makePipe(pipes, 'self.id', i, parent);
                 } else {
                     propVal = this.propertyGetter(prop);
-                    out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
+                    initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'' + i + '\', ' + propVal + ');\n';
                 }
             }
             if (child.events) {
@@ -203,7 +206,7 @@ module.exports = (function () {
                     '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
                     (child.name ? 'id: \'' + child.name + '\'' : '') + '}) );\n';
             }
-
+            out+=initSet;
             if(child.name){
                 out+='self.set(\''+child.name+'\', '+child.name+');';
             }
