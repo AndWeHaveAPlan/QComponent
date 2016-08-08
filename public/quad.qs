@@ -1,4 +1,4 @@
-def UIComponent main
+def Page main
  div
   input a: 8
     type: number
