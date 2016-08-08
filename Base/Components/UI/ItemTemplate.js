@@ -9,6 +9,9 @@ var Primitives = require('./Primitives');
 /**
  *
  */
+/*Property.defineType('ItemTemplate', {
+    get: Property.defaultGetter
+})*/
 module.exports = UIComponent.extend('ItemTemplate', {
     _prop: {
         value: new Property('String', {description: 'text content'}, {

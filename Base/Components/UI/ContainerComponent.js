@@ -61,7 +61,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
             },
             get: Property.defaultGetter
         }, {}),
-        itemTemplate: new Property('String', {description: 'Visual presentation of items'}, {
+        itemTemplate: new Property('ItemTemplate', {description: 'Visual presentation of items'}, {
             set: function (name, val) {
                 var oldVal = this._data['itemTemplate'];
                 this._itemTemplate = QObject._knownComponents[val];

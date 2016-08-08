@@ -1,9 +1,5 @@
-def ItemTemplate geoObject
-    div name:{{name}}
-       padding: 12px
-
 def Page main
-    title: Карта
+    //title: Карта
     width:100%
     height:100%
 
@@ -18,7 +14,9 @@ def Page main
 
         div
             ListBox list:
-                itemTemplate: geoObject
+                itemTemplate:
+                    div name:{{name}}
+                       padding: 12px
                 itemSource: [
                     {name:'Кремль', coords:[55.751617, 37.617887]},
                     {name:'Поклонная гора', coords:[55.734076, 37.516858]},

@@ -6,7 +6,7 @@ module.exports = (function () {
     /**
      * Factory of factories of properties
      */
-
+    var QObject = require('./QObject');
     var dataTypes = {
         Boolean: {
             set: function () {
@@ -72,8 +72,16 @@ module.exports = (function () {
         this.cfg = cfg;
         if ('set' in metadata || 'get' in metadata)
             throw new Error('do not put get\\set to metadata');
-        var dataType = dataTypes[type] || dataTypes.Variant,
+        var dataType = dataTypes[type],
             proto = {parent: null};
+
+        /** if type is in known classes */
+        if(!dataType && QObject._knownComponents[type])
+            dataType = dataTypes[type] = Property.generate.typed(type, QObject._knownComponents[type]);
+
+        if(!dataType)
+            dataType = dataTypes.Variant;
+
         proto.type = metadata.type = type;
 
         if (arguments.length > 3) {
@@ -106,8 +114,23 @@ module.exports = (function () {
         proto.get = getter;
         return cls;
     };
-
+    Property.defineType = function(name, cfg){
+        dataTypes[name] = cfg;
+    };
     Property.generate = {
+        typed: function (name, cls) {
+            return {
+                set: function () {
+
+                },
+                get: function (key, value) {
+                    return value;
+                },
+                validate: function (value) {
+                    return value instanceof cls;
+                }
+            };
+        },
         cssProperty: function (text) {
             return new Property('String',
                 {description: text},
