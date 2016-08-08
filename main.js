@@ -74,7 +74,11 @@ var server = http.createServer(function (req, res) {
                 code: 'code'
             }
         });
-        console.log('file exists. it`s qs!')
+        console.log('file exists. it`s qs!');
+    }catch(e){
+        return res.end('No file (' + path + ')');
+    }
+    try{
         var obj = p.add({
             id: path,
             code: source
@@ -149,11 +153,11 @@ var server = http.createServer(function (req, res) {
             }
 
         } catch (e) {
-            if(debug)throw e;
+            //if(debug)throw e;
             return res.end(e.message);
         }
     } catch (e) {
-        if (debug)throw e;
+        //if (debug)throw e;
         return res.end('Поебень (' + path + ')');
     }
 
