@@ -13,18 +13,22 @@ module.exports = FlexSizeComponent.extend('VBox', {
         var fDef = this._flexDefinition || {parts: [], starCount: 0, flexLength: 0, fixLength: 0};
 
         setTimeout(function () {
-            var freeWidth = 100 - 100 * (fDef.fixLength / self.el.clientWidth);
-
+            var freeHeight = 100 - 100 * (fDef.fixLength / self.el.clientWidth);
+            var startUndef=-1;
             for (var i = 0, length = children.length; i < length; i++) {
                 var fPart = fDef.parts[i];
-                var height = freeWidth / (fDef.starCount > 0 ? fDef.starCount : 1) + '%';
+                var height = freeHeight / (fDef.starCount > 0 ? fDef.starCount : 1) + '%';
                 if (fPart) {
                     if (fPart.flex && fPart.part > 0) // 25*
-                        height = freeWidth * (fPart.part / fDef.flexLength) + '%';
+                        height = freeHeight * (fPart.part / fDef.flexLength) + '%';
                     if (!fPart.flex) { // 25
                         height = fPart.part + 'px';
                     }
-                }
+                }  else {
+                if (startUndef < 0)
+                    startUndef = i;
+                    height = freeHeight / (children.length - startUndef) + '%';
+            }
 
                 children[i].style.height = height;
             }

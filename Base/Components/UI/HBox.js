@@ -14,6 +14,7 @@ module.exports = FlexSizeComponent.extend('HBox', {
 
         setTimeout(function () {
             var freeWidth = 100 - 100 * (fDef.fixLength / self.el.clientWidth);
+            var startUndef = -1;
 
             for (var i = 0, length = children.length; i < length; i++) {
                 var fPart = fDef.parts[i];
@@ -24,6 +25,10 @@ module.exports = FlexSizeComponent.extend('HBox', {
                     if (!fPart.flex) { // 25
                         width = fPart.part + 'px';
                     }
+                } else {
+                    if (startUndef < 0)
+                        startUndef = i;
+                    width = freeWidth / (children.length - startUndef) + '%';
                 }
 
                 children[i].style.width = width;
