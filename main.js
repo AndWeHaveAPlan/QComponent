@@ -165,6 +165,6 @@ var server = http.createServer(function (req, res) {
 });
 
 var port = 8001;
-server.listen(port, 'localhost', function (err) {
+server.listen(port, '0.0.0.0', function (err) {
     console.log('listen on ' + port);
 });
