@@ -16,12 +16,13 @@ module.exports = (function () {
         },
 
         _prop: {
-            from: new Property('Number', {description: 'Inclusive lower bound'}, {
+            from: new Property('String', {description: 'Inclusive lower bound'}, {
                 set: function (name, value) {
+
                 },
                 get: Property.defaultGetter
             }),
-            to: new Property('Number', {description: 'Inclusive upper bound'}, {
+            to: new Property('String', {description: 'Inclusive upper bound'}, {
                 set: function (name, value) {
                 },
                 get: Property.defaultGetter

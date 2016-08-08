@@ -1,34 +1,45 @@
-var lastText, items = [], oldBg, oldC;
-var inverse = function(list, back){
-    var item = list[0];
-    if(item){
-        var style = window.getComputedStyle(item, null),
-            bg = oldBg = style.background,
-            c = oldC = style.color, i;
-
-        for( i = list.length;i;){
-            style = list[--i].style;
-            if(back){
-                style.background; = oldBg;
-                style.color = oldC;
-            }else{
-                style.background = c;
-                style.color = bg;
-            }
-        }
-    }
-};
-window.addEventListener('mousemove', function(e){var t = e.target; if(t!== document.body){
-    var tag = e.target.tagName,
-        text = e.target.innerText;
-    if(text !== lastText){
-        if(items.length)
-            inverse(items, true);
-        console.log(t.className)
-        if(tag.className !== 'highlight'){
-            items = [].filter.call(document.querySelectorAll(tag), function(el){ return el.innerText === text });
-            inverse(items);
-        }
-    }
-    lastText = text;
-}})
+file exists. it`s qs!
+source added
+ItemTemplate undefined div undefined
+div name padding undefined
+Page undefined title undefined
+Page undefined width undefined
+Page undefined height undefined
+Page undefined HBox undefined
+HBox hbox flexDefinition undefined
+HBox hbox height undefined
+HBox hbox width undefined
+HBox hbox GeoMap undefined
+GeoMap gm zoom undefined
+GeoMap gm home undefined
+GeoMap gm pins undefined
+GeoMap gm height undefined
+GeoMap gm width undefined
+HBox hbox div undefined
+div  width undefined
+div  height undefined
+div  background undefined
+HBox hbox div undefined
+div  ListBox undefined
+ListBox list itemTemplate undefined
+ListBox list itemSource undefined
+div  input undefined
+input buttonRoute margin undefined
+input buttonRoute padding undefined
+input buttonRoute width undefined
+input buttonRoute type undefined
+input buttonRoute disabled undefined
+div  ListBox undefined
+ListBox  itemSource undefined
+ListBox  margin undefined
+metadata extracted
+name
+name
+name
+name
+[list.selectedItem]
+[listselectedItem]
+ !(gm.ready) 
+ !(gmready) 
+gm.moveList
+gmmoveList

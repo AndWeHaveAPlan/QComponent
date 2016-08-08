@@ -299,7 +299,7 @@ module.exports = (function() {
 
                         if (!localShadow[child.type] ) {
 
-                            if (child.type in shadow) {
+                            if (info.type in shadow) {
                                 localShadow[name].depend[child.type] = true;
                                 localShadow[child.type] = shadow[child.type];
                                 //console.log('!!', child.type);
@@ -354,7 +354,8 @@ module.exports = (function() {
                         }
 
                         //console.log(child.type)
-                        if (child.children && !localShadow[child.type].rawChildren) {
+
+                        if (child.children && !localShadow[info.type].rawChildren) {
                             info.children = [];
 
                             this.extractSub(child, localShadow, name, fileName, info, defines);
