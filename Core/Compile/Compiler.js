@@ -223,8 +223,11 @@ module.exports = (function () {
             if (prop.type==='Boolean')
                 return prop.value;
 
-
-            return '\'' + prop.value + '\'';
+            if (prop.type==='String')
+                return '\'' + prop.value + '\'';
+            
+            if (prop.type==='Variant')
+                return JSON.stringify(prop.value);
         }
     });
 })();

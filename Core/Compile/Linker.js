@@ -257,9 +257,11 @@ module.exports = (function() {
                 for(i = 0, _i = children.length; i < _i; i++){
                     child = children[i];
 
+                    /** resolve syntax prefixes */
                     isPublic = child.type in kw.PUBLIC;
                     isEvent = child.type.charAt(0) === '.';
 
+                    /** parse detailed info */
                     if( isPublic ) {
                         info = parsers.PUBLIC.call(child, child.bonus, child);
                     }else if( isEvent ) {
@@ -267,18 +269,25 @@ module.exports = (function() {
                     }else{
                         info = parsers.PRIVATE.call(child, child.bonus, child);
                     }
+
                     child = info.item;
+
                     if(isEvent) {
                         (childrenHolder.events || (childrenHolder.events = [])).push(info);
                     }else{
+
+                        /** isProperty contains
+                         * false: if property can not be find in class metadata
+                         * {property info}: if matched */
                         isProperty = !(info.type in kws) &&
                             (this.isProperty(info.type, sub.type, localShadow) ||
                                 this.isProperty('default', sub.type, localShadow)
                             );
 
+                        console.log(info.type, !!isProperty)
                         if (isProperty) {
                             info.name = info.type;
-                            info.type = isProperty.type;
+                            child.type = info.type = isProperty.type;
                         }
                         if (isPublic) {
                             if (!info.name.trim())
@@ -300,8 +309,8 @@ module.exports = (function() {
                         if (!localShadow[child.type] ) {
 
                             if (info.type in shadow) {
-                                localShadow[name].depend[child.type] = true;
-                                localShadow[child.type] = shadow[child.type];
+                                localShadow[name].depend[info.type] = true;
+                                localShadow[info.type] = shadow[info.type];
                                 //console.log('!!', child.type);
                             } else if (!isProperty){
                                 throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
