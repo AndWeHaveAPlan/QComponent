@@ -8,6 +8,7 @@ var Property = require('../../Property'),
 
 module.exports = UIComponent.extend('Slider', {
     createEl: function () {
+        
         var self = this,
             doc = UIComponent.document,
             el = this.el = doc.createElement('div'),
@@ -19,7 +20,9 @@ module.exports = UIComponent.extend('Slider', {
             el.appendChild(els[name] = doc.createElement('div'));
         });
         this.apply(el.style, {
-           position: 'relative'
+            position: 'relative',
+            width: '100%',
+            height: '15px'
         });
         this.apply(els.back.style, {
             margin: '3px',
@@ -77,6 +80,7 @@ module.exports = UIComponent.extend('Slider', {
                 window.removeEventListener('mousemove', move);
             },
             info;
+
         els.drag.addEventListener('mousedown', function(e){
             n=0;
             var offset = DOMTools.getOffset(els.drag);
@@ -102,10 +106,9 @@ module.exports = UIComponent.extend('Slider', {
 
     },
     _prop: {
-        value: new Property('Number', {}),
+        value: new Property('Number'),
         from: new Property('Number', {}),
         to: new Property('Number', {}),
         step: new Property('Number', {})
-
     }
 });

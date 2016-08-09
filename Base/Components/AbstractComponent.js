@@ -80,7 +80,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
         for (i in prop) {
             if (i === 'default') {
                 newProp[i] = prop[i];
-            } else if (prop.cfg && prop.cfg.overrideKey) {
+            } else if (prop[i].cfg && prop[i].cfg.overrideKey) {
                 overrided.push({prop: prop, key: i});
             } else {
                 if (i in cfg)
