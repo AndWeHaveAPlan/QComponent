@@ -1,5 +1,8 @@
 def Page main
 
+    input imgSrc: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
+        width: 100%
+
     //THead
     HBox:
         height: 50px;
@@ -14,25 +17,33 @@ def Page main
         height: 400px
 
         img
-            src: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
+            src: {{imgSrc.value}}
 
         Image:
             width: 100%
             height:100%
             stretch: none
-            source: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
+            source: {{imgSrc.value}}
+            transform: {{'rotate('+sl1.value+'deg)'}}
         Image:
             width: 100%
             height:100%
             stretch: uniform
-            source: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
-        Image: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
+            source: {{imgSrc.value}}
+            transform: {{'rotate('+sl1.value+'deg)'}}
+        Image:
             width: 100%
             height:100%
             stretch: fill
-            source: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
-        Image: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
+            source: {{imgSrc.value}}
+            transform: {{'rotate('+sl1.value+'deg)'}}
+        Image:
             width: 100%
             height:100%
             stretch: uniformToFill
-            source: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
+            source: {{imgSrc.value}}
+            transform: {{'rotate('+sl1.value+'deg)'}}
+
+    Slider sl1: 0
+        from: 0
+        to: 360
