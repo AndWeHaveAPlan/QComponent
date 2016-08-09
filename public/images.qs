@@ -25,7 +25,7 @@ def Page main
             stretch: none
             source: {{imgSrc.value}}
             transform: {{'rotate('+sl1.value+'deg)'}}
-        Image:
+        Image image:
             width: 100%
             height:100%
             stretch: uniform
@@ -47,3 +47,7 @@ def Page main
     Slider sl1: 0
         from: 0
         to: 360
+
+    div
+        margin: 100px
+        Checkbox ccff: true
