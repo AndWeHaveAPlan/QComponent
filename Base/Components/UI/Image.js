@@ -13,20 +13,17 @@ module.exports = UIComponent.extend('Image', {
         this.el = UIComponent.document.createElement('div');
         this.elStyle = this.el.style;
         this.elStyle.backgroundPosition = 'center';
+        this.elStyle.backgroundRepeat = 'no-repeat';
     },
     _prop: {
         source: new Property('String', {description: 'Image source, must be valid url'}, {
-            get: function () {
-
-            },
+            get: Property.defaultGetter,
             set: function (name, value) {
-                this.elStyle.background = 'url(' + value + ')';
+                this.elStyle.backgroundImage = 'url(' + value + ')';
             }
         }),
         stretch: new Property('String', {description: 'Image source, must be valid url'}, {
-            get: function () {
-
-            },
+            get: Property.defaultGetter,
             set: function (name, value) {
                 switch (value) {
                     case 'none':

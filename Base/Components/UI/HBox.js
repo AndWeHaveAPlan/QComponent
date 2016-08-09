@@ -42,6 +42,7 @@ module.exports = FlexSizeComponent.extend('HBox', {
         div.el.style.float = 'left';
         div.el.style.position = 'relative';
         div.el.style.height = '100%';
+        div.el.style.overflow = 'hidden';
 
         this.updateLayout();
     }
