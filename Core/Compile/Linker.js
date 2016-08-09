@@ -354,7 +354,9 @@ module.exports = (function() {
                         }
 
                         //console.log(child.type)
-
+                        if(child.children && !localShadow[info.type]){
+                            console.log('ALARM', info.type)
+                        }
                         if (child.children && !localShadow[info.type].rawChildren) {
                             info.children = [];
 
