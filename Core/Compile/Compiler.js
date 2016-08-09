@@ -45,6 +45,7 @@ module.exports = (function () {
                 if (pipes.isPipe) {
                     out += this.makePipe(pipes, 'self.id', i, item);
                 } else {
+                    if('itemTemplate' === i || 'background' === i) debugger;
                     var propVal = this.propertyGetter(prop);
                         out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
@@ -132,10 +133,10 @@ module.exports = (function () {
         },
         compileChild: function (child, parent, props) {
             var type = child.type,
-                _self = this;
+                _self = this, propList;
 
-            if (!cmetadata[type])
-                if (!QObject._knownComponents[type] || !(QObject._knownComponents[type].prototype instanceof QObject._knownComponents.AbstractComponent))
+            if (!(propList = cmetadata[type]))
+                if (!QObject._knownComponents[type] || !((propList = QObject._knownComponents[type].prototype) instanceof QObject._knownComponents.AbstractComponent))
                     return '';
 
             var compiledChildren = '';
@@ -161,13 +162,14 @@ module.exports = (function () {
             var i, prop, propVal, pipes;
 
             if (child.value)
-                if (child.value.isPipe) {
+                (child.prop || (child.prop = {})).value = {name: 'value', type: propList._prop && propList._prop.value && propList._prop.value.prototype ? propList._prop.value.prototype.type: 'Variant', value: child.value};
+                /*if (child.value.isPipe) {
                     var pipe = child.value;
                     out += this.makePipe(pipe, 'self.id', 'value', parent);
                 } else {
                     propVal = this.propertyGetter(child);
                     initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'value\', ' + propVal + ');\n';
-                }
+                }*/
 
             if( child.name){
                 props.push({name: child.name, value: 'new Base.Property(\''+ child.type +'\')'})

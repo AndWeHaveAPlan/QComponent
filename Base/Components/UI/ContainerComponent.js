@@ -41,7 +41,6 @@ module.exports = UIComponent.extend('ContainerComponent', {
                 for (var i = 0, length = val.length; i < length; i++) {
                     var self = this;
                     var newComp = new template();
-
                     if((typeof val[i] != 'object')||Array.isArray(val[i])){
                         newComp.set('value', val[i]);
                     }else {
