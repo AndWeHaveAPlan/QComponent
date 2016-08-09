@@ -13,7 +13,7 @@ module.exports = FlexSizeComponent.extend('VBox', {
         var fDef = this._flexDefinition || {parts: [], starCount: 0, flexLength: 0, fixLength: 0};
 
         setTimeout(function () {
-            var freeHeight = 100 - 100 * (fDef.fixLength / self.el.clientWidth);
+            var freeHeight = 100 - 100 * (fDef.fixLength / self.el.clientHeight);
             var startUndef=-1;
             for (var i = 0, length = children.length; i < length; i++) {
                 var fPart = fDef.parts[i];
