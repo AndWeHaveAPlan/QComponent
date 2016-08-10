@@ -55,6 +55,15 @@ module.exports = (function () {
             this.el.addEventListener('change', function () {
                 self.fire('change');
             });
+            this.el.addEventListener('mouseenter', function () {
+                self.fire('mouseenter');
+            });
+            this.el.addEventListener('mouseleave', function () {
+                self.fire('mouseleave');
+            });
+            this.el.addEventListener('mousemove', function () {
+                self.fire('mousemove');
+            });
         },
 
         /**
@@ -126,7 +135,7 @@ module.exports = (function () {
             return this;
         },
         _prop: (function () {
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display,background,color,padding,transform,transform-origin,transition,position'
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display,background,color,padding,transform,transform-origin,transition,position,border-radius'
                 .split(',')
                 .reduce(function (store, key) {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);
@@ -170,6 +179,7 @@ module.exports = (function () {
                     return value;
                 }
             });*/
+            return out;
         })()
     }, function (cfg) {
         var self = this;
