@@ -14,7 +14,7 @@ def Page main
   color: white
 
   Timer t1
-    interval: 15000
+    interval: 7000
     enabled: true
     .tick: ()=>{
       console.log('tick');
