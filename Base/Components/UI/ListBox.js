@@ -10,7 +10,8 @@ module.exports = ContainerComponent.extend('ListBox', {
     createEl: function () {
         this.el = UIComponent.document.createElement('div');
     },
-    _handleChildren: function(childComp, index) {
+    _handleChildren: function (childComp, index) {
+        var self = this;
         var childNode = childComp.el;
         childNode.style.clear = 'both';
         childNode.style.position = 'relative';

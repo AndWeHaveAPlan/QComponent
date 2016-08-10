@@ -80,7 +80,6 @@ module.exports = UIComponent.extend('GeoMap', {
                         for (var j = 0; j < segments.getLength(); j++) {
                             var segment = segments.get(j);
                             moveList.push(segment.properties.get('text'));
-                            //moveList += '\r\n\n'
                         }
                     }
                     self.set('moveList', moveList);
