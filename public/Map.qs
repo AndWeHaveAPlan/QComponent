@@ -25,6 +25,10 @@ def Page main
             background: black
 
         div
+            height: 100%
+            width: 100%
+            overflow-x: hidden
+            overflow-y: auto
             ListBox list:
                 itemTemplate: geoObject
                 itemSource: [
@@ -49,5 +53,6 @@ def Page main
                     gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
                 }
             ListBox:
+                overflow: auto
                 itemSource: {{gm.moveList}}
                 margin: 12px
