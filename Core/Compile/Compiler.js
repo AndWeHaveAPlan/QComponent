@@ -38,6 +38,21 @@ module.exports = (function () {
             }
 
             var out = '';
+
+            if (item.events) {
+                console.log(item.events);
+                out += '\t\tthis._subscribeList = [];\n';
+                out += '\t\tthis._subscribeEvents = function(){\n';
+
+                item.events.forEach(function (evt) {
+                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
+                        evt.fn + '\n}, self));\n';
+                });
+                out += '\t\t};\n';
+                out += '\t\tthis._subscribeEvents();\n';
+            }
+
+            /*
             for (var i in item.prop) {
                 var prop = item.prop[i];
                 var pipes = prop.value;
@@ -47,7 +62,7 @@ module.exports = (function () {
                     var propVal = this.propertyGetter(prop);
                         out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
-            }
+            }*/
 
             this.nestingCount = 0;
             var props = [
@@ -65,6 +80,7 @@ module.exports = (function () {
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 '',
+                out,
                 this.makePublic(item.public, item),
                 this.makePublic(item.private, item),
                 compiledChildren,
@@ -147,12 +163,14 @@ module.exports = (function () {
             }
 
             var out = '';
+            var initSet='';
+
             if (this.nestingCount > 0) {
-                out = '\t;' + (child.name ? 'var '+child.name+' = ' : '') + '(function(parent){\n' +
+                out = '\t' + (child.name ? 'var '+child.name+' = ' : 'tmp = ') + '(function(parent){\n' +
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren;
 
             } else {
-                out = '\t;' + (child.name ? 'var '+child.name+' = ' : '') + ' (function(){\n' +
+                out = '\t' + (child.name ? 'var '+child.name+' = ' : 'tmp = ') + ' (function(){\n' +
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren;
             }
             var i, prop, propVal, pipes;
@@ -163,7 +181,7 @@ module.exports = (function () {
                     out += this.makePipe(pipe, 'self.id', 'value', parent);
                 } else {
                     propVal = this.propertyGetter(child);
-                    out += '\t\tthis.set(\'value\', ' + propVal + ')\n';
+                    initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'value\', ' + propVal + ');\n';
                 }
 
             if( child.name){
@@ -178,7 +196,7 @@ module.exports = (function () {
                     out += this.makePipe(pipes, 'self.id', i, parent);
                 } else {
                     propVal = this.propertyGetter(prop);
-                    out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
+                    initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'' + i + '\', ' + propVal + ');\n';
                 }
             }
             if (child.events) {
@@ -203,7 +221,7 @@ module.exports = (function () {
                     '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
                     (child.name ? 'id: \'' + child.name + '\'' : '') + '}) );\n';
             }
-
+            out+=initSet;
             if(child.name){
                 out+='self.set(\''+child.name+'\', '+child.name+');';
             }
