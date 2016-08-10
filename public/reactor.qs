@@ -69,28 +69,28 @@ def Page main
     Reactor r1
 
     HBox
+        flexDefinition: 1* 1* 2*
+
+        Indicator i1: {{r1.temperature}}
+
+            min: 1
+            max: 2000
+            description: Temperature
         div
-            HBox
-                Indicator i1: {{r1.temperature}}
-                    min: 1
-                    max: 2000
-                    description: Temperature, ℃
+            span: Control rods position: {{r1.controlRodsPosition}}
+                width: 200px
+                padding: 12px
+            br
+            span: Temperature {{r1.temperature}}
+                width: 200px
+                padding: 12px
 
-                div
-                    span: Control rods position: {{r1.controlRodsPosition}}
-                        width: 200px
-                        padding: 12px
-                    br
-                    span: Temperature {{r1.temperature}}
-                        width: 200px
-                        padding: 12px
-
-                    span: {{r1.meltdown? 'Meltdown :(' : r1.danger ? 'Danger!' :'' }}
-                        color: white
-                        width: 200px
-                        padding: 12px
-                        background: red
-                        display: {{r1.meltdown||r1.danger?'block':'none'}}
+            span: {{r1.meltdown? 'Meltdown :(' : r1.danger ? 'Danger!' :'' }}
+                color: white
+                width: 200px
+                padding: 12px
+                background: red
+                display: {{r1.meltdown||r1.danger?'block':'none'}}
         div
             div: Reactor control
             input: ↑ Rods up

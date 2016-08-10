@@ -1,6 +1,36 @@
 /**
  * Created by zibx on 01.07.16.
  */
+
+matrix = {
+    multiply: function (m1, m2) {
+        var mRet = [[], [], []];
+
+        mRet[0][0] = m1[0][0] * m2[0][0] + m1[0][1] * m2[1][0] + m1[0][2] * m2[2][0];
+        mRet[0][1] = m1[0][0] * m2[0][1] + m1[0][1] * m2[1][1] + m1[0][2] * m2[2][1];
+        mRet[0][2] = m1[0][0] * m2[0][2] + m1[0][1] * m2[1][2] + m1[0][2] * m2[2][2];
+        mRet[1][0] = m1[1][0] * m2[0][0] + m1[1][1] * m2[1][0] + m1[1][2] * m2[2][0];
+        mRet[1][1] = m1[1][0] * m2[0][1] + m1[1][1] * m2[1][1] + m1[1][2] * m2[2][1];
+        mRet[1][2] = m1[1][0] * m2[0][2] + m1[1][1] * m2[1][2] + m1[1][2] * m2[2][2];
+        mRet[2][0] = m1[2][0] * m2[0][0] + m1[2][1] * m2[1][0] + m1[2][2] * m2[2][0];
+        mRet[2][1] = m1[2][0] * m2[0][1] + m1[2][1] * m2[1][1] + m1[2][2] * m2[2][1];
+        mRet[2][2] = m1[2][0] * m2[0][2] + m1[2][1] * m2[1][2] + m1[2][2] * m2[2][2];
+
+        return mRet;
+    },
+    createRotation: function (a) {
+        var cos = Math.cos;
+        var sin = Math.sin;
+        return [[cos(a), sin(a), 0], [-sin(a), cos(a), 0], [0, 0, 1]];
+    },
+    createScale: function (x, y) {
+        return [[x, 0, 0], [0, y, 0], [0, 0, 1]];
+    },
+    toStyleString: function (m) {
+        return 'matrix(' + [m[0][0], m[0][1], m[1][0], m[1][1], m[2][0], m[2][1]].join(',') + ')';
+    }
+};
+
 module.exports = (function () {
     'use strict';
     var AbstractComponent = require('./AbstractComponent'),
@@ -24,6 +54,15 @@ module.exports = (function () {
             });
             this.el.addEventListener('change', function () {
                 self.fire('change');
+            });
+            this.el.addEventListener('mouseenter', function () {
+                self.fire('mouseenter');
+            });
+            this.el.addEventListener('mouseleave', function () {
+                self.fire('mouseleave');
+            });
+            this.el.addEventListener('mousemove', function () {
+                self.fire('mousemove');
             });
         },
 
@@ -96,7 +135,7 @@ module.exports = (function () {
             return this;
         },
         _prop: (function () {
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display,background,color,padding,transform,transform-origin,transition,position'
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display,background,color,padding,transform,transform-origin,transition,position,border-radius'
                 .split(',')
                 .reduce(function (store, key) {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);
@@ -116,7 +155,30 @@ module.exports = (function () {
                     return value;
                 }
             });
-            out.type = Property.generate.attributeProperty('input type');
+            out.rotation = new Property('Number', {description: 'Component rotation (in degrees)'}, {
+                set: function (key, val, oldValue) {
+                    var rotMatrix = matrix.createRotation((val / 180) * Math.PI);
+                    this.el.style.transform = matrix.toStyleString(rotMatrix);
+                },
+                get: function (key, value) {
+                    return value;
+                }
+            });
+            /*out.scale = new Property('Number', {description: 'Component rotation (in degrees)'}, {
+                set: function (key, val, oldValue) {
+
+                    var rotMatrix = matrix.createRotation((45 / 180) * Math.PI);
+                    var scaleMatrix = matrix.createScale(val, 1);
+
+                    //var transformMatrix = matrix.multiply(scaleMatrix, rotMatrix);
+                    var transformMatrix = matrix.multiply(rotMatrix, scaleMatrix);
+
+                    this.el.style.transform = matrix.toStyleString(transformMatrix);
+                },
+                get: function (key, value) {
+                    return value;
+                }
+            });*/
             return out;
         })()
     }, function (cfg) {
@@ -136,7 +198,7 @@ module.exports = (function () {
         this._children.on('add', function (child) {
             child.parent = self;
             //insert to dom
-            if(child.el) { /** UI Component */
+            if (child.el) { /** UI Component */
                 if (self._contentContainer && child.el) {
                     self._contentContainer.el.appendChild(child.el);
                 } else {

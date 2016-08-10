@@ -14,7 +14,7 @@ module.exports = FlexSizeComponent.extend('HBox', {
 
         setTimeout(function () {
             var freeWidth = 100 - 100 * (fDef.fixLength / self.el.clientWidth);
-
+            var startUndef = -1;
             for (var i = 0, length = children.length; i < length; i++) {
                 var fPart = fDef.parts[i];
                 var width = freeWidth / (fDef.starCount > 0 ? fDef.starCount : 1) + '%';
@@ -24,6 +24,10 @@ module.exports = FlexSizeComponent.extend('HBox', {
                     if (!fPart.flex) { // 25
                         width = fPart.part + 'px';
                     }
+                } else {
+                    if (startUndef < 0)
+                        startUndef = i;
+                    width = freeWidth / (children.length - startUndef) + '%';
                 }
 
                 children[i].style.width = width;
@@ -38,6 +42,7 @@ module.exports = FlexSizeComponent.extend('HBox', {
         div.el.style.float = 'left';
         div.el.style.position = 'relative';
         div.el.style.height = '100%';
+        div.el.style.overflow = 'hidden';
 
         this.updateLayout();
     }

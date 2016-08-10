@@ -28,7 +28,8 @@ def Page main
                 itemSource: [
                     {name:'Кремль', coords:[55.751617, 37.617887]},
                     {name:'Поклонная гора', coords:[55.734076, 37.516858]},
-                    {name:'Офис Квокки',coords:[55.773381, 37.621968]}
+                    {name:'Офис Квокки',coords:[55.773381, 37.621968]},
+                    {name:'qweqwe34qwe',coords:[55.792589,37.787025]}
                 ]
             input buttonRoute: Как добраться
                 margin: 12px
