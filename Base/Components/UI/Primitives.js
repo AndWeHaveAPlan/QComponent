@@ -65,6 +65,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         });
     },
     _prop: {
+        type: Property.generate.attributeProperty('type'),
         checked: Property.generate.attributeProperty('checked'),
         value: Property.generate.attributeProperty('value'),
         disabled: Property.generate.attributeProperty('value')

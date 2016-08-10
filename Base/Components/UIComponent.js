@@ -164,28 +164,22 @@ module.exports = (function () {
                     return value;
                 }
             });
-            /*out.scale = new Property('Number', {description: 'Component rotation (in degrees)'}, {
+            out.scale = new Property('Number', {description: 'Component rotation (in degrees)'}, {
                 set: function (key, val, oldValue) {
-
-                    var rotMatrix = matrix.createRotation((45 / 180) * Math.PI);
-                    var scaleMatrix = matrix.createScale(val, 1);
-
-                    //var transformMatrix = matrix.multiply(scaleMatrix, rotMatrix);
-                    var transformMatrix = matrix.multiply(rotMatrix, scaleMatrix);
-
-                    this.el.style.transform = matrix.toStyleString(transformMatrix);
+                    var scaleMatrix = matrix.createScale(val, val);
+                    this.el.style.transform = matrix.toStyleString(scaleMatrix);
                 },
                 get: function (key, value) {
                     return value;
                 }
-            });*/
+            });
             return out;
         })()
     }, function (cfg) {
         var self = this;
         AbstractComponent.call(this, cfg);
 
-        this._contentContainer = void(0);// this.el = document.createElement('div');
+        this._contentContainer = void(0);
 
         /**
          * Child Components
@@ -193,8 +187,8 @@ module.exports = (function () {
          * @type Array<AbstractComponent>
          * @private
          */
-
         this._children = new ObservableSequence(new DQIndex('id'));
+
         this._children.on('add', function (child) {
             child.parent = self;
             //insert to dom
@@ -206,6 +200,8 @@ module.exports = (function () {
                 }
             }
         });
+
+        console.log(this.id);
         this._children.on('remove', function (child) {
             child.parent = null;
             if (self._contentContainer && child.el) {
