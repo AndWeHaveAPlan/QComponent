@@ -135,7 +135,7 @@ module.exports = (function () {
             return this;
         },
         _prop: (function () {
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,display,background,color,padding,transform,transform-origin,transition,position,border-radius'
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,overflow-x,overflow-y,margin,display,background,color,padding,transform,transform-origin,transition,position,border-radius'
                 .split(',')
                 .reduce(function (store, key) {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);
