@@ -10,9 +10,11 @@ def UIComponent Flash
 def Page main
   height:100%
   Title: z0r.qs
+  background: black
+  color: white
 
   Timer t1
-    interval: 15000
+    interval: 7000
     enabled: true
     .tick: ()=>{
       console.log('tick');
@@ -23,18 +25,22 @@ def Page main
     from: 0001
     to: 7631
 
-  center
-    h1: URL: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
+  VBox
+      height: 100%
+      flexDefinition: 38 * 38
 
-  Flash: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
-    width: 100%
-    height: 93%
+      center
+        h1: URL: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
 
-  div
-    input: Next
-      type: button
-      .click: ()->
-        t1.start();
-        r1.generate();
+      Flash: http://z0r.de/L/z0r-de_{{r1.randomNumber}}.swf
+        width: 100%
+        height: 100%
+
+      div
+        input: Next
+          type: button
+          .click: ()->
+            t1.start();
+            r1.generate();
 
 

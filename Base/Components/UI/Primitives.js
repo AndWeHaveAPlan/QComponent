@@ -65,6 +65,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         });
     },
     _prop: {
+        type: Property.generate.attributeProperty('type'),
         checked: Property.generate.attributeProperty('checked'),
         value: Property.generate.attributeProperty('value'),
         disabled: Property.generate.attributeProperty('value')
@@ -135,11 +136,21 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
     }
 });
 
+exports['a'] = exports['HtmlPrimitive'].extend('img', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('img');
+    },
+    _prop: {
+        href: Property.generate.attributeProperty('href'),
+        src: Property.generate.attributeProperty('src')
+    }
+});
+
 /**
  *
  */
 ('b,big,br,button,canvas,center,div,dl,dt,em,' +
-'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,img,' +
+'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
 'table,tbody,td,th,thead,tr,u,ul,header,marquee')
     .split(',')

@@ -7,14 +7,22 @@ def Page main
     width:100%
     height:100%
 
-    HBox
+    HBox hbox
+        flexDefinition: 293* 1* 400
         height: 100%
         width: 100%
+
         GeoMap gm:
             zoom: 11
-            pin: {{list.selectedItem}}
+            home: [55.794425,37.587836]
+            pins: {{[list.selectedItem]}}
             height: 100%
             width: 100%
+
+        div
+            width:100%
+            height:100%
+            background: black
 
         div
             ListBox list:
@@ -31,3 +39,15 @@ def Page main
                     {name:'Парк Победы',coords:[55.731841, 37.506587]},
                     {name:'Тимирязевский парк',coords:[55.819574, 37.544653]}
                 ]
+            input buttonRoute: Как добраться
+                margin: 12px
+                padding: 12px
+                width: 376px
+                type: button
+                disabled: {{ !(gm.ready) }}
+                .click: ()=>{
+                    gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
+                }
+            ListBox:
+                itemSource: {{gm.moveList}}
+                margin: 12px
