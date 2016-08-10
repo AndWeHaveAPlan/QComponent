@@ -34,7 +34,7 @@ module.exports = (function () {
                     value === void 0 && this.set('randomNumber', value = this._getRandom());
                     return value;
                 }
-            }, 1)
+            })
         }
     }, function (cfg) {
         LogicalComponent.call(this, cfg);

@@ -71,18 +71,23 @@ module.exports = UIComponent.extend('GeoMap', {
                 self.route = route;
                 self.ymap.geoObjects.add(self.route);
 
-                var way, segments, moveList = [], tempRoute = route.getActiveRoute();
+                function foo(){
+                    var way, segments, moveList = [], tempRoute = route.getActiveRoute();
 
-                for (var i = 0; i < tempRoute.getPaths().getLength(); i++) {
-                    way = tempRoute.getPaths().get(i);
-                    segments = way.getSegments();
-                    for (var j = 0; j < segments.getLength(); j++) {
-                        var segment = segments.get(j);
-                        moveList.push(segment.properties.get('text'));
-                        //moveList += '\r\n\n'
+                    for (var i = 0; i < tempRoute.getPaths().getLength(); i++) {
+                        way = tempRoute.getPaths().get(i);
+                        segments = way.getSegments();
+                        for (var j = 0; j < segments.getLength(); j++) {
+                            var segment = segments.get(j);
+                            moveList.push(segment.properties.get('text'));
+                            //moveList += '\r\n\n'
+                        }
                     }
+                    self.set('moveList', moveList);
                 }
-                self.set('moveList', moveList);
+
+                route.events.add('activeroutechange',foo);
+                foo();
             });
     },
 

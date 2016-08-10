@@ -38,7 +38,21 @@ module.exports = (function () {
             }
 
             var out = '';
-            //var initSet='';
+
+            if (item.events) {
+                console.log(item.events);
+                out += '\t\tthis._subscribeList = [];\n';
+                out += '\t\tthis._subscribeEvents = function(){\n';
+
+                item.events.forEach(function (evt) {
+                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
+                        evt.fn + '\n}, self));\n';
+                });
+                out += '\t\t};\n';
+                out += '\t\tthis._subscribeEvents();\n';
+            }
+
+            /*
             for (var i in item.prop) {
                 var prop = item.prop[i];
                 var pipes = prop.value;
@@ -49,7 +63,7 @@ module.exports = (function () {
                     var propVal = this.propertyGetter(prop);
                         out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
-            }
+            }*/
 
             this.nestingCount = 0;
             var props = [
@@ -67,6 +81,7 @@ module.exports = (function () {
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 '',
+                out,
                 this.makePublic(item.public, item),
                 this.makePublic(item.private, item),
                 compiledChildren,
