@@ -127,7 +127,7 @@ module.exports = (function () {
                     return value;
                 },
                 validate: function (value) {
-                    return value instanceof cls;
+                    return value instanceof cls || (value && value.prototype && value.prototype instanceof cls);
                 }
             };
         },

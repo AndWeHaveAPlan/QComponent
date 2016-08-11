@@ -49,8 +49,10 @@ module.exports = (function () {
                 this.el.style.position = 'relative';
             }
 
-            this.el.addEventListener('click', function (e) {
-                self.fire('click', e);
+            this.el.addEventListener('click', function (e, target) {
+                if(self.fire('click', e) !== false)
+                    self.parent && self.parent.fire('click', e, target || self);
+                e.stopPropagation();
             });
             this.el.addEventListener('change', function () {
                 self.fire('change');

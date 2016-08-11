@@ -36,7 +36,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
         itemSource: new Property('Array', {description: 'Index of current selected item'}, {
             set: function (name, val) {
                 var self = this;
-                var template = QObject._knownComponents[this.get('itemTemplate')];
+                var template = this.get('itemTemplate');//QObject._knownComponents[this.get('itemTemplate')];
 
                 this._children.splice(0, this._children.length);
 
@@ -56,15 +56,14 @@ module.exports = UIComponent.extend('ContainerComponent', {
                 }
             },
             get: Property.defaultGetter
-        }, {}),
-        itemTemplate: new Property('ItemTemplate', {description: 'Visual presentation of items'}, {
         }, []),
-        itemTemplate: new Property('String', {description: 'Visual presentation of items'}, {
+        itemTemplate: new Property('ItemTemplate', {description: 'Visual presentation of items'}, {
             set: function (name, val) {
+                debugger;
                 //var oldVal = this._data['itemTemplate'];
-                this._itemTemplate = QObject._knownComponents[val];
+                //this._itemTemplate = QObject._knownComponents[val];
             },
             get: Property.defaultGetter
-        }, 'ItemTemplate')
+        }, QObject._knownComponents.ItemTemplate)
     }
 });
