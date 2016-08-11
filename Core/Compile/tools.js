@@ -98,7 +98,7 @@ var tools = module.exports = (function() {
                     //debugger;
                 }else if(item.type === 'brace') {
                     out.push({pureData: item.info, type: 'text'});
-                    this._transformPipes(pipedOut, item.items);
+                    werePipes = werePipes || this._transformPipes(pipedOut, item.items);
                     out.push({pureData: item._info, type: 'text'});
                 }else{
                     out.push({pureData: item.pureData, type: 'text'});
@@ -130,7 +130,7 @@ var tools = module.exports = (function() {
                             if(item.type === 'text')
                                 return '\''+item.pureData+'\'';// TODO: escape
                             else
-                                return item.pureData;
+                                return '('+item.pureData+')';
                         }).join('+');
                 //pipedOut.vars = pipedOut.vars;
                 return pipedOut;
