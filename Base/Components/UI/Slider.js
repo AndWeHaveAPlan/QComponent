@@ -18,29 +18,36 @@ module.exports = UIComponent.extend('Slider', {
         ('back, actual, drag').split(', ').forEach(function (name) {
             el.appendChild(els[name] = doc.createElement('div'));
         });
+        var height = 24,
+            pad = 6,
+            padInner = 4;
+
         this.apply(el.style, {
-           position: 'relative'
+            position: 'relative',
+            height: height+'px'
         });
         this.apply(els.back.style, {
-            margin: '3px',
+
             background: '#ddd',
-            height: '9px',
-            width: '100%',
+            height: height - pad*2 +'px',
+            left: pad+'px',
+            right: pad+'px',
+            top: pad+'px',
             position: 'absolute'
         });
         this.apply(els.drag.style, {
-            width: '15px',
-            height: '15px',
+            width: height +'px',
+            height: height +'px',
             background: '#777',
             left: '50%',
-            'margin-left': '-8px',
+            'margin-left': ((-height/2)|0)+'px',
             position: 'absolute',
             cursor: 'pointer'
         });
         this.apply(els.actual.style, {
             width: '50%',
-            height: '11px',
-            margin: '2px',
+            height: height - padInner*2+'px',
+            margin: padInner+ 'px',
             background: '#a91815',
             position: 'absolute'
         });
@@ -59,7 +66,7 @@ module.exports = UIComponent.extend('Slider', {
             perc>1 && (perc = 1);
 
             if(step)
-                pos = (((delta+step-0.0000000001)*perc/step)|0)*step;
+                pos = Math.round(delta*perc/step)*step;
             else
                 pos = delta*perc;
 
@@ -76,21 +83,11 @@ module.exports = UIComponent.extend('Slider', {
                 window.removeEventListener('mouseup', up);
                 window.removeEventListener('mousemove', move);
             },
-            info;
+            info = this._getInfo();
         els.drag.addEventListener('mousedown', function(e){
             n=0;
-            var offset = DOMTools.getOffset(els.drag);
-            info  = {
-                from: self.get('from'),
-                to: self.get('to'),
-                step: self.get('step'),
-                width: el.offsetWidth,
-                left: e.target.offsetLeft,
-                mainOffset: DOMTools.getOffset(el),
-                startOffset: offset,
-                x: e.clientX,
-                y: e.clientY
-            };
+
+            info = self._getInfo(e);
 
             window.addEventListener('mousemove', move);
             window.addEventListener('mouseup', up);
@@ -101,11 +98,72 @@ module.exports = UIComponent.extend('Slider', {
 
 
     },
+    _getInfo: function (e) {
+        var self = this,
+            el = this.el, els = this.els;
+        var offset = DOMTools.getOffset(els.drag);
+        return this.info = {
+            from: self.get('from'),
+            to: self.get('to'),
+            step: self.get('step'),
+            width: el.offsetWidth,
+            left: e && e.target.offsetLeft,
+            mainOffset: DOMTools.getOffset(el),
+            startOffset: offset,
+            x: e && e.clientX,
+            y: e && e.clientY
+        };
+    },
+    setVal: function(val){
+        var info = this.info || this._getInfo();
+        var perc, pos, els = this.els,
+            step = info.step-0, from = info.from-0, to = info.to-0, delta = to-from;
+
+        val<from && (val = from);
+        val>to && (val = to);
+
+        if(step)
+            val = Math.round(val/step)*step;
+
+        perc = (val-from)/delta*100;
+
+        els.drag.style.left = perc +'%';
+        els.actual.style.width = perc +'%';
+    },
     _prop: {
-        value: new Property('Number', {}),
-        from: new Property('Number', {}),
-        to: new Property('Number', {}),
-        step: new Property('Number', {})
+        value: new Property('Number', {}, {
+            set: function(key, val){
+                this.setVal(val);
+            },
+            get: Property.defaultGetter
+        }),
+        from: new Property('Number', {}, {
+            set: function(key, val){
+                this._getInfo();
+                this.setVal(this.get('value'));
+            },
+            get: Property.defaultGetter
+        }),
+        to: new Property('Number', {}, {
+            set: function(key, val){
+                this._getInfo();
+                this.setVal(this.get('value'));
+            },
+            get: Property.defaultGetter
+        }),
+        step: new Property('Number', {}, {
+            set: function(key, val){
+                this._getInfo();
+                this.setVal(this.get('value'));
+            },
+            get: Property.defaultGetter
+        }),
+        fillColor: new Property('String', {}, {
+            set: function(key, val){
+                this.els.actual.style.background = val;
+            },
+            get: Property.defaultGetter
+        })
 
     }
 });
