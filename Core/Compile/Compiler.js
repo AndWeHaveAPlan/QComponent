@@ -232,11 +232,8 @@ module.exports = (function () {
             if (prop.type==='Number')
                 return prop.value;
 
-            //console.log(prop.type);
-
             if (prop.type==='Boolean')
                 return prop.value;
-
 
             return '\'' + prop.value + '\'';
         }
