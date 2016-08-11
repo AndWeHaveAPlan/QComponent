@@ -34,7 +34,8 @@ module.exports = {
             Gate: require('./Base/Components/Logical/Gate'),
             Timer: require('./Base/Components/Logical/Timer'),
             Random: require('./Base/Components/Logical/Random'),
-            Title: require('./Base/Components/Logical/Title')
+            Title: require('./Base/Components/Logical/Title'),
+            HTTPRequest: require('./Base/Components/Logical/HTTPRequest')
         }
     },
     EventManager: require('./Base/EventManager'),

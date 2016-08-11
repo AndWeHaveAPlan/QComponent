@@ -53,10 +53,15 @@ def Page main
 
         div
             h1: {{wp1.selectedItem.name}}
-            Image:
+            Image i2:
                 width: 100%
                 padding: 0 0 100%
                 source: {{wp1.selectedItem.img}}
-                rotation: 0
-                rotation: 5
+                //rotation: 0
+                //rotation: 5
+                transform:                    [
+                    {type:'rotation', angle: 30},
+                    {type:'scale', x:0.5,y:0.5},
+                    {type:'translation', x:50,y:50}
+                    ]
                 stretch: uniform
