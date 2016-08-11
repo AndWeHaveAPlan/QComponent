@@ -37,6 +37,13 @@ function serveStatic(path) {
 
 var server = http.createServer(function (req, res) {
     var reqUrl = url.parse(req.url, true);
+
+    if (req.method==='POST') {
+        req.on('data',function(chunk){
+            console.log(chunk.toString());
+        });
+    }
+
     try {
 
         var path = 'public/' + reqUrl.pathname.substring(1);

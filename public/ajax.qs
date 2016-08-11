@@ -11,6 +11,13 @@ def Page main
         method: GET
         url: /qstyle.css
 
+    HTTPRequest ajax3
+        autoActivate: false
+        method: POST
+        url: /qstyle.css
+
+    h1: GET
+
     h2: autoActivate: true
     div: {{ajax1.result}}
         height: 100px
@@ -21,3 +28,10 @@ def Page main
     input: Send
         type: button
         .click: () -> ajax2.send()
+
+    h1: POST
+    input postInput: Test POST data
+        type: text
+    input: Send
+        type: button
+        .click: () -> ajax3.send(postInput.get('value'))

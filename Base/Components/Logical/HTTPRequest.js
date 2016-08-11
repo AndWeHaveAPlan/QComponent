@@ -7,7 +7,7 @@ module.exports = (function () {
         /**
          *
          */
-        send: function () {
+        send: function (data) {
             var self = this;
             var xhr = this._xhr;
             xhr.open(this._data.method, this._data.url, true);
@@ -25,10 +25,20 @@ module.exports = (function () {
                 }
             };
 
-            xhr.send();
+            if (data)
+                xhr.send(data);
+            else
+                xhr.send();
         },
         _prop: {
-            method: new Property('String', {description: 'HTTP Method (GET|POST|...)'}, {}, 'GET'),
+            method: new Property('String', {description: 'HTTP Method (GET|POST|...)'}, {
+                get: Property.defaultGetter,
+                set: function (name, val) {
+                    if (val.toUpperCase() !== 'GET') {
+                        this.set('autoActivate', false);
+                    }
+                }
+            }, 'GET'),
             url: new Property('String', {description: 'URL for request'}, {
                 get: Property.defaultGetter,
                 set: function (name, val) {
