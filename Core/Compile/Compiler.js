@@ -5,7 +5,7 @@ module.exports = (function () {
     'use strict';
     var QObject = require('../../Base/QObject'),
         cmetadata = {};
-
+    var uuid = require('tiny-uuid');
     return new QObject({
         compile: function (metadata) {
             cmetadata = metadata;
@@ -26,7 +26,15 @@ module.exports = (function () {
         compileClass: function (metadata, name, vars) {
             var item = metadata[name],
                 source,
-                _self = this;
+                _self = this,
+                inline = false;
+            
+            if(name === void 0) {
+                inline = true;
+                item = metadata;
+                name = item.type+uuid();
+            }
+            
             vars[item.type] = '_known[\'' + item.type + '\']';
 
             this._knownVars = [];
@@ -39,54 +47,29 @@ module.exports = (function () {
 
             var out = '';
 
-            if (item.events) {
-                console.log(item.events);
-                out += '\t\tthis._subscribeList = [];\n';
-                out += '\t\tthis._subscribeEvents = function(){\n';
-
-                item.events.forEach(function (evt) {
-                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
-                        evt.fn + '\n}, self));\n';
-                });
-                out += '\t\t};\n';
-                out += '\t\tthis._subscribeEvents();\n';
-            }
-
-            /*
-            for (var i in item.prop) {
-                var prop = item.prop[i];
-                var pipes = prop.value;
-                if (pipes.isPipe) {
-                    out += this.makePipe(pipes, 'self.id', i, item);
-                } else {
-                    if('itemTemplate' === i || 'background' === i) debugger;
-                    var propVal = this.propertyGetter(prop);
-                        out += '\t\tthis.set(\'' + i + '\', ' + propVal + ')\n';
-                }
-            }*/
-
             this.nestingCount = 0;
             var props = [
                 {name: 'value', value: 'new Base.Property("Variant")'}
             ];
 
             var compiledChildren=item.children ? item.children.map(function (el) {
-                return _self.compileChild(el, item, props);
+                return _self.compileChild(el, item, props, vars);
             }).join('') : '//no children\n';
 
             source = [
-                'var ' + name + ' = out[\'' + name + '\'] = ' + item.type + '.extend(\'' + name + '\', {_prop: {' +
+                (inline?'':'var ' + name + ' = out[\'' + name + '\'] = ' )+ item.type + '.extend(\'' + name + '\', {_prop: {' +
                     props.map(function(item){return item.name+': '+item.value; }).join(',\n') +
                 '}}, function(){',
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
+                item.events?this.builder.events(item):'',
                 '',
                 out,
-                this.makePublic(item.public, item),
-                this.makePublic(item.private, item),
+                this.makePublic(item.public, item, vars),
+                this.makePublic(item.private, item, vars),
                 compiledChildren,
                 '    this._init();',
-                '});'
+                '})'+(inline?'':';')
             ];
             return source;
         },
@@ -131,7 +114,7 @@ module.exports = (function () {
                 '\t});\n' +
                 '\teventManager.registerPipe(mutatingPipe);\n';
         },
-        makePublic: function (props, def) {
+        makePublic: function (props, def, vars) {
             var i, prop, pipes, out = '', propVal;
             for (i in props) {
                 prop = props[i];
@@ -140,13 +123,13 @@ module.exports = (function () {
                 if (pipes && pipes.isPipe) {
                     out += this.makePipe(pipes, 'this.id', i, def);
                 } else {
-                    propVal = this.propertyGetter(prop)
+                    propVal = this.propertyGetter(prop, vars)
                     out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
             return out;
         },
-        compileChild: function (child, parent, props) {
+        compileChild: function (child, parent, props, vars) {
             var type = child.type,
                 _self = this, propList;
 
@@ -158,7 +141,7 @@ module.exports = (function () {
             if (child.children) {
                 this.nestingCount += 1;
                 compiledChildren = child.children.map(function(item){
-                    return _self.compileChild(item, child, props);
+                    return _self.compileChild(item, child, props, vars);
                 }).join('');
                 this.nestingCount -= 1;
             }
@@ -197,21 +180,14 @@ module.exports = (function () {
                 if (pipes.isPipe) {
                     out += this.makePipe(pipes, 'self.id', i, parent);
                 } else {
-                    propVal = this.propertyGetter(prop);
+                    propVal = this.propertyGetter(prop, vars);
                     initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'' + i + '\', ' + propVal + ');\n';
                 }
             }
-            if (child.events) {
-                out += '\t\tthis._subscribeList = [];\n';
-                out += '\t\tthis._subscribe = function(){\n';
 
-                child.events.forEach(function (evt) {
-                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
-                        evt.fn + '\n}, self));\n';
-                });
-                out += '\t\t};\n';
-                out += '\t\tthis._subscribe();\n';
-            }
+            if (child.events)
+                out += this.builder.events(child);
+
             if (this.nestingCount > 0) {
                 out += '\t\tparent.addChild(this);\n\n';
                 out += '\t\treturn this;\n' +
@@ -230,8 +206,8 @@ module.exports = (function () {
 
             return out;
         },
-        propertyGetter: function (prop) {
-            if (Array.isArray(prop.value))
+        propertyGetter: function (prop, vars) {
+            if (prop.type==='Array')
                 return prop.value[0].data;
 
             if (prop.type==='Number')
@@ -245,6 +221,24 @@ module.exports = (function () {
             
             if (prop.type==='Variant')
                 return JSON.stringify(prop.value);
+
+            if(prop.type === 'ItemTemplate')
+                return this.compileClass(prop, void 0, vars).join('\n');
+        },
+        builder: {
+            events: function(item){
+                var out = '';
+                out += '\t\tthis._subscribeList = [];\n';
+                out += '\t\tthis._subscr = function(){\n';
+
+                item.events.forEach(function (evt) {
+                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
+                        evt.fn + '\n}, this));\n';
+                });
+                out += '\t\t};\n';
+                out += '\t\tthis._subscr();\n';
+                return out;
+            }
         }
     });
 })();

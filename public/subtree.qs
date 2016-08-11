@@ -1,13 +1,13 @@
 
-def UIComponent main
+def Page main
 
-
-
-  button: 123
+  input: 0
+    type: button
+    .click: ()->
+        this.set('value', this.get('value')+(this.l = ((this.l | 0)+1)%10));
 
   ListBox list:
      top: 20
-     selectedItem: {{ dp.click?dp.item:void 0 }}
      itemTemplate:
          Checkbox: {{done}}
              disabled: true
