@@ -40,7 +40,6 @@ module.exports = (function () {
             var out = '';
 
             if (item.events) {
-                console.log(item.events);
                 out += '\t\tthis._subscribeList = [];\n';
                 out += '\t\tthis._subscribeEvents = function(){\n';
 
@@ -112,9 +111,7 @@ module.exports = (function () {
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
 
-                            console.log(fn);
                             fn = fn.replace(new RegExp(fullName.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), 'g'), mArg);
-                            console.log(fn);
                         }
                     }
                 }
@@ -234,6 +231,8 @@ module.exports = (function () {
 
             if (prop.type==='Number')
                 return prop.value;
+
+            //console.log(prop.type);
 
             if (prop.type==='Boolean')
                 return prop.value;

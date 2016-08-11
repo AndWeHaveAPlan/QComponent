@@ -49,9 +49,12 @@ module.exports = (function() {
 
             for(var propertyName in _knownComponents[className].prototype._prop){
                 //if(propertyName!=='default')
+
+                var prop=_knownComponents[className].prototype._prop[propertyName];
+
                 els[className].public[propertyName]= {
                     name: propertyName,
-                    type: 'String',
+                    type: prop.prototype.type,
                     value: ''
                 }
             }

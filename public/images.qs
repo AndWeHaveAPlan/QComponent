@@ -24,25 +24,25 @@ def Page main
             height:100%
             stretch: none
             source: {{imgSrc.value}}
-            transform: {{'rotate('+sl1.value+'deg)'}}
+            rotation: {{sl1.value}}
         Image image:
             width: 100%
             height:100%
             stretch: uniform
             source: {{imgSrc.value}}
-            transform: {{'rotate('+sl1.value+'deg)'}}
+            rotation: {{sl1.value}}
         Image:
             width: 100%
             height:100%
             stretch: fill
             source: {{imgSrc.value}}
-            transform: {{'rotate('+sl1.value+'deg)'}}
+            rotation: {{sl1.value}}
         Image:
             width: 100%
             height:100%
             stretch: uniformToFill
             source: {{imgSrc.value}}
-            transform: {{'rotate('+sl1.value+'deg)'}}
+            rotation: {{sl1.value}}
 
     Slider sl1: 0
         from: 0
