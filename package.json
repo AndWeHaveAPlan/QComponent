@@ -15,10 +15,10 @@
     "nvm": "*",
     "z-observable": "*",
     "observable-sequence": "*",
-    "require-self": "^0.x",
     "z-lib-structure-dqIndex": "*",
     "tiny-uuid": "*",
-    "esprima": "*"
+    "esprima": "*",
+    "escodegen": "*"
   },
   "devDependencies": {
     "chai": "*",

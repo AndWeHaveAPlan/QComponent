@@ -59,7 +59,8 @@ module.exports = (function () {
         },
         'MemberExpression': function(node, list){
             var needList = list !== false,
-                wasList = !!list;
+                wasList = !!list,
+                scope, key;
 
             if(!needList || list === void 0)
                 getVars.call(this, node.object, false);
@@ -75,13 +76,14 @@ module.exports = (function () {
                 getVars.call(this, node.object, list);
                 if(!wasList && needList){
                     list = list.reverse();
-                    (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
-                            list.map(function(node){
-                                if(node.type==='Literal')
-                                    return node.value.replace(/\./g,'\\.');
-                                return (node.computed ? '~':'')+node.name;
-                            }).join('.')
-                        ] = node;
+                    scope = (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}));
+                    key = list.map(function(node){
+                        if(node.type==='Literal')
+                            return node.value.replace(/\./g,'\\.');
+                        return (node.computed ? '~':'')+node.name;
+                    }).join('.');
+
+                    (scope[key] || (scope[key] = [])).push(node);
                     /*list.map(function(node){
                             if(node.type==='Literal')
                                 return {value: node.value, type: 'text', computed: false};
@@ -116,7 +118,7 @@ module.exports = (function () {
             getVars.call(subScope,node.body);
         },
         'Identifier': function(node, list){
-
+            var scope;
             if(list && list.length) {
                 list.push(node);
                 /*list = list.reverse();
@@ -126,12 +128,14 @@ module.exports = (function () {
                 //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }else {
                 this.used[node.name] = true;
-                if(list === void 0)
-                    (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}))[node.name] = true;
+                if(list === void 0) {
+                    scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
+                    (scope[node.name] || (scope[node.name] = [])).push(node);
+                }
             }
         },
         'ThisExpression': function(node, list){
-
+            var scope;
             if(list && list.length) {
                 node.name = 'this';
                 list.push(node);
@@ -142,8 +146,10 @@ module.exports = (function () {
                 //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }else {
                 this.used.this = true;
-                if(list === void 0)
-                    (this.deepUsed.this || (this.deepUsed.this= {})).this = true;
+                if(list === void 0) {
+                    scope = (this.deepUsed.this || (this.deepUsed.this = {}));
+                    (scope.this || (scope.this = [])).push(node);
+                }
             }
         },
         'Literal': function(node, list){
