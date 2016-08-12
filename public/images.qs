@@ -47,7 +47,3 @@ def Page main
     Slider sl1: 0
         from: 0
         to: 360
-
-    div
-        margin: 100px
-        Checkbox ccff: true

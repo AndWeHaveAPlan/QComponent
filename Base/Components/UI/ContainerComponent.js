@@ -10,6 +10,7 @@ var ContentContainer = require('../ContentContainer');
 var Property = require('../../Property');
 
 var ObservableSequence = require('observable-sequence');
+var DQIndex = require('z-lib-structure-dqIndex');
 
 module.exports = UIComponent.extend('ContainerComponent', {
     _prop: {
@@ -50,7 +51,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
                                 newComp.set(key, val[i][key]);
                     }
 
-                    self._handleChildren(newComp, i);
+                    this._handleChildren(newComp, i);
 
                     this._children.push(newComp);
                 }
