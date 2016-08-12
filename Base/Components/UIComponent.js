@@ -203,7 +203,7 @@ module.exports = (function () {
             }
         });
 
-        console.log(this.id);
+        //console.log(this.id);
         this._children.on('remove', function (child) {
             child.parent = null;
             if (self._contentContainer && child.el) {
