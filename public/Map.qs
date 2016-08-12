@@ -1,5 +1,5 @@
 def Page main
-    title: Карта
+    title: Карта туриста
     width:100%
     height:100%
 
@@ -21,6 +21,10 @@ def Page main
             background: black
 
         div
+            height: 100%
+            width: 100%
+            overflow-x: hidden
+            overflow-y: auto
             ListBox list:
                 itemTemplate:
                     div name:{{name}}
@@ -29,7 +33,13 @@ def Page main
                     {name:'Кремль', coords:[55.751617, 37.617887]},
                     {name:'Поклонная гора', coords:[55.734076, 37.516858]},
                     {name:'Офис Квокки',coords:[55.773381, 37.621968]},
-                    {name:'qweqwe34qwe',coords:[55.792589,37.787025]}
+                    {name:'Железнодорожное кольцо',coords:[55.520779, 37.546269]},
+                    {name:'Парк отдыха "Сокольники"',coords:[55.795549, 37.673884]},
+                    {name:'Воробьевы горы',coords:[55.709588, 37.564691]},
+                    {name:'Парк Горького',coords:[55.729435, 37.601150]},
+                    {name:'Сад Эрмитаж',coords:[55.770494, 37.608519]},
+                    {name:'Парк Победы',coords:[55.731841, 37.506587]},
+                    {name:'Тимирязевский парк',coords:[55.819574, 37.544653]}
                 ]
             input buttonRoute: Как добраться
                 margin: 12px
@@ -41,5 +51,6 @@ def Page main
                     gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
                 }
             ListBox:
+                overflow: auto
                 itemSource: {{gm.moveList}}
                 margin: 12px
