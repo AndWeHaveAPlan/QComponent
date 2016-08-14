@@ -3,7 +3,8 @@
  */
 module.exports = (function () {
     'use strict';
-    var esprima;
+    var esprima,
+        counter = 0;
 
     var getVars = function(node, list){
         if(!node) return;
@@ -82,7 +83,7 @@ module.exports = (function () {
                             return node.value.replace(/\./g,'\\.');
                         return (node.computed ? '~':'')+node.name;
                     }).join('.');
-
+                    node._id = counter++;
                     (scope[key] || (scope[key] = [])).push(node);
                     /*list.map(function(node){
                             if(node.type==='Literal')
@@ -130,6 +131,7 @@ module.exports = (function () {
                 this.used[node.name] = true;
                 if(list === void 0) {
                     scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
+                    node._id = counter++;
                     (scope[node.name] || (scope[node.name] = [])).push(node);
                 }
             }
@@ -148,6 +150,7 @@ module.exports = (function () {
                 this.used.this = true;
                 if(list === void 0) {
                     scope = (this.deepUsed.this || (this.deepUsed.this = {}));
+                    node._id = counter++;
                     (scope.this || (scope.this = [])).push(node);
                 }
             }
@@ -330,9 +333,14 @@ module.exports = (function () {
                 },
                 getFullUnDefined: function () {
                     return getFullUnDefined(this.getVars());
+                },
+                getAST: function(){
+                    return parsed;
                 }
             };
-        }
+        },
+        extractors: extractors,
+        rules: rules
     };
     return extractor;
 })();
