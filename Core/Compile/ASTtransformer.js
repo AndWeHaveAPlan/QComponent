@@ -3,6 +3,7 @@
  */
 module.exports = (function(){
     'use strict';
+    var assert = require('chai').assert;
     var Core = require( '../../Core' );
 
     var QObject = Core.Base.QObject,
@@ -16,7 +17,7 @@ module.exports = (function(){
         'ArrayExpression': '*elements',
         'ConditionalExpression,IfStatement': ['test', 'consequent', 'alternate'],
         'BreakStatement,EmptyStatement,ObjectPattern,DebuggerStatement': null,
-        'AssignmentExpression,BinaryExpression,LogicalExpression': ['left','right'],
+        'BinaryExpression,LogicalExpression': ['left','right'],
         'ForInStatement': ['left','right','body'],
         'UnaryExpression,ThrowStatement,ReturnStatement,UpdateExpression': 'argument',
         'WhileStatement,DoWhileStatement': ['test', 'body'],
@@ -41,37 +42,167 @@ module.exports = (function(){
 
 */
 
-    var doTransform = function(node, list){
+    var doTransform = function(node){
         if(!node) return;
 
         var type = node.type,
             extractor = extractors[type];
-
+console.log(type)
         if(!extractor){
             throw new Error('No extractor for type `'+ type +'`');
         }
-        return extractor.call(node, list);
+        return extractor.call(this, node);
     };
     var extractors = {
+        'AssignmentExpression': function(node){
+
+            node = Object.create(node);
+            node.right = doTransform.call(this,node.right);
+
+            if(!('_id' in node.left))
+                return node;
+            var beginning = node.left,
+                ending = [];
+            var out = {
+                "type": "ExpressionStatement",
+                "expression": {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "MemberExpression",
+                        "computed": false,
+                        "object": beginning,
+                        "property": {
+                            "type": "Identifier",
+                            "name": "set"
+                        }
+                    },
+                    "arguments": [
+                        {
+                            "type": "ArrayExpression",
+                            "elements":
+                                (ending.length ? ending : ['value']).map(function(val){
+                                    return {
+                                        "type": "Literal",
+                                        "value": val,
+                                        "raw": "'"+val+"'"
+                                    };
+                                })
+
+
+                        },
+                        node.right
+                    ]
+                }
+            };
+            //assert.deepEqual(node, out);
+            return out;
+        },
         'VariableDeclaration': function(node){
+            return node;
         },
         'VariableDeclarator': function(node){
+            return node;
         },
         'BlockStatement': function(node){
+            return node;
         },
         'MemberExpression': function(node, list){
+            var _self = this;
+            if('_id' in node){
+                //console.log(JSON.stringify(node,null,2));
+                var ending = [], pointer = node, stack = [];
+                while(pointer.object.type !== 'Identifier'){
+                    stack.push(pointer.property);
+                    pointer = pointer.object;
+                }
+                stack.push(pointer.property)
+
+                return {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": pointer.object,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "get"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "ArrayExpression",
+                                "elements":
+                                    (stack.length ? stack.reverse().map(function(item){
+                                        //console.log(JSON.stringify(item,null,2));
+                                        if(item.computed){
+                                            return doTransform.call(_self, item);
+                                        }else{
+                                            return {
+                                                "type": "Literal",
+                                                "value": item.name,
+                                                "raw": "'"+item.name+"'"
+                                            }
+                                        }
+                                        return item;
+                                    }) : [{
+                                        "type": "Literal",
+                                        "value": 'value',
+                                        "raw": "'value'"
+                                    }])
+                            }
+                        ]
+
+                };
+            }else {
+                node = Object.create(node);
+                node.object = doTransform.call(this,node.object);
+                node.property = doTransform.call(this,node.property);
+                return node;
+            }
         },
         'FunctionExpression': function(node){
+            return node;
         },
         'FunctionDeclaration': function(node){
+            return node;
         },
-        'Identifier': function(node, list){
+        'Identifier': function(node){
+            if('_id' in node){
+                return {
+                        "type": "CallExpression",
+                        "callee": {
+                            "type": "MemberExpression",
+                            "computed": false,
+                            "object": node,
+                            "property": {
+                                "type": "Identifier",
+                                "name": "get"
+                            }
+                        },
+                        "arguments": [
+                            {
+                                "type": "ArrayExpression",
+                                "elements": [
+                                    {
+                                        "type": "Literal",
+                                        "value": "value",
+                                        "raw": "'value'"
+                                    }
+                                ]
+                            }
+                        ]
+                };
+            }else
+                return node;
         },
         'ThisExpression': function(node, list){
+            return node;
         },
         'Literal': function(node, list){
+            return node;
         },
         'CatchClause': function(node){
+            return node;
         }
     };
 
@@ -82,18 +213,19 @@ module.exports = (function(){
         for(var i in rules){
             if(rules.hasOwnProperty(i)){
                 var val = rules[i];
-                var fn = new Function('doTransform', 'return function(node){console.log(node);'+
+                var fn = new Function('doTransform', 'return function(node){node = Object.create(node); '+
                     (val instanceof Array ? val : [val]).map(function(statement){
                         var each;
-                        if(statement === null)return '';
-                        (each = statement.charAt(0) === '*') &&
-                        (statement = statement.substr(1));
-                        if(each){
-                            return 'node[\''+statement+'\'].map(doTransform, this);';
-                        }else{
-                            return 'doTransform.call(this,node[\''+statement+'\']);';
+                        if(statement !== null) {
+                            (each = statement.charAt(0) === '*') &&
+                            (statement = statement.substr(1));
+                            if (each) {
+                                return 'node[\'' + statement + '\'] = node[\'' + statement + '\'].map(doTransform, this);';
+                            } else {
+                                return 'node[\'' + statement + '\'] = doTransform.call(this,node[\'' + statement + '\']);';
+                            }
                         }
-                    }).join('\n')+';}');
+                    }).join('\n')+';return node;}');
                 i.split(',').forEach(setExtractor);
             }
         }
@@ -111,10 +243,13 @@ module.exports = (function(){
                 }
             }
 
-            doTransform(esprimaTree, list)
+
             debugger;
-            console.log(escodegen.generate(esprimaTree))
+            var before = doTransform.call(list,esprimaTree);
+
+            return escodegen.generate(before);
         }
+
     };
     return ASTtransformer;
 })();
