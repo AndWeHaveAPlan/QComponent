@@ -129,7 +129,7 @@ module.exports = (function () {
                 //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }else {
                 this.used[node.name] = true;
-                if(list === void 0) {
+                if(list === void 0 || list === false || typeof list === 'number') {
                     scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
                     node._id = counter++;
                     (scope[node.name] || (scope[node.name] = [])).push(node);
@@ -316,6 +316,7 @@ module.exports = (function () {
             apply(undef, getFullUnDefined(scope, collector));
         });
         delete undef.Math;
+        delete undef.console;
         //console.log(undef)
         return undef;
 

@@ -4,7 +4,8 @@
 module.exports = (function() {
     'use strict';
     var tools = require('../Compile/tools');
-    var VariableExtractor=require('../Compile/VariableExtractor');
+    var VariableExtractor = require('../Compile/VariableExtractor'),
+        ASTtransformer = require('../Compile/ASTtransformer');
     var itemFilter = function (item) {
         if (item.type === 'comment')
             return false;
@@ -42,7 +43,7 @@ module.exports = (function() {
                     type: 'event',
                     args: fnInfo.args,
                     fn: fnInfo.fn,
-                    vars: VariableExtractor.parse(fnInfo.fn).getFullUnDefined()
+                    vars: fnInfo.vars
                 };
             }catch(e){
                 throw {item: item, data: e, message: 'Syntax error'};
@@ -75,7 +76,7 @@ module.exports = (function() {
                             token.items.filter(itemFilter)
                         )
                         .split(',')
-                        .map(function(text){return text.trim();});
+                        .map(function(text){ return text.trim(); });
                     argsMatched = true;
                 }
                 if(token.type === 'text'){
@@ -107,10 +108,15 @@ module.exports = (function() {
                         return item.pureLine;
                     })
                 );
-
+            fn = fn.join('\n');
+            
+            var parsed = VariableExtractor.parse(fn);
+            var vars = parsed.getFullUnDefined();
+            for( i = 0, _i = args.length; i < _i; i++)
+                delete vars[args[i]];
             return {
                 args: args,
-                fn: fn.join('\n')
+                fn: new ASTtransformer().transform(parsed.getAST(), vars)
             };
         }
     };

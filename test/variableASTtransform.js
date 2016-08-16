@@ -9,25 +9,24 @@ var assert = require('chai').assert,
 
 
 describe("ast transformations", function () {
+    "use strict";
+    var transform = function(source){
+        var vars = VariableExtractor.parse(source), o = vars.getFullUnDefined();
+        return new ASTtransformer().transform(vars.getAST(), o, {compact: true});
+    };
     var VariableExtractor = Core.Compile.VariableExtractor;
-
     it("should work in simple cases", function () {
-        var vars = VariableExtractor.parse('a=a+1+b.c.d[l]'), o = vars.getFullUnDefined(),
-            list = {}, scope, j
-            ;
-        for(var i in o){
-            scope = o[i];
-            for(j in scope){
-                scope[j].forEach(function(item){
-                    list[item._id] = item;
-                });
-            }
-        }
-        console.log(new ASTtransformer().transform(vars.getAST(), o));
-        console.log(Object.keys(list))
-        //console.log(o.a);
-        //o.a.a[0]._id = '22'
-        //console.log(o.b)
-        //console.log(escodegen.generate(o.b['b.c.d']))
+        assert.equal(transform('a=2;'), 'a.set([\'value\'],2);');
+        assert.equal(transform('a=b;'), 'a.set([\'value\'],b.get([\'value\']));');
+        assert.equal(transform('a=b+2;'), 'a.set([\'value\'],b.get([\'value\'])+2);');
+        assert.equal(transform('a=2+b;'), 'a.set([\'value\'],2+b.get([\'value\']));');
+        assert.equal(transform('var x; a=x+b;'), 'var x;a.set([\'value\'],x+b.get([\'value\']));');
+        assert.equal(transform('var x = 5; a=x+b;'), 'var x=5;a.set([\'value\'],x+b.get([\'value\']));');
     });
+    it("should work in complex cases", function () {
+        assert.equal(transform('a.b.c=2;'), 'a.set([\'b\',\'c\'],2);');
+        assert.equal(transform('a.b.c[d]=2;'), 'a.set([\'b\',\'c\',d.get([\'value\'])],2);');
+        assert.equal(transform('var x; a.b.c[d?x:d.e]=2;'), 'var x;a.set([\'b\',\'c\',d.get([\'value\'])?x:d.get([\'e\'])],2);');
+    });
+
 });
