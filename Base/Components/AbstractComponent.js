@@ -197,7 +197,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             return this._prop[names[0]].set(value);
         }
 
-        return this;
+        return value;
     },
 
     _set: function (name, value) {
