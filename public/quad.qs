@@ -3,7 +3,7 @@ def Page main
   input a: 8
     type: number
     .click: (e)->
-      console.log(e, a,b,c,D);
+      console.log(e, a,b,c);
   span: x
   sup: 2
   span: +

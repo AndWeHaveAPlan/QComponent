@@ -68,7 +68,8 @@ AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
 
-    _init: function(){},
+    _init: function () {
+    },
     _prop: {},
     _initProps: function (cfg) {
 
@@ -107,9 +108,44 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     /**
      * Get property from component
      *
-     * @param name String
+     * @param names String
      */
-    get: function (name) {
+    get: function (names) {
+
+        if (!Array.isArray(names)) {
+            return this._get(names);
+        }
+
+        if (!names) {
+            return this.get(['value']);
+        }
+
+        var ret = this;
+        if (names.length > 1) {
+            for (var i = 0; i < names.length; i++) {
+                if (ret instanceof AbstractComponent) {
+                    ret = ret.get(names[i]);
+                } else {
+                    ret = ret[names[i]];
+                }
+                if (ret == void 0)
+                    return ret;
+            }
+            return ret;
+        } else if (names.length === 1) {
+            return names[0] in this._prop ? this._prop[names[0]].get() : void (0);
+        } else {
+            return void(0)
+        }
+    },
+
+    /**
+     *  Old method with string parameter
+     * @param name
+     * @returns {*}
+     * @private
+     */
+    _get: function (name) {
 
         var nameParts = name.split('.');
         var ret = this;
@@ -136,17 +172,42 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     /**
      * Set property to component
      *
-     * @param name String
+     * @param names String
      * @param value Object
      */
-    set: function (name, value) {
+    set: function (names, value) {
+
+        if (!Array.isArray(names)) {
+            return this._set(names, value);
+        }
+
+        if (names.length > 1) {
+            var getted = this.get(names.slice(0, names.length - 1).join('.'));
+            if (getted)
+                if (getted instanceof AbstractComponent) {
+                    getted.set(names[names.length - 1], value);
+                } else {
+                    getted[names[names.length - 1]] = value;
+                    this._onPropertyChanged(names.splice(0, 1), value);
+                }
+        } else {
+            if (!this._prop[names[0]]) {
+                this._prop[names[0]] = new (this._prop.default || defaultPropertyFactory)(this, names[0]);
+            }
+            return this._prop[names[0]].set(value);
+        }
+
+        return this;
+    },
+
+    _set: function (name, value) {
         var nameParts = name.split('.');
 
         if (nameParts.length > 1) {
             var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
             if (getted)
                 if (getted instanceof AbstractComponent) {
-                    getted.set(nameParts[nameParts.length-1], value);
+                    getted.set(nameParts[nameParts.length - 1], value);
                 } else {
                     getted[nameParts[nameParts.length - 1]] = value;
                     this._onPropertyChanged(nameParts.splice(0, 1), value);

@@ -16,6 +16,8 @@ module.exports = {
         UI: {
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
+            TextBox: require('./Base/Components/UI/TextBox'),
+            MaskedInput: require('./Base/Components/UI/MaskedInput'),
             ListBox: require('./Base/Components/UI/ListBox'),
             WrapPanel: require('./Base/Components/UI/WrapPanel'),
             HBox: require('./Base/Components/UI/HBox'),
@@ -34,7 +36,8 @@ module.exports = {
             Gate: require('./Base/Components/Logical/Gate'),
             Timer: require('./Base/Components/Logical/Timer'),
             Random: require('./Base/Components/Logical/Random'),
-            Title: require('./Base/Components/Logical/Title')
+            Title: require('./Base/Components/Logical/Title'),
+            HTTPRequest: require('./Base/Components/Logical/HTTPRequest')
         }
     },
     EventManager: require('./Base/EventManager'),
