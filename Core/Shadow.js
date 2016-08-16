@@ -14,6 +14,7 @@ module.exports = (function() {
             HTMLComponent: require('./Shadow/HTMLComponent'),
             String: {},
             Boolean: {},
+            Array:[],
             Number: {
                 linkerSetter: function (value) {
 
