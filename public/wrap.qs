@@ -1,24 +1,4 @@
-def ItemTemplate WrapTemplate
-    padding: 13px 0
-    transition: 'all 0.2s ease'
 
-    div
-        padding: 26px 26px 0
-        Image icon
-            background: white
-            source: {{img}}
-            border-radius: 25%
-            padding: 0 0 100% 0
-            stretch: uniformToFill
-            //.click: ()=>alert(1)
-    center: {{name}}
-        color: white
-        margin: 6.5px 0 0
-    .mouseenter: ()=>
-            self.set('scale', 1.5);
-    .mouseleave: ()=>
-            self.set('scale', 1);
-    //.click: ()=>{alert(1)}
 
 
 def Page main
@@ -29,6 +9,7 @@ def Page main
         flexDefinition: * 500
 
         WrapPanel wp1
+            scroll: vertical
             selectionColor: transparent;
             background: #339
             margin: 0 auto
@@ -38,7 +19,27 @@ def Page main
             padding: 26px
 
             itemWidth: 25%
-            itemTemplate: WrapTemplate
+            itemTemplate:
+                padding: 13px 0
+                transition: all 0.2s ease
+
+                div
+                    padding: 26px 26px 0
+                    Image icon
+                        background: white
+                        source: {{img}}
+                        border-radius: 25%
+                        padding: 0 0 100% 0
+                        stretch: uniformToFill
+                center: {{name}}
+                    color: white
+                    margin: 6.5px 0 0
+                .mouseenter: ()=>
+                        self.scale = [1.5, 1.5];
+                        //console.log('mouseenter');
+                .mouseleave: ()=>
+                        self.scale = [1, 1];
+                        //console.log('mouseleave');
             itemSource: ((function(){
                     var arr = [];
                     for( var i = 1; i < 100; i++){
@@ -53,10 +54,14 @@ def Page main
 
         div
             h1: {{wp1.selectedItem.name}}
-            Image:
+            Image i2:
                 width: 100%
                 padding: 0 0 100%
                 source: {{wp1.selectedItem.img}}
-                rotation: 0
                 rotation: 5
+                transform: [
+                    {type:'rotation', angle: 30},
+                    {type:'scale', x:0.5,y:0.5},
+                    {type:'translation', x:50,y:50}
+                    ]
                 stretch: uniform

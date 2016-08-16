@@ -51,7 +51,6 @@ module.exports = (function() {
 
             for(var propertyName in _knownComponents[className].prototype._prop){
                 var prop = _knownComponents[className].prototype._prop[propertyName];
-                //console.log(propertyName, prop.prototype.type)
                 els[className].public[propertyName] = {
                     name: propertyName,
                     type: prop.prototype.type,

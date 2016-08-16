@@ -10,8 +10,6 @@ var Property = require('../../Property');
 module.exports = ContainerComponent.extend('WrapPanel', {
     createEl: function () {
         this.el = UIComponent.document.createElement('div');
-        this.el.style.overflowY = 'auto';
-        this.el.style.overflowX = 'hidden';
     },
     _handleChildren: function (childComp, index) {
         var self = this;

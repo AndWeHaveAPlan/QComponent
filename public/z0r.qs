@@ -22,7 +22,7 @@ def Page main
     }
 
   Random r1:
-    from: 0001
+    from: 1
     to: 7631
 
   VBox

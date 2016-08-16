@@ -28,13 +28,13 @@ module.exports = (function () {
                 source,
                 _self = this,
                 inline = false;
-            
+
             if(name === void 0) {
                 inline = true;
                 item = metadata;
                 name = item.type+uuid();
             }
-            
+
             vars[item.type] = '_known[\'' + item.type + '\']';
 
             this._knownVars = [];
@@ -47,13 +47,13 @@ module.exports = (function () {
 
             var out = '';
 
-            this.nestingCount = 0;
+
             var props = [
                 {name: 'value', value: 'new Base.Property("Variant")'}
             ];
 
             var compiledChildren=item.children ? item.children.map(function (el) {
-                return _self.compileChild(el, item, props, vars);
+                return _self.compileChild(el, item, props, vars, 0);
             }).join('') : '//no children\n';
 
             source = [
@@ -96,9 +96,7 @@ module.exports = (function () {
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
 
-                            console.log(fn);
                             fn = fn.replace(new RegExp(fullName.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), 'g'), mArg);
-                            console.log(fn);
                         }
                     }
                 }
@@ -129,7 +127,7 @@ module.exports = (function () {
             }
             return out;
         },
-        compileChild: function (child, parent, props, vars) {
+        compileChild: function (child, parent, props, vars, nestingCount) {
             var type = child.type,
                 _self = this, propList;
 
@@ -139,17 +137,17 @@ module.exports = (function () {
 
             var compiledChildren = '';
             if (child.children) {
-                this.nestingCount += 1;
+
                 compiledChildren = child.children.map(function(item){
-                    return _self.compileChild(item, child, props, vars);
+                    return _self.compileChild(item, child, props, vars, nestingCount + 1);
                 }).join('');
-                this.nestingCount -= 1;
+
             }
 
             var out = '';
             var initSet='';
 
-            if (this.nestingCount > 0) {
+            if (nestingCount > 0) {
                 out = '\t' + (child.name ? 'var '+child.name+' = ' : 'tmp = ') + '(function(parent){\n' +
                     '\t\teventManager.registerComponent(this);\n' + compiledChildren;
 
@@ -160,14 +158,10 @@ module.exports = (function () {
             var i, prop, propVal, pipes;
 
             if (child.value)
-                (child.prop || (child.prop = {})).value = {name: 'value', type: propList._prop && propList._prop.value && propList._prop.value.prototype ? propList._prop.value.prototype.type: 'Variant', value: child.value};
-                /*if (child.value.isPipe) {
-                    var pipe = child.value;
-                    out += this.makePipe(pipe, 'self.id', 'value', parent);
-                } else {
-                    propVal = this.propertyGetter(child);
-                    initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'value\', ' + propVal + ');\n';
-                }*/
+                (child.prop || (child.prop = {})).value = {
+                    name: 'value',
+                    type: propList._prop && propList._prop.value && propList._prop.value.prototype ? propList._prop.value.prototype.type: 'Variant',
+                    value: child.value};
 
             if( child.name){
                 props.push({name: child.name, value: 'new Base.Property(\''+ child.type +'\')'})
@@ -188,7 +182,7 @@ module.exports = (function () {
             if (child.events)
                 out += this.builder.events(child);
 
-            if (this.nestingCount > 0) {
+            if (nestingCount > 0) {
                 out += '\t\tparent.addChild(this);\n\n';
                 out += '\t\treturn this;\n' +
                     '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
@@ -218,7 +212,7 @@ module.exports = (function () {
 
             if (prop.type==='String')
                 return '\'' + prop.value + '\'';
-            
+
             if (prop.type==='Variant')
                 return JSON.stringify(prop.value);
 
