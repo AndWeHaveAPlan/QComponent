@@ -10,15 +10,15 @@ def ItemTemplate WrapTemplate
             border-radius: 25%
             padding: 0 0 100% 0
             stretch: uniformToFill
-            //.click: ()=>alert(1)
     center: {{name}}
         color: white
         margin: 6.5px 0 0
     .mouseenter: ()=>
-            self.set('scale', 1.5);
+            self.set('scale', [1.5, 1.5]);
+            //console.log('mouseenter');
     .mouseleave: ()=>
-            self.set('scale', 1);
-    //.click: ()=>{alert(1)}
+            self.set('scale', [1, 1]);
+            //console.log('mouseleave');
 
 
 def Page main
@@ -29,6 +29,7 @@ def Page main
         flexDefinition: * 500
 
         WrapPanel wp1
+            scroll: vertical
             selectionColor: transparent;
             background: #339
             margin: 0 auto
@@ -57,9 +58,8 @@ def Page main
                 width: 100%
                 padding: 0 0 100%
                 source: {{wp1.selectedItem.img}}
-                //rotation: 0
-                //rotation: 5
-                transform:                    [
+                rotation: 5
+                transform: [
                     {type:'rotation', angle: 30},
                     {type:'scale', x:0.5,y:0.5},
                     {type:'translation', x:50,y:50}
