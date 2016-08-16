@@ -2,6 +2,8 @@ def Page main
  div
   input a: 8
     type: number
+    .click: (e)->
+      console.log(e, a,b,c,D);
   span: x
   sup: 2
   span: +

@@ -7,8 +7,7 @@ module.exports = (function(){
     var Core = require( '../../Core' );
 
     var QObject = Core.Base.QObject,
-        escodegen = require('escodegen'),
-        VariableExtractor = Core.Compile.VariableExtractor;
+        escodegen = require('escodegen');
 
     var rules = {
         'Program': '*body',
@@ -47,7 +46,7 @@ module.exports = (function(){
 
         var type = node.type,
             extractor = extractors[type];
-console.log(type)
+//console.log(type)
         if(!extractor){
             throw new Error('No extractor for type `'+ type +'`');
         }
@@ -59,18 +58,27 @@ console.log(type)
             node = Object.create(node);
             node.right = doTransform.call(this,node.right);
 
-            if(!('_id' in node.left))
+            /** if variable is declared - do nothing */
+            if(!('_id' in node.left) || !(node.left._id in this))
                 return node;
-            var beginning = node.left,
-                ending = [];
+
+            var _self = this;
+
+            var pointer = node.left, stack = [];
+            console.log(pointer)
+            while(pointer.type !== 'Identifier'){
+                stack.push(pointer.property);
+                pointer = pointer.object;
+            }
+            //stack.push(pointer.property);
+
             var out = {
-                "type": "ExpressionStatement",
-                "expression": {
+
                     "type": "CallExpression",
                     "callee": {
                         "type": "MemberExpression",
                         "computed": false,
-                        "object": beginning,
+                        "object": pointer,
                         "property": {
                             "type": "Identifier",
                             "name": "set"
@@ -80,19 +88,29 @@ console.log(type)
                         {
                             "type": "ArrayExpression",
                             "elements":
-                                (ending.length ? ending : ['value']).map(function(val){
-                                    return {
-                                        "type": "Literal",
-                                        "value": val,
-                                        "raw": "'"+val+"'"
-                                    };
-                                })
+                                (stack.length ? stack.reverse().map(function(item){
+                                    //console.log(JSON.stringify(item,null,2));
+                                    if(item.computed){
+                                        return doTransform.call(_self, item);
+                                    }else{
+                                        return {
+                                            "type": "Literal",
+                                            "value": item.name,
+                                            "raw": "'"+item.name+"'"
+                                        }
+                                    }
+                                    return item;
+                                }) : [{
+                                    "type": "Literal",
+                                    "value": 'value',
+                                    "raw": "'value'"
+                                }])
 
 
                         },
                         node.right
                     ]
-                }
+
             };
             //assert.deepEqual(node, out);
             return out;
@@ -106,16 +124,17 @@ console.log(type)
         'BlockStatement': function(node){
             return node;
         },
-        'MemberExpression': function(node, list){
+        'MemberExpression': function(node){
             var _self = this;
-            if('_id' in node){
+
+            if('_id' in node && node._id in this){
                 //console.log(JSON.stringify(node,null,2));
                 var ending = [], pointer = node, stack = [];
                 while(pointer.object.type !== 'Identifier'){
                     stack.push(pointer.property);
                     pointer = pointer.object;
                 }
-                stack.push(pointer.property)
+                stack.push(pointer.property);
 
                 return {
                         "type": "CallExpression",
@@ -167,7 +186,8 @@ console.log(type)
             return node;
         },
         'Identifier': function(node){
-            if('_id' in node){
+            if('_id' in node && node._id in this){
+                console.log(node)
                 return {
                         "type": "CallExpression",
                         "callee": {
@@ -232,7 +252,7 @@ console.log(type)
     })();
     var ASTtransformer = function(){};
     ASTtransformer.prototype = {
-        transform: function(esprimaTree, undefinedVarsStruct){
+        transform: function(esprimaTree, undefinedVarsStruct, options){
             var list = {}, scope, j;
             for(var i in undefinedVarsStruct){
                 scope = undefinedVarsStruct[i];
@@ -244,10 +264,11 @@ console.log(type)
             }
 
 
-            debugger;
             var before = doTransform.call(list,esprimaTree);
 
-            return escodegen.generate(before);
+            return escodegen.generate(before, {
+                format: options || {}
+            });
         }
 
     };
