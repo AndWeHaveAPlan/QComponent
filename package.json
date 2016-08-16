@@ -7,7 +7,8 @@
     "test": "_mocha",
     "coverage": "istanbul cover _mocha -- -R spec",
     "prepublish": "require-self",
-    "bundle": "browserify --standalone Base Base.js > public/bundle.js"
+    "bundle": "browserify --standalone Base Base.js > public/bundle.js",
+    "core": "browserify --standalone Core Core.js > public/bundle2.js"
   },
   "author": "",
   "license": "BSD-2-Clause",
