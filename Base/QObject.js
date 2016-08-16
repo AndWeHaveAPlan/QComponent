@@ -126,6 +126,7 @@ var observable = require('z-observable');
                 return storage;
             }, {});
 
+            //if(original)
             proto = Cmp.prototype = Object.create(original.prototype).apply(cfg);
 
             for (i in overlays) {
@@ -151,7 +152,7 @@ var observable = require('z-observable');
         deepApplyHash = QObject.arrayToObject(deepApply);
     QObject._knownComponents = components;
 
-    QObject.prototype._type = "QObject";
+    QObject._type = QObject.prototype._type = "QObject";
     QObject._knownComponents['QObject'] = QObject;
     if (typeof document === 'undefined') {
         //QObject.document = require("dom-lite").document;
