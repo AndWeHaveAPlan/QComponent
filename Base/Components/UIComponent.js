@@ -144,24 +144,63 @@ module.exports = (function () {
             return this;
         },
         _prop: (function () {
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,overflow-x,overflow-y,margin,display,background,color,padding,transform-origin,transition,position,border-radius'
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius'
                 .split(',')
                 .reduce(function (store, key) {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);
                     return store;
                 }, {}));
-            out.disabled = new Property('Boolean', {description: 'disabled of element'}, {
+            out.scroll = new Property('String', {description: 'visibility of element'}, {
                 set: function (key, val, oldValue) {
-                    if (!val) {
+                    switch (val) {
+                        case 'none':
+                            this.el.style.overflowX = 'hidden';
+                            this.el.style.overflowY = 'hidden';
+                            break;
+                        case 'horizontal':
+                            this.el.style.overflowX = 'auto';
+                            this.el.style.overflowY = 'hidden';
+                            break;
+                        case 'vertical':
+                            this.el.style.overflowX = 'hidden';
+                            this.el.style.overflowY = 'auto';
+                            break;
+                        case 'both':
+                            this.el.style.overflowX = 'auto';
+                            this.el.style.overflowY = 'auto';
+                            break;
+                    }
+                },
+                get: Property.defaultGetter
+            }, 'visible');
+            out.visibility = new Property('String', {description: 'visibility of element'}, {
+                set: function (key, val, oldValue) {
+                    switch (val) {
+                        case 'visible':
+                            this.el.style.display = 'initial';
+                            break;
+                        case 'hidden ':
+                            this.el.style.display = 'initial';
+                            this.el.style.opacity = 0;
+                            break;
+                        case 'collapsed':
+                            this.el.style.display = 'none';
+                            break;
+                    }
+                },
+                get: Property.defaultGetter
+            }, 'visible');
+            out.enabled = new Property('Boolean', {description: 'disabled of element'}, {
+                set: function (key, val, oldValue) {
+                    if (val) {
                         this.el.removeAttribute('disabled');
                     } else {
                         this.el.setAttribute('disabled', 'disabled');
                     }
-
-                    this.el.disabled = val;
+                    this.el.disabled = !val;
                 },
                 get: Property.defaultGetter
-            });
+            }, 'true');
             out.rotation = new Property('Number', {description: 'Component rotation (angle, in degrees)'}, {
                 set: function (key, val, oldValue) {
                     var m = matrix.createRotation((val / 180) * Math.PI);
@@ -171,21 +210,21 @@ module.exports = (function () {
             });
             out.translation = new Property('Array', {description: 'Component translation ([x,y] in "pixels")'}, {
                 set: function (key, val, oldValue) {
-                    var m = matrix.createTranslation(val[0],val[1]);
+                    var m = matrix.createTranslation(val[0], val[1]);
                     this.el.style.transform = matrix.toStyleString(m);
                 },
                 get: Property.defaultGetter
             });
             out.scale = new Property('Array', {description: 'Component scale ([x,y] relative)'}, {
                 set: function (key, val, oldValue) {
-                    var m = matrix.createScale(val[0],val[1]);
+                    var m = matrix.createScale(val[0], val[1]);
                     this.el.style.transform = matrix.toStyleString(m);
                 },
                 get: Property.defaultGetter
             });
             out.scew = new Property('Array', {description: 'Component scew ([x,y] relative)'}, {
                 set: function (key, val, oldValue) {
-                    var m = matrix.createScew(val[0],val[1]);
+                    var m = matrix.createScew(val[0], val[1]);
                     this.el.style.transform = matrix.toStyleString(m);
                 },
                 get: Property.defaultGetter
@@ -193,7 +232,6 @@ module.exports = (function () {
             out.transform = new Property('Array', {description: 'Complex transform'}, {
                 set: function (key, val, oldValue) {
                     this._transformMatrix = matrix.createEmpty();
-
                     for (var i = 0; i < val.length; i++) {
                         var m = matrix.createEmpty();
                         var cVal = val[i];
