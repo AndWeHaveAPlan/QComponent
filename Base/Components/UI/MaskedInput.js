@@ -9,32 +9,48 @@ var Property = require('../../Property');
 
 module.exports = UIComponent.extend('MaskedInput', {
     createEl: function () {
-        this._specialChars = '*';
         var self = this;
         this.el = UIComponent.document.createElement('input');
-        this.shadowInput = UIComponent.document.createElement('input');
-        this.shadowInput.style.display = 'none';
 
-        this.addChild(this.shadowInput);
+        var sChars = 'd';
+        var mask = 'dd-dd/dd=dd';
 
-        this.el.setAttribute('type', 'text');
-        this.shadowInput.setAttribute('type', 'text');
+        function unmask(str) {
+            var count = 0;
+            var ret = '';
+            for (var i = 0; i < mask.length; i++) {
+                str=str.replace(mask[i],'');
+            }
+            return str;
+        }
 
-        this.el.addEventListener('keydown', function (event) {
-            //self.shadowInput.dispatchEvent(event);
-            console.log(this.selectionStart);
-            var ne = new KeyboardEvent('keydown', event);
-            //ne.target=self.shadowInput;
-            document.dispatchEvent(ne);
+        function enmask(str) {
+            var count = 0;
+            var ret = '';
+            for (var i = 0; i < mask.length; i++) {
+                if (!str[i - count]) break;
+
+                if (sChars.indexOf(mask[i]) === -1) {
+                    ret += mask[i];
+                    count++;
+                } else {
+                    ret += str[i - count]
+                }
+
+            }
+            return ret;
+        }
+
+        this.el.addEventListener('keypress', function (event) {
+            console.log(this.value);
         });
 
         this.el.addEventListener('keyup', function (event) {
 
-            /*var data =
+            var r = unmask(this.value);
+            this.value = enmask(r);
 
-             for (var i = 0, j = 0; i <)
 
-             self.set('value', this.value);*/
         });
     },
     _prop: {
