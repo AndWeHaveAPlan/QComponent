@@ -45,16 +45,24 @@ module.exports = (function () {
             }
         }
     };
-    //class Boolean extends Type
+
     var setter = function (value) {
-        var key = this.key,
+        var key = this.proxyFor || this.key,
             oldValue = this.parent._data[key],
-            validate = this.validate;
+            validate = this.validate,
+            proxy = this.parent._prop.__proxy[key],
+            prop = this.parent._prop[this.proxyFor] || this;
+
 
         if ((!validate || (validate && validate(value))) && value !== oldValue) {
             this.parent._data[key] = value;
-            if (this._set.call(this.parent, key, value, oldValue) !== false) {
+            if (prop._set.call(this.parent, key, value, oldValue) !== false) {
                 this.parent._onPropertyChanged(this.parent, key, value, oldValue);
+                if (proxy) {
+                    for (var i = 0; i < proxy.length; i++) {
+                        this.parent._onPropertyChanged(this.parent, proxy[i], value, oldValue)
+                    }
+                }
             } else {
                 this.parent._data[key] = oldValue;
             }
@@ -63,7 +71,8 @@ module.exports = (function () {
             return false;
     };
     var getter = function () {
-        return this._get.call(this.parent, this.key, this.parent._data[this.key]);
+        var key = this.proxyFor || this.key;
+        return this._get.call(this.parent, key, this.parent._data[key]);
     };
 
     var Property = function (type, metadata, cfg, defaultValue) {
@@ -76,10 +85,10 @@ module.exports = (function () {
             proto = {parent: null};
 
         /** if type is in known classes */
-        if(!dataType && QObject._knownComponents[type])
+        if (!dataType && QObject._knownComponents[type])
             dataType = dataTypes[type] = Property.generate.typed(type, QObject._knownComponents[type]);
 
-        if(!dataType)
+        if (!dataType)
             dataType = dataTypes.Variant;
 
         proto.type = metadata.type = type;
@@ -90,11 +99,23 @@ module.exports = (function () {
         }
 
         var cls = function (parent, key) {
+            if (!parent._prop.__proxy)
+                parent._prop.__proxy = {};
+
             this.parent = parent;
             this.key = key;
+            this.proxyFor = cfg.proxyFor;
 
             if (this.setDefault) {
                 this.parent._data[key] = this.value;
+            }
+
+            if (this.proxyFor) {
+
+                if (!parent._prop.__proxy[this.proxyFor])
+                    parent._prop.__proxy[this.proxyFor] = [];
+
+                parent._prop.__proxy[this.proxyFor].push(key);
             }
         };
         cls.prototype = proto;
@@ -114,10 +135,13 @@ module.exports = (function () {
         proto.get = getter;
         return cls;
     };
-    Property.defineType = function(name, cfg){
+    Property.defineType = function (name, cfg) {
         dataTypes[name] = cfg;
     };
     Property.generate = {
+        proxy: function (proxyFor) {
+            return new Property('String', {description: 'Proxy for '+proxyFor+' property'}, {proxyFor: proxyFor});
+        },
         typed: function (name, cls) {
             return {
                 set: function () {
@@ -148,20 +172,20 @@ module.exports = (function () {
                 }
             );
         },
-        attributeProperty: function (text) {
+        attributeProperty: function (attr) {
             return new Property('String',
-                {description: text},
+                {description: attr},
                 {
                     set: function (key, val) {
                         if (!val) {
-                            this.el.removeAttribute(key);
-                            delete this.el[key];
+                            this.el.removeAttribute(attr);
+                            delete this.el[attr];
                         } else {
-                            this.el.setAttribute(key, val);
-                            this.el[key] = val;
+                            this.el.setAttribute(attr, val);
+                            this.el[attr] = val;
                         }
 
-                        this.el[key] = val;
+                        this.el[attr] = val;
                     },
                     get: function (key, value) {
                         return value;
