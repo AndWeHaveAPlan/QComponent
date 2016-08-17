@@ -58,7 +58,8 @@ function AbstractComponent(cfg) {
     this._onPropertyChanged = new MulticastDelegate();
 
     if (!this._eventManager)
-        this._eventManager = new EventManager(this.id);
+        this._eventManager = new EventManager(this);
+
 
     this._eventManager.registerComponent(this);
 }
