@@ -18,7 +18,8 @@ module.exports = UIComponent.extend('TextBox', {
         });
     },
     _prop: {
-        value: Property.generate.attributeProperty('value'),
+        value: Property.generate.proxy('text'),
+        text: Property.generate.attributeProperty('value'),
         placeholder: Property.generate.attributeProperty('placeholder')
     }
 });

@@ -13,18 +13,24 @@ module.exports = UIComponent.extend('MaskedInput', {
         this.el = UIComponent.document.createElement('input');
 
         var sChars = 'd';
-        var mask = 'dd-dd/dd=dd';
+        //var mask = 'dd-dd/dd=dd';
 
         function unmask(str) {
+            var mask = self._data.mask;
+            if (!mask) return str;
+
             var count = 0;
             var ret = '';
             for (var i = 0; i < mask.length; i++) {
-                str=str.replace(mask[i],'');
+                str = str.replace(mask[i], '');
             }
             return str;
         }
 
         function enmask(str) {
+            var mask = self._data.mask;
+            if (!mask) return str;
+
             var count = 0;
             var ret = '';
             for (var i = 0; i < mask.length; i++) {
@@ -42,14 +48,39 @@ module.exports = UIComponent.extend('MaskedInput', {
         }
 
         this.el.addEventListener('keypress', function (event) {
-            console.log(this.value);
         });
 
         this.el.addEventListener('keyup', function (event) {
 
+            if (event.keyCode == 37 ||
+                event.keyCode == 38 ||
+                event.keyCode == 39 ||
+                event.keyCode == 40 || //arrows
+                event.keyCode == 16 || //shift
+                event.keyCode == 17 || //ctrl
+                event.keyCode == 18 || //alt
+                event.keyCode == 19 || //pause/break
+                event.keyCode == 20 || //caps
+                event.keyCode == 27    //esc
+            ) {
+                return;
+            }
+
+            /*if(event.key){
+                //self.s
+            }*/
+
+            var cursor = this.selectionStart;
+            var length = this.value.length;
+
+            console.log(event.key);
+
             var r = unmask(this.value);
             this.value = enmask(r);
 
+            var delta = this.value.length - length;
+
+            this.setSelectionRange(cursor + delta, cursor + delta);
 
         });
     },
