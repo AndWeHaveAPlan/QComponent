@@ -74,6 +74,7 @@ module.exports = (function () {
             return source;
         },
         makePipe: function (pipe, sourceComponent, targetProperty, def) {
+
             var pipeSources = [];
             var mutatorArgs = [];
             var fn = pipe.fn;
