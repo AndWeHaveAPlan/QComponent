@@ -15,10 +15,10 @@ var SimplePipe = require("./Pipes/SimplePipe");
  *
  * @constructor
  */
-function EventManager(id) {
+function EventManager(owner) {
     this._registredComponents = {};
     this._registredPipes = {};
-    this.id = id;
+    this.owner = owner;
 }
 
 EventManager.prototype = new QObject();
@@ -36,7 +36,7 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
 
         var key = sender.id + '.' + name;
 
-        if (sender.id == self.id)
+        if (sender.id == self.owner.id)
             key = name;
 
         var propertyPipes = self._registredPipes[key];
@@ -98,8 +98,8 @@ EventManager.prototype.registerPipe = function (pipe) {
         if (bindingSources.hasOwnProperty(source)) {
 
             var currentSource = bindingSources[source];
-
-            component = this._registredComponents[currentSource.componentName];
+            var componentName = currentSource.componentName || this.owner.id;
+            component = this._registredComponents[componentName];
             currentSource.value = component ? component.get(currentSource.propertyName) : void(0);
 
             var pipes = this._registredPipes[currentSource.key];
