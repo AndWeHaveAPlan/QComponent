@@ -59,8 +59,11 @@ module.exports = (function () {
                         this._eventManager.registerComponent(item);
                     }
 
-                if (item instanceof UIComponent)
+                if (item instanceof UIComponent) {
+
                     this.el.appendChild(item.el);
+                    item.fire('addToParent')
+                }
             }
         },
 

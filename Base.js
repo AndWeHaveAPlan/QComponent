@@ -14,6 +14,9 @@ module.exports = {
         UIComponent: require('./Base/Components/UIComponent'),
         ContentContainer: require('./Base/Components/ContentContainer'),
         UI: {
+            Field: {
+                Base: require('./Base/Components/UI/Field/Base')
+            },
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             TextBox: require('./Base/Components/UI/TextBox'),
