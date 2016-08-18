@@ -140,7 +140,7 @@ module.exports = (function () {
     };
     Property.generate = {
         proxy: function (proxyFor) {
-            return new Property('String', {description: 'Proxy for '+proxyFor+' property'}, {proxyFor: proxyFor});
+            return new Property('String', {description: 'Proxy for ' + proxyFor + ' property'}, {proxyFor: proxyFor});
         },
         typed: function (name, cls) {
             return {
