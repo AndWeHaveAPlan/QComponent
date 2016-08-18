@@ -73,14 +73,6 @@ module.exports = (function(){
             }
         };
     };
-/*
-
-    var UpdateExpressionDSL = {
-        '--': '-',
-        '++': '+',
-
-    };
-*/
 
     var extractors = {
         'UpdateExpression': function(node){
