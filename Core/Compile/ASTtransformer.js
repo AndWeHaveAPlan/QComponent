@@ -18,9 +18,11 @@ module.exports = (function(){
         'BreakStatement,EmptyStatement,ObjectPattern,DebuggerStatement': null,
         'BinaryExpression,LogicalExpression': ['left','right'],
         'ForInStatement': ['left','right','body'],
-        'UnaryExpression,ThrowStatement,ReturnStatement,UpdateExpression': 'argument',
+        'ThrowStatement,ReturnStatement,UnaryExpression': 'argument',
         'WhileStatement,DoWhileStatement': ['test', 'body'],
         'ForStatement': ['init','test','update','body'],
+        'VariableDeclarator': 'init',
+        'VariableDeclaration': '*declarations',
         'SwitchStatement': ['discriminant','*cases'],
         'SequenceExpression': ['*expressions'],
         'SwitchCase': ['test', '*consequent'],
@@ -52,26 +54,72 @@ module.exports = (function(){
         }
         return extractor.call(this, node);
     };
+    var generateNumber = function(value){
+        return {
+            type: 'Literal',
+            value: value,
+            raw: value
+        };
+    };
+    var generateAssignment = function(node, operation, value){
+        return {
+            type: 'AssignmentExpression', operator: '=',
+            left: Object.create(node),
+            right: {
+                type: 'BinaryExpression',
+                operator: operation,
+                left: node,
+                right: value
+            }
+        };
+    };
+/*
+
+    var UpdateExpressionDSL = {
+        '--': '-',
+        '++': '+',
+
+    };
+*/
+
     var extractors = {
+        'UpdateExpression': function(node){
+            if(node.prefix){
+                return doTransform.call(this, node.argument);
+            }else{
+                return doTransform.call( this, generateAssignment(
+                    node.argument,
+                    node.operator.charAt(0),
+                    generateNumber(1)
+                ));
+            }
+
+        },
         'AssignmentExpression': function(node){
 
             node = Object.create(node);
-            node.right = doTransform.call(this,node.right);
+
 
             /** if variable is declared - do nothing */
-            if(!('_id' in node.left) || !(node.left._id in this))
+            if(!('_id' in node.left) || !(node.left._id in this)) {
+                node.right = doTransform.call(this,node.right);
                 return node;
+            }
 
             var _self = this;
 
             var pointer = node.left, stack = [];
-            console.log(pointer)
-            while(pointer.type !== 'Identifier'){
+
+            while(pointer.type !== 'Identifier' && pointer.type !== 'ThisExpression'){
                 stack.push(pointer.property);
                 pointer = pointer.object;
             }
             //stack.push(pointer.property);
 
+            if(node.operator !== '='){
+                return doTransform.call(this, generateAssignment(node.left, node.operator.substr(0, node.operator.length - 1), node.right));
+            }
+            node.right = doTransform.call(this,node.right);
             var out = {
 
                     "type": "CallExpression",
@@ -115,12 +163,6 @@ module.exports = (function(){
             //assert.deepEqual(node, out);
             return out;
         },
-        'VariableDeclaration': function(node){
-            return node;
-        },
-        'VariableDeclarator': function(node){
-            return node;
-        },
         'BlockStatement': function(node){
             return node;
         },
@@ -130,7 +172,8 @@ module.exports = (function(){
             if('_id' in node && node._id in this){
                 //console.log(JSON.stringify(node,null,2));
                 var ending = [], pointer = node, stack = [];
-                while(pointer.object.type !== 'Identifier'){
+                console.log(pointer, pointer.object)
+                while(pointer.object.type !== 'Identifier' && pointer.object.type !== 'ThisExpression'){
                     stack.push(pointer.property);
                     pointer = pointer.object;
                 }
