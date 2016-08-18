@@ -117,6 +117,11 @@ module.exports = UIComponent.extend('MaskedInput', {
                 this.setSelectionRange(cursor + delta, cursor + delta);
             else
                 this.setSelectionRange(cursor, cursor);
+
+            var newVal = self._unmask(this.value);
+            self.set('text', newVal);
+            self.set('maskedText', this.value);
+            self.fire('changed', newVal);
         });
 
         this.el.addEventListener('paste', function (event) {
@@ -133,6 +138,11 @@ module.exports = UIComponent.extend('MaskedInput', {
             valueString = valueString.substring(0, selStart) + pastedData + valueString.substring(selEnd);
             var r = self._unmask(valueString);
             this.value = self._enmask(r);
+
+            var newVal = self._unmask(this.value);
+            self.set('text', newVal);
+            self.set('maskedText', this.value);
+            self.fire('changed', newVal);
         });
 
 
