@@ -117,8 +117,6 @@ module.exports = UIComponent.extend('MaskedInput', {
                 this.setSelectionRange(cursor + delta, cursor + delta);
             else
                 this.setSelectionRange(cursor, cursor);
-
-            console.log(this.value);
         });
 
         this.el.addEventListener('paste', function (event) {
