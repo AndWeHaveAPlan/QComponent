@@ -62,6 +62,8 @@ module.exports = (function () {
                 if (item instanceof UIComponent)
                     this.el.appendChild(item.el);
             }
+
+            AbstractComponent.prototype._init.apply(this, arguments);
         },
 
         /**
@@ -110,7 +112,7 @@ module.exports = (function () {
             return this;
         },
         _prop: (function () {
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius'
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,font-family,font-size'
                 .split(',')
                 .reduce(function (store, key) {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);
@@ -177,6 +179,7 @@ module.exports = (function () {
             out.translation = new Property('Array', {description: 'Component translation ([x,y] in "pixels")'}, {
                 set: function (key, val, oldValue) {
                     var m = Matrix2D.createTranslation(val[0], val[1]);
+                    Math.abs
                     this.el.style.transform = m.toStyleString();
                 },
                 get: Property.defaultGetter
@@ -204,6 +207,7 @@ module.exports = (function () {
                         switch (cVal.type) {
                             case 'rotation':
                                 m = Matrix2D.createRotation((cVal.angle / 180) * Math.PI);
+                                
                                 break;
                             case 'translation':
                                 m = Matrix2D.createTranslation(cVal.x, cVal.y);
