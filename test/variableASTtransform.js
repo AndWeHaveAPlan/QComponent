@@ -22,11 +22,26 @@ describe("ast transformations", function () {
         assert.equal(transform('a=2+b;'), 'a.set([\'value\'],2+b.get([\'value\']));');
         assert.equal(transform('var x; a=x+b;'), 'var x;a.set([\'value\'],x+b.get([\'value\']));');
         assert.equal(transform('var x = 5; a=x+b;'), 'var x=5;a.set([\'value\'],x+b.get([\'value\']));');
+        assert.equal(transform('var x = a;'), 'var x=a.get([\'value\']);');
     });
     it("should work in complex cases", function () {
         assert.equal(transform('a.b.c=2;'), 'a.set([\'b\',\'c\'],2);');
         assert.equal(transform('a.b.c[d]=2;'), 'a.set([\'b\',\'c\',d.get([\'value\'])],2);');
         assert.equal(transform('var x; a.b.c[d?x:d.e]=2;'), 'var x;a.set([\'b\',\'c\',d.get([\'value\'])?x:d.get([\'e\'])],2);');
+    });
+
+    it("should work in unary cases", function () {
+        assert.equal(transform('a++;'), 'a.set([\'value\'],a.get([\'value\'])+1);');
+        assert.equal(transform('a--;'), 'a.set([\'value\'],a.get([\'value\'])-1);');
+        assert.equal(transform('!a;'), '!a.get([\'value\']);');
+    });
+
+    it("should work in ololo cases", function () {
+        //console.log(JSON.stringify(VariableExtractor.parse('a++').getAST()))
+        assert.equal(transform('a+=1;'), 'a.set([\'value\'],a.get([\'value\'])+1);');
+        assert.equal(transform('a-=1;'), 'a.set([\'value\'],a.get([\'value\'])-1);');
+        assert.equal(transform('a*=g;'), 'a.set([\'value\'],a.get([\'value\'])*g.get([\'value\']));');
+        assert.equal(transform('a/=a;'), 'a.set([\'value\'],a.get([\'value\'])/a.get([\'value\']));');
     });
 
 });

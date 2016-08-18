@@ -58,7 +58,8 @@ function AbstractComponent(cfg) {
     this._onPropertyChanged = new MulticastDelegate();
 
     if (!this._eventManager)
-        this._eventManager = new EventManager(this.id);
+        this._eventManager = new EventManager(this);
+
 
     this._eventManager.registerComponent(this);
 }
@@ -197,7 +198,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             return this._prop[names[0]].set(value);
         }
 
-        return this;
+        return value;
     },
 
     _set: function (name, value) {
