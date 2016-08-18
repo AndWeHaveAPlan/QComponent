@@ -13,8 +13,11 @@ module.exports = {
         AbstractComponent: require('./Base/Components/AbstractComponent'),
         UIComponent: require('./Base/Components/UIComponent'),
         ContentContainer: require('./Base/Components/ContentContainer'),
+        mixins: {
+            focusable: require('./Base/Mixins/focusable')
+        },
         UI: {
-            Field: {
+            Fields: {
                 Base: require('./Base/Components/UI/Field/Base')
             },
             Primitives: require('./Base/Components/UI/Primitives'),
