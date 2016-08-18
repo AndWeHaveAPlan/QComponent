@@ -12,7 +12,6 @@ def Page main
         url: /qstyle.css
 
     HTTPRequest ajax3
-        autoActivate: false
         method: POST
         url: /qstyle.css
 
