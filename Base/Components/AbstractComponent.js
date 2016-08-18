@@ -26,6 +26,8 @@ function AbstractComponent(cfg) {
     //Function.prototype.apply.call(QObject, this, arguments);
     cfg = cfg || {};
     this._cfg = cfg;
+    this.id = cfg.id || uuid();
+    delete cfg.id;
     /**
      *
      * @type {{}}
@@ -63,7 +65,6 @@ function AbstractComponent(cfg) {
     if (!this._eventManager)
         this._eventManager = new EventManager(this);
 
-
     this._eventManager.registerComponent(this);
 }
 var defaultPropertyFactory = new Property('Variant', {description: 'Someshit'});
@@ -80,8 +81,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             }
         }
 
-        if (!this.id)
-            this.set(['id'], uuid());
+        /*if (!this.id)
+         this.set(['id'], uuid());*/
 
         delete this._cfg;
     },
