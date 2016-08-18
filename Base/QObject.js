@@ -3,7 +3,12 @@ var observable = require('z-observable');
 (function () {
     'use strict';
 
-    var components = {};
+    var components = {},
+        mixins = {},
+        toString = Object.prototype.toString,
+        getType = function( obj ){
+            return toString.call( obj );
+        };
 
     /**
      * Top level class
@@ -103,35 +108,79 @@ var observable = require('z-observable');
             data && QObject.apply(e, data);
             throw e;
         },
-        
+
+        mixin: function( name, cfg ){
+            mixins[name] = cfg;
+        },
+
+        _mixing: function(cfg, mixin/* base */){
+
+            /*if(prototype.isArray(mixin)){
+                return mixin.reduce(function(cfg, mixin){
+                    var name = mixin;
+                    if(typeof mixin === 'string')
+                        mixin = components[mixin] || mixins[mixin];
+
+                    if(!mixin)
+                        throw new Error('Unknows mixin `'+name+'`');
+                    
+                    return prototype._mixing(cfg, mixin);
+                }, cfg);
+            }*/
+            if(prototype.isArray(mixin)){
+                mixin.push(cfg);
+                return mixin.reduce(function(base, mixin){
+                    var name = mixin;
+                    if(typeof mixin === 'string')
+                        mixin = components[mixin] || mixins[mixin];
+
+                    if(!mixin)
+                        throw new Error('Unknows mixin `'+name+'`');
+
+                    return prototype._mixing(mixin, base);
+                });
+            }
+            var base = mixin;
+
+            /** remove deep applied */
+            var  overlays = deepApply.reduce(function (storage, deepName) {
+                if (deepName in cfg) {
+                    storage[deepName] = cfg[deepName];
+                    delete cfg[deepName];
+                }
+                return storage;
+            }, {}),
+                proto, i;
+
+            proto = prototype.apply(Object.create(base), cfg);
+
+            for (i in overlays) {
+                proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
+            }
+
+            return proto;
+        },
         extend: function (name, cfg, init) {
-            var i,
-                overlays, proto,
+            var mixins,
 
                 /** what is extending */
                 original = components[this._type];
-
 
             /** constructor of new component */
             var Cmp = init || function (cfg) {
                     original.call(this, cfg);
                 };
 
-            /** remove deep applied */
-            overlays = deepApply.reduce(function (storage, deepName) {
-                if (deepName in cfg) {
-                    storage[deepName] = cfg[deepName];
-                    delete cfg[deepName];
-                }
-                return storage;
-            }, {});
-
-            //if(original)
-            proto = Cmp.prototype = Object.create(original.prototype).apply(cfg);
-
-            for (i in overlays) {
-                proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
+            /** Mixing */
+            mixins = cfg.mixin;
+            if(mixins) {
+                delete cfg.mixin;
+                mixins = prototype.makeArray(mixins);
+            }else{
+                mixins = [];
             }
+            mixins.unshift(original.prototype);
+            Cmp.prototype = prototype._mixing(cfg, mixins);
 
             Cmp._type = Cmp.prototype._type = name;
             Cmp.extend = QObject.extend;
@@ -141,7 +190,14 @@ var observable = require('z-observable');
             components[name] = Cmp;
 
             return Cmp;
+        },
+        makeArray: function( obj ){
+            return obj !== void 0 ? ( this.isArray( obj ) ? obj : [ obj ] ) : [];
+        },
+        isArray: function( obj ){
+            return getType( obj ) === '[object Array]';
         }
+
     };
 
     // makes prototype properties not enumerable
@@ -154,6 +210,8 @@ var observable = require('z-observable');
 
     QObject._type = QObject.prototype._type = "QObject";
     QObject._knownComponents['QObject'] = QObject;
+    QObject.mixins = mixins;
+    
     if (typeof document === 'undefined') {
         //QObject.document = require("dom-lite").document;
     } else {
