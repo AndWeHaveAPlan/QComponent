@@ -8,7 +8,9 @@ var QObject = require('./../QObject'),
     ObservableSequence = require('observable-sequence'),
     DQIndex = require('z-lib-structure-dqIndex'),
     MulticastDelegate = require('../MulticastDelegate'),
-    Property = require('../Property');
+    Property = require('../Property'),
+    observable = require('z-observable');
+
 
 /**
  * Base class for all components
@@ -18,13 +20,12 @@ var QObject = require('./../QObject'),
  * @constructor
  */
 function AbstractComponent(cfg) {
-
     var self = this;
-    Function.prototype.apply.call(QObject, this, arguments);
+    observable.prototype._init.call(this);
 
-    if (!this.id)
-        this.id = uuid();
-
+    //Function.prototype.apply.call(QObject, this, arguments);
+    cfg = cfg || {};
+    this._cfg = cfg;
     /**
      *
      * @type {{}}
@@ -41,13 +42,15 @@ function AbstractComponent(cfg) {
     this._ownComponents = new ObservableSequence(new DQIndex('id'));
 
     if (!this.leaf) {
+
         /** instantly modify child components on append */
         this._ownComponents.on('add', function (child) {
             child.parent = self;
+            self._eventManager.registerComponent(child);
         });
     }
 
-    this._initProps(cfg || {});
+    this._initProps(cfg);
 
     /**
      * Event. Fires with any changes made with get(...)
@@ -70,8 +73,29 @@ AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
 
     _init: function () {
+        var cfg = this._cfg;
+        for (var p in cfg) {
+            if (cfg.hasOwnProperty(p)) {
+                this.set([p], cfg[p]);
+            }
+        }
+
+        if (!this.id)
+            this.set(['id'], uuid());
+
+        delete this._cfg;
     },
-    _prop: {},
+    _prop: {
+        id: new Property('String', {description: 'Component ID'}, {
+            set: function (key, val) {
+                if (this.id && this.id !== val)
+                    return false;
+
+                this.id = key;
+            },
+            get: Property.defaultGetter
+        })
+    },
     _initProps: function (cfg) {
 
         var overrided = [];
@@ -99,6 +123,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                 newProp[key] = newProp[prop.cfg.overrideKey];
             }
         }
+
+        delete cfg._prop;
     },
 
     regenId: function () {
