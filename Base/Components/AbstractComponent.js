@@ -49,6 +49,7 @@ function AbstractComponent(cfg) {
         this._ownComponents.on('add', function (child) {
             child.parent = self;
             self._eventManager.registerComponent(child);
+            self.set([child.id], child);
         });
     }
 
@@ -98,30 +99,17 @@ QObject.prototype.apply(AbstractComponent.prototype, {
         })
     },
     _initProps: function (cfg) {
-
-        var overrided = [];
-
         var prop = this._prop, i,
             newProp = this._prop = {};
 
         for (i in prop) {
             if (i === 'default') {
                 newProp[i] = prop[i];
-            } else if (prop[i].cfg && prop[i].cfg.overrideKey) {
-                overrided.push({prop: prop, key: i});
             } else {
                 if (i in cfg)
                     newProp[i] = new prop[i](this, i, cfg[i]);
                 else
                     newProp[i] = new prop[i](this, i);
-            }
-        }
-
-        for (var i = 0; i < overrided.length; i++) {
-            var key = overrided[i].key;
-            var prop = overrided[i].prop;
-            if (prop.cfg.overrideKey in newProp) {
-                newProp[key] = newProp[prop.cfg.overrideKey];
             }
         }
 
@@ -216,7 +204,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     getted.set(names[names.length - 1], value);
                 } else {
                     getted[names[names.length - 1]] = value;
-                    this._onPropertyChanged(names.splice(0, 1), value);
+                    this._onPropertyChanged(this, names[0], value);
                 }
         } else {
             if (!this._prop[names[0]]) {
@@ -238,7 +226,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     getted.set(nameParts[nameParts.length - 1], value);
                 } else {
                     getted[nameParts[nameParts.length - 1]] = value;
-                    this._onPropertyChanged(nameParts.splice(0, 1), value);
+                    this._onPropertyChanged(this, nameParts[0], value);
                 }
         } else {
             if (!this._prop[name]) {
