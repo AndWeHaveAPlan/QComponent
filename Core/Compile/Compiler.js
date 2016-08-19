@@ -1,6 +1,16 @@
 /**
  * Created by zibx on 08.07.16.
  */
+
+var namesCount = {};
+
+function getTmpName(type) {
+    if (!namesCount.type)
+        namesCount.type = 0;
+    namesCount.type += 1;
+    return type.charAt(0).toLowerCase() + type.slice(1) + namesCount.type;
+}
+
 module.exports = (function () {
     'use strict';
     var QObject = require('../../Base/QObject'),
@@ -29,10 +39,10 @@ module.exports = (function () {
                 _self = this,
                 inline = false;
 
-            if(name === void 0) {
+            if (name === void 0) {
                 inline = true;
                 item = metadata;
-                name = item.type+uuid();
+                name = item.type + uuid();
             }
 
             vars[item.type] = '_known[\'' + item.type + '\']';
@@ -52,28 +62,30 @@ module.exports = (function () {
                 {name: 'value', value: 'new Base.Property("Variant")'}
             ];
 
-            var compiledChildren=item.children ? item.children.map(function (el) {
+            var compiledChildren = item.children ? item.children.map(function (el) {
                 return _self.compileChild(el, item, props, vars, 0);
             }).join('') : '//no children\n';
 
             source = [
-                (inline?'':'var ' + name + ' = out[\'' + name + '\'] = ' )+ item.type + '.extend(\'' + name + '\', {_prop: {' +
-                    props.map(function(item){return item.name+': '+item.value; }).join(',\n') +
+                (inline ? '' : 'var ' + name + ' = out[\'' + name + '\'] = ' ) + item.type + '.extend(\'' + name + '\', {_prop: {' +
+                props.map(function (item) {
+                    return item.name + ': ' + item.value;
+                }).join(',\n') +
                 '}}, function(){',
                 '    ' + item.type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
-                item.events?this.builder.events(item):'',
+                item.events ? this.builder.events(item) : '',
                 '',
                 out,
                 this.makePublic(item.public, item, vars),
                 this.makePublic(item.private, item, vars),
                 compiledChildren,
                 '    this._init();',
-                '})'+(inline?'':';')
+                '})' + (inline ? '' : ';')
             ];
             return source;
         },
-        makePipe: function (pipe, sourceComponent, targetProperty, def) {
+        makePipe: function (pipe, sourceComponent, targetProperty, def, childId) {
             var pipeSources = [];
             var mutatorArgs = [];
             var fn = pipe.fn;
@@ -105,12 +117,12 @@ module.exports = (function () {
                 '\t    [' +
                 pipeSources.join(',') +
                 '],\n' +
-                '\t    {component: this.id, property: \'' + targetProperty + '\'}\n' +
+                '\t    {component: ' + childId + ', property: \'' + targetProperty + '\'}\n' +
                 '\t);\n' +
                 '\tmutatingPipe.addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
                 '\t    return ' + fn + ';\n' +
                 '\t});\n' +
-                '\teventManager.registerPipe(mutatingPipe);\n';
+                '\teventManager.registerPipe(mutatingPipe);';
         },
         makePublic: function (props, def, vars) {
             var i, prop, pipes, out = '', propVal;
@@ -119,118 +131,139 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += this.makePipe(pipes, 'this.id', i, def);
+                    out += this.makePipe(pipes, 'this.id', i, def, 'this.id');
                 } else {
-                    propVal = this.propertyGetter(prop, vars)
+                    propVal = this.propertyGetter(prop, vars);
                     out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
             return out;
         },
+        makeProp: function (name, val) {
+            return '\'' + name + '\': ' + val;
+        },
         compileChild: function (child, parent, props, vars, nestingCount) {
             var type = child.type,
-                _self = this, propList;
+                _self = this,
+                propList,
+                out = '',
+                cfgInit = [],
+                pipes = [],
+                compiledChildren = [],
+                events = [];
+
+            if (!child.name) {
+                child.tmpName = getTmpName(child.type)
+            }
 
             if (!(propList = cmetadata[type]))
                 if (!QObject._knownComponents[type] || !((propList = QObject._knownComponents[type].prototype) instanceof QObject._knownComponents.AbstractComponent))
                     return '';
 
-            var compiledChildren = '';
             if (child.children) {
-
-                compiledChildren = child.children.map(function(item){
+                compiledChildren = child.children.map(function (item) {
                     return _self.compileChild(item, child, props, vars, nestingCount + 1);
-                }).join('');
-
+                });
             }
 
-            var out = '';
-            var initSet='';
-
-            if (nestingCount > 0) {
-                out = '\t' + (child.name ? 'var '+child.name+' = ' : 'tmp = ') + '(function(parent){\n' +
-                    '\t\teventManager.registerComponent(this);\n' + compiledChildren;
-
-            } else {
-                out = '\t' + (child.name ? 'var '+child.name+' = ' : 'tmp = ') + ' (function(){\n' +
-                    '\t\teventManager.registerComponent(this);\n' + compiledChildren;
-            }
-            var i, prop, propVal, pipes;
+            var i, prop, propVal, pipe;
 
             if (child.value)
                 (child.prop || (child.prop = {})).value = {
                     name: 'value',
-                    type: propList._prop && propList._prop.value && propList._prop.value.prototype ? propList._prop.value.prototype.type: 'Variant',
-                    value: child.value};
+                    type: propList._prop && propList._prop.value && propList._prop.value.prototype ? propList._prop.value.prototype.type : 'Variant',
+                    value: child.value
+                };
 
-            if( child.name){
-                props.push({name: child.name, value: 'new Base.Property(\''+ child.type +'\')'})
+            if (child.name) {
+                props.push({name: child.name, value: 'new Base.Property(\'' + child.type + '\')'})
             }
 
             for (i in child.prop) {
 
                 prop = child.prop[i];
-                pipes = prop.value;
-                if (pipes.isPipe) {
-                    out += this.makePipe(pipes, 'self.id', i, parent);
+                pipe = prop.value;
+                if (pipe.isPipe) {
+                    pipes.push(this.makePipe(pipe, 'self.id', i, parent, (child.name || child.tmpName) + '.id'));
                 } else {
                     propVal = this.propertyGetter(prop, vars);
-                    initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'' + i + '\', ' + propVal + ');\n';
+                    cfgInit.push(this.makeProp(i, propVal));
                 }
             }
 
-            if (child.events)
-                out += this.builder.events(child);
+            if (child.name)
+                cfgInit.push('id: \'' + child.name + '\'');
 
+            if (child.events)
+                events = this.builder.events(child);
+
+            var addToParent = '';
             if (nestingCount > 0) {
-                out += '\t\tparent.addChild(this);\n\n';
-                out += '\t\treturn this;\n' +
-                    '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
-                    (child.name ? 'id: \'' + child.name + '\'' : '') + '}), this );\n';
+                addToParent = (parent.name || parent.tmpName) + '.addChild(' + (child.name || child.tmpName) + ');\n';
+                addToParent += 'eventManager.registerComponent(' + (child.name || child.tmpName) + ');\n';
             } else {
-                out += '\t\tparent._ownComponents.push(this);\n\n';
-                out += '\t\treturn this;\n' +
-                    '\t}).call( new _known[\'' + child.type/*TODO: escape*/ + '\']({' +
-                    (child.name ? 'id: \'' + child.name + '\'' : '') + '}) );\n';
+                addToParent = 'this._ownComponents.push(' + (child.name || child.tmpName) + ');\n';
             }
-            out+=initSet;
-            if(child.name){
-                out+='self.set(\''+child.name+'\', '+child.name+');';
+
+            out += '// ' + (child.name || child.tmpName);
+            out += '\nvar ' + (child.name || child.tmpName) + ' = new _known[\'' + child.type + '\']({\n' +
+                cfgInit.join(',\n') + '\n});\n';
+
+            out += addToParent;
+
+            out += '\n// children of ' + (child.name || child.tmpName) + '\n';
+            out += compiledChildren.join(';\n');
+
+            out += '\n// pipes of ' + (child.name || child.tmpName) + '\n';
+            out += pipes.join('\n');
+
+            out += '\n// events of ' + (child.name || child.tmpName) + '\n';
+            out += events.join('\n');
+
+            out += '\n\n';
+
+            if (child.name) {
+                out += 'self.set(\'' + child.name + '\', ' + child.name + ')';
             }
 
             return out;
         },
+
         propertyGetter: function (prop, vars) {
-            if (prop.type==='Array')
+            if (prop.type === 'Array')
                 return prop.value[0].data;
 
-            if (prop.type==='Number')
+            if (prop.type === 'Number')
                 return prop.value;
 
-            if (prop.type==='Boolean')
+            if (prop.type === 'Boolean')
                 return prop.value;
 
-            if (prop.type==='String')
+            if (prop.type === 'String')
                 return '\'' + prop.value + '\'';
 
-            if (prop.type==='Variant')
+            if (prop.type === 'Variant')
                 return JSON.stringify(prop.value);
 
-            if(prop.type === 'ItemTemplate')
+            if (prop.type === 'ItemTemplate')
                 return this.compileClass(prop, void 0, vars).join('\n');
         },
+
         builder: {
-            events: function(item){
-                var out = '';
-                out += '\t\tthis._subscribeList = [];\n';
-                out += '\t\tthis._subscr = function(){\n';
+            events: function (item) {
+                var name = (item.name || item.tmpName);
+                var out = [];
+                //out += name+'._subscribeList = [];\n';
+                //out += '\t\tthis._subscr = function(){\n';
+
+                //out+=name+'.removableOn(\''+evt.events+'\',function(' + evt.args.join(',') + '){\n' + evt.fn + '\n})';
 
                 item.events.forEach(function (evt) {
-                    out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' +
-                        evt.fn + '\n}, this));\n';
+                    out.push(name + '.removableOn(\'' + evt.events + '\',function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, '+name+');');
+                    //out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, this));\n';
                 });
-                out += '\t\t};\n';
-                out += '\t\tthis._subscr();\n';
+                //out += '\t\t};\n';
+                //out += '\t\tthis._subscr();\n';
                 return out;
             }
         }
