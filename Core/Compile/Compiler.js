@@ -69,7 +69,7 @@ module.exports = (function () {
             var compiledChildren = item.children ? item.children.map(function (el) {
                 return _self.compileChild(el, item, props, vars, 0);
             }).join('') : '//no children\n';
-
+            debugger;
             source = [
                 (inline ? '' : 'var ' + name + ' = out[\'' + name + '\'] = ' ) + item.type + '.extend(\'' + name + '\', {_prop: {' +
                 props.map(function (item) {
@@ -230,7 +230,7 @@ module.exports = (function () {
             out += '\n\n';
 
             if (child.name) {
-                out += 'self.set(\'' + child.name + '\', ' + child.name + ')';
+                out += 'this.set(\'' + child.name + '\', ' + child.name + ')';
             }
 
             return out;

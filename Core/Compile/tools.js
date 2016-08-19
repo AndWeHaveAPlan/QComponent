@@ -11,6 +11,9 @@ var tools = module.exports = (function() {
     var extractors = {
             quote: function (token) {
                 return token.pureData;
+            },
+            brace: function(token){
+                return token.pureData;
             }
         },
         extractor = function(token){
@@ -48,9 +51,9 @@ var tools = module.exports = (function() {
         },
         detox: function (items, safe) {
             var i, _i = items.length, item, out = '', lastItem;
-            for(i = 0; i < _i; i++){
+            for (i = 0; i < _i; i++) {
                 item = items[i];
-                if(item.type !== 'text') {
+                if (item.type !== 'text') {
                     if (safe)
                         return items;
                     else
@@ -63,13 +66,13 @@ var tools = module.exports = (function() {
         },
         trim: function (items) {
             var i = 0, _i = items.length, item,
-                 out = [], trimd, notEmpty = false;
-            for(;i<_i;i++){
+                out = [], trimd, notEmpty = false;
+            for (; i < _i; i++) {
                 item = items[i];
-                if(!notEmpty && item.type === 'text') {
+                if (!notEmpty && item.type === 'text') {
                     if (item.pureData.trim() === '')
                         continue;
-                    else if((trimd = trimLeft(item.pureData)) !== item.pureData) {
+                    else if ((trimd = trimLeft(item.pureData)) !== item.pureData) {
                         item = Object.create(item);
                         item.pureData = trimd;
                     }
@@ -79,55 +82,55 @@ var tools = module.exports = (function() {
             }
             return out;
         },
-        dataExtractor: function(prop){
+        dataExtractor: function (prop) {
             var type = prop.type;
             var val = prop.value,
                 out;
-            if(typeof val === 'string'){
+            if (typeof val === 'string') {
                 out = val;
-            }else{
+            } else {
                 out = val.map(extractor).join('');
             }
 
-            if(type === 'Variant' || type === 'String')
+            if (type === 'Variant' || type === 'String')
                 return JSON.stringify(out);
             else
                 return out;
         },
         /** recursive parsing of braces */
-        _transformPipes: function(pipedOut, items){
-            var i, _i = items.length, item, data, 
+        _transformPipes: function (pipedOut, items) {
+            var i, _i = items.length, item, data,
                 unUsed, out = pipedOut.items, werePipes = false,
                 vars;
-            
+
             for (i = 0, _i; i < _i; i++) {
                 item = items[i];
                 // oh, it's a pipe!
-                if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
+                if (item.type === 'brace' && item.info === '{' && item.pureData.indexOf('{{') === 0) {
                     data = item.pureData.substr(2, item.pureData.length - 4);
                     try {
                         unUsed = Object.keys(vars = variableExtractor.parse(data).getFullUnDefined());
-                    }catch(e){
+                    } catch (e) {
                         QObject.Error('Syntax error', {item: item, data: e});
                     }
-                    if(unUsed.length){
+                    if (unUsed.length) {
                         werePipes = true;
 
                         QObject.apply(pipedOut.vars, vars);
                         out.push({type: 'fn', pureData: data});
-                    }else{
+                    } else {
                         try {
                             out.push({type: 'text', pureData: eval(data), col: item.col, row: item.row});
-                        }catch(e){
+                        } catch (e) {
                             QObject.Error('Evaluation error', {item: item, data: e});
                         }
                     } //&& pipes.push({vars: unUsed, text: data});
                     //debugger;
-                }else if(item.type === 'brace') {
+                } else if (item.type === 'brace') {
                     out.push({pureData: item.info, type: 'text'});
                     werePipes = werePipes || this._transformPipes(pipedOut, item.items);
                     out.push({pureData: item._info, type: 'text'});
-                }else{
+                } else {
                     out.push({pureData: item.pureData, type: 'text'});
                 }
             }
@@ -139,25 +142,25 @@ var tools = module.exports = (function() {
                 pipedOut = {vars: {}, items: out, isPipe: true};
 
             werePipes = werePipes || this._transformPipes(pipedOut, items);
-            
-            if(werePipes){
+
+            if (werePipes) {
                 pipedOut.fn =
                     pipedOut
                         .items
-                        .reduce(function(store, item){ /** glue text parts */
-                            if(store.last && store.last.type === 'text' && item.type === 'text'){
+                        .reduce(function (store, item) { /** glue text parts */
+                            if (store.last && store.last.type === 'text' && item.type === 'text') {
                                 store.last.pureData += item.pureData;
-                            }else{
+                            } else {
                                 store.items.push(store.last = item);
                             }
                             return store;
                         }, {items: [], last: void 0})
                         .items
                         .map(function (item) {
-                            if(item.type === 'text')
-                                return '\''+item.pureData+'\'';// TODO: escape
+                            if (item.type === 'text')
+                                return '\'' + item.pureData + '\'';// TODO: escape
                             else
-                                return '('+item.pureData+')';
+                                return '(' + item.pureData + ')';
                         }).join('+');
                 //pipedOut.vars = pipedOut.vars;
                 return pipedOut;
@@ -171,7 +174,7 @@ var tools = module.exports = (function() {
                 item = items[i];
 
                 // oh, it's a pipe!
-                if(item.type==='brace' && item.info==='{' && item.pureData.indexOf('{{')===0){
+                if (item.type === 'brace' && item.info === '{' && item.pureData.indexOf('{{') === 0) {
                     data = item.pureData.substr(2, item.pureData.length - 4);
                     unUsed = Object.keys(variableExtractor.parse(data).getFullUnDefined());
                     unUsed.length && pipes.push({vars: unUsed, text: data});
