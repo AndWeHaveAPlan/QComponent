@@ -2,7 +2,7 @@
  * Created by zibx on 05.08.16.
  */
 
-module.exports = (function () {
+var DOM = module.exports = (function () {
     'use strict';
 
     var QObject = require('../../QObject'),
@@ -10,8 +10,8 @@ module.exports = (function () {
     var blockRegExp = new RegExp('DIV|H[0-8]|HR|MARQUEE'),
         observable = require('z-observable'),
         domLoad = function () {
-            js.util.Dom.fire('DOM');
-            js.util.Dom.DOM = true;
+            DOM.fire('DOM');
+            DOM.DOM = true;
         };
     var DomWrapper = function () {
             this.init();

@@ -5,7 +5,8 @@ module.exports = (function () {
     'use strict';
     var QObject = require('../QObject'),
         Property = require('../Property'),
-        DOMTools = require('../Components/UI/DOMTools');
+        DOMTools = require('../Common/UI/DOMTools'),
+        Keyboard = require('../Common/UI/Keyboard');
     QObject.mixin('focusable', {
         blur: function () {
             if( !this._data.focused || this.fire('tryBlur') === false )
@@ -53,7 +54,7 @@ module.exports = (function () {
             this.listen = {
                 windowBlur: DOMTools.addRemovableListener(window, 'blur', blurFn),
                 windowClick: DOMTools.addRemovableListener(document, 'click', blurFn),
-                keyboard: js.util.Keyboard.attach(this)
+                keyboard: Keyboard.attach(this)
             };
 
             this.listen.keyboard.on({

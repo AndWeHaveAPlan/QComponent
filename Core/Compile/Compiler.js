@@ -5,7 +5,11 @@ module.exports = (function () {
     'use strict';
     var QObject = require('../../Base/QObject'),
         cmetadata = {};
-    var uuid = require('tiny-uuid');
+    var uuid = require('tiny-uuid'),
+        tools = require('./tools');
+    var notComment = function( el ){return el.type !== 'comment'; },
+        getData = function( el ){return el.data; },
+        getPureData = function( el ){return el.pureData; };
     return new QObject({
         compile: function (metadata) {
             cmetadata = metadata;
@@ -122,7 +126,9 @@ module.exports = (function () {
                 if (pipes && pipes.isPipe) {
                     out += this.makePipe(pipes, 'this.id', i, def);
                 } else {
+
                     propVal = this.propertyGetter(prop, vars)
+                    console.log(i,propVal, JSON.stringify(prop))
                     out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
@@ -165,7 +171,7 @@ module.exports = (function () {
                     value: child.value};
 
             if( child.name){
-                props.push({name: child.name, value: 'new Base.Property(\''+ child.type +'\')'})
+                props.push({name: child.name, value: 'new Base.Property(\''+ child.type +'\')'});
             }
 
             for (i in child.prop) {
@@ -176,6 +182,7 @@ module.exports = (function () {
                     out += this.makePipe(pipes, 'self.id', i, parent);
                 } else {
                     propVal = this.propertyGetter(prop, vars);
+                    console.log('~',i,propVal)
                     initSet += '\t\t'+(child.name?child.name:'tmp')+'.set(\'' + i + '\', ' + propVal + ');\n';
                 }
             }
@@ -202,6 +209,17 @@ module.exports = (function () {
             return out;
         },
         propertyGetter: function (prop, vars) {
+
+            if (prop.type==='Variant')
+                return JSON.stringify(prop.value);
+
+            if(prop.type === 'ItemTemplate')
+                return this.compileClass(prop, void 0, vars).join('\n');
+
+            var val = tools.dataExtractor(prop);
+
+            return val;
+            /*
             if (prop.type==='Array')
                 return prop.value[0].data;
 
@@ -212,13 +230,9 @@ module.exports = (function () {
                 return prop.value;
 
             if (prop.type==='String')
-                return '\'' + prop.value + '\'';
+                return '\'' + prop.value.filter( notComment ).map( getData ).join( '' ) + '\'';*/
 
-            if (prop.type==='Variant')
-                return JSON.stringify(prop.value);
 
-            if(prop.type === 'ItemTemplate')
-                return this.compileClass(prop, void 0, vars).join('\n');
         },
         builder: {
             events: function(item){

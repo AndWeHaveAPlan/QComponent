@@ -8,6 +8,18 @@ var tools = module.exports = (function() {
     };
     var variableExtractor = require('./VariableExtractor'),
         QObject = require('../../Base').QObject;
+    var extractors = {
+            quote: function (token) {
+                return token.pureData;
+            }
+        },
+        extractor = function(token){
+            var extractor = extractors[token.type];
+            if(!extractor){
+                throw new Error('unknown token type `'+token.type+'`')
+            }
+            return extractor(token);
+        };
     return {
         removeFirstWord: function (item, word) {
             var subItem = Object.create(item.items[0]), pos;
@@ -66,6 +78,21 @@ var tools = module.exports = (function() {
                 notEmpty = true;
             }
             return out;
+        },
+        dataExtractor: function(prop){
+            var type = prop.type;
+            var val = prop.value,
+                out;
+            if(typeof val === 'string'){
+                out = val;
+            }else{
+                out = val.map(extractor).join('');
+            }
+
+            if(type === 'Variant' || type === 'String')
+                return JSON.stringify(out);
+            else
+                return out;
         },
         /** recursive parsing of braces */
         _transformPipes: function(pipedOut, items){
