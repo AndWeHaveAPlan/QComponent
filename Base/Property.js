@@ -98,7 +98,7 @@ module.exports = (function () {
             proto.value = metadata.defaultValue = defaultValue;
         }
 
-        var cls = function (parent, key) {
+        var cls = function (parent, key, value) {
             if (!parent._prop.__proxy)
                 parent._prop.__proxy = {};
 
@@ -106,16 +106,22 @@ module.exports = (function () {
             this.key = key;
             this.proxyFor = cfg.proxyFor;
 
-            if (this.setDefault) {
-                this.parent._data[key] = this.value;
-            }
-
             if (this.proxyFor) {
 
                 if (!parent._prop.__proxy[this.proxyFor])
                     parent._prop.__proxy[this.proxyFor] = [];
 
                 parent._prop.__proxy[this.proxyFor].push(key);
+            }
+
+            if (this.setDefault) {
+                this.parent._data[key] = this.value;
+            }
+
+            //TODO null default case
+            if (value) {
+                //this.parent._data[key] = value;
+                this.set(value);
             }
         };
         cls.prototype = proto;
