@@ -33,6 +33,7 @@ module.exports = {
             VBox: require('./Base/Components/UI/VBox'),
             Image: require('./Base/Components/UI/Image'),
             GeoMap: require('./Base/Components/UI/GeoMap'),
+            CardForm: require('./Base/Components/UI/CardForm'),
             DOMTools: require('./Base/Common/UI/DOMTools')
         },
         Factory: require('./Base/Components/Factory'),
@@ -49,9 +50,9 @@ module.exports = {
     EventManager: require('./Base/EventManager'),
     Property: require('./Base/Property'),
     Pipes: {
-        AbstractPipe: require("./Base/Pipes/AbstractPipe"),
-        SimplePipe: require("./Base/Pipes/SimplePipe"),
-        FiltratingPipe: require("./Base/Pipes/FiltratingPipe"),
-        MutatingPipe: require("./Base/Pipes/MutatingPipe")
+        AbstractPipe: require('./Base/Pipes/AbstractPipe'),
+        SimplePipe: require('./Base/Pipes/SimplePipe'),
+        FiltratingPipe: require('./Base/Pipes/FiltratingPipe'),
+        MutatingPipe: require('./Base/Pipes/MutatingPipe')
     }
 };
