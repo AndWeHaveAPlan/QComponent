@@ -33,7 +33,7 @@ module.exports = {
             VBox: require('./Base/Components/UI/VBox'),
             Image: require('./Base/Components/UI/Image'),
             GeoMap: require('./Base/Components/UI/GeoMap'),
-            DOMTools: require('./Base/Components/UI/DOMTools')
+            DOMTools: require('./Base/Common/UI/DOMTools')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {
