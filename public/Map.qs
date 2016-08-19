@@ -26,7 +26,7 @@ def Page main
             overflow: auto
             ListBox list:
                 itemTemplate:
-                    div name:{{name}}
+                    div:{{name}}
                        padding: 12px
                 itemSource: [
                     {name:'Кремль', coords:[55.751617, 37.617887]},
