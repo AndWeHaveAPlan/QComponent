@@ -179,7 +179,6 @@ module.exports = (function () {
             out.translation = new Property('Array', {description: 'Component translation ([x,y] in "pixels")'}, {
                 set: function (key, val, oldValue) {
                     var m = Matrix2D.createTranslation(val[0], val[1]);
-                    Math.abs
                     this.el.style.transform = m.toStyleString();
                 },
                 get: Property.defaultGetter
@@ -250,7 +249,7 @@ module.exports = (function () {
             child.parent = self;
             //insert to dom
             if (child.el) { /** UI Component */
-                if (self._contentContainer && child.el) {
+                if (self._contentContainer) {
                     self._contentContainer.el.appendChild(child.el);
                 } else {
                     self.el.appendChild(child.el);
