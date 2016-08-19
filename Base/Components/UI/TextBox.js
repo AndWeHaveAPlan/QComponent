@@ -13,17 +13,13 @@ module.exports = UIComponent.extend('TextBox', {
         this.el = UIComponent.document.createElement('input');
         this.el.setAttribute('type', 'text');
 
-        this.el.addEventListener('keydown', function (event) {
-            self.set('value', this.value);
-        });
-
         this.el.addEventListener('keyup', function (event) {
-            //self.set('value', this.value);
+            self.set('value', this.value);
         });
     },
     _prop: {
-        //text: Property.generate.attributeProperty('value').
-        value: Property.generate.attributeProperty('value'),
+        value: Property.generate.proxy('text'),
+        text: Property.generate.attributeProperty('value'),
         placeholder: Property.generate.attributeProperty('placeholder')
     }
 });
