@@ -43,15 +43,13 @@ function AbstractComponent(cfg) {
      */
     this._ownComponents = new ObservableSequence(new DQIndex('id'));
 
-    if (!this.leaf) {
+    /** instantly modify child components on append */
+    this._ownComponents.on('add', function (child) {
+        child.parent = self;
+        self._eventManager.registerComponent(child);
+        self.set([child.id], child);
+    });
 
-        /** instantly modify child components on append */
-        this._ownComponents.on('add', function (child) {
-            child.parent = self;
-            self._eventManager.registerComponent(child);
-            self.set([child.id], child);
-        });
-    }
 
     this._initProps(cfg);
 
@@ -73,20 +71,6 @@ AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
-
-    _init: function () {
-        var cfg = this._cfg;
-        for (var p in cfg) {
-            if (cfg.hasOwnProperty(p)) {
-                this.set([p], cfg[p]);
-            }
-        }
-
-        /*if (!this.id)
-         this.set(['id'], uuid());*/
-
-        delete this._cfg;
-    },
     _prop: {
         id: new Property('String', {description: 'Component ID'}, {
             set: function (key, val) {
@@ -98,6 +82,16 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             get: Property.defaultGetter
         })
     },
+    _init: function () {
+        var cfg = this._cfg;
+        for (var p in cfg) {
+            if (cfg.hasOwnProperty(p)) {
+                this.set([p], cfg[p]);
+            }
+        }
+
+        delete this._cfg;
+    },
     _initProps: function (cfg) {
         var prop = this._prop, i,
             newProp = this._prop = {};
@@ -107,13 +101,17 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                 newProp[i] = prop[i];
             } else {
                 if (i in cfg)
-                    newProp[i] = new prop[i](this, i, cfg[i]);
+                    newProp[i] = new prop[i](this, i);//, cfg[i]);
                 else
                     newProp[i] = new prop[i](this, i);
             }
         }
 
         delete cfg._prop;
+    },
+
+    _afterInit: function () {
+        this._init();
     },
 
     regenId: function () {
@@ -246,12 +244,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
     },
-
-    /**
-     * Add Child component
-     *
-     * @param component AbstractComponent: AbstractComponent to add
-     */
 
     _type: 'AbstractComponent'
 });

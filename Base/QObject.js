@@ -108,15 +108,21 @@ var prototype = {
      */
     extend: function (name, cfg, init) {
         var i,
-            overlays, proto,
+            overlays, proto, constructor,
 
             /** what is extending */
             original = components[this._type];
 
+        if(init)
+            constructor = function(cfg){
+                init.call(this, cfg);
+                this._afterInit && this._afterInit();
+            };
 
         /** constructor of new component */
-        var Cmp = init || function (cfg) {
+        var Cmp = constructor || function (cfg) {
             original.call(this, cfg);
+            this._afterInit && this._afterInit();
         };
 
         /** remove deep applied */
