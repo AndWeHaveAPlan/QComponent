@@ -11,7 +11,9 @@ module.exports = UIComponent.extend('FlexSizeComponent', {
         flexDefinition: new Property('String', {description: ""}, {
             get: Property.defaultGetter,
             set: function (name, value) {
-                var fDef = this._flexDefinition;
+                var fDef = this._flexDefinition
+                    ? this._flexDefinition
+                    : (this._flexDefinition = {parts: [], starCount: 0, flexLength: 0, fixLength: 0});
                 var parts = this._data['flexDefinition'].split(' ');
 
                 for (var i = 0; i < parts.length; i++) {
@@ -39,7 +41,6 @@ module.exports = UIComponent.extend('FlexSizeComponent', {
             }
         }, '*')
     }
-},function(cfg){
+}, function (cfg) {
     UIComponent.call(this, cfg);
-    this._flexDefinition = {parts: [], starCount: 0, flexLength: 0, fixLength:0};
 });
