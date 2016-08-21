@@ -162,6 +162,7 @@ module.exports = (function(){
             var _self = this;
 
             if('_id' in node && node._id in this){
+                debugger;
                 //console.log(JSON.stringify(node,null,2));
                 var ending = [], pointer = node, stack = [];
                 console.log(pointer, pointer.object)

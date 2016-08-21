@@ -24,7 +24,7 @@ def UIComponent Indicator
             height: 10px
             width: 50%
             transform-origin: right center
-            transform: {{'rotate('+180/(max/displayValue)+'deg)'}}
+            rotation: {{180/(max/displayValue)}}
             transition: 'all 0.2s ease'
         div: {{min}}
             position: absolute
@@ -45,7 +45,7 @@ def LogicalComponent Reactor
         enabled: true
         interval: 100
         .tick: ()=>{
-            var cTemp=this.get('temperature');
+            var cTemp=this.temperature;
             var cRodPos=this.get('controlRodsPosition');
             cTemp+=Math.round(200*(cRodPos-4.5))/100;
             this.set('temperature', cTemp);
@@ -90,7 +90,7 @@ def Page main
                 width: 200px
                 padding: 12px
                 background: red
-                display: {{r1.meltdown||r1.danger?'block':'none'}}
+                visibility: {{r1.meltdown||r1.danger?'visible':'hidden'}}
         div
             div: Reactor control
             input: ↑ Rods up

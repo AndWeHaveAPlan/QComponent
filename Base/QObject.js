@@ -1,19 +1,17 @@
-var observable = require('z-observable');
-
-(function () {
+module.exports = (function () {
     'use strict';
-
+    var observable = require('z-observable');
     var components = {},
         mixins = {},
         toString = Object.prototype.toString,
-        getType = function( obj ){
-            return toString.call( obj );
+        getType = function (obj) {
+            return toString.call(obj);
         };
 
     /**
      * Top level class
      *
-     * @constructor
+     * @class
      */
     function QObject(cfg) {
         cfg && this.apply(cfg);
@@ -102,40 +100,39 @@ var observable = require('z-observable');
             }
             return out;
         },
-        
-        Error: function(msg, data){
+
+        Error: function (msg, data) {
             var e = new Error(msg);
             data && QObject.apply(e, data);
             throw e;
         },
-
-        mixin: function( name, cfg ){
+        mixin: function (name, cfg) {
             mixins[name] = cfg;
         },
 
-        _mixing: function(cfg, mixin/* base */){
+        _mixing: function (cfg, mixin/* base */) {
 
             /*if(prototype.isArray(mixin)){
-                return mixin.reduce(function(cfg, mixin){
-                    var name = mixin;
-                    if(typeof mixin === 'string')
-                        mixin = components[mixin] || mixins[mixin];
+             return mixin.reduce(function(cfg, mixin){
+             var name = mixin;
+             if(typeof mixin === 'string')
+             mixin = components[mixin] || mixins[mixin];
 
-                    if(!mixin)
-                        throw new Error('Unknows mixin `'+name+'`');
-                    
-                    return prototype._mixing(cfg, mixin);
-                }, cfg);
-            }*/
-            if(prototype.isArray(mixin)){
+             if(!mixin)
+             throw new Error('Unknows mixin `'+name+'`');
+
+             return prototype._mixing(cfg, mixin);
+             }, cfg);
+             }*/
+            if (prototype.isArray(mixin)) {
                 mixin.push(cfg);
-                return mixin.reduce(function(base, mixin){
+                return mixin.reduce(function (base, mixin) {
                     var name = mixin;
-                    if(typeof mixin === 'string')
+                    if (typeof mixin === 'string')
                         mixin = components[mixin] || mixins[mixin];
 
-                    if(!mixin)
-                        throw new Error('Unknows mixin `'+name+'`');
+                    if (!mixin)
+                        throw new Error('Unknows mixin `' + name + '`');
 
                     return prototype._mixing(mixin, base);
                 });
@@ -143,13 +140,13 @@ var observable = require('z-observable');
             var base = mixin;
 
             /** remove deep applied */
-            var  overlays = deepApply.reduce(function (storage, deepName) {
-                if (deepName in cfg) {
-                    storage[deepName] = cfg[deepName];
-                    delete cfg[deepName];
-                }
-                return storage;
-            }, {}),
+            var overlays = deepApply.reduce(function (storage, deepName) {
+                    if (deepName in cfg) {
+                        storage[deepName] = cfg[deepName];
+                        delete cfg[deepName];
+                    }
+                    return storage;
+                }, {}),
                 proto, i;
 
             proto = prototype.apply(Object.create(base), cfg);
@@ -160,15 +157,26 @@ var observable = require('z-observable');
 
             return proto;
         },
+        /**
+         * @memberOf QObject
+         * @static
+         */
         extend: function (name, cfg, init) {
-            var mixins,
+            var mixins, constructor,
 
                 /** what is extending */
                 original = components[this._type];
 
+            if (init)
+                constructor = function (cfg) {
+                    init.call(this, cfg);
+                    this._afterInit && this._afterInit();
+                };
+
             /** constructor of new component */
-            var Cmp = init || function (cfg) {
+            var Cmp = constructor || function (cfg) {
                     original.call(this, cfg);
+                    this._afterInit && this._afterInit();
                 };
 
             /** Mixing */
@@ -191,11 +199,11 @@ var observable = require('z-observable');
 
             return Cmp;
         },
-        makeArray: function( obj ){
-            return obj !== void 0 ? ( this.isArray( obj ) ? obj : [ obj ] ) : [];
+        makeArray: function (obj) {
+            return obj !== void 0 ? ( this.isArray(obj) ? obj : [obj] ) : [];
         },
-        isArray: function( obj ){
-            return getType( obj ) === '[object Array]';
+        isArray: function (obj) {
+            return getType(obj) === '[object Array]';
         }
 
     };
@@ -211,12 +219,12 @@ var observable = require('z-observable');
     QObject._type = QObject.prototype._type = "QObject";
     QObject._knownComponents['QObject'] = QObject;
     QObject.mixins = mixins;
-    
+
     if (typeof document === 'undefined') {
         //QObject.document = require("dom-lite").document;
     } else {
         QObject.document = document;
     }
 
-    module.exports = QObject;
+    return QObject;
 })();

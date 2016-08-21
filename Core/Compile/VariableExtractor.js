@@ -28,7 +28,7 @@ module.exports = (function () {
     };
     var rules = {
         'Program': '*body',
-        'CallExpression,NewExpression': ['callee', '*arguments'],
+        'NewExpression': ['callee', '*arguments'],
         'ExpressionStatement': 'expression',
         'ArrayExpression': '*elements',
         'ConditionalExpression,IfStatement': ['test', 'consequent', 'alternate'],
@@ -47,6 +47,7 @@ module.exports = (function () {
     };
 
     var extractors = {
+
         'VariableDeclaration': function(node){
             node.declarations.forEach(setter('kind', node.kind));
             node.declarations.map(getVars, this);
@@ -57,6 +58,28 @@ module.exports = (function () {
         },
         'BlockStatement': function(node){
             node.body.map(getVars, this.extend('block'));
+        },
+        'CallExpression': function(node, list){
+            getVars.call(this, node.calee, list);
+            node.arguments.map(getVars, this);
+            /*var scope;
+            if(list && list.length) {
+                list.push(node);
+                /!*list = list.reverse();
+                 (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}))[
+                 list.map(function(el){return el.name;})
+                 ] = true;*!/
+                //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
+            }else {
+                this.used[node.name] = true;
+                if(list === void 0 || list === false || typeof list === 'number') {
+                    scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
+                    node._id = counter++;
+                    (scope[node.name] || (scope[node.name] = [])).push(node);
+                }
+            }*/
+
+            //'callee', '*arguments'
         },
         'MemberExpression': function(node, list){
             var needList = list !== false,
