@@ -94,8 +94,10 @@ var tools = module.exports = (function() {
 
             if (type === 'Variant' || type === 'String')
                 return JSON.stringify(out);
-            else
+            else if(type === 'Array' || type === 'Number' || type === 'Boolean')
                 return out;
+            console.warn('Unknown type: '+type);
+            return new Error('Unknown type: '+type);
         },
         /** recursive parsing of braces */
         _transformPipes: function (pipedOut, items) {
