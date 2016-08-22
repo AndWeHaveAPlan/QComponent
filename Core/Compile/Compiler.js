@@ -139,8 +139,10 @@ module.exports = (function () {
                 } else {
 
                     propVal = this.propertyGetter(prop, vars);
+
                     console.log(i,propVal, JSON.stringify(prop));
-                    out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
+                    if(!(propVal instanceof Error))
+                        out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
             return out;
