@@ -1,5 +1,7 @@
 def Page main
     div
+
+        //rotation: {{s1.value/2}}
         HBox
             width: 630px
             div
@@ -426,8 +428,8 @@ def Page main
                 rotation: {{s1.value}}
 
 
-        Slider s1: 0
-          width 500px
-          from: 0
-          to: 720
-          step: 1
+    Slider s1: 0
+        width 500px
+        from: 0
+        to: 720
+        step: 1

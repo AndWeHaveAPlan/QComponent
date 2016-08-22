@@ -208,16 +208,19 @@ module.exports = (function () {
         for(var i in rules){
             if(rules.hasOwnProperty(i)){
                 var val = rules[i];
-                var fn = new Function('getVars', 'return function(node){'+
+                var fn = new Function('getVars', 'return function(node, e){' +
+                    'var _self = this;'+
                     (val instanceof Array ? val : [val]).map(function(statement){
                         var each;
                         if(statement === null)return '';
                         (each = statement.charAt(0) === '*') &&
                         (statement = statement.substr(1));
                         if(each){
-                            return 'node[\''+statement+'\'].map(getVars, this);';
+                            return 'node[\''+statement+'\'].map(function(el){' +
+                                'getVars.call(_self, el, e)' +
+                                '}, this);';
                         }else{
-                            return 'getVars.call(this,node[\''+statement+'\']);';
+                            return 'getVars.call(this,node[\''+statement+'\'], e);';
                         }
                     }).join('\n')+';}');
                 i.split(',').forEach(setExtractor);
