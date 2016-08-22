@@ -24,7 +24,7 @@ describe("Timer", function () {
     eventManager.registerComponent(comp4);
     eventManager.registerComponent(timer);
 
-    comp4.set("testTargetProp", 2);
+    comp4.set(["testTargetProp"], 2);
 
     eventManager.registerPipe(new SimplePipe(
         "comp3.testSourceProp1",

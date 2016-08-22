@@ -69,7 +69,7 @@ module.exports = (function () {
             var compiledChildren = item.children ? item.children.map(function (el) {
                 return _self.compileChild(el, item, props, vars, 0);
             }).join('') : '//no children\n';
-            debugger;
+            //debugger;
             source = [
                 (inline ? '' : 'var ' + name + ' = out[\'' + name + '\'] = ' ) + item.type + '.extend(\'' + name + '\', {_prop: {' +
                 props.map(function (item) {
@@ -140,7 +140,7 @@ module.exports = (function () {
 
                     propVal = this.propertyGetter(prop, vars);
 
-                    console.log(i,propVal, JSON.stringify(prop));
+                    //console.log(i,propVal, JSON.stringify(prop));
                     if(!(propVal instanceof Error))
                         out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
@@ -195,7 +195,7 @@ module.exports = (function () {
                     pipes.push(this.makePipe(pipe, 'self.id', i, parent, (child.name || child.tmpName) + '.id'));
                 } else {
                     propVal = this.propertyGetter(prop, vars);
-                    console.log('~',i,propVal)
+                    //console.log('~',i,propVal)
                     cfgInit.push(this.makeProp(i, propVal));
                 }
             }

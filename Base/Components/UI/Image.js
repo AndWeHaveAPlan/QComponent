@@ -16,7 +16,8 @@ module.exports = UIComponent.extend('Image', {
         this.elStyle.backgroundRepeat = 'no-repeat';
     },
     _prop: {
-        source: new Property('String', {description: 'Image source, must be valid url'}, {
+        source: new Property('String', {
+            description: 'Image source, must be valid url'}, {
             get: Property.defaultGetter,
             set: function (name, value) {
                 this.elStyle.backgroundImage = 'url(' + value + ')';

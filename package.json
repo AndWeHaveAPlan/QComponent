@@ -25,6 +25,8 @@
     "chai": "*",
     "mocha": "*",
     "istanbul": "*",
-    "dom-lite": "*"
+    "dom-lite": "*",
+    "mocha-jsdom": "*",
+    "jsdom": "*"
   }
 }
