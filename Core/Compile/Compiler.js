@@ -89,11 +89,17 @@ module.exports = (function () {
             ];
             return source;
         },
-        makePipe: function (pipe, sourceComponent, targetProperty, def, childId) {
+        makePipe: function (pipe, sourceComponent, targetProperty, def, childId, prop) {
+
             var pipeSources = [];
             var mutatorArgs = [];
             var fn = pipe.fn;
-
+            
+            if(prop.type === 'Number' || prop.type === 'Array')
+                fn = tools.compilePipe.raw(fn);
+            else
+                fn = tools.compilePipe.string(fn);
+            
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
@@ -135,7 +141,7 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += this.makePipe(pipes, 'this.id', i, def, 'this.id');
+                    out += this.makePipe(pipes, 'this.id', i, def, 'this.id', prop);
                 } else {
 
                     propVal = this.propertyGetter(prop, vars);
@@ -192,7 +198,7 @@ module.exports = (function () {
                 prop = child.prop[i];
                 pipe = prop.value;
                 if (pipe.isPipe) {
-                    pipes.push(this.makePipe(pipe, 'self.id', i, parent, (child.name || child.tmpName) + '.id'));
+                    pipes.push(this.makePipe(pipe, 'self.id', i, parent, (child.name || child.tmpName) + '.id', prop));
                 } else {
                     propVal = this.propertyGetter(prop, vars);
                     //console.log('~',i,propVal)

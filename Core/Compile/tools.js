@@ -99,6 +99,7 @@ var tools = module.exports = (function() {
             console.warn('Unknown type: '+type);
             return new Error('Unknown type: '+type);
         },
+        
         /** recursive parsing of braces */
         _transformPipes: function (pipedOut, items) {
             var i, _i = items.length, item, data,
@@ -138,6 +139,7 @@ var tools = module.exports = (function() {
             }
             return werePipes;
         },
+        
         transformPipes: function (items) {
             var out = [],
                 unUsed, werePipes = false,
@@ -158,18 +160,19 @@ var tools = module.exports = (function() {
                             return store;
                         }, {items: [], last: void 0})
                         .items
-                        .map(function (item) {
+                        /*.map(function (item) {
                             if (item.type === 'text')
                                 return '\'' + item.pureData + '\'';// TODO: escape
                             else
                                 return '(' + item.pureData + ')';
-                        }).join('+');
+                        }).join('+')*/;
                 //pipedOut.vars = pipedOut.vars;
                 return pipedOut;
             }
 
             return out;
         },
+        
         getPipes: function (items) {
             var pipes = [], i, _i = items.length, item, data, unUsed;
             for (i = 0, _i; i < _i; i++) {
@@ -184,6 +187,21 @@ var tools = module.exports = (function() {
                 }
             }
             return pipes;
+        },
+        compilePipe: {
+            raw: function(val){
+                return val.map(function (item) {
+                    return item.pureData;
+                }).join('');
+            },
+            string: function(val){
+                return val.map(function (item) {
+                    if (item.type === 'text')
+                        return '\'' + item.pureData + '\'';// TODO: escape
+                    else
+                        return '(' + item.pureData + ')';
+                 }).join('+');
+            }
         },
         /**
          * Split items by symbol
