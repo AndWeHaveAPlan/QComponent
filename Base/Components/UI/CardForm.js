@@ -91,8 +91,8 @@ module.exports = UIComponent.extend('CardForm', {
             this._ownComponents.push(sysLogo);
 
             var mutatingPipe = new MutatingPipe(['cardNumber.value'], {
-                component: this.id,
-                property: 'sysLogo.source'
+                component: 'sysLogo',
+                property: 'source'
             });
             mutatingPipe.addMutator(function (number) {
                 if (!number)
