@@ -143,6 +143,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
 
     _afterInit: function () {
         this._init();
+        this._eventManager.releaseThePipes();
     },
 
     regenId: function () {
