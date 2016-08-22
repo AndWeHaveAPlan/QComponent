@@ -145,8 +145,8 @@ def Page main
         top: {{sinSquareTop}}px
         left: {{sinSquareLeft}}px
         //translation: [{{sinSquareTop}}, {{sinSquareLeft}}]
-        //scale: [{{s2.value}}, {{s2.value}}]
-        scale: {{[s2.value, s2.value]}}
+        //scale: [{{s2.value, s2.value}}]
+        scale: [{{s2.value, s2.value}}]
         transform-origin: top left
         padding: 5px
         //transition: all 0.2s

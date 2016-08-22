@@ -18,21 +18,51 @@ module.exports = (function () {
 
 
     describe('test1', function(){
-        //jsdom();
-        it('should create input', function (done) {
-            var x = compile(
-                'def Page main\n' +
-                '  input i1: 10\n' +
-                '    type: number\n', function(err, main){
-                    console.log(typeof main.find('input')[0].get('value'));
+        /*it('should create input with type number', function (done) {
+            compile(
+                'def Page main',
+                '  input i1: 10',
+                '    type: number',
+
+                function(err, main){
+                assert.equal(typeof main.find('input')[0].get('value'), 'number');
+
+                main.find('input')[0].set('value', '42');
+                assert.equal(typeof main.find('input')[0].get('value'), 'number');
+                assert.equal(main.find('input')[0].get('value'), 42);
+                done();
+            });
+        });*/
+        it('should pipe different formats of array', function (done) {
+            compile(
+                'def Page main',
+                '  Number m: 15',
+                '  input i1: 10',
+                '    scale: [{{m}}, {{m}}]',
+
+                function(err, main){
+                    assert.equal(
+                        Array.isArray(main.find('input')[0].get('scale')),
+                        true
+                    );
                     done();
                 });
-
         });
     });
 
 
-    function compile(code, cb){
+    function compile(){
+        var code = [], arg, i, _i, cb;
+        for( i = 0, _i = arguments.length; i < _i; i++){
+            arg = arguments[i];
+            if(typeof arg === 'function'){
+                cb = arg;
+                break;
+            }
+            code.push(arg);
+        }
+        code = code.join('\n');
+
         var p = new Core.Compile.Linker({
             mapping: {
                 id: 'id',
@@ -47,11 +77,11 @@ module.exports = (function () {
             subObj = {},
             compiled;
         console.log('metadata extracted');
-        for (var i in meta) {
+        for (i in meta) {
             meta[i] && meta[i].type && (subObj[i] = meta[i]);
         }
         compiled = Core.Compile.Compiler.compile(subObj);
-
+console.log(compiled)
         var doc = QObject.document = QObject.prototype.document = jsdom.jsdom();
         var test = new Function('document, Base', 'QObject = Base.QObject; Q = '+compiled+'; return Q;');
         var Q = test(doc, Base);
