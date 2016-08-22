@@ -170,13 +170,15 @@ module.exports = (function () {
             if (init)
                 constructor = function (cfg) {
                     init.call(this, cfg);
-                    this._afterInit && this._afterInit();
+                    if(this.constructor === Cmp && this._afterInit )
+                        this._afterInit();
                 };
 
             /** constructor of new component */
             var Cmp = constructor || function (cfg) {
                     original.call(this, cfg);
-                    this._afterInit && this._afterInit();
+                    if(this.constructor === Cmp && this._afterInit )
+                        this._afterInit();
                 };
 
             /** Mixing */
@@ -189,6 +191,7 @@ module.exports = (function () {
             }
             mixins.unshift(original.prototype);
             Cmp.prototype = prototype._mixing(cfg, mixins);
+            Cmp.prototype.constructor = Cmp;
 
             Cmp._type = Cmp.prototype._type = name;
             Cmp.extend = QObject.extend;

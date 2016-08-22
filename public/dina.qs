@@ -231,7 +231,7 @@ def Page main
             color: black
             border: 1px solid black
             itemTemplate:
-                div name:{{name}}
+                div: {{name}}
                     padding: 5px
             itemSource: [
                 {name:'Кремль'},
@@ -239,7 +239,7 @@ def Page main
                 {name:'Офис Квокки'},
                 {name:'Железнодорожное кольцо'}
             ]
-        span: source {{list1.itemSource}}
+        pre: source {{JSON.stringify(list1.itemSource,null,2)}}
             width: 300px
             background: red
     public Array arr1: [1,2,"olo"]
