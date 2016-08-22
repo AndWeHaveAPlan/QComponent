@@ -213,6 +213,7 @@ module.exports = (function () {
             } else {
                 addToParent = 'this._ownComponents.push(' + (child.name || child.tmpName) + ');\n';
             }
+            addToParent += (child.name || child.tmpName)+'.mainEventManager=eventManager;\n';
 
             out += '// ' + (child.name || child.tmpName);
             out += '\nvar ' + (child.name || child.tmpName) + ' = new _known[\'' + child.type + '\']({\n' +
