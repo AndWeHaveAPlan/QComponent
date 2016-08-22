@@ -3,7 +3,7 @@ def Page main
     width:100%
     height:100%
 
-    HBox hbox
+    HBox// hbox
         flexDefinition: 293* 1* 400
         height: 100%
         width: 100%
@@ -23,11 +23,10 @@ def Page main
         div
             height: 100%
             width: 100%
-            //overflow-x: hidden
-            //overflow-y: auto
+            overflow: auto
             ListBox list:
                 itemTemplate:
-                    div name:{{name}}
+                    div: {{name}}
                        padding: 12px
                 itemSource: [
                     {name:'Кремль', coords:[55.751617, 37.617887]},
@@ -46,7 +45,7 @@ def Page main
                 padding: 12px
                 width: 376px
                 type: button
-                disabled: {{ !(gm.ready) }}
+                enabled: {{ gm.ready }}
                 .click: ()=>{
                     gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
                 }

@@ -20,6 +20,7 @@ def Page main
    span: - 4ac =
    span D: {{b.value*b.value-4*a.value*c.value}}
 
+
  div
    span: x1 = (-b + \u221aD)/2a = (-{{b.value}} + {{Math.sqrt(D.value)}}) / (2*{{a.value}}) = {{(-b.value + Math.sqrt(D.value)) / (2*a.value)}}
  div

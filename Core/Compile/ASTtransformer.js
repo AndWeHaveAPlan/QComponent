@@ -10,7 +10,7 @@ module.exports = (function(){
         escodegen = require('escodegen');
 
     var rules = {
-        'BlockStatement,Program': '*body',
+        'Program': '*body',
         'CallExpression,NewExpression': ['callee', '*arguments'],
         'ExpressionStatement': 'expression',
         'ArrayExpression': '*elements',
@@ -73,14 +73,6 @@ module.exports = (function(){
             }
         };
     };
-/*
-
-    var UpdateExpressionDSL = {
-        '--': '-',
-        '++': '+',
-
-    };
-*/
 
     var extractors = {
         'UpdateExpression': function(node){
@@ -163,22 +155,23 @@ module.exports = (function(){
             //assert.deepEqual(node, out);
             return out;
         },
+        'BlockStatement': function(node){
+            return node;
+        },
         'MemberExpression': function(node){
             var _self = this;
-            do {
-                if ('_id' in node && node._id in this) {
-                    //console.log(JSON.stringify(node,null,2));
-                    var ending = [], pointer = node, stack = [];
-                    console.log(pointer, pointer.object)
-                    while (pointer.object.type !== 'Identifier' && pointer.object.type !== 'ThisExpression') {
-                        if (pointer.object.type === 'CallExpression') break;
 
-                        stack.push(pointer.property);
-                        pointer = pointer.object;
-                    }
+            if('_id' in node && node._id in this){
+                //console.log(JSON.stringify(node,null,2));
+                var ending = [], pointer = node, stack = [];
+                console.log(pointer, pointer.object)
+                while(pointer.object.type !== 'Identifier' && pointer.object.type !== 'ThisExpression'){
                     stack.push(pointer.property);
+                    pointer = pointer.object;
+                }
+                stack.push(pointer.property);
 
-                    return {
+                return {
                         "type": "CallExpression",
                         "callee": {
                             "type": "MemberExpression",
@@ -192,36 +185,41 @@ module.exports = (function(){
                         "arguments": [
                             {
                                 "type": "ArrayExpression",
-                                "elements": (stack.length ? stack.reverse().map(function (item) {
-                                    //console.log(JSON.stringify(item,null,2));
-                                    if (item.computed) {
-                                        return doTransform.call(_self, item);
-                                    } else {
-                                        return {
-                                            "type": "Literal",
-                                            "value": item.name,
-                                            "raw": "'" + item.name + "'"
+                                "elements":
+                                    (stack.length ? stack.reverse().map(function(item){
+                                        //console.log(JSON.stringify(item,null,2));
+                                        if(item.computed){
+                                            return doTransform.call(_self, item);
+                                        }else{
+                                            return {
+                                                "type": "Literal",
+                                                "value": item.name,
+                                                "raw": "'"+item.name+"'"
+                                            }
                                         }
-                                    }
-                                    return item;
-                                }) : [{
-                                    "type": "Literal",
-                                    "value": 'value',
-                                    "raw": "'value'"
-                                }])
+                                        return item;
+                                    }) : [{
+                                        "type": "Literal",
+                                        "value": 'value',
+                                        "raw": "'value'"
+                                    }])
                             }
                         ]
 
-                    };
-                }
-            }while(false);
-            node = Object.create(node);
-            node.object = doTransform.call(this,node.object);
-            node.property = doTransform.call(this,node.property);
-            return node;
-
+                };
+            }else {
+                node = Object.create(node);
+                node.object = doTransform.call(this,node.object);
+                node.property = doTransform.call(this,node.property);
+                return node;
+            }
         },
-
+        'FunctionExpression': function(node){
+            return node;
+        },
+        'FunctionDeclaration': function(node){
+            return node;
+        },
         'Identifier': function(node){
             if('_id' in node && node._id in this){
                 console.log(node)
@@ -251,12 +249,6 @@ module.exports = (function(){
                 };
             }else
                 return node;
-        },
-        'FunctionExpression': function(node){
-            return node;
-        },
-        'FunctionDeclaration': function(node){
-            return node;
         },
         'ThisExpression': function(node, list){
             return node;

@@ -1,0 +1,79 @@
+Core
+  21-25 august: pipes transformation through AST transform
+  28 august - 8 september: private properties
+  11-22 september: server pumkin
+
+Components
+  10 august: Image
+  10 august: Timer
+
+  Random Source
+    10 august: base
+    11 september: extended
+
+  Map
+    10 august: base
+    22 september: extended
+
+  input fields
+    18 august: card field
+    25 august: number
+    25 august: text
+    25 august: multiline text
+    18 august: masked input
+    25 august: calendar
+    checkbox
+    radio
+    slider
+    duration
+    enum (select)
+    multiselect
+
+  cryptography
+    md5
+    sha1\2
+    aes
+    des
+
+  graphics
+    bar-chart
+    pie-chart
+    curves    
+
+Business
+  main screen
+  comission component
+  application manager
+  scenario manager
+  rpc (ajax\socket)
+  transaction
+  base hardware
+
+Abstractions
+  17 august - 8 september: Event manager
+  28 august - 8 september: Focus manager
+
+Scenarios
+  screen
+    .next()/.prev()
+    .goto
+    income\outcome data
+    transitions (from->to + animation)
+
+Hardware
+  Printer
+  Web camera
+  Embosser
+  Sensor screen
+  Cash
+  Cardreader
+  PIN pad
+  Network
+  GPS
+
+Other
+  Build tools
+  Demonstration
+  Repository
+  OS integration
+  OS package tools
