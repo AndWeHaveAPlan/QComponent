@@ -75,7 +75,17 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 }
                 return value;
             },
-            set: Property.defaultGetter
+            set: function (attr, val) {
+                if (!val) {
+                    this.el.removeAttribute(attr);
+                    delete this.el[attr];
+                } else {
+                    this.el.setAttribute(attr, val);
+                    this.el[attr] = val;
+                }
+
+                this.el[attr] = val;
+            }
         })
     }
 });
