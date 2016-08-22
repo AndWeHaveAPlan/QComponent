@@ -8,7 +8,6 @@
 
 var QObject = require("./QObject");
 var Component = require("./Components/AbstractComponent");
-var FiltratingPipe = require("./Pipes/FiltratingPipe");
 var SimplePipe = require("./Pipes/SimplePipe");
 
 /**
@@ -18,6 +17,7 @@ var SimplePipe = require("./Pipes/SimplePipe");
 function EventManager(owner) {
     this._registredComponents = {};
     this._registredPipes = {};
+    this._tempPipes = [];
     this.owner = owner;
 }
 
@@ -85,27 +85,43 @@ EventManager.prototype.createSimplePipe = function (source, target) {
  * @param pipe Pipe
  */
 EventManager.prototype.registerPipe = function (pipe) {
-
-    var bindingSources = pipe.sourceBindings;
-    var component;
-
-    for (var source in bindingSources) {
-        if (bindingSources.hasOwnProperty(source)) {
-
-            var currentSource = bindingSources[source];
-            var componentName = currentSource.componentName || this.owner.id;
-            component = this._registredComponents[componentName];
-            currentSource.value = component ? component.get(currentSource.propertyName) : void(0);
-
-            var pipes = this._registredPipes[currentSource.key];
-            pipes ? pipes.push(pipe) : this._registredPipes[currentSource.key] = [pipe];
-        }
-    }
-
-    component = this._registredComponents[pipe.targetComponent];
-    if (component)
-        pipe.process(null, null, component);
+    //TODO if pipes already released
+    this._tempPipes.push(pipe);
 };
 
+EventManager.prototype._release=function(pipe){
+
+};
+
+/**
+ *
+ */
+EventManager.prototype.releaseThePipes = function () {
+
+    for (var i = 0; i < this._tempPipes.length; i++) {
+        var pipe = this._tempPipes[i];
+        var bindingSources = pipe.sourceBindings;
+        var component;
+
+        for (var source in bindingSources) {
+            if (bindingSources.hasOwnProperty(source)) {
+
+                var currentSource = bindingSources[source];
+                var componentName = currentSource.componentName || this.owner.id;
+                component = this._registredComponents[componentName];
+                currentSource.value = component ? component.get(currentSource.propertyName) : void(0);
+
+                var pipes = this._registredPipes[currentSource.key];
+                pipes ? pipes.push(pipe) : this._registredPipes[currentSource.key] = [pipe];
+            }
+        }
+
+        component = this._registredComponents[pipe.targetComponent];
+        if (component)
+            pipe.process(null, null, component);
+    }
+
+    delete this._tempPipes;
+};
 
 module.exports = EventManager;
