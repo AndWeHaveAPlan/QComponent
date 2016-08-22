@@ -1,7 +1,7 @@
 def Page main
     background: rgba({{s1.value|0}},{{s2.value}},{{s3.value}},1)
     VBox
-        skew: {{s2.value*3}}
+        //skew: {{[s2.value*0.003,-s2.value*0.003]}}
         Slider s1: 50
             from: 0
             to: 255
@@ -10,7 +10,7 @@ def Page main
         span: Red: {{s1.value}}
 
         Slider s2: 100
-            from: 0
+            from: -255
             to: 255
             step: 1
             fillColor: rgb(0, {{s2.value}}, 0)
