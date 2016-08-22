@@ -112,7 +112,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
 
     _afterInit: function () {
         this._init();
-        this._eventManager.releaseThePipes();
     },
 
     regenId: function () {
@@ -245,7 +244,19 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
     },
-
+    
+    find: function(matcher){
+        var out = []
+        this._ownComponents.forEach(function(item){
+            if(item._type === matcher)out.push(item);
+            out = out.concat(item.find(matcher));
+        });
+        this._children.forEach(function(item){
+            if(item._type === matcher)out.push(item);
+            out = out.concat(item.find(matcher));
+        });
+        return out;
+    },
     _type: 'AbstractComponent'
 });
 
