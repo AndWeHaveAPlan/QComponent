@@ -13,13 +13,15 @@ describe("Advanced piping", function () {
 
     it("should create custom mutating MULTI pipes", function () {
 
-        var eventManager = new EventManager();
+        var eventManager = new EventManager(new Component());
 
         var comp3 = new Component({id: "comp3"});
         var comp4 = new Component({id: "comp4"});
 
         eventManager.registerComponent(comp3);
         eventManager.registerComponent(comp4);
+
+        eventManager.releaseThePipes();
 
         comp4.set("testTargetProp", 2);
 
@@ -44,13 +46,15 @@ describe("Advanced piping", function () {
     });
 
     it("late binding", function () {
-        var eventManager = new EventManager();
+        var eventManager = new EventManager(new Component());
 
         var comp3 = new Component({id: "comp3"});
         var comp4 = new Component({id: "comp4"});
 
         eventManager.registerComponent(comp3);
         eventManager.registerComponent(comp4);
+
+        eventManager.releaseThePipes();
 
         comp3.set("testSourceProp1", "hello ");
         comp3.set("testSourceProp2", "multipipe!");

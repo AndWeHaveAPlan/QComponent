@@ -15,7 +15,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
             set: function (name, val) {
                 if (!this.textNode) {
                     this.textNode = new exports['textNode'];
-                    this._children.unshift(this.textNode);
+                    this._ownComponents.push(this.textNode);
                 }
                 this.textNode.set('value', val);
             },

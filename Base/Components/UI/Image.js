@@ -42,6 +42,6 @@ module.exports = UIComponent.extend('Image', {
                 }
             }
         }),
-        value: new Property('String', {}, {overrideKey: 'source'})
+        value: new Property.generate.proxy('source')
     }
 });
