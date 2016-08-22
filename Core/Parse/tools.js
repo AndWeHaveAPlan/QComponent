@@ -372,11 +372,12 @@ module.exports = (function(){
     });*/
     //module.exports.tokenize(pre));
 
+    /*
     var pre = U.tokenizer( require( 'fs' ).readFileSync( '../../test/tokenize/tmp4.txt' ) + '' );
     var tree = U.treeBuilder( pre );
     console.dir( tree );
     console.log( JSON.stringify(tree,null,2) );
-
+*/
     return U;
 })();
 
