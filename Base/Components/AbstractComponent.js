@@ -8,7 +8,9 @@ var QObject = require('./../QObject'),
     ObservableSequence = require('observable-sequence'),
     DQIndex = require('z-lib-structure-dqIndex'),
     MulticastDelegate = require('../MulticastDelegate'),
-    Property = require('../Property');
+    Property = require('../Property'),
+    observable = require('z-observable');
+
 
 /**
  * Base class for all components
@@ -18,13 +20,14 @@ var QObject = require('./../QObject'),
  * @constructor
  */
 function AbstractComponent(cfg) {
-
     var self = this;
-    Function.prototype.apply.call(QObject, this, arguments);
+    observable.prototype._init.call(this);
 
-    if (!this.id)
-        this.id = uuid();
-
+    //Function.prototype.apply.call(QObject, this, arguments);
+    cfg = cfg || {};
+    this._cfg = cfg;
+    this.id = cfg.id || uuid();
+    delete cfg.id;
     /**
      *
      * @type {{}}
@@ -40,14 +43,15 @@ function AbstractComponent(cfg) {
      */
     this._ownComponents = new ObservableSequence(new DQIndex('id'));
 
-    if (!this.leaf) {
-        /** instantly modify child components on append */
-        this._ownComponents.on('add', function (child) {
-            child.parent = self;
-        });
-    }
+    /** instantly modify child components on append */
+    this._ownComponents.on('add', function (child) {
+        child.parent = self;
+        self._eventManager.registerComponent(child);
+        self.set([child.id], child);
+    });
 
-    this._initProps(cfg || {});
+
+    this._initProps(cfg);
 
     /**
      * Event. Fires with any changes made with get(...)
@@ -60,7 +64,6 @@ function AbstractComponent(cfg) {
     if (!this._eventManager)
         this._eventManager = new EventManager(this);
 
-
     this._eventManager.registerComponent(this);
 }
 var defaultPropertyFactory = new Property('Variant', {description: 'Someshit'});
@@ -68,37 +71,47 @@ AbstractComponent.document = QObject.document;
 AbstractComponent.extend = QObject.extend;
 AbstractComponent.prototype = Object.create(QObject.prototype);
 QObject.prototype.apply(AbstractComponent.prototype, {
+    _prop: {
+        id: new Property('String', {description: 'Component ID'}, {
+            set: function (key, val) {
+                if (this.id && this.id !== val)
+                    return false;
 
-    _init: function () {
+                this.id = key;
+            },
+            get: Property.defaultGetter
+        })
     },
-    _prop: {},
+    _init: function () {
+        var cfg = this._cfg;
+        for (var p in cfg) {
+            if (cfg.hasOwnProperty(p)) {
+                this.set([p], cfg[p]);
+            }
+        }
+
+        delete this._cfg;
+    },
     _initProps: function (cfg) {
-
-        var overrided = [];
-
         var prop = this._prop, i,
             newProp = this._prop = {};
 
         for (i in prop) {
             if (i === 'default') {
                 newProp[i] = prop[i];
-            } else if (prop[i].cfg && prop[i].cfg.overrideKey) {
-                overrided.push({prop: prop, key: i});
             } else {
                 if (i in cfg)
-                    newProp[i] = new prop[i](this, i, cfg[i]);
+                    newProp[i] = new prop[i](this, i);//, cfg[i]);
                 else
                     newProp[i] = new prop[i](this, i);
             }
         }
 
-        for (var i = 0; i < overrided.length; i++) {
-            var key = overrided[i].key;
-            var prop = overrided[i].prop;
-            if (prop.cfg.overrideKey in newProp) {
-                newProp[key] = newProp[prop.cfg.overrideKey];
-            }
-        }
+        delete cfg._prop;
+    },
+
+    _afterInit: function () {
+        this._init();
     },
 
     regenId: function () {
@@ -189,7 +202,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     getted.set(names[names.length - 1], value);
                 } else {
                     getted[names[names.length - 1]] = value;
-                    this._onPropertyChanged(names.splice(0, 1), value);
+                    this._onPropertyChanged(this, names[0], value);
                 }
         } else {
             if (!this._prop[names[0]]) {
@@ -211,7 +224,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     getted.set(nameParts[nameParts.length - 1], value);
                 } else {
                     getted[nameParts[nameParts.length - 1]] = value;
-                    this._onPropertyChanged(nameParts.splice(0, 1), value);
+                    this._onPropertyChanged(this, nameParts[0], value);
                 }
         } else {
             if (!this._prop[name]) {
@@ -231,12 +244,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
     },
-
-    /**
-     * Add Child component
-     *
-     * @param component AbstractComponent: AbstractComponent to add
-     */
 
     _type: 'AbstractComponent'
 });

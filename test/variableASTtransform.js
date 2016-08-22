@@ -36,12 +36,20 @@ describe("ast transformations", function () {
         assert.equal(transform('!a;'), '!a.get([\'value\']);');
     });
 
+
     it("should work in ololo cases", function () {
         //console.log(JSON.stringify(VariableExtractor.parse('a++').getAST()))
         assert.equal(transform('a+=1;'), 'a.set([\'value\'],a.get([\'value\'])+1);');
         assert.equal(transform('a-=1;'), 'a.set([\'value\'],a.get([\'value\'])-1);');
         assert.equal(transform('a*=g;'), 'a.set([\'value\'],a.get([\'value\'])*g.get([\'value\']));');
         assert.equal(transform('a/=a;'), 'a.set([\'value\'],a.get([\'value\'])/a.get([\'value\']));');
+    });
+
+    it("bugfix cases", function () {
+        assert.equal(transform('var x;\nx().slice();'),'var x;x().slice();');
+        assert.equal(transform('var x = list1.itemSource;\n'+
+            'x = x.push({name: addOne}).slice();\n'+
+            'list1.itemSource = x;'),'var x=list1.get([\'itemSource\']);x=x.push({name:addOne}).slice();list1.set([\'itemSource\'],x);');
     });
 
 });

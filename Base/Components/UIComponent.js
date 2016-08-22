@@ -59,9 +59,14 @@ module.exports = (function () {
                         this._eventManager.registerComponent(item);
                     }
 
-                if (item instanceof UIComponent)
+                if (item instanceof UIComponent) {
+
                     this.el.appendChild(item.el);
+                    item.fire('addToParent')
+                }
             }
+
+            AbstractComponent.prototype._init.apply(this, arguments);
         },
 
         /**
@@ -110,7 +115,7 @@ module.exports = (function () {
             return this;
         },
         _prop: (function () {
-            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius'
+            var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,font-family,font-size'
                 .split(',')
                 .reduce(function (store, key) {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);
@@ -204,6 +209,7 @@ module.exports = (function () {
                         switch (cVal.type) {
                             case 'rotation':
                                 m = Matrix2D.createRotation((cVal.angle / 180) * Math.PI);
+                                
                                 break;
                             case 'translation':
                                 m = Matrix2D.createTranslation(cVal.x, cVal.y);
@@ -246,7 +252,7 @@ module.exports = (function () {
             child.parent = self;
             //insert to dom
             if (child.el) { /** UI Component */
-                if (self._contentContainer && child.el) {
+                if (self._contentContainer) {
                     self._contentContainer.el.appendChild(child.el);
                 } else {
                     self.el.appendChild(child.el);

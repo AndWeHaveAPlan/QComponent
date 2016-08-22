@@ -13,7 +13,13 @@ module.exports = {
         AbstractComponent: require('./Base/Components/AbstractComponent'),
         UIComponent: require('./Base/Components/UIComponent'),
         ContentContainer: require('./Base/Components/ContentContainer'),
+        mixins: {
+            focusable: require('./Base/Mixins/focusable')
+        },
         UI: {
+            Fields: {
+                Base: require('./Base/Components/UI/Field/Base')
+            },
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             TextBox: require('./Base/Components/UI/TextBox'),
@@ -27,7 +33,8 @@ module.exports = {
             VBox: require('./Base/Components/UI/VBox'),
             Image: require('./Base/Components/UI/Image'),
             GeoMap: require('./Base/Components/UI/GeoMap'),
-            DOMTools: require('./Base/Components/UI/DOMTools')
+            CardForm: require('./Base/Components/UI/CardForm'),
+            DOMTools: require('./Base/Common/UI/DOMTools')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {
@@ -43,9 +50,9 @@ module.exports = {
     EventManager: require('./Base/EventManager'),
     Property: require('./Base/Property'),
     Pipes: {
-        AbstractPipe: require("./Base/Pipes/AbstractPipe"),
-        SimplePipe: require("./Base/Pipes/SimplePipe"),
-        FiltratingPipe: require("./Base/Pipes/FiltratingPipe"),
-        MutatingPipe: require("./Base/Pipes/MutatingPipe")
+        AbstractPipe: require('./Base/Pipes/AbstractPipe'),
+        SimplePipe: require('./Base/Pipes/SimplePipe'),
+        FiltratingPipe: require('./Base/Pipes/FiltratingPipe'),
+        MutatingPipe: require('./Base/Pipes/MutatingPipe')
     }
 };

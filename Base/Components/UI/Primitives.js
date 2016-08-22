@@ -67,9 +67,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
     _prop: {
         type: Property.generate.attributeProperty('type'),
         checked: Property.generate.attributeProperty('checked'),
-        value: Property.generate.attributeProperty('value'),
-        disabled: Property.generate.attributeProperty('value'),
-        type: Property.generate.attributeProperty('value')
+        value: Property.generate.attributeProperty('value')
     }
 });
 
@@ -96,8 +94,8 @@ exports['embed'] = exports['HtmlPrimitive'].extend('embed', {
         this.el = UIComponent.document.createElement('embed');
     },
     _prop: {
-        src: new Property( 'String', {description: 'Source url'},{
-            set: function(name, val){
+        src: new Property('String', {description: 'Source url'}, {
+            set: function (name, val) {
                 setTimeout(function () {
 
                     var parent = this.el.parentNode,
@@ -137,12 +135,11 @@ exports['a'] = exports['HtmlPrimitive'].extend('a', {
     }
 });
 
-exports['a'] = exports['HtmlPrimitive'].extend('img', {
+exports['img'] = exports['HtmlPrimitive'].extend('img', {
     createEl: function () {
         this.el = UIComponent.document.createElement('img');
     },
     _prop: {
-        href: Property.generate.attributeProperty('href'),
         src: Property.generate.attributeProperty('src')
     }
 });

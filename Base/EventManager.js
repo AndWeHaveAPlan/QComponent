@@ -33,27 +33,22 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
 
     return function (sender, name, newValue, oldValue) {
         // TODO think about getting id through getter
-
         var key = sender.id + '.' + name;
-
         if (sender.id == self.owner.id)
             key = name;
 
         var propertyPipes = self._registredPipes[key];
 
+        console.log(name);
         if (propertyPipes) {
             for (var i = 0; i < propertyPipes.length; i++) {
                 var currentPipe = propertyPipes[i];
 
-                var targetComponentName = currentPipe.targetComponent;
-
-                var val;
+                var val = sender.get(currentPipe.sourceBindings[key].propertyName);
                 if (key == sender.id + '.' + currentPipe.sourceBindings[key].propertyName)
                     val = newValue;
-                else
-                    val = sender.get(currentPipe.sourceBindings[key].propertyName);
 
-                var targetComponent = self._registredComponents[targetComponentName];
+                var targetComponent = self._registredComponents[currentPipe.targetComponent];
                 if (targetComponent) {
                     currentPipe.process(key, val, targetComponent);
                 }
@@ -104,8 +99,6 @@ EventManager.prototype.registerPipe = function (pipe) {
 
             var pipes = this._registredPipes[currentSource.key];
             pipes ? pipes.push(pipe) : this._registredPipes[currentSource.key] = [pipe];
-
-
         }
     }
 

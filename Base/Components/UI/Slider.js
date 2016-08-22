@@ -3,7 +3,7 @@
  */
 var UIComponent = require('../UIComponent');
 var Property = require('../../Property'),
-    DOMTools = require('./DOMTools');
+    DOMTools = require('./../../Common/UI/DOMTools');
 
 
 module.exports = UIComponent.extend('Slider', {
