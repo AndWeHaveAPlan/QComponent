@@ -18,7 +18,7 @@ module.exports = (function () {
 
 
     describe('test1', function(){
-        it('should create input with type number', function (done) {
+        /*it('should create input with type number', function (done) {
             compile(
                 'def Page main',
                 '  input i1: 10',
@@ -47,6 +47,18 @@ module.exports = (function () {
                     );
                     done();
                 });
+        });*/
+        it('pipe transform', function (done) {
+            compile(
+                'def Page main',
+                '  input i0: 13',
+                '    type: number',
+                '  input i1: {{i0+2}}',
+                
+                function(err, main){
+                    console.log(main.findOne('input#i1').get('value'))
+                    done();
+                });
         });
         /*it('should extract function', function (done) {
             compile(
@@ -54,6 +66,8 @@ module.exports = (function () {
                 '  Number m: 15',
                 '  input i1: 10',
                 '    .click: ()->{',
+                '        input x = i1;',
+                '        ',
                 '//haha loh',
                 'debugger;',
                 '       m=((7))',
@@ -105,7 +119,7 @@ module.exports = (function () {
             meta[i] && meta[i].type && (subObj[i] = meta[i]);
         }
         compiled = Core.Compile.Compiler.compile(subObj);
-//console.log(compiled)
+console.log(compiled)
         var doc = QObject.document = QObject.prototype.document = jsdom.jsdom();
         try {
             var test = new Function('document, Base', 'QObject = Base.QObject; Q = ' + compiled + '; return Q;');

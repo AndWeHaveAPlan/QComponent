@@ -278,16 +278,32 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     },
     
     find: function(matcher){
-        var out = []
-        this._ownComponents.forEach(function(item){
-            if(item._type === matcher)out.push(item);
-            out = out.concat(item.find(matcher));
+        var out = [];
+        var matches = matcher.split(' '), match = matches[0],
+            tokens = match.split('#'),
+            type = tokens[0],
+            id = tokens[1];
+
+        [this._ownComponents, this._children].forEach(function(item){
+            item.forEach(function(item){
+                var matched = true;
+                if(id)
+                    matched = matched && (item.id === id);
+
+                if(type)
+                    matched = matched && (item._type === type);
+
+                if(matched)
+                    out.push(item);
+
+                out = out.concat(item.find(match));
+            });
         });
-        this._children.forEach(function(item){
-            if(item._type === matcher)out.push(item);
-            out = out.concat(item.find(matcher));
-        });
+
         return out;
+    },
+    findOne: function(matcher){
+        return this.find(matcher)[0];
     },
     _type: 'AbstractComponent'
 });

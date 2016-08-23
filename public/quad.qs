@@ -14,11 +14,17 @@ def Page main
     type: number
   span: = 0
 
+ public Number d0:11
  div
    span: D = b
    sup: 2
    span: - 4ac =
    span D: {{b.value*b.value-4*a.value*c.value}}
+   span D: {{b*b-4*a*c}}
+     .click: ()->
+       var x = D.raw;
+       x.background
+       get(self.get('D'), 'background')
 
 
  div

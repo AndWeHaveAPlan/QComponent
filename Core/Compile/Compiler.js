@@ -19,7 +19,9 @@ module.exports = (function () {
         tools = require('./tools');
     var notComment = function( el ){return el.type !== 'comment'; },
         getData = function( el ){return el.data; },
-        getPureData = function( el ){return el.pureData; };
+        getPureData = function( el ){return el.pureData; },
+        VariableExtractor = require('./VariableExtractor'),
+        ASTtransformer = require('./ASTtransformer');
     return new QObject({
         compile: function (metadata) {
             cmetadata = metadata;
@@ -100,6 +102,11 @@ module.exports = (function () {
             else
                 fn = tools.compilePipe.string(fn);
             
+            /** do magic */
+            var vars = VariableExtractor.parse(fn), 
+                o = vars.getFullUnDefined(),
+                fn = new ASTtransformer().transform(vars.getAST(), o, {compact: true});
+            
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
@@ -118,7 +125,7 @@ module.exports = (function () {
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
 
-                            fn = fn.replace(new RegExp(fullName.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), 'g'), mArg);
+                            fn = fn.replace(new RegExp(fullName/*.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")*/, 'g'), mArg);
                         }
                     }
                 }

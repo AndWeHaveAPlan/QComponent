@@ -123,7 +123,7 @@ var tools = module.exports = (function() {
                         out.push({type: 'fn', pureData: data});
                     } else {
                         try {
-                            out.push({type: 'text', pureData: eval(data), col: item.col, row: item.row});
+                            out.push({type: 'text', pureData: eval(data)/** TODO escape this security breach */, col: item.col, row: item.row});
                         } catch (e) {
                             QObject.Error('Evaluation error', {item: item, data: e});
                         }
