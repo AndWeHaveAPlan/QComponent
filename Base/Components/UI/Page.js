@@ -2,14 +2,15 @@
  * Created by ravenor on 13.07.16.
  */
 
-var UIComponent = require('../UIComponent');
+var UIComponent = require('../UIComponent'),
+    QObject = require('../../QObject');
 var Property = require('../../Property');
 
 
 module.exports = UIComponent.extend('Page', {
     createEl: function () {
         var self = this;
-        this.el = UIComponent.document.body;
+        this.el = QObject.document.body;
 
         /*function handleEvent(event) {
             event.cancelBubble = true;

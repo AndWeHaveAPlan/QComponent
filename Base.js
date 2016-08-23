@@ -34,7 +34,8 @@ module.exports = {
             Image: require('./Base/Components/UI/Image'),
             GeoMap: require('./Base/Components/UI/GeoMap'),
             CardForm: require('./Base/Components/UI/CardForm'),
-            DOMTools: require('./Base/Common/UI/DOMTools')
+            DOMTools: require('./Base/Common/UI/DOMTools'),
+            If: require('./Base/Components/UI/If')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {

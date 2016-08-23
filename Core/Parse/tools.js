@@ -365,16 +365,19 @@ module.exports = (function(){
     } );
 
     //var pre = module.exports.preprocessor(require('fs' ).readFileSync('../../test/tmp' )+'');
-    var pre = U.tokenizer( require( 'fs' ).readFileSync( '../../test/tokenize/tmp4.txt' ) + '' );
+
     /*pre.map(function(el){
         console.log(el.row+':'+el.indent+' '+el.items.map(function(item){
                 return item.col+':'+({text:'T',comment:'%',brace:'<',quote:'Q'}[item.type])+item.data.substr(0,30);}).join('|'));
     });*/
     //module.exports.tokenize(pre));
+
+    /*
+    var pre = U.tokenizer( require( 'fs' ).readFileSync( '../../test/tokenize/tmp4.txt' ) + '' );
     var tree = U.treeBuilder( pre );
     console.dir( tree );
     console.log( JSON.stringify(tree,null,2) );
-
+*/
     return U;
 })();
 

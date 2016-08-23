@@ -15,7 +15,7 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
             set: function (name, val) {
                 if (!this.textNode) {
                     this.textNode = new exports['textNode'];
-                    this._children.unshift(this.textNode);
+                    this._ownComponents.push(this.textNode);
                 }
                 this.textNode.set('value', val);
             },
@@ -49,7 +49,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
     //leaf: true,
     createEl: function () {
         var self = this;
-        this.el = UIComponent.document.createElement('input');
+        this.el = QObject.document.createElement('input');
 
         this.el.addEventListener('click', function (e) {
             self.fire('click', e);
@@ -67,7 +67,26 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
     _prop: {
         type: Property.generate.attributeProperty('type'),
         checked: Property.generate.attributeProperty('checked'),
-        value: Property.generate.attributeProperty('value')
+        value: new Property('Variant', {description: 'Base HTML input'}, {
+            get: function (key, value) {
+                if(this._data.type === 'number'){
+                    var val = parseFloat(value);
+                    return isNaN(val) ? 0 : val;
+                }
+                return value;
+            },
+            set: function (attr, val) {
+                if (!val) {
+                    this.el.removeAttribute(attr);
+                    delete this.el[attr];
+                } else {
+                    this.el.setAttribute(attr, val);
+                    this.el[attr] = val;
+                }
+
+                this.el[attr] = val;
+            }
+        })
     }
 });
 
