@@ -89,15 +89,20 @@ module.exports = (function() {
                     if(functionBody[fnStart]){
                         rest = other.slice(i);
                         rest = tools.removeFirstWord({items: rest}, fnStart).items;
+                        
+                        /** if function body is in curly braces - extract it */
+                        if(rest.length === 1 && rest[0].type === 'brace' && rest[0].info === '{')
+                            rest = rest[0].items;
                         break;
                     }else{
-                        console.log(token)
                         throw new Error({message: {type: 'Syntax error', data: token}});
                     }
                 }
             }
             fn = [
                 rest.map(function(item){
+                    if(item.type === 'comment')
+                        return item.info === void 0 ? item.data+ '\n': item.data;
                     return item.pureData;
                 })
                 .join('')

@@ -18,7 +18,7 @@ module.exports = (function () {
 
 
     describe('test1', function(){
-        /*it('should create input with type number', function (done) {
+        it('should create input with type number', function (done) {
             compile(
                 'def Page main',
                 '  input i1: 10',
@@ -32,13 +32,13 @@ module.exports = (function () {
                 assert.equal(main.find('input')[0].get('value'), 42);
                 done();
             });
-        });*/
+        });
         it('should pipe different formats of array', function (done) {
             compile(
                 'def Page main',
                 '  Number m: 15',
                 '  input i1: 10',
-                '    scale: [{{m}}, {{m}}]',
+                '    scale: [\'{{m}}\', {{m}}]//comment',
 
                 function(err, main){
                     assert.equal(
@@ -48,6 +48,29 @@ module.exports = (function () {
                     done();
                 });
         });
+        /*it('should extract function', function (done) {
+            compile(
+                'def Page main',
+                '  Number m: 15',
+                '  input i1: 10',
+                '    .click: ()->{',
+                '//haha loh',
+                'debugger;',
+                '       m=((7))',
+                '}',
+
+                function(err, main){
+                    var i = main.find('input')[0],
+                        j = i.eventList.click.list[0].fn.toString();
+                    console.log(j)
+
+                    assert.equal(
+                        Array.isArray(main.find('input')[0].get('scale')),
+                        true
+                    );
+                    done();
+                });
+        });*/
     });
 
 
@@ -75,20 +98,26 @@ module.exports = (function () {
         });
         var meta = p.getMetadata(),
             subObj = {},
-            compiled;
+            compiled,
+            err = false;
         console.log('metadata extracted');
         for (i in meta) {
             meta[i] && meta[i].type && (subObj[i] = meta[i]);
         }
         compiled = Core.Compile.Compiler.compile(subObj);
-console.log(compiled)
+//console.log(compiled)
         var doc = QObject.document = QObject.prototype.document = jsdom.jsdom();
-        var test = new Function('document, Base', 'QObject = Base.QObject; Q = '+compiled+'; return Q;');
+        try {
+            var test = new Function('document, Base', 'QObject = Base.QObject; Q = ' + compiled + '; return Q;');
+        }catch(e){
+            err = e;
+
+        }
         var Q = test(doc, Base);
 
         //console.log(QObject.document.body.innerHTML)
-        var main = new Q.main(),
-            err = false;
+        var main = new Q.main();
+
         setTimeout(function(){
             cb(err, main);
         }, 5);
