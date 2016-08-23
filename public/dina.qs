@@ -205,9 +205,9 @@ def Page main
         position: relative
         top: {{sinSquareTop}}px
         left: {{sinSquareLeft}}px
-        //translation: {{[sinSquareTop, sinSquareLeft]}}
-        //scale: {{[s2.value, s2.value]}}
-        //skew: {{[s2.value*0.003,-s2.value*0.003]}}
+        //translation: [{{sinSquareTop}}, {{sinSquareLeft}}]
+        //scale: [{{s2.value, s2.value}}]
+        scale: [{{s2.value, s2.value}}]
         transform-origin: top left
         padding: 5px
         //transition: all 0.2s

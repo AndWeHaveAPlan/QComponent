@@ -33,7 +33,9 @@ function AbstractComponent(cfg) {
      * @type {{}}
      * @private
      */
-    this._data = {};
+    this._data = {
+        id: this.id
+    };
 
     /**
      * Own Components
@@ -47,9 +49,38 @@ function AbstractComponent(cfg) {
     this._ownComponents.on('add', function (child) {
         child.parent = self;
         self._eventManager.registerComponent(child);
-        self.set([child.id], child);
+        //self.set([child.id], child);
+        self.el.appendChild(child.el);
     });
 
+    /**
+     * Child Components
+     *
+     * @type Array<AbstractComponent>
+     * @private
+     */
+    this._children = new ObservableSequence(new DQIndex('id'));
+
+    this._children.on('add', function (child) {
+        child.parent = self;
+        //insert to dom
+        if (child.el) { /** UI Component */
+            if (self._contentContainer) {
+                self._contentContainer.el.appendChild(child.el);
+            } else {
+                self.el.appendChild(child.el);
+            }
+        }
+    });
+
+    this._children.on('remove', function (child) {
+        child.parent = null;
+        if (self._contentContainer && child.el) {
+            self._contentContainer.el.removeChild(child.el);
+        } else {
+            self.el.removeChild(child.el);
+        }
+    });
 
     this._initProps(cfg);
 
@@ -245,7 +276,19 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
     },
-
+    
+    find: function(matcher){
+        var out = []
+        this._ownComponents.forEach(function(item){
+            if(item._type === matcher)out.push(item);
+            out = out.concat(item.find(matcher));
+        });
+        this._children.forEach(function(item){
+            if(item._type === matcher)out.push(item);
+            out = out.concat(item.find(matcher));
+        });
+        return out;
+    },
     _type: 'AbstractComponent'
 });
 

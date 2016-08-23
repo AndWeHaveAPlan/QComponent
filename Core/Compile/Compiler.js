@@ -69,7 +69,7 @@ module.exports = (function () {
             var compiledChildren = item.children ? item.children.map(function (el) {
                 return _self.compileChild(el, item, props, vars, 0);
             }).join('') : '//no children\n';
-            debugger;
+            //debugger;
             source = [
                 (inline ? '' : 'var ' + name + ' = out[\'' + name + '\'] = ' ) + item.type + '.extend(\'' + name + '\', {_prop: {' +
                 props.map(function (item) {
@@ -89,11 +89,17 @@ module.exports = (function () {
             ];
             return source;
         },
-        makePipe: function (pipe, sourceComponent, targetProperty, def, childId) {
+        makePipe: function (pipe, sourceComponent, targetProperty, def, childId, prop) {
+
             var pipeSources = [];
             var mutatorArgs = [];
             var fn = pipe.fn;
-
+            
+            if(prop.type === 'Number' || prop.type === 'Array')
+                fn = tools.compilePipe.raw(fn);
+            else
+                fn = tools.compilePipe.string(fn);
+            
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
@@ -135,12 +141,12 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += this.makePipe(pipes, 'this.id', i, def, 'this.id');
+                    out += this.makePipe(pipes, 'this.id', i, def, 'this.id', prop);
                 } else {
 
                     propVal = this.propertyGetter(prop, vars);
 
-                    console.log(i,propVal, JSON.stringify(prop));
+                    //console.log(i,propVal, JSON.stringify(prop));
                     if(!(propVal instanceof Error))
                         out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
@@ -192,10 +198,10 @@ module.exports = (function () {
                 prop = child.prop[i];
                 pipe = prop.value;
                 if (pipe.isPipe) {
-                    pipes.push(this.makePipe(pipe, 'self.id', i, parent, (child.name || child.tmpName) + '.id'));
+                    pipes.push(this.makePipe(pipe, 'self.id', i, parent, (child.name || child.tmpName) + '.id', prop));
                 } else {
                     propVal = this.propertyGetter(prop, vars);
-                    console.log('~',i,propVal)
+                    //console.log('~',i,propVal)
                     cfgInit.push(this.makeProp(i, propVal));
                 }
             }
@@ -213,6 +219,7 @@ module.exports = (function () {
             } else {
                 addToParent = 'this._ownComponents.push(' + (child.name || child.tmpName) + ');\n';
             }
+            addToParent += (child.name || child.tmpName)+'.mainEventManager=eventManager;\n';
 
             out += '// ' + (child.name || child.tmpName);
             out += '\nvar ' + (child.name || child.tmpName) + ' = new _known[\'' + child.type + '\']({\n' +

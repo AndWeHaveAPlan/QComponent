@@ -237,42 +237,10 @@ module.exports = (function () {
         AbstractComponent.call(this, cfg);
 
         this._contentContainer = void(0);
-
         this._transformMatrix = Matrix2D.createEmpty();
-
-        /**
-         * Child Components
-         *
-         * @type Array<AbstractComponent>
-         * @private
-         */
-        this._children = new ObservableSequence(new DQIndex('id'));
-
-        this._children.on('add', function (child) {
-            child.parent = self;
-            //insert to dom
-            if (child.el) { /** UI Component */
-                if (self._contentContainer) {
-                    self._contentContainer.el.appendChild(child.el);
-                } else {
-                    self.el.appendChild(child.el);
-                }
-            }
-        });
-
-        this._children.on('remove', function (child) {
-            child.parent = null;
-            if (self._contentContainer && child.el) {
-                self._contentContainer.el.removeChild(child.el);
-            } else {
-                self.el.removeChild(child.el);
-            }
-        });
-
         this.createEl();
         this._init();
         this._initChildren();
-
     });
 
     return UIComponent;

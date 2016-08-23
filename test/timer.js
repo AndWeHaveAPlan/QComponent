@@ -15,7 +15,7 @@ var Timer = Base.Component.Logical.Timer;
 
 describe("Timer", function () {
 
-    var eventManager = new EventManager();
+    var eventManager = new EventManager(new Component());
     var comp3 = new Component({id: "comp3"});
     var comp4 = new Component({id: "comp4"});
     var timer = new Timer({id: "timer"});
@@ -24,7 +24,7 @@ describe("Timer", function () {
     eventManager.registerComponent(comp4);
     eventManager.registerComponent(timer);
 
-    comp4.set("testTargetProp", 2);
+    comp4.set(["testTargetProp"], 2);
 
     eventManager.registerPipe(new SimplePipe(
         "comp3.testSourceProp1",
@@ -34,6 +34,8 @@ describe("Timer", function () {
         "timer.tick",
         {component: "comp4", property: "result"}
     ));
+
+    eventManager.releaseThePipes();
 
     before(function (done) {
         comp3.set("testSourceProp1", 100);
