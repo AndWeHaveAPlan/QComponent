@@ -24,7 +24,7 @@ Components
     25 august: calendar
     checkbox
     radio
-    slider
+    1 september: slider
     duration
     enum (select)
     multiselect

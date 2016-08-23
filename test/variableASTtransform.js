@@ -27,6 +27,9 @@ describe("ast transformations", function () {
     it("should work in complex cases", function () {
         assert.equal(transform('a.b.c=2;'), 'a.set([\'b\',\'c\'],2);');
         assert.equal(transform('a.b.c[d]=2;'), 'a.set([\'b\',\'c\',d.get([\'value\'])],2);');
+        //assert.equal(transform('a.b.c[d]'), 'a.set([\'b\',\'c\',d.get([\'value\'])],2);');
+
+        
         assert.equal(transform('var x; a.b.c[d?x:d.e]=2;'), 'var x;a.set([\'b\',\'c\',d.get([\'value\'])?x:d.get([\'e\'])],2);');
     });
 
