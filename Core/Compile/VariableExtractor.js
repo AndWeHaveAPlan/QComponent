@@ -341,6 +341,7 @@ module.exports = (function () {
         delete undef.Math;
         delete undef.console;
         //console.log(undef)
+        delete undef.Date;
         return undef;
 
     };

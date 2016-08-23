@@ -74,6 +74,7 @@ def Page main
     br
     div
         float: right
+        position: relative
         background: #aaaacc
         height: 100px
         width: 100px
@@ -83,28 +84,62 @@ def Page main
             {type:'scale', x:0.5,y:0.5},
             {type:'translation', x:50,y:50}
         ]*/
-        rotation: {{degNum}}
+        rotation: {{rotatHour}}
         transition: all 0.2s
 
         div squar
-            background: #aaccaa
-            height: 10px
-            width: 10px
-            position: relative
+            background: #ffccaa
+            height: 5px
+            width: 5px
+            position: absolute
             top: {{sqCenter}}px
-            left: 45px
+            left: 47.5px
+        div
+            position: absolute
+            background: 'rgba(0,0,0,0.3)'
+            height: 90px
+            width: 90px
+            border-radius: 45px
+            margin: 5px
+            //rotation: {{rotatHour}}
+            //transition: all 0.2s
+            div squar2
+                position: absolute
+                background: #ff77cc
+                height: 3px
+                width: 2px
+                top: {{sqCenter}}px
+                left: 44px
+            div
+                background: 'rgba(0,0,0,0.5)'
+                position: absolute
+                height: 80px
+                width: 80px
+                border-radius: 40px
+                margin: 5px
+                rotation: {{rotatSecond}}
+                div squar3
+                    background: #000000
+                    height: 3px
+                    width: 1px
+                    position: absolute
+                    top: {{sqCenter}}px
+                    left: 39.5px
     br
-    public Number degNum: 0
-    public Number sqCenter: 5
+    public Number rotatHour: 0
+    public Number rotatMinute: 0
+    public Number rotatSecond: 0
+
+    public Number sqCenter: 1
     input: ротат
         type: button
         width: 100px
         .click: function(){
-            self.degNum += 50;
-            if (self.degNum >= 360)
-                self.degNum -= 360;
+            self.rotatHour += 50;
+            if (self.rotatHour >= 360)
+                self.rotatHour -= 360;
         }
-    span: degNum = {{degNum}}
+    span: rotatHour = {{rotatHour}}
     br
     br
     span: волшебный батон, добавь мне градусов вот стока:
@@ -115,9 +150,9 @@ def Page main
         type: button
         width: 100px
         .click: function(){
-            self.degNum += degPlus-0;
-            if (self.degNum >= 360)
-                self.degNum -= 360;
+            self.rotatHour += degPlus-0;
+            if (self.rotatHour >= 360)
+                self.rotatHour -= 360;
         }
     br
     br
@@ -135,6 +170,32 @@ def Page main
             if (self.sqCenter>0)
                 self.sqCenter -= 5
         }
+    input: tick
+        type: button
+        width: 100px
+        .click: function(){
+
+            timer.enabled = !timer.enabled
+            t0.enabled = !t0.enabled
+        }
+    Timer timer:
+        enabled: false
+        interval: 1000
+        .tick: function(){
+            self.rotatHour += 6;
+            if (self.rotatHour >= 360)
+                self.rotatHour -= 360;
+
+        }
+    Timer t0
+        enabled: false
+        interval: 500
+        .tick: function(){
+            var d = new Date();
+            self.seconds = d.getSeconds();
+            self.minutes = d.getMinutes();
+            self.hours = d.getHours();
+        }
     br
     br
     div sinSquare
@@ -144,12 +205,14 @@ def Page main
         position: relative
         top: {{sinSquareTop}}px
         left: {{sinSquareLeft}}px
-        //translation: [{{sinSquareTop}}, {{sinSquareLeft}}]
-        scale: [{{s2.value}}, {{s2.value}}]
+        //translation: {{[sinSquareTop, sinSquareLeft]}}
+        //scale: {{[s2.value, s2.value]}}
+        //skew: {{[s2.value*0.003,-s2.value*0.003]}}
         transform-origin: top left
         padding: 5px
         //transition: all 0.2s
-        skew: [{{sinVert}}, {{sinHor}}]
+        //skew: {{arr1}}
+        //{{[sinVert, sinHor]}}
         div
             height: 40px
             width: 15px
@@ -188,6 +251,10 @@ def Page main
             to: 7
             step: 1
             background: BLUE
+            fillColor: rgb({{s2.value*20}}, 0, 0)
+    a: popopo
+        href: http://ya.ru/
+        //decoration: none
     div
         background: #6688aa
         //padding: 10px 50px
@@ -198,7 +265,8 @@ def Page main
         scroll: vertical
         //overflow: hidden
         div
-            background: #555522
+            background: 'rgba(85, 85, 34, 0.5)'
+            //#555522
             width: 200px
             //rgba(85, 85, 34, 0.5)
             height: 100px
@@ -231,7 +299,7 @@ def Page main
             color: black
             border: 1px solid black
             itemTemplate:
-                div: {{name}}
+                div: name: {{name}}
                     padding: 5px
             itemSource: [
                 {name:'Кремль'},
@@ -239,9 +307,8 @@ def Page main
                 {name:'Офис Квокки'},
                 {name:'Железнодорожное кольцо'}
             ]
-        pre: source {{JSON.stringify(list1.itemSource,null,2)}}
-            width: 300px
-            background: red
-    public Array arr1: [1,2,"olo"]
+    public Array arr1: [10,2]
+    //public Date date1:
     span: {{arr1}}
+
 
