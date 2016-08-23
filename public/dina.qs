@@ -150,7 +150,7 @@ def Page main
         transform-origin: top left
         padding: 5px
         //transition: all 0.2s
-        skew: [{{sinVert}}, {{sinHor}}]
+        skew: {{[sinVert, sinHor]}}
         div
             height: 40px
             width: 15px

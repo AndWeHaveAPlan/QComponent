@@ -134,7 +134,7 @@ var tools = module.exports = (function() {
                     werePipes = werePipes || this._transformPipes(pipedOut, item.items);
                     out.push({pureData: item._info, type: 'text'});
                 } else {
-                    out.push({pureData: item.pureData, type: 'text'});
+                    out.push({pureData: item.pureData, type: item.type, data: item.data});
                 }
             }
             return werePipes;
@@ -191,12 +191,14 @@ var tools = module.exports = (function() {
         compilePipe: {
             raw: function(val){
                 return val.map(function (item) {
+                    if (item.type === 'quote')
+                        return item.data;
                     return item.pureData;
                 }).join('');
             },
             string: function(val){
                 return val.map(function (item) {
-                    if (item.type === 'text')
+                    if (item.type === 'text' || item.type === 'quote')
                         return '\'' + item.pureData + '\'';// TODO: escape
                     else
                         return '(' + item.pureData + ')';
