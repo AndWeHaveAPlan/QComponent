@@ -84,6 +84,37 @@ module.exports = UIComponent.extend('Slider', {
                 window.removeEventListener('mousemove', move);
             },
             info;
+        this.el.addEventListener('mousedown', function(e) { //here
+
+            info = self.info || (self.info = self._getInfo());
+            if(info.width === 0)
+                info = self.info = self._getInfo();
+
+            var step = info.step-0, from = info.from, to = info.to-0, delta = to-from;
+
+            /*val<from && (val = from);
+            val>to && (val = to);
+
+            if(step)
+                val = Math.round(val/step)*step;
+
+            perc = (val-from)/delta*100;
+
+            els.drag.style.left = perc +'%';
+            els.actual.style.width = perc +'%';*/
+
+            console.log("ololo", e.offsetX, info.width, info.to, e.offsetX / (info.width / info.to), info);
+            //this.setVal(e.offsetX);
+            var val = e.offsetX / (info.width / info.to);
+            self.setVal(val);
+
+            //self.setVal(val);
+            window.addEventListener('mousemove', move);
+            window.addEventListener('mouseup', up);
+            els.drag.style.background = '#000';
+            e.preventDefault();
+            e.stopPropagation();
+        });
         els.drag.addEventListener('mousedown', function(e){
             n=0;
 
@@ -124,6 +155,10 @@ module.exports = UIComponent.extend('Slider', {
 
         if(step)
             val = Math.round(val/step)*step;
+
+        if(this._data.value !== val)
+            if(!(isNaN(this._data.value) && isNaN(val)))
+                this.set('value', val);
 
         perc = (val-from)/delta*100;
 

@@ -57,6 +57,7 @@ def Page main
     public Number seconds: 0
 
     input: tick
+        margin: 5px
         type: button
         width: 100px
         .click: function(){
@@ -85,3 +86,50 @@ def Page main
     }
 
     span: часы {{hours}}, минуты {{minutes}}, секунды {{seconds}}
+
+    br
+    input: ротат
+        margin: 5px
+        type: button
+        width: 100px
+        .click: function(){
+            self.rotatHour += 50;
+            if (self.rotatHour >= 360)
+                self.rotatHour -= 360;
+        }
+    span: отклонение = {{rotatHour}} градусов
+
+    br
+    span: волшебный батон, добавь мне градусов вот стока:
+    input degPlus
+        margin: 5px
+        type: number
+        width: 50px
+        background: #aaaaaa
+    input: го
+        type: button
+        width: 100px
+        .click: function(){
+            self.rotatHour += degPlus-0;
+            if (self.rotatHour >= 360)
+                self.rotatHour -= 360;
+        }
+
+    br
+    public Number sqCenter: 1
+    span: двигать стрелки:
+    input: в центр
+        margin: 5px
+        type: button
+        width: 100px
+        .click: function(){
+            if (self.sqCenter < 50)
+                self.sqCenter += 5
+        }
+    input: наружу
+        type: button
+        width: 100px
+        .click: function(){
+            if (self.sqCenter > 0)
+                self.sqCenter -= 5
+        }
