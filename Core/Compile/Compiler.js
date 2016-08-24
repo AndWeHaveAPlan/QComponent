@@ -103,9 +103,12 @@ module.exports = (function () {
                 fn = tools.compilePipe.string(fn);
             
             /** do magic */
-            var vars = VariableExtractor.parse(fn), 
+            var vars = VariableExtractor.parse(fn),
                 o = vars.getFullUnDefined(),
-                fn = new ASTtransformer().transform(vars.getAST(), o, {compact: true});
+                fn = new ASTtransformer().transform(vars.getAST(), o, {
+                    compact: true,
+                    
+                });
             
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
@@ -130,16 +133,14 @@ module.exports = (function () {
                     }
                 }
             }
-            return '\tmutatingPipe = new Base.Pipes.MutatingPipe(\n' +
-                '\t    [' +
+            return '\teventManager.registerPipe(new Base.Pipes.MutatingPipe([\n' +
+                '\t\t' +
                 pipeSources.join(',') +
-                '],\n' +
-                '\t    {component: ' + childId + ', property: \'' + targetProperty + '\'}\n' +
-                '\t);\n' +
-                '\tmutatingPipe.addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
-                '\t    return ' + fn + ';\n' +
-                '\t});\n' +
-                '\teventManager.registerPipe(mutatingPipe);';
+                '\n\t\t], {\n' +
+                '\t\t\tcomponent: ' + childId + ', property: \'' + targetProperty + '\'\n' +
+                '\t\t}).addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
+                '\t\t\treturn ' + fn + '\n' +
+                '\t\t}));';
         },
         makePublic: function (props, def, vars) {
             var i, prop, pipes, out = '', propVal;

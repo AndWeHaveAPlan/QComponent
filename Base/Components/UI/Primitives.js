@@ -73,7 +73,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                     var val = parseFloat(value);
                     return isNaN(val) ? 0 : val;
                 }
-                return value;
+                return value +'';
             },
             set: function (attr, val) {
                 if (!val) {
