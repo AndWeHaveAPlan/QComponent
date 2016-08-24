@@ -54,9 +54,12 @@ module.exports = (function () {
                 '  input i0: 13',
                 '    type: number',
                 '  input i1: {{i0+2}}',
-                
+                '  input i2: {{i1+2}}',
+                '  input i3: {{i2}}',
+                '    type: number',
+                '  input i4: {{i3+2}}',
                 function(err, main){
-                    console.log(main.findOne('input#i1').get('value'))
+                    assert.equal(main.findOne('input#i4').get('value'), 154)
                     done();
                 });
         });
