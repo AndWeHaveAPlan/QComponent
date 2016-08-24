@@ -12,7 +12,7 @@ describe("ast transformations", function () {
     "use strict";
     var transform = function(source){
         var vars = VariableExtractor.parse(source), o = vars.getFullUnDefined();
-        return new ASTtransformer().transform(vars.getAST(), o, {compact: true});
+        return new ASTtransformer().transform(vars.getAST(), o, {escodegen: {format: {compact: true}}});
     };
     var VariableExtractor = Core.Compile.VariableExtractor;
     it("should work in simple cases", function () {

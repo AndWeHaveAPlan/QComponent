@@ -47,19 +47,39 @@ module.exports = (function () {
                     );
                     done();
                 });
-        });*/
+        });
         it('pipe transform', function (done) {
+         compile(
+         'def Page main',
+         '  input i0: 13',
+         '    type: number',
+         '  input i1: {{i0+2}}',
+         '  input i2: {{i1+2}}',
+         '  input i3: {{i2}}',
+         '    type: number',
+         '  input i4: {{i3+2}}',
+         function(err, main){
+         assert.equal(main.findOne('input#i4').get('value'), 154)
+         done();
+         });
+         });*/
+        it('pipes transformation', function (done) {
             compile(
                 'def Page main',
-                '  input i0: 13',
+                '  Number m: 2',
+                '  String s1: value',
+                '  Number n: {{i1[i2%2?\'type\':s1][5].lal()+i1[i5]()+m+i1+i2.value+i1.type}}',
+                '  input i1: 10',
+                '    type: text',
+                '  input i2: 10',
                 '    type: number',
-                '  input i1: {{i0+2}}',
-                '  input i2: {{i1+2}}',
-                '  input i3: {{i2}}',
-                '    type: number',
-                '  input i4: {{i3+2}}',
-                function(err, main){
-                    assert.equal(main.findOne('input#i4').get('value'), 154)
+                function(err, main, compiled){
+                    var matched = compiled.match(/addMutator\([^(]*\(([^)]*)\)[^{]*\{([^}]*)\}/),
+                        args = matched[1].split(','), body = matched[2];
+
+                    console.log(args);
+                    console.log(body.trim());
+                    console.log('return var1+var2+var3+var4+var5;')
                     done();
                 });
         });
@@ -122,21 +142,21 @@ module.exports = (function () {
             meta[i] && meta[i].type && (subObj[i] = meta[i]);
         }
         compiled = Core.Compile.Compiler.compile(subObj);
-console.log(compiled)
+//console.log(compiled)
         var doc = QObject.document = QObject.prototype.document = jsdom.jsdom();
         try {
             var test = new Function('document, Base', 'QObject = Base.QObject; Q = ' + compiled + '; return Q;');
+            var Q = test(doc, Base);
+            var main = new Q.main();
         }catch(e){
             err = e;
+            console.log(e)
 
         }
-        var Q = test(doc, Base);
 
-        //console.log(QObject.document.body.innerHTML)
-        var main = new Q.main();
 
         setTimeout(function(){
-            cb(err, main);
+            cb(err, main, compiled);
         }, 5);
     }
 })();

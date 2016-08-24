@@ -91,6 +91,26 @@ module.exports = (function () {
             ];
             return source;
         },
+
+        _functionTransform: function(fn){
+            var vars = VariableExtractor.parse(fn),
+                o = vars.getFullUnDefined(),
+                counter = 1,
+                _self = this;
+
+            fn = new ASTtransformer().transform(vars.getAST(), o, {
+                escodegen: {format: {compact: true}},
+                variableTransformer: function(node){
+                    var crafted = ASTtransformer.craft.js(node)
+                    console.log('! ', crafted, node.type)
+                    if(node.type === 'MemberExpression')
+                        _self._functionTransform(ASTtransformer.craft.js(node))
+                    return ASTtransformer.craft.Identifier('var'+(counter++));
+                }
+            });
+            return fn;
+        },
+
         makePipe: function (pipe, sourceComponent, targetProperty, def, childId, prop) {
 
             var pipeSources = [];
@@ -103,12 +123,7 @@ module.exports = (function () {
                 fn = tools.compilePipe.string(fn);
             
             /** do magic */
-            var vars = VariableExtractor.parse(fn),
-                o = vars.getFullUnDefined(),
-                fn = new ASTtransformer().transform(vars.getAST(), o, {
-                    compact: true,
-                    
-                });
+            fn = this._functionTransform(fn);
             
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
@@ -195,6 +210,13 @@ module.exports = (function () {
                     name: 'value',
                     type: propList._prop && propList._prop.value && propList._prop.value.prototype ? propList._prop.value.prototype.type : 'Variant',
                     value: child.value
+                };
+
+            if (child.cls)
+                (child.prop || (child.prop = {})).cls = {
+                    name: 'cls',
+                    type: propList._prop && propList._prop.value && propList._prop.cls.prototype ? propList._prop.cls.prototype.type : 'Variant',
+                    value: child.cls
                 };
 
             if (child.name) {

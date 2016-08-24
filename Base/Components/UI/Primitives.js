@@ -20,6 +20,12 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                 this.textNode.set('value', val);
             },
             get: Property.defaultGetter
+        }),
+        cls: new Property('String', {description: 'className'}, {
+            set: function (name, val) {
+                this.el.className = val.replace(/\./g,' ').trim();
+            },
+            get: Property.defaultGetter
         })
     }
 });
@@ -73,7 +79,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                     var val = parseFloat(value);
                     return isNaN(val) ? 0 : val;
                 }
-                return value +'';
+                return value;
             },
             set: function (attr, val) {
                 if (!val) {
