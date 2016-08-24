@@ -50,7 +50,9 @@ function AbstractComponent(cfg) {
         child.parent = self;
         self._eventManager.registerComponent(child);
         //self.set([child.id], child);
-        self.el.appendChild(child.el);
+        if(!child.el)
+            console.warn('No child el!', child)
+        child.el && self.el.appendChild(child.el);
     });
 
     /**

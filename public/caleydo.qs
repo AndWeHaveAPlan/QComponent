@@ -5,71 +5,73 @@ def Page main
         HBox
             width: 630px
             div
-                background: #1100ac
-                height: 210px
-                width: 210px
-                transform-origin: center center
-                rotation: {{s1.value}}
-                HBox
+                background: #338844
+                div
+                    background: #1100ac
+                    height: 210px
                     width: 210px
-                    div
-                        background: #66aacc
-                        height: 70px
-                        width: 70px
-                        transform-origin: right bottom
-                        rotation: {{s1.value}}
-                    div
-                        background: #1133ac
-                        height: 70px
-                        width: 70px
-                        transform-origin: center bottom
-                        rotation: {{s1.value}}
-                    div
-                        background: #1166ac
-                        height: 70px
-                        width: 70px
-                        transform-origin: left bottom
-                        rotation: {{s1.value}}
-                HBox
-                    width: 210px
-                    div
-                        background: #1133ac
-                        height: 70px
-                        width: 70px
-                        transform-origin: right center
-                        rotation: {{s1.value}}
-                    div
-                        background: #1166ac
-                        height: 70px
-                        width: 70px
-                        transform-origin: center center
-                        rotation: {{s1.value}}
-                    div
-                        background: #66aacc
-                        height: 70px
-                        width: 70px
-                        transform-origin: left center
-                        rotation: {{s1.value}}
-                HBox
-                    width: 210px
-                    div
-                        background: #1166ac
-                        height: 70px
-                        width: 70px
-                        transform-origin: right top
-                        rotation: {{s1.value}}
-                    div
-                        background: #66aacc
-                        height: 70px
-                        width: 70px
-                        transform-origin: center top
-                        rotation: {{s1.value}}
-                    div
-                        background: #1133ac
-                        height: 70px
-                        width: 70px
-                        transform-origin: left top
-                        rotation: {{s1.value}}
+                    transform-origin: center center
+                    rotation: {{s1.value}}
+                    HBox
+                        width: 210px
+                        div: 1
+                            background: #66aacc
+                            height: 70px
+                            width: 70px
+                            transform-origin: right bottom
+                            rotation: {{s1.value}}
+                        div
+                            background: #1133ac
+                            height: 70px
+                            width: 70px
+                            transform-origin: center bottom
+                            rotation: {{s1.value}}
+                        div
+                            background: #1166ac
+                            height: 70px
+                            width: 70px
+                            transform-origin: left bottom
+                            rotation: {{s1.value}}
+                    HBox
+                        width: 210px
+                        div
+                            background: #1133ac
+                            height: 70px
+                            width: 70px
+                            transform-origin: right center
+                            rotation: {{s1.value}}
+                        div
+                            background: #1166ac
+                            height: 70px
+                            width: 70px
+                            transform-origin: center center
+                            rotation: {{s1.value}}
+                        div
+                            background: #66aacc
+                            height: 70px
+                            width: 70px
+                            transform-origin: left center
+                            rotation: {{s1.value}}
+                    HBox
+                        width: 210px
+                        div
+                            background: #1166ac
+                            height: 70px
+                            width: 70px
+                            transform-origin: right top
+                            rotation: {{s1.value}}
+                        div
+                            background: #66aacc
+                            height: 70px
+                            width: 70px
+                            transform-origin: center top
+                            rotation: {{s1.value}}
+                        div
+                            background: #1133ac
+                            height: 70px
+                            width: 70px
+                            transform-origin: left top
+                            rotation: {{s1.value}}
 
             div
                 background: #1133ac
@@ -79,7 +81,7 @@ def Page main
                 rotation: {{s1.value}}
                 HBox
                     width: 210px
-                    div
+                    div: 2
                         background: #66aacc
                         height: 70px
                         width: 70px
@@ -146,7 +148,7 @@ def Page main
                 rotation: {{s1.value}}
                 HBox
                     width: 210px
-                    div
+                    div: 3
                         background: #1166dd
                         height: 70px
                         width: 70px
@@ -215,7 +217,7 @@ def Page main
                 rotation: {{s1.value}}
                 HBox
                     width: 210px
-                    div
+                    div: 4
                         background: #aa44ff
                         height: 70px
                         width: 70px
@@ -281,7 +283,7 @@ def Page main
                 rotation: {{s1.value}}
                 HBox
                     width: 210px
-                    div
+                    div: 5
                         background: #bb44ff
                         height: 70px
                         width: 70px
@@ -347,7 +349,7 @@ def Page main
                 rotation: {{s1.value}}
                 HBox
                     width: 210px
-                    div
+                    div: 6
                         background: #7744ff
                         height: 70px
                         width: 70px
@@ -407,29 +409,212 @@ def Page main
                         rotation: {{s1.value}}
 
         HBox
-            width: 600px
+            width: 630px
             div
                 background: #550033
-                height: 200px
-                width: 200px
-                transform-origin: right top
+                height: 210px
+                width: 210px
+                transform-origin: center center
                 rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div: 7
+                        background: #550000
+                        height: 70px
+                        width: 70px
+                        transform-origin: right bottom
+                        rotation: {{s1.value}}
+                    div
+                        background: #553311
+                        height: 70px
+                        width: 70px
+                        transform-origin: center bottom
+                        rotation: {{s1.value}}
+                    div
+                        background: #553377
+                        height: 70px
+                        width: 70px
+                        transform-origin: left bottom
+                        rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div
+                        background: #553377
+                        height: 70px
+                        width: 70px
+                        transform-origin: right center
+                        rotation: {{s1.value}}
+                    div
+                        background: #550000
+                        height: 70px
+                        width: 70px
+                        transform-origin: center center
+                        rotation: {{s1.value}}
+                    div
+                        background: #553311
+                        height: 70px
+                        width: 70px
+                        transform-origin: left center
+                        rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div
+                        background: #553311
+                        height: 70px
+                        width: 70px
+                        transform-origin: right top
+                        rotation: {{s1.value}}
+                    div
+                        background: #553377
+                        height: 70px
+                        width: 70px
+                        transform-origin: center top
+                        rotation: {{s1.value}}
+                    div
+                        background: #550000
+                        height: 70px
+                        width: 70px
+                        transform-origin: left top
+                        rotation: {{s1.value}}
             div
                 background: #553333
-                height: 200px
-                width: 200px
-                transform-origin: center top
+                height: 210px
+                width: 210px
+                transform-origin: center center
                 rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div: 8
+                        background: #880000
+                        height: 70px
+                        width: 70px
+                        transform-origin: right bottom
+                        rotation: {{s1.value}}
+                    div
+                        background: #883311
+                        height: 70px
+                        width: 70px
+                        transform-origin: center bottom
+                        rotation: {{s1.value}}
+                    div
+                        background: #883377
+                        height: 70px
+                        width: 70px
+                        transform-origin: left bottom
+                        rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div
+                        background: #883377
+                        height: 70px
+                        width: 70px
+                        transform-origin: right center
+                        rotation: {{s1.value}}
+                    div
+                        background: #880000
+                        height: 70px
+                        width: 70px
+                        transform-origin: center center
+                        rotation: {{s1.value}}
+                    div
+                        background: #883311
+                        height: 70px
+                        width: 70px
+                        transform-origin: left center
+                        rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div
+                        background: #883311
+                        height: 70px
+                        width: 70px
+                        transform-origin: right top
+                        rotation: {{s1.value}}
+                    div
+                        background: #883377
+                        height: 70px
+                        width: 70px
+                        transform-origin: center top
+                        rotation: {{s1.value}}
+                    div
+                        background: #880000
+                        height: 70px
+                        width: 70px
+                        transform-origin: left top
+                        rotation: {{s1.value}}
             div
                 background: #556633
-                height: 200px
-                width: 200px
-                transform-origin: left top
+                height: 210px
+                width: 210px
+                transform-origin: center center
                 rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div: 9
+                        background: #880044
+                        height: 70px
+                        width: 70px
+                        transform-origin: right bottom
+                        rotation: {{s1.value}}
+                    div
+                        background: #883355
+                        height: 70px
+                        width: 70px
+                        transform-origin: center bottom
+                        rotation: {{s1.value}}
+                    div
+                        background: #8833bb
+                        height: 70px
+                        width: 70px
+                        transform-origin: left bottom
+                        rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div
+                        background: #8833bb
+                        height: 70px
+                        width: 70px
+                        transform-origin: right center
+                        rotation: {{s1.value}}
+                    div
+                        background: #880044
+                        height: 70px
+                        width: 70px
+                        transform-origin: center center
+                        rotation: {{s1.value}}
+                    div
+                        background: #883355
+                        height: 70px
+                        width: 70px
+                        transform-origin: left center
+                        rotation: {{s1.value}}
+                HBox
+                    width: 210px
+                    div
+                        background: #883355
+                        height: 70px
+                        width: 70px
+                        transform-origin: right top
+                        rotation: {{s1.value}}
+                    div
+                        background: #8833bb
+                        height: 70px
+                        width: 70px it branch -f master HEAD~3
+                        transform-origin: center top
+                        rotation: {{s1.value}}
+                    div
+                        background: #880044
+                        height: 70px
+                        width: 70px
+                        transform-origin: left top
+                        rotation: {{s1.value}}
 
 
-    Slider s1: 0
+    Slider s1: 200
         width 500px
         from: 0
-        to: 720
+        to: 510
         step: 1
+    //public Number col1: 0
+    //col1 = s1.value/2
+    span: {{s1.value}}
