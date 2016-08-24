@@ -23,21 +23,21 @@ module.exports = (function () {
             }
 
             this.el.addEventListener('click', function (e, target) {
-                if(self.fire('click', e) !== false)
+                if (self.fire('click', e) !== false)
                     self.parent && self.parent.fire('click', e, target || self);
                 e.stopPropagation();
             });
-            this.el.addEventListener('change', function () {
-                self.fire('change');
+            this.el.addEventListener('change', function (e) {
+                self.fire('change', e);
             });
-            this.el.addEventListener('mouseenter', function () {
-                self.fire('mouseenter');
+            this.el.addEventListener('mouseenter', function (e) {
+                self.fire('mouseenter', e);
             });
-            this.el.addEventListener('mouseleave', function () {
-                self.fire('mouseleave');
+            this.el.addEventListener('mouseleave', function (e) {
+                self.fire('mouseleave', e);
             });
-            this.el.addEventListener('mousemove', function () {
-                self.fire('mousemove');
+            this.el.addEventListener('mousemove', function (e) {
+                self.fire('mousemove', e);
             });
         },
 
@@ -209,7 +209,7 @@ module.exports = (function () {
                         switch (cVal.type) {
                             case 'rotation':
                                 m = Matrix2D.createRotation((cVal.angle / 180) * Math.PI);
-                                
+
                                 break;
                             case 'translation':
                                 m = Matrix2D.createTranslation(cVal.x, cVal.y);

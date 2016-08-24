@@ -17,109 +17,6 @@ module.exports = UIComponent.extend('CardForm', {
         visaImg: "data:image/png;base64,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",
         createEl: function () {
             UIComponent.prototype.createEl.call(this);
-            var self = this;
-            var tmp;
-
-            var cardNumber = new MaskedInput({
-                id: 'cardNumber',
-                'mask': 'dddd dddd dddd dddd',
-                'placeholder': 'XXXX XXXX XXXX XXXX',
-                'border': '1px solid #ccc',
-                'position': 'absolute',
-                'top': '105px',
-                'left': '33px',
-                'width': '245px',
-                'font-family': 'monospace',
-                'font-size': '21px'
-            });
-            this._ownComponents.push(cardNumber);
-
-            cardNumber.on('changed', function (val) {
-                if (!Luhn.check(val)) {
-                    this.set('background', '#f99');
-                } else {
-                    this.set('background', 'none');
-                }
-            });
-
-            var validDate = new MaskedInput({
-                id: 'validDate',
-                'mask': 'dd/dd',
-                'placeholder': 'MM/YY',
-                'border': '1px solid #ccc',
-                'position': 'absolute',
-                'top': '135px',
-                'left': '140px',
-                'width': '53px',
-                'font-family': 'monospace',
-                'font-size': '16px'
-            });
-            this._ownComponents.push(validDate);
-
-            tmp = new Primitives.span({
-                'value': 'VALID THRU',
-                'position': 'absolute',
-                'top': '134px',
-                'left': '111px',
-                'width': '28px',
-                'font-size': '9px'
-            });
-            this._ownComponents.push(tmp);
-
-            var cardholderName = new TextBox({
-                id: 'cardholderName',
-                'placeholder': 'CARDHOLDER NAME',
-                'border': '1px solid #ccc',
-                'position': 'absolute',
-                'top': '162px',
-                'left': '20px',
-                'width': '200px',
-                'font-family': 'monospace',
-                'font-size': '14px'
-            });
-            this._ownComponents.push(cardholderName);
-
-            var sysLogo = new Image({
-                id: 'sysLogo',
-                'position': 'absolute',
-                'bottom': '15px',
-                'right': '15px',
-                'width': '50px',
-                'height': '30px',
-                stretch: 'uniform'
-            });
-            this._ownComponents.push(sysLogo);
-
-            var mutatingPipe = new MutatingPipe(['cardNumber.value'], {
-                component: 'sysLogo',
-                property: 'source'
-            });
-            mutatingPipe.addMutator(function (number) {
-                if (!number)
-                    return '';
-
-                if (number.substring(0, 1) == 4) {
-                    return self.visaImg;
-                }
-                var n = parseInt(number.substring(0, 2));
-                if (n >= 51 && n <= 55) {
-                    return self.masterCardImg;
-                }
-            });
-            this._eventManager.registerPipe(mutatingPipe);
-
-            this._eventManager.createSimplePipe(['cardNumber.value'], {
-                component: this.id,
-                property: 'cardData.number'
-            });
-            this._eventManager.createSimplePipe(['validDate.value'], {
-                component: this.id,
-                property: 'cardData.date'
-            });
-            this._eventManager.createSimplePipe(['cardholderName.value'], {
-                component: this.id,
-                property: 'cardData.name'
-            });
         },
         _prop: {
             cardData: new Property('Variant', {description: 'Card data'}, {
@@ -136,5 +33,109 @@ module.exports = UIComponent.extend('CardForm', {
         this._set('border-radius', '11px');
         this._set('height', '202px');
         this._set('width', '318px');
+
+        var self = this;
+        var tmp;
+
+        var cardNumber = new MaskedInput({
+            id: 'cardNumber',
+            'mask': 'dddd dddd dddd dddd',
+            'placeholder': 'XXXX XXXX XXXX XXXX',
+            'border': '1px solid #ccc',
+            'position': 'absolute',
+            'top': '105px',
+            'left': '33px',
+            'width': '245px',
+            'font-family': 'monospace',
+            'font-size': '21px'
+        });
+        this._ownComponents.push(cardNumber);
+
+        cardNumber.on('changed', function (val) {
+            if (!Luhn.check(val)) {
+                this.set('background', '#f99');
+            } else {
+                this.set('background', 'none');
+            }
+        });
+
+        var validDate = new MaskedInput({
+            id: 'validDate',
+            'mask': 'dd/dd',
+            'placeholder': 'MM/YY',
+            'border': '1px solid #ccc',
+            'position': 'absolute',
+            'top': '135px',
+            'left': '140px',
+            'width': '53px',
+            'font-family': 'monospace',
+            'font-size': '16px'
+        });
+        this._ownComponents.push(validDate);
+
+        tmp = new Primitives.span({
+            'value': 'VALID THRU',
+            'position': 'absolute',
+            'top': '134px',
+            'left': '111px',
+            'width': '28px',
+            'font-size': '9px'
+        });
+        this._ownComponents.push(tmp);
+
+        var cardholderName = new TextBox({
+            id: 'cardholderName',
+            'placeholder': 'CARDHOLDER NAME',
+            'border': '1px solid #ccc',
+            'position': 'absolute',
+            'top': '162px',
+            'left': '20px',
+            'width': '200px',
+            'font-family': 'monospace',
+            'font-size': '14px'
+        });
+        this._ownComponents.push(cardholderName);
+
+        var sysLogo = new Image({
+            id: 'sysLogo',
+            'position': 'absolute',
+            'bottom': '15px',
+            'right': '15px',
+            'width': '50px',
+            'height': '30px',
+            stretch: 'uniform'
+        });
+        this._ownComponents.push(sysLogo);
+
+        var mutatingPipe = new MutatingPipe(['cardNumber.value'], {
+            component: 'sysLogo',
+            property: 'source'
+        });
+        mutatingPipe.addMutator(function (number) {
+            if (!number)
+                return '';
+
+            if (number.substring(0, 1) == 4) {
+                return self.visaImg;
+            }
+            var n = parseInt(number.substring(0, 2));
+            if (n >= 51 && n <= 55) {
+                return self.masterCardImg;
+            }
+        });
+        this._eventManager.registerPipe(mutatingPipe);
+
+        this._eventManager.createSimplePipe(['cardNumber.value'], {
+            component: this.id,
+            property: 'cardData.number'
+        });
+        this._eventManager.createSimplePipe(['validDate.value'], {
+            component: this.id,
+            property: 'cardData.date'
+        });
+        this._eventManager.createSimplePipe(['cardholderName.value'], {
+            component: this.id,
+            property: 'cardData.name'
+        });
     }
 );

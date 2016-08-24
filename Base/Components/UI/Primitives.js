@@ -54,14 +54,17 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         this.el.addEventListener('click', function (e) {
             self.fire('click', e);
         });
-        this.el.addEventListener('change', function () {
+        this.el.addEventListener('change', function (e) {
             self.set('value', event.target.value);
+            self.fire('change', e);
         });
-        this.el.addEventListener('mouseup', function () {
+        this.el.addEventListener('mouseup', function (e) {
             self.set('value', event.target.value);
+            self.fire('mouseup', e);
         });
-        this.el.addEventListener('keyup', function () {
+        this.el.addEventListener('keyup', function (e) {
             self.set('value', event.target.value);
+            self.fire('keyup', e);
         });
     },
     _prop: {
@@ -69,7 +72,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         checked: Property.generate.attributeProperty('checked'),
         value: new Property('Variant', {description: 'Base HTML input'}, {
             get: function (key, value) {
-                if(this._data.type === 'number'){
+                if (this._data.type === 'number') {
                     var val = parseFloat(value);
                     return isNaN(val) ? 0 : val;
                 }
