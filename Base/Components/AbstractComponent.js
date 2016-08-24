@@ -222,50 +222,45 @@ QObject.prototype.apply(AbstractComponent.prototype, {
      * @param value Object
      */
     set: function (names, value) {
-
         if (!Array.isArray(names)) {
-            return this._set(names, value);
+            names = names.split('.');
         }
+
+        //TODO тут хуйня какая-то, надо бы перепроверить
+
+        var ret = void(0);
+        var firstName = names[0];
+        var lastName = names[names.length - 1];
 
         if (names.length > 1) {
             var getted = this.get(names.slice(0, names.length - 1).join('.'));
             if (getted)
                 if (getted instanceof AbstractComponent) {
-                    getted.set(names[names.length - 1], value);
+                    ret = getted.set(lastName, value);
                 } else {
-                    getted[names[names.length - 1]] = value;
-                    this._onPropertyChanged(this, names[0], value);
+                    ret = getted[lastName] = value;
+                    this._onPropertyChanged(this, firstName, value);
                 }
         } else {
-            if (!this._prop[names[0]]) {
-                this._prop[names[0]] = new (this._prop.default || defaultPropertyFactory)(this, names[0]);
+            if (!this._prop[firstName]) {
+                this._prop[firstName] = new (this._prop.default || defaultPropertyFactory)(this, firstName);
             }
-            return this._prop[names[0]].set(value);
+            ret = this._prop[firstName].set(value);
         }
 
-        return value;
+        console.log(names);
+        this._onPropertyChanged(this, this.id, this);
+        return ret;
     },
 
+    /**
+     * @deprecated
+     * @param name
+     * @param value
+     * @private
+     */
     _set: function (name, value) {
-        var nameParts = name.split('.');
-
-        if (nameParts.length > 1) {
-            var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
-            if (getted)
-                if (getted instanceof AbstractComponent) {
-                    getted.set(nameParts[nameParts.length - 1], value);
-                } else {
-                    getted[nameParts[nameParts.length - 1]] = value;
-                    this._onPropertyChanged(this, nameParts[0], value);
-                }
-        } else {
-            if (!this._prop[name]) {
-                this._prop[name] = new (this._prop.default || defaultPropertyFactory)(this, name);
-            }
-            return this._prop[name].set(value);
-        }
-
-        return this;
+        this.set(name, value);
     },
 
     /**
@@ -276,15 +271,15 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
     },
-    
-    find: function(matcher){
+
+    find: function (matcher) {
         var out = []
-        this._ownComponents.forEach(function(item){
-            if(item._type === matcher)out.push(item);
+        this._ownComponents.forEach(function (item) {
+            if (item._type === matcher)out.push(item);
             out = out.concat(item.find(matcher));
         });
-        this._children.forEach(function(item){
-            if(item._type === matcher)out.push(item);
+        this._children.forEach(function (item) {
+            if (item._type === matcher)out.push(item);
             out = out.concat(item.find(matcher));
         });
         return out;
