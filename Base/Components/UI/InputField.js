@@ -29,9 +29,9 @@ function isModifierCombo(event) {
  * @Abstract
  */
 module.exports = UIComponent.extend('InputField', {
-    _startChange: function (newVal, selectionStart, selectionEnd) {
+    _startChange: function (newVal, selRange) {
     },
-    _updateValue: function (newVal, selectionStart, selectionEnd) {
+    _updateValue: function (newVal, selRange) {
         this.set('value', newVal);
     },
     createEl: function () {
@@ -88,15 +88,15 @@ module.exports = UIComponent.extend('InputField', {
         };
         var delta = 1;
 
-        selRange = self._startChange(this.value, selRange.selStart, selRange.selEnd) || selRange;
-        var valueString = this.value;
-
         event.preventDefault();
         event.stopPropagation();
 
+        selRange = self._startChange(this.value, selRange) || selRange;
+        var valueString = this.value;
+
         valueString = valueString.substring(0, selRange.selStart) + String.fromCharCode(event.keyCode) + valueString.substring(selRange.selEnd);
 
-        selRange = self._updateValue(valueString, selRange.selStart, selRange.selEnd) || selRange;
+        selRange = self._updateValue(valueString, selRange) || selRange;
 
         this.setSelectionRange(selRange.selStart + delta, selRange.selStart + delta);
     });
@@ -108,22 +108,26 @@ module.exports = UIComponent.extend('InputField', {
         };
         var delta = 0;
 
-        selRange = self._startChange(this.value, selRange.selStart, selRange.selEnd) || selRange;
+        if (!(event.keyCode == 8 || event.keyCode == 46)) {
+            return;
+        }
+
+        selRange = self._startChange(this.value, selRange) || selRange;
         var valueString = this.value;
 
         if (event.keyCode == 8) { //backspace
             valueString = valueString.substring(0, (selRange.selEnd == selRange.selStart) ? selRange.selStart - 1 : selRange.selStart) + valueString.substring(selRange.selEnd);
             if (selRange.selEnd == selRange.selStart)
                 delta = -1;
-        } else if (event.keyCode == 46) {  //delete
-            valueString = valueString.substring(0, selRange.selStart) + valueString.substring((selRange.selEnd == selRange.selStart) ? selRange.selEnd + 1 : selRange.selEnd);
-        } else {
-            return;
         }
+        if (event.keyCode == 46) {  //delete
+            valueString = valueString.substring(0, selRange.selStart) + valueString.substring((selRange.selEnd == selRange.selStart) ? selRange.selEnd + 1 : selRange.selEnd);
+        }
+
         event.preventDefault();
         event.stopPropagation();
 
-        selRange = self._updateValue(valueString, selRange.selStart, selRange.selEnd) || selRange;
+        selRange = self._updateValue(valueString, selRange) || selRange;
 
         //delta += this.value.length - length;
         this.setSelectionRange(selRange.selStart + delta, selRange.selStart + delta);
@@ -137,7 +141,7 @@ module.exports = UIComponent.extend('InputField', {
         var clipboardData = event.clipboardData || window.clipboardData;
         var pastedData = clipboardData.getData('Text');
 
-        selRange = self._startChange(this.value, selRange.selStart, selRange.selEnd) || selRange;
+        selRange = self._startChange(this.value, selRange) || selRange;
         var valueString = this.value;
 
         event.stopPropagation();
@@ -145,7 +149,7 @@ module.exports = UIComponent.extend('InputField', {
 
         valueString = valueString.substring(0, selRange.selStart) + pastedData + valueString.substring(selRange.selEnd);
 
-        selRange = self._updateValue(valueString, selRange.selStart, selRange.selEnd) || selRange;
+        selRange = self._updateValue(valueString, selRange) || selRange;
 
         this.setSelectionRange(selRange.selEnd + pastedData.length, selRange.selEnd + pastedData.length);
     });

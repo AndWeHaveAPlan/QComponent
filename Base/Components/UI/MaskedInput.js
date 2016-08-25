@@ -5,27 +5,9 @@
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 var Property = require('../../Property');
+var InputField = require('./InputField');
 
-function isArrow(event) {
-    return event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40;
-}
-
-function isShift(event) {
-    return event.keyCode == 16; //shift;
-}
-
-function isModifierKey(event) {
-    return event.keyCode == 91 || //meta/win/command/super
-        event.keyCode == 17 || //ctrl
-        event.keyCode == 18;
-}
-
-function isModifierCombo(event) {
-    return (event.ctrlKey || event.altKey || event.metaKey);
-}
-
-module.exports = UIComponent.extend('MaskedInput', {
-
+module.exports = InputField.extend('MaskedInput', {
     _sChars: {
         'd': /[0-9]/,
         'c': /[a-z]/,
@@ -33,19 +15,25 @@ module.exports = UIComponent.extend('MaskedInput', {
         'i': /[a-zA-Z]/,
         '*': /[\w]/
     },
-    _unmask: function (str) {
+    _unmask: function (str, selRange) {
         var mask = this._data.mask;
         if (!mask) return str;
-
-        var count = 0;
-        var ret = '';
         for (var i = 0; i < mask.length; i++) {
-            if (!this._sChars[mask[i]])
+            if (!this._sChars[mask[i]]) {
                 str = str.replace(mask[i], '');
+
+                // fix selection
+                if (i < selRange.selStart) {
+                    selRange.selStart -= 1;
+                    selRange.selEnd -= 1;
+                } else if (i < selRange.selEnd) {
+                    selRange.selEnd -= 1;
+                }
+            }
         }
         return str;
     },
-    _enmask: function (str) {
+    _enmask: function (str, selRange) {
         var mask = this._data.mask;
         if (!mask) return str;
 
@@ -59,7 +47,16 @@ module.exports = UIComponent.extend('MaskedInput', {
                 count++;
             } else {
                 if (this._sChars[mask[i]].test(str[i - count])) {
-                    ret += str[i - count]
+                    ret += str[i - count];
+
+                    // fix selection
+                    if (i < selRange.selStart) {
+                        selRange.selStart += 1;
+                        selRange.selEnd += 1;
+                    } else if (i < selRange.selEnd) {
+                        selRange.selEnd += 1;
+                    }
+
                 } else {
                     count--;
                 }
@@ -68,87 +65,16 @@ module.exports = UIComponent.extend('MaskedInput', {
         }
         return ret;
     },
-
-    createEl: function () {
-        var self = this;
-        this.el = UIComponent.document.createElement('input');
-
-        this.el.addEventListener('keydown', function (event) {
-            var selStart = this.selectionStart;
-            var selEnd = this.selectionEnd;
-
-            if (isArrow(event) ||
-                event.keyCode == 19 || //pause/break
-                event.keyCode == 27 || //esc
-                (isModifierCombo(event) && !isModifierKey(event))
-            ) {
-                return;
-            }
-
-            if (isModifierKey(event) ||
-                isShift(event) ||
-                event.keyCode == 20 //caps
-            ) {
-                return;
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            var cursor = this.selectionStart;
-            var length = this.value.length;
-
-            var valueString = this.value;
-
-            if (event.keyCode == 8) { //backspace
-                valueString = valueString.substring(0, selStart - 1) + valueString.substring(selEnd);
-            } else if (event.keyCode == 46) {  //delete
-                valueString = valueString.substring(0, selStart) + valueString.substring(selEnd + 1);
-            } else {
-                valueString = valueString.substring(0, selStart) + String.fromCharCode(event.keyCode) + valueString.substring(selEnd);
-            }
-
-            var r = self._unmask(valueString);
-            this.value = self._enmask(r);
-
-            //return cursor
-            var delta = this.value.length - length;
-            if (delta >= 0)
-                this.setSelectionRange(cursor + delta, cursor + delta);
-            else
-                this.setSelectionRange(cursor, cursor);
-
-            var newVal = self._unmask(this.value);
-            self.set('text', newVal);
-            self.set('maskedText', this.value);
-            self.fire('changed', newVal);
-        });
-
-        this.el.addEventListener('paste', function (event) {
-            var selStart = this.selectionStart;
-            var selEnd = this.selectionEnd;
-
-            event.stopPropagation();
-            event.preventDefault();
-
-            var clipboardData = event.clipboardData || window.clipboardData;
-            var pastedData = clipboardData.getData('Text');
-
-            var valueString = this.value;
-            valueString = valueString.substring(0, selStart) + pastedData + valueString.substring(selEnd);
-            var r = self._unmask(valueString);
-            this.value = self._enmask(r);
-
-            var newVal = self._unmask(this.value);
-            self.set('text', newVal);
-            self.set('maskedText', this.value);
-            self.fire('changed', newVal);
-        });
-
-
+    _startChange: function (newVal, selRange) {
+        this.set('value', this._unmask(newVal, selRange));
+        console.log(selRange);
+        return selRange;
+    },
+    _updateValue: function (newVal, selRange) {
+        this.set('value', this._enmask(newVal, selRange));
+        return selRange;
     },
     _prop: {
-        value: Property.generate.proxy('text'),
         text: new Property('String', {}, {
             get: Property.defaultGetter,
             set: function (name, value) {
@@ -158,12 +84,7 @@ module.exports = UIComponent.extend('MaskedInput', {
                 this.el.setAttribute('value', masked);
             }
         }, ''),
-        maskedText: Property.generate.attributeProperty('value'),
-        placeholder: Property.generate.attributeProperty('placeholder'),
-        mask: new Property('String', {}, {
-            get: Property.defaultGetter,
-            set: function () {
-            }
-        }, null)
+        maskedText: Property.generate.proxy('value'),
+        mask: new Property('String')
     }
 });
