@@ -29,6 +29,8 @@ function isModifierCombo(event) {
  * @Abstract
  */
 module.exports = UIComponent.extend('InputField', {
+    _startChange: function (newVal, selectionStart, selectionEnd) {
+    },
     _updateValue: function (newVal, selectionStart, selectionEnd) {
         this.set('value', newVal);
     },
@@ -70,50 +72,81 @@ module.exports = UIComponent.extend('InputField', {
     });
     this._eventManager.registerPipe(mutatingPipe);
 
+    mutatingPipe = new MutatingPipe([this.id + '.placeholder'], {
+        component: input.id,
+        property: 'placeholder'
+    });
+    mutatingPipe.addMutator(function (placeholder) {
+        return placeholder;
+    });
+    this._eventManager.registerPipe(mutatingPipe);
+
     input.el.addEventListener('keypress', function (event) {
-        var selStart = this.selectionStart;
-        var selEnd = this.selectionEnd;
-        var length = this.value.length;
+        var selRange = {
+            selStart: this.selectionStart,
+            selEnd: this.selectionEnd
+        };
         var delta = 1;
+
+        selRange = self._startChange(this.value, selRange.selStart, selRange.selEnd) || selRange;
+        var valueString = this.value;
+
         event.preventDefault();
         event.stopPropagation();
-        var valueString = this.value;
-        valueString = valueString.substring(0, selStart) + String.fromCharCode(event.keyCode) + valueString.substring(selEnd);
-        self._updateValue(valueString, selStart, selEnd);
-        this.setSelectionRange(selStart + delta, selStart + delta);
+
+        valueString = valueString.substring(0, selRange.selStart) + String.fromCharCode(event.keyCode) + valueString.substring(selRange.selEnd);
+
+        selRange = self._updateValue(valueString, selRange.selStart, selRange.selEnd) || selRange;
+
+        this.setSelectionRange(selRange.selStart + delta, selRange.selStart + delta);
     });
 
     input.el.addEventListener('keydown', function (event) {
-        var selStart = this.selectionStart;
-        var selEnd = this.selectionEnd;
-        var length = this.value.length;
+        var selRange = {
+            selStart: this.selectionStart,
+            selEnd: this.selectionEnd
+        };
         var delta = 0;
+
+        selRange = self._startChange(this.value, selRange.selStart, selRange.selEnd) || selRange;
         var valueString = this.value;
+
         if (event.keyCode == 8) { //backspace
-            valueString = valueString.substring(0, selStart - 1) + valueString.substring(selEnd);
+            valueString = valueString.substring(0, (selRange.selEnd == selRange.selStart) ? selRange.selStart - 1 : selRange.selStart) + valueString.substring(selRange.selEnd);
+            if (selRange.selEnd == selRange.selStart)
+                delta = -1;
         } else if (event.keyCode == 46) {  //delete
-            valueString = valueString.substring(0, selStart) + valueString.substring(selEnd + 1);
-            delta = 1;
+            valueString = valueString.substring(0, selRange.selStart) + valueString.substring((selRange.selEnd == selRange.selStart) ? selRange.selEnd + 1 : selRange.selEnd);
         } else {
             return;
         }
         event.preventDefault();
         event.stopPropagation();
-        self._updateValue(valueString, selStart, selEnd);
-        delta += this.value.length - length;
-        this.setSelectionRange(selStart + delta, selStart + delta);
+
+        selRange = self._updateValue(valueString, selRange.selStart, selRange.selEnd) || selRange;
+
+        //delta += this.value.length - length;
+        this.setSelectionRange(selRange.selStart + delta, selRange.selStart + delta);
     });
 
     input.el.addEventListener('paste', function (event) {
-        var selStart = this.selectionStart;
-        var selEnd = this.selectionEnd;
-        event.stopPropagation();
-        event.preventDefault();
+        var selRange = {
+            selStart: this.selectionStart,
+            selEnd: this.selectionEnd
+        };
         var clipboardData = event.clipboardData || window.clipboardData;
         var pastedData = clipboardData.getData('Text');
+
+        selRange = self._startChange(this.value, selRange.selStart, selRange.selEnd) || selRange;
         var valueString = this.value;
-        valueString = valueString.substring(0, selStart) + pastedData + valueString.substring(selEnd);
-        self._updateValue(valueString, selStart, selEnd);
-        this.setSelectionRange(selEnd, selEnd);
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        valueString = valueString.substring(0, selRange.selStart) + pastedData + valueString.substring(selRange.selEnd);
+
+        selRange = self._updateValue(valueString, selRange.selStart, selRange.selEnd) || selRange;
+
+        this.setSelectionRange(selRange.selEnd + pastedData.length, selRange.selEnd + pastedData.length);
     });
 });

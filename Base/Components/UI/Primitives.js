@@ -70,6 +70,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
     _prop: {
         type: Property.generate.attributeProperty('type'),
         checked: Property.generate.attributeProperty('checked'),
+        placeholder: Property.generate.attributeProperty('placeholder'),
         value: new Property('Variant', {description: 'Base HTML input'}, {
             get: function (key, value) {
                 if (this._data.type === 'number') {
