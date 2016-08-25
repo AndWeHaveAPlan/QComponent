@@ -239,7 +239,7 @@ module.exports = (function () {
         this._contentContainer = void(0);
         this._transformMatrix = Matrix2D.createEmpty();
         this.createEl();
-        this._init();
+        //this._init();
         this._initChildren();
     });
 
