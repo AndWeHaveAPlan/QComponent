@@ -49,7 +49,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
     //leaf: true,
     createEl: function () {
         var self = this;
-        this.el = QObject.document.createElement('input');
+        this.el = UIComponent.document.createElement('input');
 
         this.el.addEventListener('click', function (e) {
             self.fire('click', e);

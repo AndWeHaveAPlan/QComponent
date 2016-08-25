@@ -225,9 +225,6 @@ QObject.prototype.apply(AbstractComponent.prototype, {
         if (!Array.isArray(names)) {
             names = names.split('.');
         }
-
-        //TODO тут хуйня какая-то, надо бы перепроверить
-
         var ret = void(0);
         var firstName = names[0];
         var lastName = names[names.length - 1];
@@ -236,7 +233,8 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             var getted = this.get(names.slice(0, names.length - 1).join('.'));
             if (getted)
                 if (getted instanceof AbstractComponent) {
-                    ret = getted.set(lastName, value);
+                    getted.set(lastName, value);
+                    ret = value;
                 } else {
                     ret = getted[lastName] = value;
                     this._onPropertyChanged(this, firstName, value);
@@ -245,10 +243,10 @@ QObject.prototype.apply(AbstractComponent.prototype, {
             if (!this._prop[firstName]) {
                 this._prop[firstName] = new (this._prop.default || defaultPropertyFactory)(this, firstName);
             }
-            ret = this._prop[firstName].set(value);
+            this._prop[firstName].set(value);
+            ret = value;
         }
 
-        console.log(names);
         this._onPropertyChanged(this, this.id, this);
         return ret;
     },
@@ -273,7 +271,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
     },
 
     find: function (matcher) {
-        var out = []
+        var out = [];
         this._ownComponents.forEach(function (item) {
             if (item._type === matcher)out.push(item);
             out = out.concat(item.find(matcher));
