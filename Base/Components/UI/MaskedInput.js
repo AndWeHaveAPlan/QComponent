@@ -45,20 +45,27 @@ module.exports = InputField.extend('MaskedInput', {
             if (!this._sChars[mask[i]]) {
                 ret += mask[i];
                 count++;
+
+                // fix selection
+                if (i <= selRange.selStart) {
+                    selRange.selStart += 1;
+                    selRange.selEnd += 1;
+                } else if (i <= selRange.selEnd) {
+                    selRange.selEnd += 1;
+                }
+
             } else {
                 if (this._sChars[mask[i]].test(str[i - count])) {
                     ret += str[i - count];
-
-                    // fix selection
-                    if (i < selRange.selStart) {
-                        selRange.selStart += 1;
-                        selRange.selEnd += 1;
-                    } else if (i < selRange.selEnd) {
-                        selRange.selEnd += 1;
-                    }
-
                 } else {
                     count--;
+                    // fix selection
+                    if (i <= selRange.selStart) {
+                        selRange.selStart -= 1;
+                        selRange.selEnd -= 1;
+                    } else if (i <= selRange.selEnd) {
+                        selRange.selEnd -= 1;
+                    }
                 }
             }
 
