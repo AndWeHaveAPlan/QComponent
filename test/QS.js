@@ -83,7 +83,7 @@ module.exports = (function () {
                 'def Page main',
                 '  Number m: 2',
                 '  String s1: value',
-                '  Number n: {{i1[i2%2?\'type\':s1][5].lal()+i1[i5]()+m+i1+i2.value+i1.type}}',
+                '  Number n: {{i1[i2%2?\'type\':s1][i2[i2%2?\'type\':s1][5]].lal()+i1[i5]()+m+i1+i2.value+i1.type}}',
                 '  input i1: 10',
                 '    type: text',
                 '  input i2: 10',

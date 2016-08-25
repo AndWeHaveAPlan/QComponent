@@ -62,7 +62,10 @@ module.exports = (function () {
             var vars = VariableExtractor.parse(fn),
                 counter = 1,
                 _self = this, i,
-                undefinedVars = vars.getFullUnDefined();
+                undefinedVars = vars.getFullUnDefined(),
+
+                intermediateVars = {},
+                wereTransforms = false;
 
             definedVars = definedVars || {};
 
@@ -72,18 +75,33 @@ module.exports = (function () {
             fn = new ASTtransformer().transform(vars.getAST(), undefinedVars, {
                 escodegen: {format: {compact: true}},
                 variableTransformer: function(node, stack){
-                    var crafted = ASTtransformer.craft.js(node)
+                    wereTransforms = true;
+
+                    var crafted = ASTtransformer.craft.js(node),
+                        sub, id = 'var'+(counter++);
+
                     console.log('! ', crafted, node.type)
                     if(node.type === 'MemberExpression') {
-                        var subDefinedVars = Object.create(definedVars);
-                        subDefinedVars[stack[stack.length - 1].name] = true;
-                        var sub = _self._functionTransform(ASTtransformer.craft.js(node), subDefinedVars);
-                        console.log('^^ '+sub)
+                        var subDefinedVars = Object.create(definedVars),
+                            deepestVar = stack[stack.length - 1].name;
+                        subDefinedVars[deepestVar] = true;
+
+
+                        //console.log('^^$ ')
+                        sub = _self._functionTransform(ASTtransformer.craft.js(node), subDefinedVars, true);
+                        //console.log('^^ '+sub)
+                        intermediateVars[id] = sub;
+                        typeof sub !== 'string' && (sub[deepestVar] = deepestVar);
+                    }else{
+                        intermediateVars[id] = ASTtransformer.craft.js(node);
                     }
-                    return ASTtransformer.craft.Identifier('var'+(counter++));
+
+                    return ASTtransformer.craft.Identifier(id);
                 }
             });
-            return fn;
+            intermediateVars[' fn '] = fn;
+            console.log(intermediateVars);
+            return wereTransforms?intermediateVars:fn;
         },
 
         makePipe: function (pipe, sourceComponent, targetProperty, def, childId, prop) {
@@ -98,7 +116,7 @@ module.exports = (function () {
                 fn = tools.compilePipe.string(fn);
 
             /** do magic */
-            //fn = this._functionTransform(fn);
+            fn = this._functionTransform(fn);
 
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
