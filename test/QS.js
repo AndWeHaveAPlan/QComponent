@@ -32,7 +32,22 @@ module.exports = (function () {
                 assert.equal(main.find('input')[0].get('value'), 42);
                 done();
             });
-        });
+        });*/
+        /*it('should compile slider.qs', function (done) {
+            compile(
+                fs.readFileSync('public/slider.qs'),
+
+                function(err, main){
+                    assert.equal(typeof main.find('input')[0].get('value'), 'number');
+
+                    main.find('input')[0].set('value', '42');
+                    assert.equal(typeof main.find('input')[0].get('value'), 'number');
+                    assert.equal(main.find('input')[0].get('value'), 42);
+                    done();
+                });
+        });*/
+
+        /*
         it('should pipe different formats of array', function (done) {
             compile(
                 'def Page main',

@@ -7,13 +7,13 @@ module.exports = {
         var strNumber = number.toString();
 
         var i = 0;// strNumber % 2 == 0 ? 0 : 1;
-        var oe = strNumber % 2 == 0 ? 0 : 1;
+        var oe = strNumber % 2;// == 0 ? 0 : 1;
         var total = 0;
 
         for (i; i < strNumber.length; i++) {
             var cDigit = strNumber[i];
 
-            if (i % 2 == oe) {
+            if (i % 2 === oe) {
                 var doubled = cDigit * 2;
                 if (Number.isNaN(doubled))
                     return false;
@@ -27,6 +27,6 @@ module.exports = {
             }
 
         }
-        return total % 10 == 0;
+        return total % 10 === 0;
     }
 };

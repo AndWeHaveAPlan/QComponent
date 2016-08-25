@@ -82,23 +82,7 @@ var tools = module.exports = (function() {
             }
             return out;
         },
-        dataExtractor: function (prop) {
-            var type = prop.type;
-            var val = prop.value,
-                out;
-            if (typeof val === 'string') {
-                out = val;
-            } else {
-                out = val.map(extractor).join('');
-            }
-
-            if (type === 'Variant' || type === 'String')
-                return JSON.stringify(out);
-            else if(type === 'Array' || type === 'Number' || type === 'Boolean')
-                return out;
-            console.warn('Unknown type: '+type);
-            return new Error('Unknown type: '+type);
-        },
+        
         
         /** recursive parsing of braces */
         _transformPipes: function (pipedOut, items) {
@@ -188,23 +172,7 @@ var tools = module.exports = (function() {
             }
             return pipes;
         },
-        compilePipe: {
-            raw: function(val){
-                return val.map(function (item) {
-                    if (item.type === 'quote')
-                        return item.data;
-                    return item.pureData;
-                }).join('');
-            },
-            string: function(val){
-                return val.map(function (item) {
-                    if (item.type === 'text' || item.type === 'quote')
-                        return '\'' + item.pureData + '\'';// TODO: escape
-                    else
-                        return '(' + item.pureData + ')';
-                 }).join('+');
-            }
-        },
+        
         /**
          * Split items by symbol
          */
