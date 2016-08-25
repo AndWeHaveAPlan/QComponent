@@ -345,6 +345,7 @@ module.exports = (function () {
         delete undef.console;
         //console.log(undef)
         delete undef.Date;
+        delete undef.parseInt;
         return undef;
 
     };
