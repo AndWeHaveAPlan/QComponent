@@ -29,7 +29,6 @@ def Page main
         input: 8
           type: button
           .click: ()->
-            this.set('value', this.get('value')+1)
+            //this.set('value', this.get('value')+1)
             this.value = this.value+1;
-            this.value+=1;
-            a.b[c][ef?1:2] += 6;
+            //this.value+=1;

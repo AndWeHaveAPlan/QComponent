@@ -111,7 +111,7 @@ module.exports = (function(){
                 pointer = pointer.object;
             }
             //stack.push(pointer.property);
-
+            var tmp = escodegen.generate(node)
             if(node.operator !== '='){
                 return doTransform.call(
                     this,
