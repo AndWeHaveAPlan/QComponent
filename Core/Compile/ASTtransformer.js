@@ -97,7 +97,7 @@ module.exports = (function(){
 
 
             /** if variable is declared - do nothing */
-            if(!('_id' in node.left) || !(node.left._id in this)) {
+            if(!('_id' in node.left) || !(node.left._id in this) || node.left._id === null) {
                 node.right = doTransform.call(this,node.right, options);
                 return node;
             }
@@ -144,13 +144,16 @@ module.exports = (function(){
                                     if(item.computed){
                                         return doTransform.call(_self, item, options);
                                     }else{
-                                        return {
+                                        var out = {
                                             "type": "Literal",
                                             "value": item.name,
                                             "raw": "'"+item.name+"'"
-                                        }
+                                        }; 
+                                        if('_id' in item)
+                                            out._id = item._id;
+                                            
+                                        return out; 
                                     }
-                                    return item;
                                 }) : [{
                                     "type": "Literal",
                                     "value": 'value',
@@ -172,7 +175,7 @@ module.exports = (function(){
         'MemberExpression': function(node, options){
             var _self = this;
 
-            if('_id' in node && node._id in this){
+            if( '_id' in node && node._id in this && node._id !== null ){
                 //console.log(JSON.stringify(node,null,2));
                 var ending = [], pointer = node, stack = [];
                 //console.log(pointer, pointer.object)
@@ -183,7 +186,8 @@ module.exports = (function(){
                 stack.push(pointer.property);
 
                 if(options.variableTransformer){
-                    return options.variableTransformer(node);
+                    stack.push(pointer.object);
+                    return options.variableTransformer(node, stack);
                 }
 
                 return {
@@ -206,13 +210,16 @@ module.exports = (function(){
                                         if(item.computed){
                                             return doTransform.call(_self, item, options);
                                         }else{
-                                            return {
+                                            var out = {
                                                 "type": "Literal",
                                                 "value": item.name,
                                                 "raw": "'"+item.name+"'"
-                                            }
+                                            }; 
+                                            if('_id' in item)
+                                                out._id = item._id;
+
+                                            return out; 
                                         }
-                                        return item;
                                     }) : [{
                                         "type": "Literal",
                                         "value": 'value',
@@ -251,7 +258,7 @@ module.exports = (function(){
             return node; // TODO unshit
         },
         'Identifier': function(node, options){
-            if('_id' in node && node._id in this){
+            if( '_id' in node && node._id in this && node._id !== null ){
                 if(options.variableTransformer){
                     return options.variableTransformer(node);
                 }

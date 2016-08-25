@@ -92,19 +92,27 @@ module.exports = (function () {
             return source;
         },
 
-        _functionTransform: function(fn){
+        _functionTransform: function(fn, definedVars){
             var vars = VariableExtractor.parse(fn),
-                o = vars.getFullUnDefined(),
                 counter = 1,
-                _self = this;
+                _self = this, i,
+                definedVars = definedVars || {},
+                undefinedVars = vars.getFullUnDefined();
 
-            fn = new ASTtransformer().transform(vars.getAST(), o, {
+            for( i in definedVars )
+                undefinedVars[i] = null;
+
+            fn = new ASTtransformer().transform(vars.getAST(), undefinedVars, {
                 escodegen: {format: {compact: true}},
-                variableTransformer: function(node){
+                variableTransformer: function(node, stack){
                     var crafted = ASTtransformer.craft.js(node)
                     console.log('! ', crafted, node.type)
-                    if(node.type === 'MemberExpression')
-                        _self._functionTransform(ASTtransformer.craft.js(node))
+                    if(node.type === 'MemberExpression') {
+                        var subDefinedVars = Object.create(definedVars);
+                        subDefinedVars[stack[stack.length - 1].name] = true;
+                        var sub = _self._functionTransform(ASTtransformer.craft.js(node), subDefinedVars);
+                        
+                    }
                     return ASTtransformer.craft.Identifier('var'+(counter++));
                 }
             });
