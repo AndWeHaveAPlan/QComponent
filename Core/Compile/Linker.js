@@ -378,7 +378,8 @@ module.exports = (function() {
 
             }
         };
-    Linker.prototype = new QObject(Linker.prototype);
+
+    Linker.prototype = new QObject().apply(Linker.prototype);
 
     return Linker;
 })();

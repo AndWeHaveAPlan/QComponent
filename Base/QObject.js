@@ -307,7 +307,7 @@ module.exports = (function () {
         }
 
     };
-    QObject.prototype = prototype.applyPrivate.call({}, prototype);
+    QObject.prototype = prototype.apply.call({}, prototype);
     QObject.prototype._prop = {};
 
     QObject.prototype._afterInit = function () {
