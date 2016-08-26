@@ -41,33 +41,6 @@ module.exports = (function () {
             });
         },
 
-        /**
-         * Create own components
-         *
-         * @private
-         */
-        _init: function () {
-            var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
-
-            while (item = iterator.next()) {
-
-                if (item)
-
-                    if (item instanceof ContentContainer) {
-                        this._contentContainer = item;
-                    } else {
-                        this._eventManager.registerComponent(item);
-                    }
-
-                if (item instanceof UIComponent) {
-
-                    this.el.appendChild(item.el);
-                    item.fire('addToParent')
-                }
-            }
-
-            AbstractComponent.prototype._init.apply(this, arguments);
-        },
 
         /**
          * Create children
@@ -239,7 +212,6 @@ module.exports = (function () {
         this._contentContainer = void(0);
         this._transformMatrix = Matrix2D.createEmpty();
         this.createEl();
-        //this._init();
         this._initChildren();
         if (this.el && this.el.setAttribute) {
             this.el.setAttribute('qId', this.id);

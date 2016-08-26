@@ -1,6 +1,10 @@
 module.exports = (function () {
     'use strict';
-    var observable = require('z-observable');
+    var observable = require('z-observable'),
+        MulticastDelegate = require('./MulticastDelegate'),
+        Property = require('./Property'),
+        uuid = require('tiny-uuid');
+
     var components = {},
         mixins = {},
         toString = Object.prototype.toString,
@@ -15,7 +19,20 @@ module.exports = (function () {
      */
     function QObject(cfg) {
         cfg && this.apply(cfg);
+        this._cfg = cfg || {};
         observable.prototype._init.call(this);
+
+        this._data = {};
+
+        cfg = cfg || {};
+        this.id = cfg.id || uuid();
+        delete cfg.id;
+
+        this._onPropertyChanged = new MulticastDelegate();
+        this.defaultPropertyFactory = new Property('Variant', {description: 'Someshit'});
+
+        this._initProps(cfg);
+        //this._init();
     }
 
     var prototype = {
@@ -24,6 +41,97 @@ module.exports = (function () {
         fire: observable.prototype.fire,
         removableOn: observable.prototype.removableOn,
         un: observable.prototype.un,
+
+        /**
+         * Get property from component
+         *
+         * @param names String
+         */
+        get: function (names) {
+
+            if (!Array.isArray(names)) {
+                names = names.split('.');
+            }
+
+            if (!names) {
+                return this.get(['value']);
+            }
+
+            var ret = this;
+            if (names.length > 1) {
+                for (var i = 0; i < names.length; i++) {
+                    if (ret instanceof QObject) {
+                        ret = ret.get(names[i]);
+                    } else {
+                        ret = ret[names[i]];
+                    }
+                    if (ret == void 0)
+                        return ret;
+                }
+                return ret;
+            } else if (names.length === 1) {
+                return names[0] in this._prop ? this._prop[names[0]].get() : void (0);
+            } else {
+                return void(0)
+            }
+        },
+
+        /**
+         *  Old method with string parameter
+         * @param name
+         * @returns {*}
+         * @private
+         */
+        _get: function (name) {
+            return this._get(name);
+        },
+
+        /**
+         * Set property to component
+         *
+         * @param names String
+         * @param value Object
+         */
+        set: function (names, value) {
+            if (!Array.isArray(names)) {
+                names = names.split('.');
+            }
+            var ret = void(0);
+            var firstName = names[0];
+            var lastName = names[names.length - 1];
+
+            if (names.length > 1) {
+                var getted = this.get(names.slice(0, names.length - 1).join('.'));
+                if (getted)
+                    if (getted instanceof QObject) {
+                        getted.set(lastName, value);
+                        ret = value;
+                    } else {
+                        ret = getted[lastName] = value;
+                        this._onPropertyChanged(this, firstName, value);
+                    }
+            } else {
+                if (!this._prop[firstName]) {
+                    this._prop[firstName] = new (this._prop.default || this.defaultPropertyFactory)(this, firstName);
+                }
+                this._prop[firstName].set(value);
+                ret = value;
+            }
+
+            this._onPropertyChanged(this, this.id, this);
+            return ret;
+        },
+
+        /**
+         * @deprecated
+         * @param name
+         * @param value
+         * @private
+         */
+        _set: function (name, value) {
+            this.set(name, value);
+        },
+
         /**
          * Copy all properties of object2 to object1, or object1 to self if object2 not set
          *
@@ -79,6 +187,7 @@ module.exports = (function () {
                     writable: false,
                     value: source[i]
                 });
+
             return target;
         },
 
@@ -112,18 +221,6 @@ module.exports = (function () {
 
         _mixing: function (cfg, mixin/* base */) {
 
-            /*if(prototype.isArray(mixin)){
-             return mixin.reduce(function(cfg, mixin){
-             var name = mixin;
-             if(typeof mixin === 'string')
-             mixin = components[mixin] || mixins[mixin];
-
-             if(!mixin)
-             throw new Error('Unknows mixin `'+name+'`');
-
-             return prototype._mixing(cfg, mixin);
-             }, cfg);
-             }*/
             if (prototype.isArray(mixin)) {
                 mixin.push(cfg);
                 return mixin.reduce(function (base, mixin) {
@@ -170,23 +267,23 @@ module.exports = (function () {
             if (init)
                 constructor = function (cfg) {
                     init.call(this, cfg);
-                    if(this.constructor === Cmp && this._afterInit )
+                    if (this.constructor === Cmp && this._afterInit)
                         this._afterInit();
                 };
 
             /** constructor of new component */
             var Cmp = constructor || function (cfg) {
                     original.call(this, cfg);
-                    if(this.constructor === Cmp && this._afterInit )
+                    if (this.constructor === Cmp && this._afterInit)
                         this._afterInit();
                 };
 
             /** Mixing */
             mixins = cfg.mixin;
-            if(mixins) {
+            if (mixins) {
                 delete cfg.mixin;
                 mixins = prototype.makeArray(mixins);
-            }else{
+            } else {
                 mixins = [];
             }
             mixins.unshift(original.prototype);
@@ -210,13 +307,47 @@ module.exports = (function () {
         }
 
     };
+    QObject.prototype = prototype.applyPrivate.call({}, prototype);
+    QObject.prototype._prop = {};
+
+    QObject.prototype._afterInit = function () {
+        this._init();
+    };
+
+    QObject.prototype._init = function () {
+        var cfg = this._cfg;
+        for (var p in cfg) {
+            if (cfg.hasOwnProperty(p)) {
+                this.set([p], cfg[p]);
+            }
+        }
+
+        delete this._cfg;
+    };
+
+    QObject.prototype._initProps = function (cfg) {
+        var prop = this._prop, i,
+            newProp = this._prop = {};
+
+        for (i in prop) {
+            if (i === 'default') {
+                newProp[i] = prop[i];
+            } else {
+                if (i in cfg)
+                    newProp[i] = new prop[i](this, i);//, cfg[i]);
+                else
+                    newProp[i] = new prop[i](this, i);
+            }
+        }
+        delete cfg._prop;
+    };
+
+
+    var deepApply = ['_prop'];
 
     // makes prototype properties not enumerable
-    QObject.prototype = prototype.applyPrivate.call({}, prototype);
     prototype.apply(QObject, prototype);
 
-    var deepApply = [/*'_setter', '_getter', */'_prop'],
-        deepApplyHash = QObject.arrayToObject(deepApply);
     QObject._knownComponents = components;
 
     QObject._type = QObject.prototype._type = "QObject";
