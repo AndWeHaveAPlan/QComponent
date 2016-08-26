@@ -57,7 +57,8 @@ module.exports = UIComponent.extend('InputField', {
         height: '100%',
         width: '100%',
         'font-family': 'inherit',
-        'font-size': 'inherit'
+        'font-size': 'inherit',
+        'background': 'none'
     }));
 
     this.addChild(input);
@@ -86,19 +87,18 @@ module.exports = UIComponent.extend('InputField', {
             selStart: this.selectionStart,
             selEnd: this.selectionEnd
         };
-        var delta = 1;
 
         event.preventDefault();
         event.stopPropagation();
 
-        selRange = self._startChange(this.value, selRange) || selRange;
+        self._startChange(this.value, selRange);
         var valueString = this.value;
 
         valueString = valueString.substring(0, selRange.selStart) + String.fromCharCode(event.keyCode) + valueString.substring(selRange.selEnd);
 
-        selRange = self._updateValue(valueString, selRange) || selRange;
+        self._updateValue(valueString, selRange);
 
-        this.setSelectionRange(selRange.selStart + delta, selRange.selStart + delta);
+        this.setSelectionRange(selRange.selStart + 1, selRange.selStart + 1);
     });
 
     input.el.addEventListener('keydown', function (event) {
@@ -112,7 +112,7 @@ module.exports = UIComponent.extend('InputField', {
             return;
         }
 
-        selRange = self._startChange(this.value, selRange) || selRange;
+        self._startChange(this.value, selRange);
         var valueString = this.value;
 
         if (event.keyCode == 8) { //backspace
@@ -127,7 +127,7 @@ module.exports = UIComponent.extend('InputField', {
         event.preventDefault();
         event.stopPropagation();
 
-        selRange = self._updateValue(valueString, selRange) || selRange;
+        self._updateValue(valueString, selRange);
 
         //delta += this.value.length - length;
         this.setSelectionRange(selRange.selStart + delta, selRange.selStart + delta);
