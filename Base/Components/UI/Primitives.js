@@ -20,6 +20,12 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
                 this.textNode.set('value', val);
             },
             get: Property.defaultGetter
+        }),
+        cls: new Property('String', {description: 'className'}, {
+            set: function (name, val) {
+                this.el.className = val.replace(/\./g,' ').trim();
+            },
+            get: Property.defaultGetter
         })
     }
 });

@@ -53,6 +53,12 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
                 }
             }
         }
+
+        /** Женя, посмотри на это. Скорее всего оно криво. */
+        var main = self.owner.mainEventManager,
+            owner = main && main.owner;
+        if(owner && owner !== self.owner)
+            owner._onPropertyChanged(owner, sender.id);
     }
 };
 
