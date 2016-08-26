@@ -150,6 +150,28 @@ module.exports = (function () {
                 '\t\treturn ' + fn + '\n' +
                 '\t}));';
         },
+
+        functionNet: function () {
+            var getValue = function(s){
+                if(typeof s === 'string'){
+                    return s
+                }else{
+                    var fn = s[' fn '], i, m = 0, vars = [], varNames = [], varsHash = {};
+                    for(i in s)
+                        if(i!== ' fn '){
+                            vars[m] = getValue(s[i]);
+                            varNames[m] = i;
+                            varsHash[i] = m++;
+                        }
+                    console.log(vars, varNames)
+                    console.log(new Function(varNames.join(','),'return '+fn).toString())
+                    return vars
+                }
+
+
+            }
+            getValue(s)
+        },
         compilePipe: {
             raw: function(val){
                 return val.map(function (item) {
