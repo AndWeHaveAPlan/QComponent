@@ -82,23 +82,7 @@ var tools = module.exports = (function() {
             }
             return out;
         },
-        dataExtractor: function (prop) {
-            var type = prop.type;
-            var val = prop.value,
-                out;
-            if (typeof val === 'string') {
-                out = val;
-            } else {
-                out = val.map(extractor).join('');
-            }
-
-            if (type === 'Variant' || type === 'String')
-                return JSON.stringify(out);
-            else if(type === 'Array' || type === 'Number' || type === 'Boolean')
-                return out;
-            console.warn('Unknown type: '+type);
-            return new Error('Unknown type: '+type);
-        },
+        
         
         /** recursive parsing of braces */
         _transformPipes: function (pipedOut, items) {
@@ -123,7 +107,7 @@ var tools = module.exports = (function() {
                         out.push({type: 'fn', pureData: data});
                     } else {
                         try {
-                            out.push({type: 'text', pureData: eval(data), col: item.col, row: item.row});
+                            out.push({type: 'text', pureData: eval(data)/** TODO escape this security breach */, col: item.col, row: item.row});
                         } catch (e) {
                             QObject.Error('Evaluation error', {item: item, data: e});
                         }
@@ -134,7 +118,7 @@ var tools = module.exports = (function() {
                     werePipes = werePipes || this._transformPipes(pipedOut, item.items);
                     out.push({pureData: item._info, type: 'text'});
                 } else {
-                    out.push({pureData: item.pureData, type: 'text'});
+                    out.push({pureData: item.pureData, type: item.type, data: item.data});
                 }
             }
             return werePipes;
@@ -188,21 +172,7 @@ var tools = module.exports = (function() {
             }
             return pipes;
         },
-        compilePipe: {
-            raw: function(val){
-                return val.map(function (item) {
-                    return item.pureData;
-                }).join('');
-            },
-            string: function(val){
-                return val.map(function (item) {
-                    if (item.type === 'text')
-                        return '\'' + item.pureData + '\'';// TODO: escape
-                    else
-                        return '(' + item.pureData + ')';
-                 }).join('+');
-            }
-        },
+        
         /**
          * Split items by symbol
          */
