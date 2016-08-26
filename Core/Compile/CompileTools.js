@@ -104,6 +104,145 @@ module.exports = (function () {
             return wereTransforms?intermediateVars:fn;
         },
 
+        functionWaterfall: function(){
+
+            on(
+                [on(
+                    ['i2','s1',on(
+                        ['s1','i2'],
+                        function(done){
+                            var lastValue, firstCall = true;
+                            return function(var1, i2){
+                                var out = i2[i2%2?'type':var1][5]
+                                if(firstCall || lastValue !== out){
+                                    done('var3', out, lastValue);
+                                    lastValue = out; firstCall = false;
+                                }
+                            };
+                        }),'i1'],
+                    function(done){
+                        var lastValue, firstCall = true;
+                        return function(var1, var2, var3, i1){
+                            var out = i1[var1%2?'type':var2][var3]
+                            if(firstCall || lastValue !== out){
+                                done('var1', out, lastValue);
+                                lastValue = out; firstCall = false;
+                            }
+                        };
+                    }),'i1','i5','m','i1','i2.value','i1.type'],
+                function(done) {
+                    var lastValue, firstCall = true;
+                    return function (var1, var2, var3, var4, var5, var6, var7) {
+                        var out = var1.lal() + var2[var3]() + var4 + var5 + var6 + var7
+                        if (firstCall || lastValue !== out) {
+                            done(out, lastValue);
+                            lastValue = out;
+                            firstCall = false;
+                        }
+                    };
+                })
+
+var emitter;
+            emitter.on(
+                [on(
+                    ['i2','s1',on(
+                        ['s1','i2'],
+                        function(var1, i2){
+                            return i2[i2%2?'type':var1][5]
+                        }),'i1'],
+                    function(var1, var2, var3, i1){
+                        return i1[var1%2?'type':var2][var3]
+                    }),'i1','i5','m','i1','i2.value','i1.type'],
+                function(var1, var2, var3, var4, var5, var6, var7) {
+                    return var1.lal() + var2[var3]() + var4 + var5 + var6 + var7
+                });
+            var x = {
+                var1:
+                {
+                    var1: 'i2',
+                    var2: 's1',
+                    var3: {
+                        var1: 's1',
+                        ' fn ': 'i2[i2%2?\'type\':var1][5]',
+                        i2: 'i2'
+                    },
+                    ' fn ': 'i1[var1%2?\'type\':var2][var3]',
+                    i1: 'i1'
+                },
+                var2: 'i1',
+                var3: 'i5',
+                var4: 'm',
+                var5: 'i1',
+                var6: 'i2.value',
+                var7: 'i1.type',
+                ' fn ': 'var1.lal()+var2[var3]()+var4+var5+var6+var7'
+            };
+
+            var getValue = function (cfg, depth) {
+                var depth = depth |0;
+                if (typeof cfg === 'string') {
+                    return cfg;
+                } else {
+                    var i,
+                        fn = cfg[' fn '],
+                        fnArgs = [],
+                        m = 0,
+                        argsHash = {},
+                        argsVal = {},
+                        fnArgsValues = [],
+                        propHash = {};
+
+                    for (i in cfg)
+                        if (i !== ' fn ') {
+                            fnArgs[m] = i;
+                            argsHash[i] = m;
+                            fnArgsValues[m] = argsVal[i] = getValue(cfg[i], depth+1);
+                            if(typeof argsVal[i] !== 'string'){
+                                argsVal[i].name = i;
+                            }
+                            propHash[argsVal[i]] = i;
+                            m++;
+                        }
+                    fnArgsValues.map(function(){})
+                    return {fn: new Function(fnArgs,' return '+fn).toString(), /*argsVal: argsVal,*/ fnArgsValues: fnArgsValues}
+                }
+            };
+            var transform = function(cfg, name){
+                var list = [], fn, list2 = [];
+                for(var i in cfg){
+                    if( i !== ' fn '){
+                        list.push(i);
+                        list2.push(cfg[i])
+                    }
+                }
+                fn =
+                    'emitter.on(\n'+
+                    '\t['+ list2.map(function(item, i){
+                        if(typeof item === 'string')
+                            return '\''+ item +'\'';
+                        else
+                            return transform(item, list[i])
+                    }) +'],\n'+
+                    /*
+                     '\tfunction(done){\n'+
+                     '\tvar lastValue, firstCall = true;\n'+
+                     '\treturn '*/
+                    'function('+ list.join(', ') +'){\n'+
+                    '\treturn '+cfg[' fn '] + '\n'/*+
+                     '\t\tif(firstCall || lastValue !== out){\n'+
+                     '\t\t\tdone('+(name?'\''+name+'\', ':'')+'out, lastValue);\n'+
+                     '\t\t\tlastValue = out; firstCall = false;\n'+
+
+                     '\t\t}\n'+
+                     '\t};\n'*/+
+                    '})';
+                console.log(fn)
+                return fn;
+            }
+            transform(x)
+
+        },
+
         makePipe: function (pipe, sourceComponent, targetProperty, def, childId, prop) {
 
             var pipeSources = [];
