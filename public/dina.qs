@@ -57,7 +57,7 @@ def Page main
             background: #bbbbdd
             mask: '(ddd) ddd-dddd'
 
-        div
+        div: ba-dum-tsss {{setLeft.background}}
             width: 500px
             Slider s2: 3
                 from: 0
@@ -81,21 +81,38 @@ def Page main
             color: white
             //scroll: vertical
             //overflow: hidden
-            WrapPanel
-                width: 200px
-                div
-                    background: 'rgba(85, 85, 34, 0.5)'
-                    //#555522
-                    width: 200px
-                    //rgba(85, 85, 34, 0.5)
-                    height: 100px
-                    margin: 50px 20px 20px
+            HBox
+                height: 400px
+                VBox
+                    width: 250px
+                    background: #6688cc
+                    div
+                        background: 'rgba(85, 85, 34, 0.5)'
+                        //#555522
+                        width: 200px
+                        //rgba(85, 85, 34, 0.5)
+                        height: 100px
+                        margin: 50px 20px 20px
 
-                NumberKeyboard
-                    margin: 0px 20px 20px
-                    .key: function(button){
-                        console.log(button)
-                    }
+                    NumberKeyboard
+                        margin: 0px 20px 20px
+                        .key: function(button){
+                            console.log(button)
+                        }
+                VBox
+                    width: 250px
+                    background: #6655cc
+                    Image
+                        width: 250px
+                        height: 250px
+                        source: https://pp.vk.me/c604418/v604418537/242da/51K4Qj6ezOI.jpg
+                        stretch: uniform
+                GeoMap
+                    zoom: 5
+                    width: 100%
+                    height: 50%
+                    home: [55.794425,37.587836]
+
             span: triangles
                 color: yellow
                 background: red
@@ -165,6 +182,35 @@ def Page main
         public Array arr1: [10,2]
         //public Date date1:
         span: {{arr1}}
+            background: pink
+        MaskedInput
+            mask: 'CCCCCCC'
+            background: pink
+            padding: 10px
+            //height: 200px
+            //width: 50px
+            //border: 5px solid red
+            //position: relative
+            //border-radius: 10px
+            //top: 50px
+            //bottom
+            //left
+            //right
+            //transform: [
+            //    {type:'rotation', angle: 30},
+            //    {type:'scale', x:0.5,y:0.5},
+            //    {type:'translation', x:50,y:50}
+            //]
+            //rotation
+            //transition
+            //scale
+            //skew
+            //margin: 20px
+            //color: orange
+            //float: right
+            //-overflow
+            //transform-origin
+            //-scroll
 
 
 //{{Math.ceil(s1.value/2)}}

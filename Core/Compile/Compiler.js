@@ -189,6 +189,13 @@ module.exports = (function () {
                     value: child.value
                 };
 
+            if (child.cls)
+                (child.prop || (child.prop = {})).cls = {
+                    name: 'cls',
+                    type: propList._prop && propList._prop.cls && propList._prop.cls.prototype ? propList._prop.cls.prototype.type : 'Variant',
+                    value: child.value
+                };
+
             if (child.name) {
                 props.push({name: child.name, value: 'new Base.Property(\'' + child.type + '\')'});
             }
