@@ -5,21 +5,10 @@
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 var Property = require('../../Property');
+var InputField = require('./InputField');
 
-
-module.exports = UIComponent.extend('TextBox', {
-    createEl: function () {
-        var self = this;
-        this.el = UIComponent.document.createElement('input');
-        this.el.setAttribute('type', 'text');
-
-        this.el.addEventListener('keyup', function (event) {
-            self.set('value', this.value);
-        });
-    },
+module.exports = InputField.extend('TextBox', {
     _prop: {
-        value: Property.generate.proxy('text'),
-        text: Property.generate.attributeProperty('value'),
-        placeholder: Property.generate.attributeProperty('placeholder')
+        text: Property.generate.proxy('value')
     }
 });

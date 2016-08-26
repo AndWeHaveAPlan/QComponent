@@ -106,7 +106,6 @@ EventManager.prototype._release = function (pipe) {
             pipes ? pipes.push(pipe) : this._registredPipes[currentSource.key] = [pipe];
         }
     }
-
     component = this._registredComponents[pipe.targetComponent];
     if (component)
         pipe.process(null, null, component);

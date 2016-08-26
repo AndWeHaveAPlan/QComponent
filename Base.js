@@ -23,6 +23,7 @@ module.exports = {
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             TextBox: require('./Base/Components/UI/TextBox'),
+            NumberBox: require('./Base/Components/UI/NumberBox'),
             MaskedInput: require('./Base/Components/UI/MaskedInput'),
             ListBox: require('./Base/Components/UI/ListBox'),
             WrapPanel: require('./Base/Components/UI/WrapPanel'),
