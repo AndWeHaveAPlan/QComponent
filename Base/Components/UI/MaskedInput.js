@@ -16,6 +16,10 @@ module.exports = InputField.extend('MaskedInput', {
         '*': /./
     },
     _unmask: function (str, selRange) {
+
+        var beforeSelStart = 0;
+        var beforeSelEnd = 0;
+
         var mask = this._data.mask;
         if (!mask) return str;
         for (var i = 0; i < mask.length; i++) {
@@ -24,18 +28,25 @@ module.exports = InputField.extend('MaskedInput', {
 
                 // fix selection
                 if (i < selRange.selStart) {
-                    selRange.selStart -= 1;
-                    selRange.selEnd -= 1;
+                    beforeSelStart += 1;
+                    beforeSelEnd += 1;
                 } else if (i < selRange.selEnd) {
-                    selRange.selEnd -= 1;
+                    beforeSelEnd += 1;
                 }
             }
         }
+
+        selRange.selStart -= beforeSelStart;
+        selRange.selEnd -= beforeSelEnd;
+
         return str;
     },
     _enmask: function (str, selRange) {
         var mask = this._data.mask;
         if (!mask) return str;
+
+        var beforeSelStart = 0;
+        var beforeSelEnd = 0;
 
         var count = 0;
         var ret = '';
@@ -59,17 +70,20 @@ module.exports = InputField.extend('MaskedInput', {
                     ret += str[i - count];
                 } else {
                     count--;
-                    // fix selection
-                    if (i <= selRange.selStart) {
-                        selRange.selStart -= 1;
-                        selRange.selEnd -= 1;
-                    } else if (i <= selRange.selEnd) {
-                        selRange.selEnd -= 1;
+                    //fix selection
+                    if (i < selRange.selStart) {
+                        beforeSelStart -= 1;
+                        beforeSelEnd -= 1;
+                    } else if (i < selRange.selEnd) {
+                        beforeSelEnd -= 1;
                     }
                 }
             }
-
         }
+
+        selRange.selStart -= beforeSelStart;
+        selRange.selEnd -= beforeSelEnd;
+
         return ret;
     },
     _startChange: function (newVal, selRange) {
