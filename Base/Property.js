@@ -6,7 +6,7 @@ module.exports = (function () {
     /**
      * Factory of factories of properties
      */
-    var QObject = require('./QObject');
+    var QObject;
     var dataTypes = {
         Boolean: {
             set: function () {
@@ -76,6 +76,7 @@ module.exports = (function () {
     };
 
     var Property = function (type, metadata, cfg, defaultValue) {
+        QObject = QObject || require('./QObject');
         metadata = metadata || {};
         cfg = cfg || {};
         this.cfg = cfg;
