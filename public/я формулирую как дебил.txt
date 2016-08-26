@@ -23,7 +23,7 @@ div
     def Page main
         ...
         div
-            свойства_div: значение_свойства
+            свойство_div: значение_свойства
         ...
 
     div имеет следующие свойства: background, padding, height, width, border, position, border-radius, top, bottom, left, right,
@@ -35,14 +35,45 @@ div
     в div можно записать текст, для этого код должен быть следующего вида
     div: some text here
     в данном примере в объекте div будет отображена надпись "some text here"
+    также в качестве текста можно передать значение какой-либо переменной
+    div: {{setLeft.background}}
+    в данном примере будет отображено значение, которым задан цвет (например, #bbbbdd)
+
+span
+    новый span объявляется аналогично div:
+    def Page main
+        ...
+        span
+            свойство_span: значение_свойства
+        ...
+
+    span имеет следующие свойства: background, padding, border, position, border-radius, top, bottom, left, right, margin,
+    color, float.
+    несколько следующих друг за другом объектов span располагаются один за другим без зазоров (если не заданы отступы)
+    при отображении.
+    в span можно записать текст, для этого код должен быть следующего вида
+    span: some text here
+    в данном примере в объекте span будет отображена надпись "some text here"
+    также в качестве текста можно передать значение какой-либо переменной
+    span: {{setLeft.background}}
+    в данном примере будет отображено значение, которым задан цвет (например, #bbbbdd)
 
 MaskedInput
+    имеет следующие свойства: mask, background, padding, height, width, border, position, border-radius, top, bottom,
+    left, right, transform, rotation, transition, scale, skew, margin, color, float, transform-origin.
     в параметре mask задается формат маски. для этого используются следующие символы: 'd'(/[0-9]/), 'c'(/[a-z]/), 'C'(/[A-Z]/),
     'i'(/[a-zA-Z]/), '*'(/[\w]/). чтобы задать, например, маску для ввода номера телефона, можно написать так:
     mask: '(ddd) ddd-dddd'
+    в span можно записать текст, для этого код должен быть следующего вида
+    MaskedInput: some text here
+    при этом вводимая строка должна отвечать параметрам, заданным в mask
 
 TextBox
     аналог input
 
 Page
     компонент, который содержит document.body и нужен для объявления страницы def Page main
+
+Image
+    этому компоненту обязательно нужно задать параметры height, width и source, а также рекомендуется задать значение параметра
+    stretch.
