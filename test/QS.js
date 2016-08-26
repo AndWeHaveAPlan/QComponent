@@ -8,16 +8,19 @@
 // Образцовопоказательный тест
 module.exports = (function () {
     'use strict';
-    var Base = require('../Base');
     var assert = require('chai').assert;
-    var jsdom = require('jsdom');
-    var Core = require('../Core'),
-        QObject = Base.QObject,
-        fs = require('fs'),
-        bundle = fs.readFileSync('public/bundle.js')+'';
 
 
     describe('test1', function(){
+
+        var Base = require('../Base');
+
+        var jsdom = require('jsdom');
+        var Core = require('../Core'),
+            QObject = Base.QObject,
+            fs = require('fs'),
+            bundle = fs.readFileSync('public/bundle.js')+'';
+
         /*it('should create input with type number', function (done) {
             compile(
                 'def Page main',

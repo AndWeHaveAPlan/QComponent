@@ -116,7 +116,7 @@ module.exports = (function () {
                 fn = tools.compilePipe.string(fn);
 
             /** do magic */
-            fn = this._functionTransform(fn);
+            //fn = this._functionTransform(fn);
 
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
@@ -136,7 +136,7 @@ module.exports = (function () {
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
 
-                            fn = fn.replace(new RegExp(fullName/*.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")*/, 'g'), mArg);
+                            fn = fn.replace(new RegExp(fullName, 'g'), mArg);
                         }
                     }
                 }
