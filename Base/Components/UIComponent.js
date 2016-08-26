@@ -241,6 +241,10 @@ module.exports = (function () {
         this.createEl();
         //this._init();
         this._initChildren();
+        if (this.el && this.el.setAttribute) {
+            this.el.setAttribute('qId', this.id);
+            this.el.setAttribute('qType', this._type);
+        }
     });
 
     return UIComponent;
