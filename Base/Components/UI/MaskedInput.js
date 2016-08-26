@@ -13,7 +13,7 @@ module.exports = InputField.extend('MaskedInput', {
         'c': /[a-z]/,
         'C': /[A-Z]/,
         'i': /[a-zA-Z]/,
-        '*': /[\w]/
+        '*': /./
     },
     _unmask: function (str, selRange) {
         var mask = this._data.mask;
