@@ -59,13 +59,13 @@ module.exports = (function () {
             console.warn('Unknown type: '+type);
             return new Error('Unknown type: '+type);
         },
-        propertyGetter: function (prop, vars) {
+        propertyGetter: function (prop, scope) {
 
             if (prop.type==='Variant')
                 return JSON.stringify(prop.value);
 
             if(prop.type === 'ItemTemplate')
-                return this.compileClass(prop, scope, true).join('\n');
+                return scope.cls(prop.type).compile(true).join('\n');
 
             var val = this.dataExtractor(prop);
 
@@ -124,10 +124,10 @@ module.exports = (function () {
             var metadata = cls.metadata,
                 valueAdded;
             var itemTransform = function (item) {
-                console.log(item)
+                //console.log(item)
 
-                if(metadata.private[item] || metadata.public[item])
-                    item = 'self.'+item;
+                //if(metadata.private[item] || metadata.public[item])
+                //    item = 'self.'+item;
 
                 if(item.indexOf('.')===-1){
                     /** take default property. now it is `value`, TODO: get it from metadata */
@@ -136,18 +136,33 @@ module.exports = (function () {
                 }
                 
                 /** mega cheat */
-                return item.split('.').map(function(el){ return '\''+el+'\''});
+                return item.split('.');
             };
             var transform = function(cfg, name, indent){
                 indent = indent |0;
-                var list = [], fn, list2 = [];
-                for(var i in cfg){
+                var list = [], fn, list2 = [], _fn = cfg[' fn '],
+                    i, _i, item;
+                for(i in cfg){
                     if( i !== ' fn '){
                         list.push(i);
-                        list2.push(cfg[i])
+                        list2.push(cfg[i]);
                     }
                 }
 
+                var args = [], transformed;
+                for(i = 0, _i = list2.length; i < _i; i++){
+                    item = list2[i];
+                    if(typeof item === 'string') {
+                        transformed = itemTransform(item);
+                        args[i] = '[' + transformed.map(function(el){ return '\''+el+'\'';}) + ']';
+
+                        var mArg = transformed.join('.');
+                        console.log(transformed, item, mArg, list[i])
+                        _fn = _fn.replace(new RegExp(mArg, 'g'), list[i]);
+
+                    }else
+                        args[i] = ''+transform(item, list[i], indent + 1);
+                }
                 /*if(list2.length === 1 && indent > 0) {
                     console.log(list2)
                     return '[' + itemTransform(list[0]) + ']';
@@ -155,18 +170,13 @@ module.exports = (function () {
 
                 fn =
                     'eventManager.p(\n'+
-                    '\t['+ list2.map(function(item, i){
-                        if(typeof item === 'string')
-                            return '['+itemTransform(item)+']';
-                        else
-                            return ''+transform(item, list[i], indent + 1)
-                    }).join(', ') +'], '+
+                    '\t['+ args.join(', ') +'], '+
                     /*
                      '\tfunction(done){\n'+
                      '\tvar lastValue, firstCall = true;\n'+
                      '\treturn '*/
                     'function('+ list.join(', ') +'){\n'+
-                    '\t\t\treturn '+cfg[' fn '] + '\n'/*+
+                    '\t\t\treturn '+ _fn + '\n'/*+
                      '\t\tif(firstCall || lastValue !== out){\n'+
                      '\t\t\tdone('+(name?'\''+name+'\', ':'')+'out, lastValue);\n'+
                      '\t\t\tlastValue = out; firstCall = false;\n'+

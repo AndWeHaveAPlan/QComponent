@@ -10,13 +10,30 @@ module.exports = (function () {
     'use strict';
     
     var QObject = require('../../Base/QObject');
-    var tools = require('./CompileTools');
+    var tools = require('./CompileTools'),
+        uuid = require('tiny-uuid');
     
     var CompileClass = function(cfg, scope){
         this.scope = scope;
         this.props = [];
         QObject.apply(this, cfg);
-        this.metadata = this.scope.metadata[this.name];
+        var type = this.name;
+        var metadata = this.scope.metadata[type];
+
+        if (!metadata) { /** it is not in compiling classes */
+            metadata = QObject._knownComponents[type]; /** maybe it is in SDK components */
+            if (!metadata || !(metadata.prototype instanceof QObject._knownComponents.AbstractComponent))
+                return ''; /** no it is not, or it is not a component */
+
+            metadata = metadata.prototype; /** we need prototype */
+            if(metadata._type){
+                metadata._type = type;
+            }
+
+        }
+        this.metadata = metadata;
+        if(!metadata.type || !metadata._type)
+            metadata.type = metadata._type = metadata._type || metadata.type;
     };
     CompileClass.prototype = {
         compile: function (inline) {
@@ -32,10 +49,10 @@ module.exports = (function () {
             inline = !!inline;
 
             if (inline) {
-                this.name = name = metadataItem.type + uuid();
+                this.name = name = metadataItem._type + uuid();
             }
 
-            this.scope.vars[metadataItem.type] = '_known[\'' + metadataItem.type + '\']';
+            this.scope.vars[metadataItem._type] = '_known[\'' + metadataItem._type + '\']';
 
             this._knownVars = [];
             for (var key in metadataItem.private) {
@@ -56,12 +73,12 @@ module.exports = (function () {
             }).join('') : '//no children\n';
             //debugger;
             source = [
-                (inline ? '' : 'var ' + name + ' = out[\'' + name + '\'] = ' ) + metadataItem.type + '.extend(\'' + name + '\', {_prop: {' +
+                (inline ? '' : 'var ' + name + ' = out[\'' + name + '\'] = ' ) + metadataItem._type + '.extend(\'' + name + '\', {_prop: {' +
                 props.map(function (item) {
                     return item.name + ': ' + item.value;
                 }).join(',\n') +
                 '}}, function(){',
-                '    ' + metadataItem.type + '.apply(this, arguments);',
+                '    ' + metadataItem._type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
                 metadataItem.events ? this.builder.events(metadataItem) : '',
                 '',

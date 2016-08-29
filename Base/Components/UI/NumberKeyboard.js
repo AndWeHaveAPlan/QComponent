@@ -9,6 +9,7 @@ var UIComponent = require('../UIComponent');
 
 module.exports = UIComponent.extend('NumberKeyboard', {
     createEl: function () {
+        var me = this;
         this.el = UIComponent.document.createElement('div');
         this.el.style.width = '200px';
         this.el.style.overflow = 'hidden';
@@ -40,8 +41,10 @@ module.exports = UIComponent.extend('NumberKeyboard', {
                         ae.value += val;
                     }
                     ae.dispatchEvent(new Event('change'));
+
                 }
 
+                me.fire('key', val);
                 event.preventDefault();
                 event.stopPropagation();
             });

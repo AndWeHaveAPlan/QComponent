@@ -32,19 +32,36 @@ EventManager.prototype = new QObject();
 EventManager.prototype.getOnValueChangedEventListener = function (sender, name, newValue, oldValue) {
     // TODO think about getting id through getter
     var key = sender.id + '.' + name, i, _i,
-        sid = sender.id;
-    if (sender.id == this.owner.id)
-        key = name;
+        sid = sender.id,
 
-    var listeners = this._listeners[sid];
+        who = sid, what = name, j, deeper, val;
+    if (sender.id == this.owner.id) {
+        key = name;
+        who = key;
+        what = void 0;
+    }
+
+    var listeners = this._listeners[who];
 
     if(listeners) {
-        listeners = listeners.deeper[name];
-        if(listeners)
-            for (i = 0, _i = listeners.length; i < _i; i++) {
-
-                listeners[i].call(this, sid, newValue);
-            }
+        if(what) {
+            listeners = listeners.deeper[what];
+            if (listeners)
+                for (i = 0, _i = listeners.length; i < _i; i++) {
+                    listeners[i].call(this, sid, newValue);
+                }
+        }else{
+            deeper = listeners.deeper;
+            if (deeper)
+                for(j in deeper) {
+                    listeners = deeper[j];
+                    who = this._registredComponents[who];
+                    val = who.get([j]);
+                    for (i = 0, _i = listeners.length; i < _i; i++) {
+                        listeners[i].call(who, j, val);
+                    }
+                }
+        }
     }
     var propertyPipes = this._registredPipes[key];
 
