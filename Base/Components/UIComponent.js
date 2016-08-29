@@ -9,8 +9,7 @@ module.exports = (function () {
     var AbstractComponent = require('./AbstractComponent'),
         ContentContainer = require('./ContentContainer'),
         ObservableSequence = require('observable-sequence'),
-        Property = require('../Property'),
-        DQIndex = require('z-lib-structure-dqIndex');
+        Property = require('../Property');
 
     var UIComponent = AbstractComponent.extend('UIComponent', {
 
