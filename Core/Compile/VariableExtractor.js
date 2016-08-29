@@ -351,6 +351,8 @@ module.exports = (function () {
                 delete undef[i];
         }
         //console.log(undef)
+        delete undef.Date;
+        delete undef.parseInt;
         return undef;
 
     };
