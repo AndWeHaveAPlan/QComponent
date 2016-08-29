@@ -197,8 +197,8 @@ module.exports = (function () {
             /** do magic */
             fn = this._functionTransform(fn);
             //console.log(this.functionWaterfall(fn))
-/*
-            for (var cName in pipe.vars) {
+
+            /*for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
@@ -216,7 +216,7 @@ module.exports = (function () {
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
 
-                            fn = fn.replace(new RegExp(fullName/ *.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")* /, 'g'), mArg);
+                            fn = fn.replace(new RegExp(fullName/!*.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")*!/, 'g'), mArg);
                         }
                     }
                 }
@@ -228,8 +228,8 @@ module.exports = (function () {
                 '\t\tcomponent: ' + childId + ', property: \'' + targetProperty + '\'\n' +
                 '\t}).addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
                 '\t\treturn ' + fn + '\n' +
-                '\t}));';
-*/
+                '\t}));';*/
+
 
             return (this.functionWaterfall(fn, pipe, item, scope,cls, prop, place)+
                 '.after(function(val){eventManager.s([\''+
