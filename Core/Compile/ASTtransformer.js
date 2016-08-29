@@ -75,7 +75,7 @@ module.exports = (function(){
     };
     var mapWrapper = function(scope, a, b, c){
         return function(item){
-            doTransform.call(scope, item, a, b, c);
+            return doTransform.call(scope, item, a, b, c);
         };
     };
     var extractors = {

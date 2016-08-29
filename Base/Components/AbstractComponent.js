@@ -101,7 +101,8 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
         child.parent = self;
         self._eventManager.registerComponent(child);
         //self.set([child.id], child);
-        self.el.appendChild(child.el);
+        if (child.el)
+            self.el.appendChild(child.el);
     });
 
     /**
