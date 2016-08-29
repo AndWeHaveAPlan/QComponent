@@ -89,12 +89,13 @@ module.exports = (function () {
                 '  input i2: 10',
                 '    type: number',
                 function(err, main, compiled){
-                    var matched = compiled.match(/addMutator\([^(]*\(([^)]*)\)[^{]*\{([^}]*)\}/),
+                    console.log(compiled);
+                    /*var matched = compiled.match(/addMutator\([^(]*\(([^)]*)\)[^{]*\{([^}]*)\}/),
                         args = matched[1].split(','), body = matched[2];
 
                     console.log(args);
                     console.log(body.trim());
-                    console.log('return var1+var2+var3+var4+var5;')
+                    console.log('return var1+var2+var3+var4+var5;')*/
                     done();
                 });
         });
