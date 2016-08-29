@@ -8,21 +8,7 @@ var tools = module.exports = (function() {
     };
     var variableExtractor = require('./VariableExtractor'),
         QObject = require('../../Base').QObject;
-    var extractors = {
-            quote: function (token) {
-                return token.pureData;
-            },
-            brace: function(token){
-                return token.pureData;
-            }
-        },
-        extractor = function(token){
-            var extractor = extractors[token.type];
-            if(!extractor){
-                throw new Error('unknown token type `'+token.type+'`')
-            }
-            return extractor(token);
-        };
+    
     return {
         removeFirstWord: function (item, word) {
             var subItem = Object.create(item.items[0]), pos;

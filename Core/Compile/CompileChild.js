@@ -86,15 +86,15 @@ module.exports = (function () {
                 prop = child.prop[i];
                 pipe = prop.value;
                 if (pipe.isPipe) {
-                    pipes.push(tools.makePipe(pipe, 'self.id', i, this.cls, name + '.id', prop));
+                    pipes.push(tools.makePipe(pipe, child, this.scope, this.cls, prop, 'child'));//'self.id', i, this.cls, name + '.id', prop));
                 } else {
                     propVal = tools.propertyGetter(prop, this.scope.vars);
                     cfgInit.push(tools.makeProp(i, propVal));
                 }
             }
 
-            if (child.name)
-                cfgInit.push('id: \'' + child.name + '\'');
+            //if (child.name)
+                cfgInit.push('id: \'' + name + '\'');
 
             if (child.events)
                 events = tools.builder.events(child);

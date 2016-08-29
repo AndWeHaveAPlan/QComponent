@@ -18,6 +18,7 @@ function EventManager(owner) {
     this._registredComponents = {};
     this._registredPipes = {};
     this._tempPipes = [];
+    this._listeners = {};
     this.owner = owner;
 }
 
@@ -28,38 +29,45 @@ EventManager.prototype = new QObject();
  *
  * @returns Function
  */
-EventManager.prototype.getOnValueChangedEventListener = function () {
-    var self = this;
+EventManager.prototype.getOnValueChangedEventListener = function (sender, name, newValue, oldValue) {
+    // TODO think about getting id through getter
+    var key = sender.id + '.' + name, i, _i,
+        sid = sender.id;
+    if (sender.id == this.owner.id)
+        key = name;
 
-    return function (sender, name, newValue, oldValue) {
-        // TODO think about getting id through getter
-        var key = sender.id + '.' + name;
-        if (sender.id == self.owner.id)
-            key = name;
+    var listeners = this._listeners[sid];
 
-        var propertyPipes = self._registredPipes[key];
+    if(listeners) {
+        listeners = listeners.deeper[name];
+        if(listeners)
+            for (i = 0, _i = listeners.length; i < _i; i++) {
 
-        if (propertyPipes) {
-            for (var i = 0; i < propertyPipes.length; i++) {
-                var currentPipe = propertyPipes[i];
+                listeners[i].call(this, sid, newValue);
+            }
+    }
+    var propertyPipes = this._registredPipes[key];
 
-                var val = sender.get(currentPipe.sourceBindings[key].propertyName);
-                if (key == sender.id + '.' + currentPipe.sourceBindings[key].propertyName)
-                    val = newValue;
+    if (propertyPipes) {
+        for (var i = 0; i < propertyPipes.length; i++) {
+            var currentPipe = propertyPipes[i];
 
-                var targetComponent = self._registredComponents[currentPipe.targetComponent];
-                if (targetComponent) {
-                    currentPipe.process(key, val, targetComponent);
-                }
+            var val = sender.get(currentPipe.sourceBindings[key].propertyName);
+            if (key == sender.id + '.' + currentPipe.sourceBindings[key].propertyName)
+                val = newValue;
+
+            var targetComponent = this._registredComponents[currentPipe.targetComponent];
+            if (targetComponent) {
+                currentPipe.process(key, val, targetComponent);
             }
         }
-
-        /** Женя, посмотри на это. Скорее всего оно криво. */
-        var main = self.owner.mainEventManager,
-            owner = main && main.owner;
-        if(owner && owner !== self.owner)
-            owner._onPropertyChanged(owner, sender.id);
     }
+
+    /** Женя, посмотри на это. Скорее всего оно криво. */
+    /*var main = this.owner.mainEventManager,
+        owner = main && main.owner;
+    if (owner && owner !== this.owner)
+        owner._onPropertyChanged(owner, sender.id);*/
 };
 
 /**
@@ -68,7 +76,7 @@ EventManager.prototype.getOnValueChangedEventListener = function () {
  */
 EventManager.prototype.registerComponent = function (component) {
     this._registredComponents[component.id] = component;
-    component.subscribe(this.getOnValueChangedEventListener());
+    component.subscribe(this.getOnValueChangedEventListener.bind(this));
 };
 
 /**
@@ -129,6 +137,86 @@ EventManager.prototype.releaseThePipes = function () {
     }
 
     delete this._tempPipes;
+};
+
+
+EventManager.prototype.s = function(key, val){
+    var who = key[0], what = key[1];
+
+    var cmp = this._registredComponents[ who === 'main'?this.owner.id:who];
+    cmp && cmp.set(what, val);
+
+};
+var P = function(){};
+P.prototype = {
+    i: 0,
+    needProcess: false,
+    after: function(fn){
+        this._done = fn;
+        if(this.needProcess)
+            this.done.apply(this, this.needProcess);
+
+    },
+    done: function(){
+        if(this._done) {
+            this._done.apply(this, arguments);
+            this.needProcess = false;
+        } else {
+            this.needProcess = arguments;
+        }
+    }
+};
+/**
+ * tiny promise
+ */
+EventManager.prototype.p = function(args, fn){
+    var vals = [], i, _i,
+        lastValue, firstCall = true,
+        res = new P(),
+        callFn = function () {
+            var out = fn.apply(this, vals);
+            if(firstCall || lastValue !== out){
+                res.done(out, lastValue);
+                lastValue = out; firstCall = false;
+            }
+        },
+        wrap = function (name, i) {  
+            var lastValue, firstCall = true;
+            return function (key, val) {
+                if(firstCall || lastValue !== val){
+                    vals[i] = val;
+                    callFn();
+                    lastValue = val; firstCall = false;
+                }
+            }
+        },
+        arg,
+        pointer,
+        filled = 0;
+    for(i = 0, _i = args.length; i <_i;i++){
+        arg = args[i];
+        if ('after' in arg) {
+            arg.i = i;
+            arg.after(function (val) {
+                vals[this.i] = val;
+                callFn();
+            })
+        } else {
+            var point = this._listeners[arg[0]] || (this._listeners[arg[0]] = {fns: [], deeper: {}});
+            point = point.deeper[arg[1]] || (point.deeper[arg[1]] = []);
+            //debugger;
+            point.push(wrap(arg, i));
+
+            pointer = this._registredComponents[arg[0]];
+            if(pointer) {
+                vals[i] = pointer.get(arg[1]);
+                filled++;
+            }
+        }
+    }
+    if(filled === _i)
+        callFn();
+    return res;
 };
 
 module.exports = EventManager;
