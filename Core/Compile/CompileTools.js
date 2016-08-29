@@ -12,6 +12,22 @@ module.exports = (function () {
     var VariableExtractor = require('./VariableExtractor'),
         ASTtransformer = require('./ASTtransformer');
 
+    var extractors = {
+            quote: function (token) {
+                return token.pureData;
+            },
+            brace: function(token){
+                return token.pureData;
+            }
+        },
+        extractor = function(token){
+            var extractor = extractors[token.type];
+            if(!extractor){
+                throw new Error('unknown token type `'+token.type+'`')
+            }
+            return extractor(token);
+        };
+
     function getTmpName(type) {
         if (!namesCount.type)
             namesCount.type = 0;
@@ -80,7 +96,7 @@ module.exports = (function () {
                     var crafted = ASTtransformer.craft.js(node),
                         sub, id = 'var'+(counter++);
 
-                    console.log('! ', crafted, node.type)
+                    //console.log('! ', crafted, node.type)
                     if(node.type === 'MemberExpression') {
                         var subDefinedVars = Object.create(definedVars),
                             deepestVar = stack[stack.length - 1].name;
@@ -100,114 +116,30 @@ module.exports = (function () {
                 }
             });
             intermediateVars[' fn '] = fn;
-            console.log(intermediateVars);
-            return wereTransforms?intermediateVars:fn;
+            //console.log(intermediateVars);
+            return intermediateVars;//wereTransforms?intermediateVars:fn;
         },
 
-        functionWaterfall: function(){
+        functionWaterfall: function(x, pipe, item, scope,cls, prop, place){
+            var metadata = cls.metadata,
+                valueAdded;
+            var itemTransform = function (item) {
+                console.log(item)
 
-            on(
-                [on(
-                    ['i2','s1',on(
-                        ['s1','i2'],
-                        function(done){
-                            var lastValue, firstCall = true;
-                            return function(var1, i2){
-                                var out = i2[i2%2?'type':var1][5]
-                                if(firstCall || lastValue !== out){
-                                    done('var3', out, lastValue);
-                                    lastValue = out; firstCall = false;
-                                }
-                            };
-                        }),'i1'],
-                    function(done){
-                        var lastValue, firstCall = true;
-                        return function(var1, var2, var3, i1){
-                            var out = i1[var1%2?'type':var2][var3]
-                            if(firstCall || lastValue !== out){
-                                done('var1', out, lastValue);
-                                lastValue = out; firstCall = false;
-                            }
-                        };
-                    }),'i1','i5','m','i1','i2.value','i1.type'],
-                function(done) {
-                    var lastValue, firstCall = true;
-                    return function (var1, var2, var3, var4, var5, var6, var7) {
-                        var out = var1.lal() + var2[var3]() + var4 + var5 + var6 + var7
-                        if (firstCall || lastValue !== out) {
-                            done(out, lastValue);
-                            lastValue = out;
-                            firstCall = false;
-                        }
-                    };
-                })
+                if(metadata.private[item] || metadata.public[item])
+                    item = 'self.'+item;
 
-var emitter;
-            emitter.on(
-                [on(
-                    ['i2','s1',on(
-                        ['s1','i2'],
-                        function(var1, i2){
-                            return i2[i2%2?'type':var1][5]
-                        }),'i1'],
-                    function(var1, var2, var3, i1){
-                        return i1[var1%2?'type':var2][var3]
-                    }),'i1','i5','m','i1','i2.value','i1.type'],
-                function(var1, var2, var3, var4, var5, var6, var7) {
-                    return var1.lal() + var2[var3]() + var4 + var5 + var6 + var7
-                });
-            var x = {
-                var1:
-                {
-                    var1: 'i2',
-                    var2: 's1',
-                    var3: {
-                        var1: 's1',
-                        ' fn ': 'i2[i2%2?\'type\':var1][5]',
-                        i2: 'i2'
-                    },
-                    ' fn ': 'i1[var1%2?\'type\':var2][var3]',
-                    i1: 'i1'
-                },
-                var2: 'i1',
-                var3: 'i5',
-                var4: 'm',
-                var5: 'i1',
-                var6: 'i2.value',
-                var7: 'i1.type',
-                ' fn ': 'var1.lal()+var2[var3]()+var4+var5+var6+var7'
-            };
-
-            var getValue = function (cfg, depth) {
-                var depth = depth |0;
-                if (typeof cfg === 'string') {
-                    return cfg;
-                } else {
-                    var i,
-                        fn = cfg[' fn '],
-                        fnArgs = [],
-                        m = 0,
-                        argsHash = {},
-                        argsVal = {},
-                        fnArgsValues = [],
-                        propHash = {};
-
-                    for (i in cfg)
-                        if (i !== ' fn ') {
-                            fnArgs[m] = i;
-                            argsHash[i] = m;
-                            fnArgsValues[m] = argsVal[i] = getValue(cfg[i], depth+1);
-                            if(typeof argsVal[i] !== 'string'){
-                                argsVal[i].name = i;
-                            }
-                            propHash[argsVal[i]] = i;
-                            m++;
-                        }
-                    fnArgsValues.map(function(){})
-                    return {fn: new Function(fnArgs,' return '+fn).toString(), /*argsVal: argsVal,*/ fnArgsValues: fnArgsValues}
+                if(item.indexOf('.')===-1){
+                    /** take default property. now it is `value`, TODO: get it from metadata */
+                    item = item+'.value';
+                    valueAdded = true;
                 }
+                
+                /** mega cheat */
+                return item.split('.').map(function(el){ return '\''+el+'\''});
             };
-            var transform = function(cfg, name){
+            var transform = function(cfg, name, indent){
+                indent = indent |0;
                 var list = [], fn, list2 = [];
                 for(var i in cfg){
                     if( i !== ' fn '){
@@ -215,35 +147,43 @@ var emitter;
                         list2.push(cfg[i])
                     }
                 }
+
+                /*if(list2.length === 1 && indent > 0) {
+                    console.log(list2)
+                    return '[' + itemTransform(list[0]) + ']';
+                }*/
+
                 fn =
-                    'emitter.on(\n'+
+                    'eventManager.p(\n'+
                     '\t['+ list2.map(function(item, i){
                         if(typeof item === 'string')
-                            return '\''+ item +'\'';
+                            return '['+itemTransform(item)+']';
                         else
-                            return transform(item, list[i])
-                    }) +'],\n'+
+                            return ''+transform(item, list[i], indent + 1)
+                    }).join(', ') +'], '+
                     /*
                      '\tfunction(done){\n'+
                      '\tvar lastValue, firstCall = true;\n'+
                      '\treturn '*/
                     'function('+ list.join(', ') +'){\n'+
-                    '\treturn '+cfg[' fn '] + '\n'/*+
+                    '\t\t\treturn '+cfg[' fn '] + '\n'/*+
                      '\t\tif(firstCall || lastValue !== out){\n'+
                      '\t\t\tdone('+(name?'\''+name+'\', ':'')+'out, lastValue);\n'+
                      '\t\t\tlastValue = out; firstCall = false;\n'+
 
                      '\t\t}\n'+
                      '\t};\n'*/+
-                    '})';
-                console.log(fn)
-                return fn;
-            }
-            transform(x)
+                    '\t\t})';
+
+                //console.log(fn)
+
+                return tools.indent(indent, fn).trim();
+            };
+            return transform(x)
 
         },
 
-        makePipe: function (pipe, sourceComponent, targetProperty, def, childId, prop) {
+        makePipe: function (pipe, item, scope, cls, prop, place){//sourceComponent, targetProperty, def, childId, prop) {
 
             var pipeSources = [];
             var mutatorArgs = [];
@@ -256,7 +196,8 @@ var emitter;
 
             /** do magic */
             fn = this._functionTransform(fn);
-
+            //console.log(this.functionWaterfall(fn))
+/*
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
@@ -275,7 +216,7 @@ var emitter;
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
 
-                            fn = fn.replace(new RegExp(fullName/*.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")*/, 'g'), mArg);
+                            fn = fn.replace(new RegExp(fullName/ *.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")* /, 'g'), mArg);
                         }
                     }
                 }
@@ -288,6 +229,11 @@ var emitter;
                 '\t}).addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
                 '\t\treturn ' + fn + '\n' +
                 '\t}));';
+*/
+
+            return (this.functionWaterfall(fn, pipe, item, scope,cls, prop, place)+
+                '.after(function(val){eventManager.s([\''+
+                (item.name||item.tmpName)+'\',\''+ prop.name +'\'], val)});');
         },
 
         functionNet: function () {
@@ -302,8 +248,8 @@ var emitter;
                             varNames[m] = i;
                             varsHash[i] = m++;
                         }
-                    console.log(vars, varNames)
-                    console.log(new Function(varNames.join(','),'return '+fn).toString())
+                    //console.log(vars, varNames)
+                    //console.log(new Function(varNames.join(','),'return '+fn).toString())
                     return vars
                 }
 

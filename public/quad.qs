@@ -37,9 +37,9 @@ def Page main
    //span D: {{b.value*b.value-4*a.value*c.value}}
    span D: {{b*b-4*a*c}}
      .click: ()->
-       var x = D.raw;
-       x.background
-       get(self.get('D'), 'background')
+       //var x = D.raw;
+       //x.background
+       //get(self.get('D'), 'background')
 
 
  div
