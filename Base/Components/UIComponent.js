@@ -76,16 +76,6 @@ module.exports = (function () {
             }
         },
 
-        /**
-         * @override
-         * Add Child component
-         *
-         * @param component AbstractComponent: AbstractComponent to add
-         */
-        addChild: function (component) {
-            this._children.push(component);
-            return this;
-        },
         _prop: (function () {
             var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,font-family,font-size'
                 .split(',')
@@ -207,6 +197,21 @@ module.exports = (function () {
     }, function (cfg) {
         var self = this;
         AbstractComponent.call(this, cfg);
+
+        this._children.on('add', function (child) {
+            if (child.el) {
+                if (self._contentContainer) {
+                    self._contentContainer.el.appendChild(child.el);
+                } else {
+                    self.el.appendChild(child.el);
+                }
+            }
+        });
+
+        this._ownComponents.on('add', function (child) {
+            if (child.el)
+                self.el.appendChild(child.el);
+        });
 
         this._contentContainer = void(0);
         this._transformMatrix = Matrix2D.createEmpty();
