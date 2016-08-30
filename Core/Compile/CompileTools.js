@@ -52,6 +52,8 @@ module.exports = (function () {
                 return this.compileClass(prop, scope, true).join('\n');
 
             var val = this.dataExtractor(prop);
+            if(val instanceof Error)
+                return this.compileClass(prop, scope, true).join('\n');
 
             return val;
         },

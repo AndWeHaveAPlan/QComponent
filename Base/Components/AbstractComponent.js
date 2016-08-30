@@ -30,6 +30,11 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
         })
     },
 
+    addChild: function (component) {
+        this._children.push(component);
+        return this;
+    },
+
     /**
      * Create own components
      *
@@ -100,9 +105,6 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     this._ownComponents.on('add', function (child) {
         child.parent = self;
         self._eventManager.registerComponent(child);
-        //self.set([child.id], child);
-        if (child.el)
-            self.el.appendChild(child.el);
     });
 
     /**
@@ -115,14 +117,6 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
 
     this._children.on('add', function (child) {
         child.parent = self;
-        //insert to dom
-        if (child.el) { /** UI Component */
-            if (self._contentContainer) {
-                self._contentContainer.el.appendChild(child.el);
-            } else {
-                self.el.appendChild(child.el);
-            }
-        }
     });
 
     this._children.on('remove', function (child) {

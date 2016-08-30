@@ -1,28 +1,55 @@
-def Scenario insurance
-    private Phone phone: null
-    private String insuranceType: null
-    private String paymentData: null
+def Page page1
+    width: 100%
+    height: 100%
+    background: #fcc
+    h1: Page 1
+
+def Page page2
+    width: 100%
+    height: 100%
+    background: #cfc
+    h1: Page 2
+
+def Page page3
+    width: 100%
+    height: 100%
+    background: #ccf
+    h1: Page 3
+
+def Scenario main
+    public String phone: null
+    public String insuranceType: null
+    public String paymentData: null
 
     Sequence
         Selector
-            Page: phoneNumber
+            page: page1
+        Selector
+            page: page1
+        Selector
+            page: page1
+
+        /*Selector
+           page: phoneNumber
 
         Selector
-            Condition: phone
-            Page: chooseInsuranceType
+            condition: phone
+            page: chooseInsuranceType
 
         Selector: insuranceType=='osago'
-            Page: osagoPage
+            page: osagoPage
+
+        cascoPage: insuranceType=='casco'
 
         Selector: insuranceType=='casco'
-            Page: cascoPage
+            page: cascoPage
 
         Selector: paymentData
-            Page: payMoney
+            page: payMoney
 
         Selector: insuranceType=='casco', paymentData
-            Page: deliveryAddress
+            page: deliveryAddress
 
         Selector
-            Page: Proceed
+            page: Proceed*/
 

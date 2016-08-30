@@ -16,6 +16,11 @@ module.exports = {
         mixins: {
             focusable: require('./Base/Mixins/focusable')
         },
+        Workflow:{
+            Scenario: require('./Base/Workflow/Scenario'),
+            Selector: require('./Base/Workflow/Selector'),
+            Sequence: require('./Base/Workflow/Sequence')
+        },
         UI: {
             Fields: {
                 Base: require('./Base/Components/UI/Field/Base')
