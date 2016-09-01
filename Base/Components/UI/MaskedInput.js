@@ -24,7 +24,7 @@ module.exports = InputField.extend('MaskedInput', {
         if (!mask) return str;
         for (var i = 0; i < mask.length; i++) {
             if (!this._sChars[mask[i]]) {
-                str = str.replace(mask[i], '');
+                str = str.replace(new RegExp(mask[i]), '');
 
                 // fix selection
                 if (i < selRange.selStart) {
@@ -88,7 +88,6 @@ module.exports = InputField.extend('MaskedInput', {
     },
     _startChange: function (newVal, selRange) {
         this.set('value', this._unmask(newVal, selRange));
-        console.log(selRange);
         return selRange;
     },
     _updateValue: function (newVal, selRange) {

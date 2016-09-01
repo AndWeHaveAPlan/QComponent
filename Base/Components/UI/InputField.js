@@ -140,16 +140,16 @@ module.exports = UIComponent.extend('InputField', {
         };
         var clipboardData = event.clipboardData || window.clipboardData;
         var pastedData = clipboardData.getData('Text');
-
-        selRange = self._startChange(this.value, selRange) || selRange;
+        
+        self._startChange(this.value, selRange);
         var valueString = this.value;
 
         event.stopPropagation();
         event.preventDefault();
 
         valueString = valueString.substring(0, selRange.selStart) + pastedData + valueString.substring(selRange.selEnd);
-
-        selRange = self._updateValue(valueString, selRange) || selRange;
+        
+        self._updateValue(valueString, selRange);
 
         this.setSelectionRange(selRange.selEnd + pastedData.length, selRange.selEnd + pastedData.length);
     });
