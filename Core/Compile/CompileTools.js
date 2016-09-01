@@ -122,16 +122,20 @@ module.exports = (function () {
 
         functionWaterfall: function(x, pipe, item, scope,cls, prop, place){
             var metadata = cls.metadata,
-                valueAdded;
+                valueAdded,
+                primitives = {
+                    'Number': true, 'String': true, 'Array': true, 'Boolean': true
+                };
             var itemTransform = function (item) {
                 //console.log(item)
-
-                //if(metadata.private[item] || metadata.public[item])
-                //    item = 'self.'+item;
+                var wtf = metadata.private[item] || metadata.public[item];
+                if(item === 'col1')debugger;
+                if(wtf && wtf.type in primitives)
+                    item = 'self.'+item;
 
                 if(item.indexOf('.')===-1){
                     /** take default property. now it is `value`, TODO: get it from metadata */
-                    item = item+'.value';
+                    item = item +'.value';
                     valueAdded = true;
                 }
                 
@@ -157,7 +161,7 @@ module.exports = (function () {
                         args[i] = '[' + transformed.map(function(el){ return '\''+el+'\'';}) + ']';
 
                         var mArg = transformed.join('.');
-                        console.log(transformed, item, mArg, list[i])
+                        console.log(transformed, item, mArg, list[i]);
                         _fn = _fn.replace(new RegExp(mArg, 'g'), list[i]);
 
                     }else
@@ -206,6 +210,7 @@ module.exports = (function () {
 
             /** do magic */
             fn = this._functionTransform(fn);
+            fn = {"var1":"cf.cardData.name"," fn ":"JSON.stringify(var1);"};
             //console.log(this.functionWaterfall(fn))
 
             /*for (var cName in pipe.vars) {
