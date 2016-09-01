@@ -1,8 +1,8 @@
 var QObject = require('../QObject');
 
+
 /**
- * @constructs Matrix2D
- * @param {any} cfg
+ * @description Matrix2D
  */
 var Matrix2D = QObject.extend('Matrix2D',
 
@@ -101,13 +101,10 @@ Matrix2D.createScale = function (x, y) {
 };
 
 /**
- *
- * @static
- * @param {Number} x
- * @param {Number} y
- * @return Matrix2D
- *
- * @memberOf Matrix2D
+ * 
+ * @param x
+ * @param y
+ * @returns
  */
 Matrix2D.createSkew = function (x, y) {
     var ret = new Matrix2D();
@@ -115,4 +112,5 @@ Matrix2D.createSkew = function (x, y) {
     return ret;
 };
 
+Matrix2D.cre
 module.exports = Matrix2D;
