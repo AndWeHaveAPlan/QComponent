@@ -236,7 +236,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
                     getted.set(names[names.length - 1], value);
                 } else {
                     getted[names[names.length - 1]] = value;
-                    this._onPropertyChanged(this, names[0], value);
+                    this._onPropertyChanged(this, names, value);
                 }
         } else {
             if (!this._prop[names[0]]) {
@@ -250,24 +250,7 @@ QObject.prototype.apply(AbstractComponent.prototype, {
 
     _set: function (name, value) {
         var nameParts = name.split('.');
-
-        if (nameParts.length > 1) {
-            var getted = this.get(nameParts.slice(0, nameParts.length - 1).join('.'));
-            if (getted)
-                if (getted instanceof AbstractComponent) {
-                    getted.set(nameParts[nameParts.length - 1], value);
-                } else {
-                    getted[nameParts[nameParts.length - 1]] = value;
-                    this._onPropertyChanged(this, nameParts[0], value);
-                }
-        } else {
-            if (!this._prop[name]) {
-                this._prop[name] = new (this._prop.default || defaultPropertyFactory)(this, name);
-            }
-            return this._prop[name].set(value);
-        }
-
-        return this;
+        return this.set(nameParts, value);        
     },
 
     /**

@@ -6,9 +6,9 @@
  * Created by ravenor on 30.06.16.
  */
 
-var QObject = require("./QObject");
-var Component = require("./Components/AbstractComponent");
-var SimplePipe = require("./Pipes/SimplePipe");
+var QObject = require('./QObject');
+var Component = require('./Components/AbstractComponent');
+var SimplePipe = require('./Pipes/SimplePipe');
 
 /**
  *
@@ -29,28 +29,47 @@ EventManager.prototype = new QObject();
  *
  * @returns Function
  */
-EventManager.prototype.getOnValueChangedEventListener = function (sender, name, newValue, oldValue) {
+EventManager.prototype.getOnValueChangedEventListener = function (sender, names, newValue, oldValue) {
     // TODO think about getting id through getter
-    var key = sender.id + '.' + name, i, _i,
+    var key = sender.id + '.' + names.join('.'), i, _i,
         sid = sender.id,
 
-        who = sid, what = name, j, deeper, val;
+        who = sid, what = names, j, _j, pointer, deeper, val, w,
+        selfCall = false;
     if (sender.id == this.owner.id) {
-        key = name;
-        who = key;
-        what = void 0;
+        key = names.join('.');
+        if(newValue instanceof QObject._knownComponents.AbstractComponent){
+            who = sid;
+            selfCall = true;
+            what = names;
+        } else {
+            who = 'self';
+            what = names;//void 0;*/
+        }
     }
 
     var listeners = this._listeners[who];
 
     if(listeners) {
-        if(what) {
-            listeners = listeners.deeper[what];
-            if (listeners)
-                for (i = 0, _i = listeners.length; i < _i; i++) {
-                    listeners[i].call(this, sid, newValue);
+
+        if(selfCall) {
+            who = this.owner;
+        }else {
+            who = this._registredComponents[who];
+        }
+            pointer = listeners;
+            for(j = 0, _j = what.length; j < _j; j++){
+                w = what[j];
+                pointer = pointer.deeper[w];
+                var propName = what.slice(0,j+1);
+                val = who.get(propName);
+                if(!pointer)
+                    break;
+                for (i = 0, _i = pointer.fns.length; i < _i; i++) {
+                    pointer.fns[i].call(this, propName, val);
                 }
-        }else{
+            }
+        /*}else{
             deeper = listeners.deeper;
             if (deeper)
                 for(j in deeper) {
@@ -61,15 +80,15 @@ EventManager.prototype.getOnValueChangedEventListener = function (sender, name, 
                         listeners[i].call(who, j, val);
                     }
                 }
-        }
+        }*/
     }
     var propertyPipes = this._registredPipes[key];
 
     if (propertyPipes) {
-        for (var i = 0; i < propertyPipes.length; i++) {
+        for (i = 0; i < propertyPipes.length; i++) {
             var currentPipe = propertyPipes[i];
 
-            var val = sender.get(currentPipe.sourceBindings[key].propertyName);
+            val = sender.get(currentPipe.sourceBindings[key].propertyName);
             if (key == sender.id + '.' + currentPipe.sourceBindings[key].propertyName)
                 val = newValue;
 
@@ -200,33 +219,48 @@ EventManager.prototype.p = function(args, fn){
         wrap = function (name, i) {  
             var lastValue, firstCall = true;
             return function (key, val) {
-                if(firstCall || lastValue !== val){
+                var str = JSON.stringify(val);
+                if(firstCall || lastValue !== str){//val){
                     vals[i] = val;
                     callFn();
-                    lastValue = val; firstCall = false;
+                    lastValue = str;//val;
+                    // firstCall = false;
                 }
-            }
+            };
         },
         arg,
         pointer,
         filled = 0;
+    var point,
+        currentVal;
     for(i = 0, _i = args.length; i <_i;i++){
         arg = args[i];
+        point = this._listeners;
+
         if ('after' in arg) {
             arg.i = i;
             arg.after(function (val) {
                 vals[this.i] = val;
                 callFn();
-            })
+            });
         } else {
-            var point = this._listeners[arg[0]] || (this._listeners[arg[0]] = {fns: [], deeper: {}});
-            point = point.deeper[arg[1]] || (point.deeper[arg[1]] = []);
-            //debugger;
-            point.push(wrap(arg, i));
-
             pointer = this._registredComponents[arg[0]];
-            if(pointer) {
-                vals[i] = pointer.get(arg[1]);
+
+            for(var j = 1, _j = arg.length; j < _j; j++) {
+                point = point[arg[j]] || (point[arg[j]] = {fns: [], deeper: {}});
+                point.fns.push(wrap(arg, i));
+                point = point.deeper;
+
+
+
+            }
+            if(arg.length > 1)
+                currentVal = pointer.get(arg.slice(1));
+            else
+                currentVal = pointer.get(['value']);
+
+            if (pointer) {
+                vals[i] = currentVal;
                 filled++;
             }
         }

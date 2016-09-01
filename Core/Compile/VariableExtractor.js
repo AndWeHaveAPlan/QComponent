@@ -157,7 +157,7 @@ module.exports = (function () {
                 //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }else {
                 this.used[node.name] = true;
-                if(list === void 0 || list === false || typeof list === 'number') {
+                if(list === void 0) {
                     scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
                     node._id = counter++;
                     (scope[node.name] || (scope[node.name] = [])).push(node);
@@ -330,7 +330,7 @@ module.exports = (function () {
     var getFullUnDefined = function (obj, collector) {
         var deepUsed = obj.deepUsed;
         /*console.log(deepUsed);
-        console.log(obj.used);
+        console.log(obj.used);`
         console.log(Object.keys(obj.declared))*/
 
         var i, undef = {};
@@ -350,9 +350,7 @@ module.exports = (function () {
             if(extractor.knownVars[i])
                 delete undef[i];
         }
-        //console.log(undef)
-        delete undef.Date;
-        delete undef.parseInt;
+
         return undef;
 
     };
@@ -382,7 +380,8 @@ module.exports = (function () {
             console: 1,
             Date: 1,
             parseInt: 1,
-            parseFloat: 1
+            parseFloat: 1,
+            JSON: 1
         }
     };
     return extractor;
