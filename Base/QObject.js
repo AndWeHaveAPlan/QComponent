@@ -1,3 +1,6 @@
+/**
+ * @returns {QObject}
+ */
 module.exports = (function () {
     'use strict';
     var observable = require('z-observable'),
@@ -243,10 +246,9 @@ module.exports = (function () {
                         delete cfg[deepName];
                     }
                     return storage;
-                }, {}),
-                proto, i;
+                }, {}), i;
 
-            proto = prototype.apply(Object.create(base), cfg);
+            var proto = prototype.apply(Object.create(base), cfg);
 
             for (i in overlays) {
                 proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
@@ -255,6 +257,7 @@ module.exports = (function () {
             return proto;
         },
         /**
+         * @returns {Function}
          * @memberOf QObject
          * @static
          */
@@ -307,7 +310,7 @@ module.exports = (function () {
         }
 
     };
-    QObject.prototype = prototype.apply.call({}, prototype);
+    QObject.prototype = prototype;//.apply.call({}, prototype);
     QObject.prototype._prop = {};
 
     QObject.prototype._afterInit = function () {

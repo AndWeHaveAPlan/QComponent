@@ -3,15 +3,12 @@
  */
 
 var QObject = require('../QObject'),
-    EventManager = require('../EventManager'),
-    Page = require('../Components/UI/Page'),
     Sequence = require('./Sequence'),
     Selector = require('./Selector'),
-    Property = require('../Property'),
     AbstractComponent = require('../Components/AbstractComponent');
 
 var Scenario = AbstractComponent.extend('Scenario', {
-    load: function (entryPoint) {
+    load: function () {
         Scenario.currentScenario = this;
 
         this.processSequence(this.sequences[0]);
@@ -23,7 +20,7 @@ var Scenario = AbstractComponent.extend('Scenario', {
         if (sequence.canGoNext()) {
             var sel = sequence.next();
             if (sel instanceof Selector) {
-                var p = new sel.get('page');
+                var p = new (sel.get('page'))();
                 p.set('scenario', this);
                 QObject.document.body = p.el;
             } else {
@@ -38,7 +35,7 @@ var Scenario = AbstractComponent.extend('Scenario', {
 
     this._ownComponents.on('add', function (child) {
         if (child instanceof Sequence)
-            self.sequences.push(child)
+            self.sequences.push(child);
     });
 });
 
