@@ -5,3 +5,8 @@ public/bundle.js
 public/bundle2.js
 public/test.qs
 .vscode/
+/typings.json
+/QComponent.sln
+/typings
+/.vs/QComponent/v14
+/QComponent.sln.DotSettings

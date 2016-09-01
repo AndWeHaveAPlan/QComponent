@@ -2,11 +2,7 @@
  * Created by ravenor on 30.06.16.
  */
 
-var QObject = require('../QObject'),
-    AbstractComponent = require('../Components/AbstractComponent'),
-    EventManager = require('../EventManager'),
-    Page = require('../Components/UI/Page'),
-    Property = require('../Property');
+var AbstractComponent = require('../Components/AbstractComponent');
 
 module.exports = AbstractComponent.extend('Sequence', {
     canGoNext: function () {
@@ -24,7 +20,7 @@ module.exports = AbstractComponent.extend('Sequence', {
 
         this.cursor += 1;
 
-        if ((this.cursor + 1) == this._ownComponents.length) {
+        if ((this.cursor + 1) === this._ownComponents.length) {
             this.fire('complete');
         }
 
@@ -32,7 +28,7 @@ module.exports = AbstractComponent.extend('Sequence', {
     },
     back: function () {
         if (!this.canGoBack()) {
-            return void(0)
+            return void(0);
         }
 
         this.cursor -= 1;

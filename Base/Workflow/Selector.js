@@ -4,8 +4,6 @@
 
 var QObject = require('../QObject'),
     AbstractComponent = require('../Components/AbstractComponent'),
-    EventManager = require('../EventManager'),
-    Page = require('../Components/UI/Page'),
     Property = require('../Property');
 
 module.exports = AbstractComponent.extend('Selector', {

@@ -3,14 +3,23 @@
  */
 
 var Matrix2D = require('../Common/Matrix2D');
+var AbstractComponent = require('./AbstractComponent'),
+    ObservableSequence = require('observable-sequence'),
+    Property = require('../Property');
 
-module.exports = (function () {
+
+module.exports = (
+    /**
+     * 
+     * @returns {Function} UIComponent class
+     */
+    function () {
     'use strict';
-    var AbstractComponent = require('./AbstractComponent'),
-        ContentContainer = require('./ContentContainer'),
-        ObservableSequence = require('observable-sequence'),
-        Property = require('../Property');
 
+    /**
+     * 
+     * @extends AbstractComponent
+     */
     var UIComponent = AbstractComponent.extend('UIComponent', {
 
         createEl: function () {
@@ -57,7 +66,7 @@ module.exports = (function () {
                     ctor = item.item;
                 else {
                     ctor = item;
-                    item = {_type: ctor};
+                    item = { _type: ctor };
                 }
 
                 item.parent = this;
@@ -67,6 +76,8 @@ module.exports = (function () {
                 } else if (type === 'string') {
                     cmp = this._factory.build(ctor, item, iterator);
                 }
+
+                if (cmp === void (0)) return;
 
                 if (item.value) {
                     cmp.set('value', item.value);
@@ -83,7 +94,7 @@ module.exports = (function () {
                     store[key] = Property.generate.cssProperty('Element`s css property ' + key);
                     return store;
                 }, {}));
-            out.scroll = new Property('String', {description: 'visibility of element'}, {
+            out.scroll = new Property('String', { description: 'visibility of element' }, {
                 set: function (key, val, oldValue) {
                     switch (val) {
                         case 'none':
@@ -106,7 +117,7 @@ module.exports = (function () {
                 },
                 get: Property.defaultGetter
             }, 'visible');
-            out.visibility = new Property('String', {description: 'visibility of element'}, {
+            out.visibility = new Property('String', { description: 'visibility of element' }, {
                 set: function (key, val, oldValue) {
                     switch (val) {
                         case 'visible':
@@ -123,7 +134,7 @@ module.exports = (function () {
                 },
                 get: Property.defaultGetter
             }, 'visible');
-            out.enabled = new Property('Boolean', {description: 'disabled of element'}, {
+            out.enabled = new Property('Boolean', { description: 'disabled of element' }, {
                 set: function (key, val, oldValue) {
                     if (val) {
                         this.el.removeAttribute('disabled');
@@ -134,35 +145,35 @@ module.exports = (function () {
                 },
                 get: Property.defaultGetter
             }, 'true');
-            out.rotation = new Property('Number', {description: 'Component rotation (angle, in degrees)'}, {
+            out.rotation = new Property('Number', { description: 'Component rotation (angle, in degrees)' }, {
                 set: function (key, val, oldValue) {
                     var m = Matrix2D.createRotation((val / 180) * Math.PI);
                     this.el.style.transform = m.toStyleString();
                 },
                 get: Property.defaultGetter
             });
-            out.translation = new Property('Array', {description: 'Component translation ([x,y] in "pixels")'}, {
+            out.translation = new Property('Array', { description: 'Component translation ([x,y] in "pixels")' }, {
                 set: function (key, val, oldValue) {
                     var m = Matrix2D.createTranslation(val[0], val[1]);
                     this.el.style.transform = m.toStyleString();
                 },
                 get: Property.defaultGetter
             });
-            out.scale = new Property('Array', {description: 'Component scale ([x,y] relative)'}, {
+            out.scale = new Property('Array', { description: 'Component scale ([x,y] relative)' }, {
                 set: function (key, val, oldValue) {
                     var m = Matrix2D.createScale(val[0], val[1]);
                     this.el.style.transform = m.toStyleString();
                 },
                 get: Property.defaultGetter
             });
-            out.skew = new Property('Array', {description: 'Component skew ([x,y] relative)'}, {
+            out.skew = new Property('Array', { description: 'Component skew ([x,y] relative)' }, {
                 set: function (key, val, oldValue) {
                     var m = Matrix2D.createSkew(val[0], val[1]);
                     this.el.style.transform = m.toStyleString();
                 },
                 get: Property.defaultGetter
             });
-            out.transform = new Property('Array', {description: 'Complex transform'}, {
+            out.transform = new Property('Array', { description: 'Complex transform' }, {
                 set: function (key, val, oldValue) {
                     this._transformMatrix = Matrix2D.createEmpty();
                     for (var i = 0; i < val.length; i++) {
@@ -213,7 +224,7 @@ module.exports = (function () {
                 self.el.appendChild(child.el);
         });
 
-        this._contentContainer = void(0);
+        this._contentContainer = void (0);
         this._transformMatrix = Matrix2D.createEmpty();
         this.createEl();
         this._initChildren();
