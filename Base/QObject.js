@@ -32,7 +32,7 @@ module.exports = (function () {
         delete cfg.id;
 
         this._onPropertyChanged = new MulticastDelegate();
-        this.defaultPropertyFactory = new Property('Variant', {description: 'Someshit'});
+        this.defaultPropertyFactory = new Property('Variant', { description: 'Someshit' });
 
         this._initProps(cfg);
         //this._init();
@@ -75,7 +75,7 @@ module.exports = (function () {
             } else if (names.length === 1) {
                 return names[0] in this._prop ? this._prop[names[0]].get() : void (0);
             } else {
-                return void(0)
+                return void (0)
             }
         },
 
@@ -99,7 +99,7 @@ module.exports = (function () {
             if (!Array.isArray(names)) {
                 names = names.split('.');
             }
-            var ret = void(0);
+            var ret = void (0);
             var firstName = names[0];
             var lastName = names[names.length - 1];
 
@@ -166,7 +166,7 @@ module.exports = (function () {
                 target = object2 ? object1 : this;
 
             for (i in source)
-                target[i] === void 0 && ( target[i] = source[i] );
+                target[i] === void 0 && (target[i] = source[i]);
 
             return target;
         },
@@ -241,12 +241,12 @@ module.exports = (function () {
 
             /** remove deep applied */
             var overlays = deepApply.reduce(function (storage, deepName) {
-                    if (deepName in cfg) {
-                        storage[deepName] = cfg[deepName];
-                        delete cfg[deepName];
-                    }
-                    return storage;
-                }, {}), i;
+                if (deepName in cfg) {
+                    storage[deepName] = cfg[deepName];
+                    delete cfg[deepName];
+                }
+                return storage;
+            }, {}), i;
 
             var proto = prototype.apply(Object.create(base), cfg);
 
@@ -256,100 +256,103 @@ module.exports = (function () {
 
             return proto;
         },
-        /**
-         * @returns {Function}
-         * @memberOf QObject
-         * @static
-         */
-        extend: function (name, cfg, init) {
-            var mixins, constructor,
 
-                /** what is extending */
-                original = components[this._type];
-
-            if (init)
-                constructor = function (cfg) {
-                    init.call(this, cfg);
-                    if (this.constructor === Cmp && this._afterInit)
-                        this._afterInit();
-                };
-
-            /** constructor of new component */
-            var Cmp = constructor || function (cfg) {
-                    original.call(this, cfg);
-                    if (this.constructor === Cmp && this._afterInit)
-                        this._afterInit();
-                };
-
-            /** Mixing */
-            mixins = cfg.mixin;
-            if (mixins) {
-                delete cfg.mixin;
-                mixins = prototype.makeArray(mixins);
-            } else {
-                mixins = [];
-            }
-            mixins.unshift(original.prototype);
-            Cmp.prototype = prototype._mixing(cfg, mixins);
-            Cmp.prototype.constructor = Cmp;
-
-            Cmp._type = Cmp.prototype._type = name;
-            Cmp.extend = QObject.extend;
-            Cmp.document = QObject.document;
-
-            /** register to components */
-            components[name] = Cmp;
-
-            return Cmp;
-        },
         makeArray: function (obj) {
-            return obj !== void 0 ? ( this.isArray(obj) ? obj : [obj] ) : [];
+            return obj !== void 0 ? (this.isArray(obj) ? obj : [obj]) : [];
         },
         isArray: function (obj) {
             return getType(obj) === '[object Array]';
-        }
+        },
 
-    };
-    QObject.prototype = prototype;//.apply.call({}, prototype);
-    QObject.prototype._prop = {};
+        //QObject.prototype = prototype;//.apply.call({}, prototype);
+        _prop: {},
 
-    QObject.prototype._afterInit = function () {
-        this._init();
-    };
+        _afterInit: function () {
+            this._init();
+        },
 
-    QObject.prototype._init = function () {
-        var cfg = this._cfg;
-        for (var p in cfg) {
-            if (cfg.hasOwnProperty(p)) {
-                this.set([p], cfg[p]);
+        _init: function () {
+            var cfg = this._cfg;
+            for (var p in cfg) {
+                if (cfg.hasOwnProperty(p)) {
+                    this.set([p], cfg[p]);
+                }
             }
-        }
 
-        delete this._cfg;
-    };
+            delete this._cfg;
+        },
 
-    QObject.prototype._initProps = function (cfg) {
-        var prop = this._prop, i,
-            newProp = this._prop = {};
+        _initProps: function (cfg) {
+            var prop = this._prop, i,
+                newProp = this._prop = {};
 
-        for (i in prop) {
-            if (i === 'default') {
-                newProp[i] = prop[i];
-            } else {
-                if (i in cfg)
-                    newProp[i] = new prop[i](this, i);//, cfg[i]);
-                else
-                    newProp[i] = new prop[i](this, i);
+            for (i in prop) {
+                if (i === 'default') {
+                    newProp[i] = prop[i];
+                } else {
+                    if (i in cfg)
+                        newProp[i] = new prop[i](this, i);//, cfg[i]);
+                    else
+                        newProp[i] = new prop[i](this, i);
+                }
             }
+            delete cfg._prop;
         }
-        delete cfg._prop;
     };
 
-
-    var deepApply = ['_prop'];
+    QObject.prototype = prototype;
 
     // makes prototype properties not enumerable
     prototype.apply(QObject, prototype);
+
+    /**
+    * @returns {Function}
+    * @memberOf QObject
+    * @static
+    */
+    QObject.extend = function (name, cfg, init) {
+        var mixins,
+            constructor,
+            original = components[this._type]; //what is extending
+
+        if (init)
+            constructor = function (cfg) {
+                init.call(this, cfg);
+                if (this.constructor === Cmp)
+                    this._afterInit();
+            };
+
+        /** constructor of new component */
+        var Cmp = constructor ||
+            function (cfg) {
+                original.call(this, cfg);
+                if (this.constructor === Cmp)
+                    this._afterInit();
+            };
+
+        /** Mixing */
+        mixins = cfg.mixin;
+        if (mixins) {
+            delete cfg.mixin;
+            mixins = prototype.makeArray(mixins);
+        } else {
+            mixins = [];
+        }
+        mixins.unshift(original.prototype);
+        Cmp.prototype = prototype._mixing(cfg, mixins);
+        Cmp.prototype.constructor = Cmp;
+
+        Cmp._type = Cmp.prototype._type = name;
+        Cmp.extend = QObject.extend;
+        Cmp.document = QObject.document;
+
+        /** register to components */
+        components[name] = Cmp;
+
+        return Cmp;
+    };
+
+    var deepApply = ['_prop'];
 
     QObject._knownComponents = components;
 
