@@ -98,7 +98,7 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += tools.makePipe(pipes, this, this.scope,this, prop, true);//'clsMakePublic');//'this.id', i, def, 'this.id', prop);
+                    out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);//'clsMakePublic');//'this.id', i, def, 'this.id', prop);
                 } else {
 
                     propVal = tools.propertyGetter(prop, vars);

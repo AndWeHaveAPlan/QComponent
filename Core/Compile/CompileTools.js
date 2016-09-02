@@ -197,7 +197,7 @@ module.exports = (function () {
 
         },
 
-        makePipe: function (pipe, item, scope, cls, prop, place){//sourceComponent, targetProperty, def, childId, prop) {
+        makePipe: function (pipe, item, scope, cls, prop, place, def){//sourceComponent, targetProperty, def, childId, prop) {
 
             var pipeSources = [];
             var mutatorArgs = [];
@@ -209,11 +209,11 @@ module.exports = (function () {
                 fn = tools.compilePipe.string(fn);
 
             /** do magic */
-            fn = this._functionTransform(fn);
-            fn = {"var1":"cf.cardData.name"," fn ":"JSON.stringify(var1);"};
+            /*fn = this._functionTransform(fn);
+            fn = {"var1":"cf.cardData.name"," fn ":"JSON.stringify(var1);"};*/
             //console.log(this.functionWaterfall(fn))
 
-            /*for (var cName in pipe.vars) {
+            for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
@@ -231,7 +231,7 @@ module.exports = (function () {
                             var mArg = fullName.replace(/\./g, '');
                             mutatorArgs.push(mArg);
 
-                            fn = fn.replace(new RegExp(fullName/!*.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")*!/, 'g'), mArg);
+                            fn = fn.replace(new RegExp(fullName/*.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")*/, 'g'), mArg);
                         }
                     }
                 }
@@ -243,12 +243,12 @@ module.exports = (function () {
                 '\t\tcomponent: ' + childId + ', property: \'' + targetProperty + '\'\n' +
                 '\t}).addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
                 '\t\treturn ' + fn + '\n' +
-                '\t}));';*/
+                '\t}));';
 
 
-            return (this.functionWaterfall(fn, pipe, item, scope,cls, prop, place)+
+            /*return (this.functionWaterfall(fn, pipe, item, scope,cls, prop, place)+
                 '.after(function(val){eventManager.s([\''+
-                (item.name||item.tmpName)+'\',\''+ prop.name +'\'], val)});');
+                (item.name||item.tmpName)+'\',\''+ prop.name +'\'], val)});');*/
         },
 
         functionNet: function () {
