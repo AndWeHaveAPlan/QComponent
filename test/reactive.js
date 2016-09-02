@@ -23,7 +23,7 @@ describe("Reactive tests", function () {
         var comp = new Component();
 
         comp.subscribe(function (sender, name, newValue, oldValue) {
-            assert.equal(name, "testReactiveProperty");
+            assert.equal(name[0], "testReactiveProperty");
             assert.equal(newValue, "testReactiveValue");
         });
 

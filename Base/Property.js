@@ -57,10 +57,10 @@ module.exports = (function () {
         if ((!validate || (validate && validate(value))) && value !== oldValue) {
             this.parent._data[key] = value;
             if (prop._set.call(this.parent, key, value, oldValue) !== false) {
-                this.parent._onPropertyChanged(this.parent, key, value, oldValue);
+                this.parent._onPropertyChanged(this.parent, [key], value, oldValue);
                 if (proxy) {
                     for (var i = 0; i < proxy.length; i++) {
-                        this.parent._onPropertyChanged(this.parent, proxy[i], value, oldValue)
+                        this.parent._onPropertyChanged(this.parent, [proxy[i]], value, oldValue);
                     }
                 }
             } else {
