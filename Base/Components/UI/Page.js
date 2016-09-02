@@ -9,7 +9,7 @@ var UIComponent = require('../UIComponent'),
 
 module.exports = UIComponent.extend('Page', {
     createEl: function () {
-        this.el = QObject.document.createElement('body');
+        this.el = QObject.document.createElement('div');
     },
     _prop: {
         title: new Property('String', { description: 'Page Title' }, {

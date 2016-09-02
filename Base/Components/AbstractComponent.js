@@ -17,9 +17,14 @@ var QObject = require('./../QObject'),
  * @constructor
  */
 
+
+/**
+ * @type {Function}
+ * @extends QObject
+ */
 var AbstractComponent = QObject.extend('AbstractComponent', {
     _prop: {
-        id: new Property('String', {description: 'Component ID'}, {
+        id: new Property('String', { description: 'Component ID' }, {
             set: function (key, val) {
                 if (this.id && this.id !== val)
                     return false;
@@ -36,29 +41,44 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     },
 
     /**
-     * Create own components
-     *
-     * @private
+     * Bind to this._children.on('add'...)
+     * 
+     * @param {AbstractComponent} child 
+     * @returns {null} 
      */
-    _initOwnComponents: function () {
-        var iterator = this._ownComponents.iterator(), item, ctor, type, cmp;
+    _onChildAdd: function (child) {
+        child.parent = this;
+    },
 
-        while (item = iterator.next()) {
+    /**
+     * Bind to this._children.on('remove'...)
+     * 
+     * @param {AbstractComponent} child 
+     * @returns {null} 
+     */
+    _onChildRemove: function (child) {
+        child.parent = null;
+    },
 
-            if (item)
+    /**
+     * Bind to this._ownComponents.on('add'...)
+     * 
+     * @param {AbstractComponent} child 
+     * @returns {null} 
+     */
+    _onOwnComponentAdd: function (child) {
+        child.parent = this;
+        this._eventManager.registerComponent(child);
+    },
 
-                if (item instanceof ContentContainer) {
-                    this._contentContainer = item;
-                } else {
-                    this._eventManager.registerComponent(item);
-                }
-
-            if (item instanceof UIComponent) {
-
-                this.el.appendChild(item.el);
-                item.fire('addToParent')
-            }
-        }
+    /**
+     * Bind to this._ownComponents.on('remove'...)
+     * 
+     * @param {AbstractComponent} child 
+     * @returns {null} 
+     */
+    _onOwnComponentRemove: function (child) {
+        //shoul not be called
     },
 
     _afterInit: function () {
@@ -78,15 +98,16 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     find: function (matcher) {
         var out = [];
         this._ownComponents.forEach(function (item) {
-            if (item._type === matcher)out.push(item);
+            if (item._type === matcher) out.push(item);
             out = out.concat(item.find(matcher));
         });
         this._children.forEach(function (item) {
-            if (item._type === matcher)out.push(item);
+            if (item._type === matcher) out.push(item);
             out = out.concat(item.find(matcher));
         });
         return out;
     }
+
 }, function (cfg) {
     var self = this;
     QObject.call(this, cfg);
@@ -100,12 +121,8 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
      * @private
      */
     this._ownComponents = new ObservableSequence(new DQIndex('id'));
-
-    /** instantly modify child components on append */
-    this._ownComponents.on('add', function (child) {
-        child.parent = self;
-        self._eventManager.registerComponent(child);
-    });
+    this._ownComponents.on('add', this._onOwnComponentAdd.bind(this));
+    this._ownComponents.on('remove', this._onOwnComponentRemove.bind(this));
 
     /**
      * Child Components
@@ -114,21 +131,8 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
      * @private
      */
     this._children = new ObservableSequence(new DQIndex('id'));
-
-    this._children.on('add', function (child) {
-        child.parent = self;
-    });
-
-    this._children.on('remove', function (child) {
-        child.parent = null;
-        if (self._contentContainer && child.el) {
-            self._contentContainer.el.removeChild(child.el);
-        } else {
-            self.el.removeChild(child.el);
-        }
-    });
-
-    this._initOwnComponents();
+    this._children.on('add', this._onChildAdd.bind(this));
+    this._children.on('remove', this._onChildRemove.bind(this));
 
     /**
      * Event. Fires with any changes made with get(...)
