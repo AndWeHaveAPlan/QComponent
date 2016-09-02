@@ -1,4 +1,11 @@
 def Page main
+
+ public Number dd0: {{b*b}}
+ Number dd1: {{4*a*c}}
+
+
+ span: {{dd0}} : {{dd1}} :: {{D}}
+
  div
   input a: 8
     type: number
@@ -36,13 +43,11 @@ def Page main
            */
    //span D: {{b.value*b.value-4*a.value*c.value}}
    span D: {{b*b-4*a*c}}
-     .click: ()->
-       //var x = D.raw;
-       //x.background
-       //get(self.get('D'), 'background')
+
 
 
  div
-   span: x1 = (-b + \u221aD)/2a = (-{{b}} + {{Math.sqrt(D)}}) / (2*{{a}}) = {{(-b + Math.sqrt(D)) / (2*a)}}
+   span: x1 = (-b + \u221aD)/2a = (-{{b}} + {{Math.sqrt(D)}}) / (2 * {{a}}) = {{(-b + Math.sqrt(D)) / (2*a)}}
  div
    span: x2 = (-b - \u221aD)/2a = (-{{b}} - {{Math.sqrt(D)}}) / (2*{{a}}) = {{(-b - Math.sqrt(D)) / (2*a)}}
+

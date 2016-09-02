@@ -69,8 +69,12 @@ module.exports = (function () {
             ];
 
             var compiledChildren = metadataItem.children ? metadataItem.children.map(function (el) {
-                return scope.child({cls: _self, child: el, parent: _self}).compile();//el, item, props, vars, 0);
-            }).join('') : '//no children\n';
+                return scope.child({cls: _self, child: el, parent: _self});//el, item, props, vars, 0);
+            }) : '//no children\n';
+
+            Array.isArray(compiledChildren) && (compiledChildren = compiledChildren.map(function(item){
+                return item.compile();
+            }).join(''));
             //debugger;
             source = [
                 (inline ? '' : 'var ' + name + ' = out[\'' + name + '\'] = ' ) + metadataItem._type + '.extend(\'' + name + '\', {_prop: {' +

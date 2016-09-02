@@ -3,9 +3,9 @@ def Page main
     div
       CardForm cf
     div
-      span: number:
+      span: number: {{' '+cf.cardData.number}}
       //span: {{' '+cf.cardData.number}}
-/*
+
       br
 
       span: name:
@@ -15,5 +15,5 @@ def Page main
 
       span: valid:
       span: {{' '+cf.cardData.date}}
-*/
+
     span: {{JSON.stringify(cf.cardData)}}

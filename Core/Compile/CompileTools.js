@@ -11,7 +11,9 @@ module.exports = (function () {
     var namesCount = {};
     var VariableExtractor = require('./VariableExtractor'),
         ASTtransformer = require('./ASTtransformer');
-
+    var primitives = {
+        'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Variant': true
+    };
     var extractors = {
             quote: function (token) {
                 return token.pureData;
@@ -196,13 +198,39 @@ module.exports = (function () {
             return transform(x)
 
         },
+        isNameOfEnv: function(name, meta){
+            if(!meta.children)
+                return false;
+            if(meta.children.length === 0)
+                return false;
+                
+            var i, _i, children = meta.children, child, subResult;
+            for(i = 0, _i = children.length; i < _i; i++){
+                child = children[i];
+                if(child.name === name)
+                    return child;
+                subResult = this.isNameOfEnv(name, child);
+                if(subResult)
+                    return subResult;
+            }
+            return false;
 
+        },
         makePipe: function (pipe, item, scope, cls, prop, place, def){//sourceComponent, targetProperty, def, childId, prop) {
 
             var pipeSources = [];
-            var mutatorArgs = [];
-            var fn = pipe.fn;
+            var mutatorArgs = [],
+                targetProperty;
+            var fn = pipe.fn,
+                childId = item.name || item.tmpName;
 
+
+            targetProperty = place === 'child' ? prop.name: 'this.id';
+            if(place !== 'child'){
+                childId = 'self';
+                targetProperty = prop.name;
+            }
+            
             if(prop.type === 'Number' || prop.type === 'Array')
                 fn = tools.compilePipe.raw(fn);
             else
@@ -212,18 +240,29 @@ module.exports = (function () {
             /*fn = this._functionTransform(fn);
             fn = {"var1":"cf.cardData.name"," fn ":"JSON.stringify(var1);"};*/
             //console.log(this.functionWaterfall(fn))
-
+            var env;
             for (var cName in pipe.vars) {
                 if (pipe.vars.hasOwnProperty(cName)) {
                     for (var fullName in pipe.vars[cName]) {
                         if (pipe.vars[cName].hasOwnProperty(fullName)) {
 
                             var pipeVar = pipe.vars[cName][fullName];
-                            var source = '\'' + fullName + '\'';
+                            var source;// = '\'' + fullName + '\'';
+                            console.log(cName);
                             if (cName == 'this') {
                                 source = 'this.id + \'.' + pipeVar.property.name + '\'';
-                            } else if ((def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
-                                //source = source = 'self.id + \'.' + fullName + '\'';
+                            } else if (env = this.isNameOfEnv(cName, cls.metadata)){//(def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
+                                if(env.type in primitives){
+                                    source = 'self.id + \'.' + fullName + '\'';
+                                }else{
+                                    if(fullName.match(/\.value$/))
+                                        source = '\''+fullName+ '\'';//'[\'' + fullName + '\', \'value\']';
+                                    else
+                                        source = '\''+fullName+ '.value\'';//'[\'' + fullName + '\', \'value\']';
+                                }
+                                
+                            } else {
+                                source = '\'' + fullName + '\'';
                             }
 
                             pipeSources.push(source);
@@ -238,9 +277,13 @@ module.exports = (function () {
             }
             return 'eventManager.registerPipe(new Base.Pipes.MutatingPipe([\n' +
                 '\t\t' +
-                pipeSources.join(',') +
+                pipeSources.map(function(item){
+                    console.log(item);
+                    return item;//
+                    return item+'.value';
+                }).join(',') +
                 '\n\t], {\n' +
-                '\t\tcomponent: ' + childId + ', property: \'' + targetProperty + '\'\n' +
+                '\t\tcomponent: ' + childId + '.id, property: \'' + targetProperty + '\'\n' +
                 '\t}).addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
                 '\t\treturn ' + fn + '\n' +
                 '\t}));';
@@ -270,7 +313,7 @@ module.exports = (function () {
 
 
             }
-            getValue(s)
+            getValue(s);
         },
         compilePipe: {
             raw: function(val){
