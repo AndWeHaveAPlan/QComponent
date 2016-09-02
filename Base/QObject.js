@@ -13,7 +13,8 @@ module.exports = (function () {
         toString = Object.prototype.toString,
         getType = function (obj) {
             return toString.call(obj);
-        };
+        },
+        deepApply = ['_prop'];
 
     /**
      * Top level class
@@ -68,14 +69,14 @@ module.exports = (function () {
                     } else {
                         ret = ret[names[i]];
                     }
-                    if (ret == void 0)
+                    if (ret === void 0)
                         return ret;
                 }
                 return ret;
             } else if (names.length === 1) {
                 return names[0] in this._prop ? this._prop[names[0]].get() : void (0);
             } else {
-                return void (0)
+                return void (0);
             }
         },
 
@@ -111,7 +112,7 @@ module.exports = (function () {
                         ret = value;
                     } else {
                         ret = getted[lastName] = value;
-                        this._onPropertyChanged(this, firstName, value);
+                        this._onPropertyChanged(this, names, value);
                     }
             } else {
                 if (!this._prop[firstName]) {
@@ -121,7 +122,7 @@ module.exports = (function () {
                 ret = value;
             }
 
-            this._onPropertyChanged(this, this.id, this);
+            //this._onPropertyChanged(this, this.id, this);
             return ret;
         },
 
@@ -132,7 +133,7 @@ module.exports = (function () {
          * @private
          */
         _set: function (name, value) {
-            this.set(name, value);
+            return this.set(name, value);
         },
 
         /**
@@ -202,10 +203,12 @@ module.exports = (function () {
          * @returns {{hash}}
          */
         arrayToObject: function (arr, val) {
-            var i = 0, _i = arr.length,
+            var i = 0,
                 newVal = val || true,
                 out = {};
             if (arr === null || arr === void 0) return out;
+
+            var _i = arr.length;
 
             for (; i < _i; i++) {
                 out[arr[i]] = newVal;
@@ -313,7 +316,8 @@ module.exports = (function () {
     QObject.extend = function (name, cfg, init) {
         var mixins,
             constructor,
-            original = components[this._type]; //what is extending
+            original = components[this._type], //what is extending
+            Cmp;
 
         if (init)
             constructor = function (cfg) {
@@ -323,7 +327,7 @@ module.exports = (function () {
             };
 
         /** constructor of new component */
-        var Cmp = constructor ||
+        Cmp = constructor ||
             function (cfg) {
                 original.call(this, cfg);
                 if (this.constructor === Cmp)
@@ -351,8 +355,6 @@ module.exports = (function () {
 
         return Cmp;
     };
-
-    var deepApply = ['_prop'];
 
     QObject._knownComponents = components;
 

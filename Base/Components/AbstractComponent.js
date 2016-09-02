@@ -30,6 +30,7 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
                     return false;
 
                 this.id = key;
+                return true;
             },
             get: Property.defaultGetter
         })
@@ -106,7 +107,7 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
             item.forEach(function (item) {
                 var matched = true;
                 if (id)
-                    matched = matched && (item.id === id);
+                    matched = (item.id === id);
 
                 if (type)
                     matched = matched && (item._type === type);
@@ -124,7 +125,6 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
         return this.find(matcher)[0];
     }
 }, function (cfg) {
-    var self = this;
     QObject.call(this, cfg);
 
     this._data.id = this.id;
