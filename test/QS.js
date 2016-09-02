@@ -18,7 +18,7 @@ module.exports = (function () {
 
 
     describe('test1', function(){
-        /*it('should create input with type number', function (done) {
+        it('should create input with type number', function (done) {
             compile(
                 'def Page main',
                 '  input i1: 10',
@@ -32,8 +32,8 @@ module.exports = (function () {
                 assert.equal(main.find('input')[0].get('value'), 42);
                 done();
             });
-        });*/
-        /*it('should compile slider.qs', function (done) {
+        });
+        it('should compile slider.qs', function (done) {
             compile(
                 fs.readFileSync('public/slider.qs'),
 
@@ -45,7 +45,7 @@ module.exports = (function () {
                     assert.equal(main.find('input')[0].get('value'), 42);
                     done();
                 });
-        });*/
+        });
 
         /*
         it('should pipe different formats of array', function (done) {

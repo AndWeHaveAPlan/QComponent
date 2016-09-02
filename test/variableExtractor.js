@@ -19,12 +19,12 @@ describe("variable extractor", function () {
                     return false;
                 }
         
-        /*if(partial)
+        if(partial)
             for(var i in origin)
                 if(!partial[i]) {
                     console.log(i, origin, partial)
                     return false;
-                }*/
+                }
 
         return true;
     };
