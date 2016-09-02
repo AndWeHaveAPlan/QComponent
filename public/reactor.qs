@@ -45,13 +45,13 @@ def LogicalComponent Reactor
         enabled: true
         interval: 100
         .tick: ()=>{
-            var cTemp=this.temperature;
-            var cRodPos=this.get('controlRodsPosition');
-            cTemp+=Math.round(200*(cRodPos-4.5))/100;
-            this.set('temperature', cTemp);
+            var cTemp=temperature;
+            //var cRodPos=this.get('controlRodsPosition');
+            cTemp+=Math.round(200*(controlRodsPosition-4.5))/100;
+            temperature = cTemp
 
-            if(this.get('meltdown')){
-                this.get('timer').stop();
+            if(meltdown){
+                timer.stop();
             }
         }
 

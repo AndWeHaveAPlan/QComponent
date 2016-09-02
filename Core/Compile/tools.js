@@ -8,21 +8,7 @@ var tools = module.exports = (function() {
     };
     var variableExtractor = require('./VariableExtractor'),
         QObject = require('../../Base').QObject;
-    var extractors = {
-            quote: function (token) {
-                return token.pureData;
-            },
-            brace: function(token){
-                return token.pureData;
-            }
-        },
-        extractor = function(token){
-            var extractor = extractors[token.type];
-            if(!extractor){
-                throw new Error('unknown token type `'+token.type+'`')
-            }
-            return extractor(token);
-        };
+    
     return {
         removeFirstWord: function (item, word) {
             var subItem = Object.create(item.items[0]), pos;
@@ -88,7 +74,7 @@ var tools = module.exports = (function() {
         _transformPipes: function (pipedOut, items) {
             var i, _i = items.length, item, data,
                 unUsed, out = pipedOut.items, werePipes = false,
-                vars;
+                vars, subResult;
 
             for (i = 0, _i; i < _i; i++) {
                 item = items[i];
@@ -115,7 +101,8 @@ var tools = module.exports = (function() {
                     //debugger;
                 } else if (item.type === 'brace') {
                     out.push({pureData: item.info, type: 'text'});
-                    werePipes = werePipes || this._transformPipes(pipedOut, item.items);
+                    subResult = this._transformPipes(pipedOut, item.items);
+                    werePipes = werePipes || subResult;
                     out.push({pureData: item._info, type: 'text'});
                 } else {
                     out.push({pureData: item.pureData, type: item.type, data: item.data});

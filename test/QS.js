@@ -8,20 +8,17 @@
 // Образцовопоказательный тест
 module.exports = (function () {
     'use strict';
+    var Base = require('../Base');
     var assert = require('chai').assert;
+    var jsdom = require('jsdom');
+    var Core = require('../Core'),
+        QObject = Base.QObject,
+        fs = require('fs'),
+        bundle = fs.readFileSync('public/bundle.js')+'';
 
 
     describe('test1', function(){
-
-        var Base = require('../Base');
-
-        var jsdom = require('jsdom');
-        var Core = require('../Core'),
-            QObject = Base.QObject,
-            fs = require('fs'),
-            bundle = fs.readFileSync('public/bundle.js')+'';
-
-        /*it('should create input with type number', function (done) {
+        it('should create input with type number', function (done) {
             compile(
                 'def Page main',
                 '  input i1: 10',
@@ -35,8 +32,8 @@ module.exports = (function () {
                 assert.equal(main.find('input')[0].get('value'), 42);
                 done();
             });
-        });*/
-        /*it('should compile slider.qs', function (done) {
+        });
+        it('should compile slider.qs', function (done) {
             compile(
                 fs.readFileSync('public/slider.qs'),
 
@@ -48,7 +45,7 @@ module.exports = (function () {
                     assert.equal(main.find('input')[0].get('value'), 42);
                     done();
                 });
-        });*/
+        });
 
         /*
         it('should pipe different formats of array', function (done) {
@@ -92,12 +89,13 @@ module.exports = (function () {
                 '  input i2: 10',
                 '    type: number',
                 function(err, main, compiled){
-                    var matched = compiled.match(/addMutator\([^(]*\(([^)]*)\)[^{]*\{([^}]*)\}/),
+                    console.log(compiled);
+                    /*var matched = compiled.match(/addMutator\([^(]*\(([^)]*)\)[^{]*\{([^}]*)\}/),
                         args = matched[1].split(','), body = matched[2];
 
                     console.log(args);
                     console.log(body.trim());
-                    console.log('return var1+var2+var3+var4+var5;')
+                    console.log('return var1+var2+var3+var4+var5;')*/
                     done();
                 });
         });
