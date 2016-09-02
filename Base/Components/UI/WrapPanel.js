@@ -21,6 +21,7 @@ module.exports = ContainerComponent.extend('WrapPanel', {
 
         childNode.addEventListener('click', function () {
             self.set('selectedIndex', index);
+            self.fire('itemClick', self.get('selectedItem'), index)
         });
     },
     _prop: {

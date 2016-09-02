@@ -11,7 +11,7 @@ def Page main
         //left: {{sinSquareLeft}}px
         //translation: [{{sinSquareTop}}, {{sinSquareLeft}}]
         //scale: [{{s2.value, s2.value}}]
-        scale: [{{s2.value, s2.value}}]
+        scale: {{[s2.value, s2.value]}}
         transform-origin: top left
         padding: 5px
         //transition: all 0.2s
@@ -45,6 +45,7 @@ def Page main
                 self.sinSquareLeft = setLeft.value || 0
             }
         input: {{txt}}
+            //margin: {{s2.value*50}}px
             type: button
             width: 200px
             .click: function(){
@@ -52,12 +53,12 @@ def Page main
                 self.sinHor = setLeft.value || 0
             }
 
-        MaskedInput
+        MaskedInput: 12345
             width: 100px
-            background: #bbbbdd
-            mask: '(ddd) ddd-dddd'
+            background: #6666dd
+            mask: "(***) ddd-dddd"
 
-        div
+        div: ba-dum-tsss {{setLeft.background}}
             width: 500px
             Slider s2: 3
                 from: 0
@@ -81,27 +82,49 @@ def Page main
             color: white
             //scroll: vertical
             //overflow: hidden
-            WrapPanel
-                width: 200px
-                div
-                    background: 'rgba(85, 85, 34, 0.5)'
-                    //#555522
-                    width: 200px
-                    //rgba(85, 85, 34, 0.5)
-                    height: 100px
-                    margin: 50px 20px 20px
+            HBox
+                height: 400px
+                VBox
+                    width: 250px
+                    background: #6688cc
+                    div
+                        background: 'rgba(85, 85, 34, 0.5)'
+                        //#555522
+                        width: 200px
+                        //rgba(85, 85, 34, 0.5)
+                        height: 100px
+                        margin: 50px 20px 20px
 
-                NumberKeyboard
-                    margin: 0px 20px 20px
-                    .key: function(button){
-                        console.log(button)
-                    }
+                    NumberKeyboard
+                        margin: 0px 20px 20px
+                        .key: function(button){
+                            console.log(button)
+                        }
+                        scale: [0.5, 0.5]
+                VBox
+                    width: 250px
+                    background: #6655cc
+                    Image
+                        width: 250px
+                        height: 250px
+                        source: https://pp.vk.me/c604418/v604418537/242da/51K4Qj6ezOI.jpg
+                        stretch: uniform
+                        .click: function () {
+                            phot.Image.source = this.source
+                        }
+                GeoMap
+                    zoom: 11
+                    width: 100%
+                    height: 50%
+                    home: [55.794425,37.587836]
+
             span: triangles
                 color: yellow
                 background: red
                 border: 1px solid white
                 padding: 3px
                 margin: 20px
+
             span: are my favourite shapes
             input
                 type: radio
@@ -119,20 +142,62 @@ def Page main
             br
             HBox
                 ListBox list1
-                    width: 50%
+                    width: 70%
                     height: 200px
                     background: white
+                    padding: 20px
                     color: black
                     border: 1px solid black
                     itemTemplate:
-                        div: name: {{name}}
+                        a: name: {{name}}
                             padding: 5px
+                            href: https://yandex.ru/search/?msid=1472225549.95604.22881.8172&text={{name}}
                     itemSource: [
                         {name:'Кремль'},
                         {name:'Поклонная гора'},
                         {name:'Офис Квокки'},
                         {name:'Железнодорожное кольцо'}
                     ]
+                ListBox
+                    itemTemplate:
+                        span: name: {{name}}
+                            padding: 5px
+                    itemSource: [
+                        {name:'Кремль'},
+                        {name:'Поклонная гора'},
+                        {name:'Офис Квокки'},
+                        {name:'Железнодорожное кольцо'},
+                        {name:'Кремль'},
+                        {name:'Поклонная гора'},
+                        {name:'Офис Квокки'},
+                        {name:'Железнодорожное кольцо'}
+                    ]
+                    //background: pink
+                    //padding: 10px
+                    height: 150px
+                    //width: 150px
+                    border: 5px solid red
+                    //position: relative
+                    border-radius: 10px
+                    //top: 50px
+                    //bottom
+                    //left
+                    //right
+                    //transform: [
+                    //    {type:'rotation', angle: 30},
+                    //    {type:'scale', x:0.5,y:0.5},
+                    //    {type:'translation', x:50,y:50}
+                    //]
+                    //rotation
+                    //transition
+                    //scale
+                    //skew
+                    margin: 20px
+                    color: orange
+                    //float: right
+                    //-overflow
+                    //transform-origin
+                    //-scroll
                 WrapPanel
                     width: 300px
                     background: blue
@@ -165,6 +230,43 @@ def Page main
         public Array arr1: [10,2]
         //public Date date1:
         span: {{arr1}}
+            background: pink
+        MaskedInput: 7777рпааапрпарап
+            mask: 'ddd-dd-dd'
+            background: pink
+            padding: 10px
+            //height: 200px
+            width: 150px
+            //border: 5px solid red
+            //position: relative
+            //border-radius: 10px
+            //top: 50px
+            //bottom
+            //left
+            //right
+            //transform: [
+            //    {type:'rotation', angle: 30},
+            //    {type:'scale', x:0.5,y:0.5},
+            //    {type:'translation', x:50,y:50}
+            //]
+            //rotation
+            //transition
+            //scale
+            //skew
+            //margin: 20px
+            //-color: orange
+            //float: right
+            //-overflow
+            //transform-origin
+            //-scroll
 
+    div phot
+        position: absolute
+        top: 20px
+        left: 20px
+        Image
+            width: 700px
+            height: 500px
+            stretch: uniform
 
 //{{Math.ceil(s1.value/2)}}
