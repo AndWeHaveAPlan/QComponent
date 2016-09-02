@@ -190,6 +190,11 @@ module.exports = (function(){
                     return options.variableTransformer(node, stack);
                 }
 
+                if(options.variableTransformerGet){
+                    stack.push(pointer.object);
+                    return options.variableTransformerGet(node, stack);
+                }
+
                 return {
                         "type": "CallExpression",
                         "callee": {
@@ -269,6 +274,9 @@ module.exports = (function(){
             if( '_id' in node && node._id in this && node._id !== null ){
                 if(options.variableTransformer){
                     return options.variableTransformer(node);
+                }
+                if(options.variableTransformerGet){
+                    return options.variableTransformerGet(node);
                 }
                 return {
                         "type": "CallExpression",

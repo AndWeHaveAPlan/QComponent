@@ -333,18 +333,100 @@ module.exports = (function () {
             }
         },
         builder: {
-            events: function (item) {
+            events: function (item, cls) {
                 var name = (item.name || item.tmpName);
-                var out = [];
+                var out = [], i, _i, events, event, fn,
+                    meta = cls.metadata,
+                    transformFnGet = function(node, stack){
+                        var env = tools.isNameOfEnv(node.name, meta);
+                        if(env.type in primitives){
+                            return {
+                                'type': 'CallExpression',
+                                'callee': {
+                                    'type': 'MemberExpression',
+                                    'computed': false,
+                                    'object': ASTtransformer.craft.Identifier('self'),
+                                    'property': {
+                                        'type': 'Identifier',
+                                        'name': 'get'
+                                    }
+                                },
+                                'arguments': [
+                                    {
+                                        'type': 'ArrayExpression',
+                                        'elements': [
+                                            {
+                                                'type': 'Literal',
+                                                'value': '\''+ node.name +'\'',
+                                                'raw': '\'value\''
+                                            },
+                                            {
+                                                'type': 'Literal',
+                                                'value': 'value',
+                                                'raw': '\'value\''
+                                            }
+                                        ]
+                                    }
+                                ]
+                            };
+                        }else{
+                            return {
+                                    'type': 'CallExpression',
+                                    'callee': {
+                                    'type': 'MemberExpression',
+                                        'computed': false,
+                                        'object': node,
+                                        'property': {
+                                        'type': 'Identifier',
+                                            'name': 'get'
+                                    }
+                                },
+                                    'arguments': [
+                                    {
+                                        'type': 'ArrayExpression',
+                                        'elements': [
+                                            {
+                                                'type': 'Literal',
+                                                'value': 'value',
+                                                'raw': '\'value\''
+                                            }
+                                        ]
+                                    }
+                                ]
+                            };
+                        }
+
+
+                    },
+                    transformFnSet = function(node, stack){
+                        var list = stack.slice().reverse(),
+                            node = list[0];
+                        var env = tools.isNameOfEnv(node.name, meta);
+                        if(env.type in primitives){
+
+                        }else{
+
+                        }
+                        var x = [meta, item, event]
+                        var y = 4;
+                    },
+                    options = {
+                        variableTransformerSet: transformFnSet,
+                        variableTransformerGet: transformFnGet
+                    },
+                    transformer = new ASTtransformer();
                 //out += name+'._subscribeList = [];\n';
                 //out += '\t\tthis._subscr = function(){\n';
 
                 //out+=name+'.removableOn(\''+evt.events+'\',function(' + evt.args.join(',') + '){\n' + evt.fn + '\n})';
+                events = item.events;
+                for( i = 0, _i = events.length; i < _i; i++){
+                    event = events[i];
+                    fn = transformer.transform(event.fn.ast, event.fn.vars, options);
+                    out.push(name + '.on(\'' + event.events + '\',function(' + event.args.join(',') + '){\n' + fn + '\n}, '+name+');');
+                }
 
-                item.events.forEach(function (evt) {
-                    out.push(name + '.on(\'' + evt.events + '\',function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, '+name+');');
                     //out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, this));\n';
-                });
                 //out += '\t\t};\n';
                 //out += '\t\tthis._subscr();\n';
                 return out;

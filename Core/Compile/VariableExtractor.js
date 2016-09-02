@@ -101,6 +101,7 @@ module.exports = (function () {
 
             if(needList){
                 list = list || [];
+                if(!Array.isArray(list))list = [];
                 list.push(node.property);
                 getVars.call(this, node.object, list);
                 if(!wasList && needList){
