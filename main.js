@@ -104,7 +104,7 @@ var server = http.createServer(function (req, res) {
                 compiled = Core.Compile.Compiler.compile(subObj);
 
                 return res.end(header +
-                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();</script>' +
+                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();document.body.appendChild(c.el);</script>' +
                     footer);
             } else {
 
