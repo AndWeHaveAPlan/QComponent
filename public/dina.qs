@@ -109,6 +109,9 @@ def Page main
                         height: 250px
                         source: https://pp.vk.me/c604418/v604418537/242da/51K4Qj6ezOI.jpg
                         stretch: uniform
+                        .click: function () {
+                            phot.Image.source = this.source
+                        }
                 GeoMap
                     zoom: 11
                     width: 100%
@@ -257,5 +260,13 @@ def Page main
             //transform-origin
             //-scroll
 
+    div phot
+        position: absolute
+        top: 20px
+        left: 20px
+        Image
+            width: 700px
+            height: 500px
+            stretch: uniform
 
 //{{Math.ceil(s1.value/2)}}
