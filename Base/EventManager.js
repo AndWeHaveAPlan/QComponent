@@ -36,7 +36,7 @@ EventManager.prototype.getOnValueChangedEventListener = function (sender, names,
 
         who = sid, what = names, j, _j, pointer, deeper, val, w,
         selfCall = false;
-    if (sender.id == this.owner.id) {
+    /*if (sender.id == this.owner.id) {
         key = names.join('.');
         if(newValue instanceof QObject._knownComponents.AbstractComponent){
             who = sid;
@@ -44,7 +44,7 @@ EventManager.prototype.getOnValueChangedEventListener = function (sender, names,
             what = names;
         } else {
             who = 'self';
-            what = names;//void 0;*/
+            what = names;//void 0;*!/
         }
     }
 
@@ -69,7 +69,7 @@ EventManager.prototype.getOnValueChangedEventListener = function (sender, names,
                     pointer.fns[i].call(this, propName, val);
                 }
             }
-        /*}else{
+        /!*}else{
             deeper = listeners.deeper;
             if (deeper)
                 for(j in deeper) {
@@ -80,8 +80,8 @@ EventManager.prototype.getOnValueChangedEventListener = function (sender, names,
                         listeners[i].call(who, j, val);
                     }
                 }
-        }*/
-    }
+        }*!/
+    }*/
     var propertyPipes = this._registredPipes[key];
 
     if (propertyPipes) {
