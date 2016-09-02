@@ -86,7 +86,7 @@ module.exports = (function () {
                 prop = child.prop[i];
                 pipe = prop.value;
                 if (pipe.isPipe) {
-                    pipes.push(tools.makePipe(pipe, child, this.scope, this.cls, prop, 'child'));//'self.id', i, this.cls, name + '.id', prop));
+                    pipes.push(tools.makePipe(pipe, child, this.scope, this.cls, prop, 'child', prop));//'self.id', i, this.cls, name + '.id', prop));
                 } else {
                     propVal = tools.propertyGetter(prop, this.scope, this.scope.vars);
                     cfgInit.push(tools.makeProp(i, propVal));

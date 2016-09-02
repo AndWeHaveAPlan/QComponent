@@ -241,17 +241,25 @@ module.exports = (function(){
             return node; // TODO unshit
         },
         'CallExpression': function(node, options){
-            return {
-                "type": "CallExpression",
-                "callee": {
-                    "type": "MemberExpression",
-                    "computed": node.callee.computed,
-                    "object": doTransform.call(this, node.callee.object, options),
-                    "property": node.callee.computed ? // IF property is dynamic - try to get deeper
-                        doTransform.call(this,node.callee.property, options) : node.callee.property
-                },
-                "arguments": node.arguments.map(mapWrapper(this,options))
-            };
+            if(node.callee.type === 'MemberExpression') {
+                return {
+                    "type": "CallExpression",
+                    "callee": {
+                        "type": "MemberExpression",
+                        "computed": node.callee.computed,
+                        "object": doTransform.call(this, node.callee.object, options),
+                        "property": node.callee.computed ? // IF property is dynamic - try to get deeper
+                            doTransform.call(this, node.callee.property, options) : node.callee.property
+                    },
+                    "arguments": node.arguments.map(mapWrapper(this, options))
+                };
+            }else{
+                return {
+                    "type": "CallExpression",
+                    "callee": doTransform.call(this, node.callee, options),
+                    "arguments": node.arguments.map(mapWrapper(this, options))
+                };
+            }
 
         },
         'FunctionDeclaration': function(node){

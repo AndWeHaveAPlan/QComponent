@@ -52,7 +52,7 @@ describe("ast transformations", function () {
         assert.equal(transform('var x;\nx().slice();'),'var x;x().slice();');
         assert.equal(transform('var x = list1.itemSource;\n'+
             'x = x.push({name: addOne}).slice();\n'+
-            'list1.itemSource = x;'),'var x=list1.get([\'itemSource\']);x=x.push({name:addOne}).slice();list1.set([\'itemSource\'],x);');
+            'list1.itemSource = x;'),'var x=list1.get([\'itemSource\']);x=x.push({name:addOne.get([\'value\'])}).slice();list1.set([\'itemSource\'],x);');
     });
 
 });
