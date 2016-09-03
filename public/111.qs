@@ -43,7 +43,7 @@ def Page main
             counterRed += 1
             var list = list1.itemSource;
             list.push({color: 'red', size: 20})
-            list1.set('itemSource', list.slice());
+            list1.itemSource = list.slice();
 
         }
 
@@ -62,7 +62,7 @@ def Page main
             for (var i = 0; i < 10; i++)
                 list.pop();
             list.unshift({color: 'yellow', size: 40})
-            list1.set('itemSource', list.slice());
+            list1.itemSource = list.slice();
 
         }
 
