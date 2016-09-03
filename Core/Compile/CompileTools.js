@@ -337,78 +337,107 @@ module.exports = (function () {
                 var name = (item.name || item.tmpName);
                 var out = [], i, _i, events, event, fn,
                     meta = cls.metadata,
-                    transformFnGet = function(node, stack){
-                        var env = tools.isNameOfEnv(node.name, meta);
-                        if(env.type in primitives){
-                            return {
-                                'type': 'CallExpression',
-                                'callee': {
-                                    'type': 'MemberExpression',
-                                    'computed': false,
-                                    'object': ASTtransformer.craft.Identifier('self'),
-                                    'property': {
-                                        'type': 'Identifier',
-                                        'name': 'get'
-                                    }
-                                },
-                                'arguments': [
-                                    {
-                                        'type': 'ArrayExpression',
-                                        'elements': [
-                                            {
-                                                'type': 'Literal',
-                                                'value': '\''+ node.name +'\'',
-                                                'raw': '\'value\''
-                                            },
-                                            {
-                                                'type': 'Literal',
-                                                'value': 'value',
-                                                'raw': '\'value\''
-                                            }
-                                        ]
-                                    }
-                                ]
-                            };
-                        }else{
-                            return {
-                                    'type': 'CallExpression',
-                                    'callee': {
-                                    'type': 'MemberExpression',
-                                        'computed': false,
-                                        'object': node,
-                                        'property': {
-                                        'type': 'Identifier',
-                                            'name': 'get'
-                                    }
-                                },
-                                    'arguments': [
-                                    {
-                                        'type': 'ArrayExpression',
-                                        'elements': [
-                                            {
-                                                'type': 'Literal',
-                                                'value': 'value',
-                                                'raw': '\'value\''
-                                            }
-                                        ]
-                                    }
-                                ]
-                            };
+                    transformFnGet = function(node, stack, scope) {
+                        var list = stack.slice().reverse(),
+                            first = list[0];
+                        var env = tools.isNameOfEnv(first.name, meta),
+                            who;
+                        if (env.type in primitives) {
+                            who = ASTtransformer.craft.Identifier('self')
+                        } else {
+                            who = list.shift();
                         }
+                        return {
+                            'type': 'CallExpression',
+                            'callee': {
+                                'type': 'MemberExpression',
+                                'computed': false,
+                                'object': who,
+                                'property': {
+                                    'type': 'Identifier',
+                                    'name': 'get'
+                                }
+                            },
+                            'arguments': [
+                                {
+                                    'type': 'ArrayExpression',
+                                    'elements': list.length ? list.map(function (item) {
+                                        if (item.computed) {
+                                            return scope.doTransform.call(scope.me, item, scope.options);
+                                        } else {
+                                            var out = {
+                                                'type': 'Literal',
+                                                'value': item.name,
+                                                'raw': '\'' + item.name + '\''
+                                            };
+                                            if ('_id' in item)
+                                                out._id = item._id;
+
+                                            return out;
+                                        }
+                                    }) : [{
+                                        'type': 'Literal',
+                                        'value': 'value',
+                                        'raw': '\'value\''
+                                    }]
+                                }
+                            ]
+                        };
 
 
                     },
-                    transformFnSet = function(node, stack){
+                    transformFnSet = function(node, stack, scope){
                         var list = stack.slice().reverse(),
-                            node = list[0];
-                        var env = tools.isNameOfEnv(node.name, meta);
-                        if(env.type in primitives){
-
-                        }else{
-
+                            first = list[0];
+                        var env = tools.isNameOfEnv(first.name, meta),
+                            who;
+                        if(env.type in primitives) {
+                            who = ASTtransformer.craft.Identifier('self')
+                        }else {
+                            who = list.shift();
                         }
-                        var x = [meta, item, event]
-                        var y = 4;
+                        return {
+                            'type': 'CallExpression',
+                            'callee': {
+                                'type': 'MemberExpression',
+                                'computed': false,
+                                'object': who,
+                                'property': {
+                                    'type': 'Identifier',
+                                    'name': 'set'
+                                }
+                            },
+                            'arguments': [
+                                {
+                                    'type': 'ArrayExpression',
+                                    'elements':
+                                        list.length ? list.map(function(item){
+                                            if(item.computed){
+                                                return scope.doTransform.call(scope.me, item, scope.options);
+                                            }else{
+                                                var out = {
+                                                    'type': 'Literal',
+                                                    'value': item.name,
+                                                    'raw': '\''+item.name+'\''
+                                                };
+                                                if('_id' in item)
+                                                    out._id = item._id;
+
+                                                return out;
+                                            }
+                                        }) : [{
+                                            'type': 'Literal',
+                                            'value': 'value',
+                                            'raw': '\'value\''
+                                        }]
+
+
+                                },
+                                node.right
+                            ]
+
+                        };
+
                     },
                     options = {
                         variableTransformerSet: transformFnSet,
