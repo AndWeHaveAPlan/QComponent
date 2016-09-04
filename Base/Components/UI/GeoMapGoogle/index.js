@@ -70,6 +70,10 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         var moveListElementId = self.get('moveListElementId');
 
         var moveListElement1 = document.getElementById(moveListElementId);
+
+        // TODO
+        // replace getElementByQuokkaId with findOne
+        //
         var moveListElement2 = getElementByQuokkaId(moveListElementId);
 
         console.log('moveListElementId', moveListElementId);
