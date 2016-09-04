@@ -12,6 +12,7 @@ def Page main
             zoom: 11
             home: [55.794425,37.587836]
             pins: {{[list.selectedItem]}}
+            moveListElementId: moveList
             height: 100%
             width: 100%
 
@@ -77,3 +78,5 @@ def Page main
                 overflow: auto
                 itemSource: {{gm.moveList}}
                 margin: 12px
+            div moveList:
+              margin: 12px

@@ -17,6 +17,10 @@ function getApiByKey(apiKey) {
   return 'https://maps.googleapis.com/maps/api/js?key=' + apiKey;
 }
 
+function getElementByQuokkaId(id) {
+  return window.c.get(id).el;
+}
+
 // Available colors
 // [blue, red, purple, yellow, green]
 //
@@ -30,7 +34,7 @@ function getApiByKey(apiKey) {
 // https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi-dotless.png
 
 module.exports = UIComponent.extend('GeoMapGoogle', {
-  createEl: function () {
+  createEl: function() {
     var self = this;
 
     this.el = UIComponent.document.createElement('div');
@@ -41,7 +45,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     loadScript({
       src: getApiByKey(apiKey),
 
-      onload: function () {
+      onload: function() {
 
         var elem = document.getElementById(self.id);
         //
@@ -59,8 +63,24 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         require('./MapLabel');
         self.mapApi = google.maps;
         self.directionsService = new google.maps.DirectionsService;
-        self.directionsDisplay = new google.maps.DirectionsRenderer;
-        self.directionsDisplay.setMap(self.gmap);
+
+        // self.directionsDisplay = new google.maps.DirectionsRenderer;
+        // self.directionsDisplay.setMap(self.gmap);
+
+        var moveListElementId = self.get('moveListElementId');
+
+        var moveListElement1 = document.getElementById(moveListElementId);
+        var moveListElement2 = getElementByQuokkaId(moveListElementId);
+
+        console.log('moveListElementId', moveListElementId);
+        console.log('moveListElement1', moveListElement1);
+        console.log('moveListElement2', moveListElement2);
+
+        self.directionsDisplay = new google.maps.DirectionsRenderer({
+          // draggable: true,
+          map: self.gmap,
+          panel: moveListElement2
+        });
 
         self._createHome.call(self);
         self._createPins.call(self);
@@ -128,7 +148,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         if (status === google.maps.DirectionsStatus.OK) {
 
           self.directionsDisplay.setDirections(response);
-          console.log('response', response);
+          console.log('in makeRoute, response:', response);
         } else {
           console.error('Directions request failed due to ' + status);
         }
@@ -139,18 +159,17 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       ready: new Property('Boolean', {
           description: 'True if GoogleMap api ready'
         }, {
-            get: Property.defaultGetter,
-            set: function (key, value) {
-            }
+          get: Property.defaultGetter,
+          set: function(key, value) {}
         }, false
       ),
       zoom: new Property('Number', {
           description: 'Map zoom level (setZoom for gmap)'
         }, {
-          get: function (key, value) {
+          get: function(key, value) {
             return this.gmap? this.gmap.getZoom() : value;
           },
-          set: function (key, value) {
+          set: function(key, value) {
             var zoomFixed = minMax(value, 0, 18);
 
             this.gmap.setZoom(zoomFixed)
@@ -162,7 +181,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
           description: 'Mark on map'
         }, {
           get: Property.defaultGetter,
-          set: function (key, value) {
+          set: function(key, value) {
             // CHANGE to update pins on module load
             //
             if (this.mapApi) {
@@ -174,16 +193,23 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       ),
     home: new Property('Array', {description: 'You are here point'}, {
       get: Property.defaultGetter,
-      set: function (key, value) {
+      set: function(key, value) {
         if (this.mapApi) {
           this._removeHome.call(this);
           this._createHome.call(this);
         }
       }
     }),
-    moveList: new Property('Array', {} , {
+    moveListElementId: new Property('String', {} , {
       get: Property.defaultGetter,
-      set: function(){}
-    },[])
+      set: function(key, value) {
+        // TODO
+        // Rerender routes
+
+        console.log('moveListElementId set', value);
+      }
+    })
+
+
   }
 });
