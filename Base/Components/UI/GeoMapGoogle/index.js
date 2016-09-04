@@ -48,10 +48,13 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         self.gmap = new google.maps.Map(elem, {
           center: arrToLanLng([55.76, 37.64]),
           zoom: self.get('zoom'),
+
+          // TODO
+          // make alternatives
           // controls: ['zoomControl', 'searchControl']
         });
 
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // TODO
         // make normal module
         require('./MapLabel');
         self.mapApi = google.maps;
@@ -59,15 +62,15 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         self.directionsDisplay = new google.maps.DirectionsRenderer;
         self.directionsDisplay.setMap(self.gmap);
 
-        self.createHome.call(self);
-        self.createPins.call(self);
+        self._createHome.call(self);
+        self._createPins.call(self);
 
         self.set('ready', true);
       }
     });
   },
 
-  createHome: function() {
+  _createHome: function() {
     var homeData = this.get('home');
     //
     if(homeData) {
@@ -80,12 +83,12 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     }
   },
 
-  removeHome: function() {
+  _removeHome: function() {
     if(this.home)
       TextMarker.remove(this.home);
   },
 
-  createPins: function() {
+  _createPins: function() {
     var self = this;
 
     var pinsData = this.get('pins');
@@ -107,7 +110,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     }
   },
 
-  removePins: function() {
+  _removePins: function() {
     if(this.pins)
       this.pins.forEach(function(pin) {
         TextMarker.remove(pin);
@@ -123,7 +126,9 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         travelMode: google.maps.TravelMode.TRANSIT
       }, function(response, status) {
         if (status === google.maps.DirectionsStatus.OK) {
+
           self.directionsDisplay.setDirections(response);
+          console.log('response', response);
         } else {
           console.error('Directions request failed due to ' + status);
         }
@@ -161,8 +166,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
             // CHANGE to update pins on module load
             //
             if (this.mapApi) {
-              this.removePins.call(this);
-              this.createPins.call(this);
+              this._removePins.call(this);
+              this._createPins.call(this);
             }
           }
         }
@@ -171,8 +176,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       get: Property.defaultGetter,
       set: function (key, value) {
         if (this.mapApi) {
-          this.removeHome.call(this);
-          this.createHome.call(this);
+          this._removeHome.call(this);
+          this._createHome.call(this);
         }
       }
     }),
