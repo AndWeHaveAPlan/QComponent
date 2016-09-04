@@ -47,11 +47,11 @@ def Page main
                 type: button
                 enabled: {{ gm.ready }}
                 .click: ()=>{
-                  var from = gm.get('home');
-                  var to = gm.get('pins.0.coords');
+                    var from = gm.get('home');
+                    var to = gm.get('pins.0.coords');
 
-                  if(to) { gm.makeRoute(from, to); }
-                  else { console.error("Destination isn't selected"); }
+                    if(to) { gm.makeRoute(from, to); }
+                    else { console.error("Destination isn't selected"); }
                 }
             input: Увеличить
                 margin: 12px
