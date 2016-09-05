@@ -34,18 +34,18 @@ function handleFileName(path) {
 }
 
 function handleFile(path, aPath, name) {
-
+    
     var absolutePath = Path.join(__dirname, path);
     var content = Fs.readFileSync(absolutePath).toString();
     content = content.replace(/module.exports\s+=\s+/g, 'return ');
-
+    
     content = content.replace(/require\('([\w./]+)'\)/g, function (a, b, c, d, e) {
         var parts = b.split('/');
         var folders = aPath;
-
+        
         for (var i = 0; i < parts.length; i++) {
             var part = parts[i];
-
+            
             if (part === '..') {
                 folders = folders.slice(0, -2);
             } else if (part === '.') {
@@ -54,11 +54,11 @@ function handleFile(path, aPath, name) {
                 folders.push(part);
             }
         }
-
+        
         folders.unshift(name);
         return folders.join('.');
     });
-
+    
     return content;
 }
 
@@ -68,18 +68,17 @@ function handleFile(path, aPath, name) {
  * @param name
  */
 function rebuildTree(tree, name, targetFile) {
-
+    
     var aPath = [];
-
+    
     Fs.appendFileSync(targetFile, 'var ' + name + ' = {');
-
+    
     function recursion(subtree) {
         for (var key in subtree) {
             if (subtree.hasOwnProperty(key)) {
                 var st = subtree[key];
                 aPath.push(key);
                 if (typeof st == 'string') {
-
                     Fs.appendFileSync(targetFile, key + ': (function(){');
                     Fs.appendFileSync(targetFile, handleFile(st, aPath, name));
                     Fs.appendFileSync(targetFile, '})(),\n');
@@ -93,25 +92,21 @@ function rebuildTree(tree, name, targetFile) {
             }
         }
     }
-
+    
     recursion(tree[name]);
-
+    
     Fs.appendFileSync(targetFile, '}');
 }
 
-/*
- Fs.unlinkSync('public/bundle3.js');
- buildTree('Base');
- rebuildTree(classTree, 'Base', 'public/bundle3.js');
- */
+try {
+    Fs.unlinkSync('public/bundle3.js');
+} catch (e) {
+    
+}
+
+buildTree('Base');
+rebuildTree(classTree, 'Base', 'public/bundle3.js');
+
 //Fs.appendFileSync('bundle3.js', JSON.stringify(classTree, null, '\t'));
-var test = {};
-
-test.foo=(function () {
-    return test.bar+1;
-})();
-test.bar = 4;
-
-console.log(test);
 
 console.log(__dirname);
