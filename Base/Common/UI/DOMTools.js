@@ -2,7 +2,7 @@
  * Created by zibx on 05.08.16.
  */
 
-var DOM = module.exports = (function () {
+var DOM = (function () {
     'use strict';
 
     var QObject = require('../../QObject'),
@@ -268,3 +268,5 @@ var DOM = module.exports = (function () {
 
     return new DomWrapper();
 })();
+
+module.exports = DOM;

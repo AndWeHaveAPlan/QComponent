@@ -18,8 +18,7 @@ module.exports = (function () {
                 if (xhr.status != 200) {
                     self.set('error', new Error(xhr.status + ': ' + xhr.statusText));
                     self.fire('error');
-                } else {
-                    console.log(xhr.responseText);
+                } else {                    
                     self.set('result', xhr.responseText);
                     self.fire('complete');
                 }

@@ -6,7 +6,7 @@ var UIComponent = require('../../UIComponent');
 var Property = require('../../../Property');
 
 
-var BaseInput = module.exports = UIComponent.extend('BaseInput', {
+var BaseInput = UIComponent.extend('BaseInput', {
     mixin: 'focusable'
 });
 
@@ -20,3 +20,5 @@ var TestInput = BaseInput.extend('TestInput', {
         value: Property.generate.attributeProperty('value')
     }
 });
+
+module.exports = BaseInput;

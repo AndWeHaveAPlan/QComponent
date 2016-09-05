@@ -32,7 +32,8 @@ MutatingPipe.prototype = Object.create(AbstractPipe.prototype);
  * @param mutatorFunction
  */
 MutatingPipe.prototype.addMutator = function (mutatorFunction) {
-    this._mutators.push(mutatorFunction)
+    this._mutators.push(mutatorFunction);
+    return this;
 };
 
 /**

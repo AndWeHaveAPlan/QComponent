@@ -61,7 +61,7 @@ module.exports = UIComponent.extend('GeoMap', {
 
         var self = this;
 
-        self.ymap.geoObjects.remove(this.route);
+        self.ymap.geoObjects.remove(self.route);
 
         self.mapApi.route(
             [from, to],

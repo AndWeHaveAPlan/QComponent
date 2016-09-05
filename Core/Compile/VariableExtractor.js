@@ -45,23 +45,28 @@ module.exports = (function () {
         'Property': 'value',
         'TryStatement': ['block','*handlers']
     };
-
+    var mapWrapper = function(scope, a, b, c){
+        return function(item){
+            getVars.call(scope, item, a, b, c);
+        };
+    };
     var extractors = {
 
         'VariableDeclaration': function(node){
             node.declarations.forEach(setter('kind', node.kind));
-            node.declarations.map(getVars, this);
+            node.declarations.map(mapWrapper(this));
         },
         'VariableDeclarator': function(node){ // go to declared
             this.declare(node.id, node.init, node.kind);
             getVars.call(this,node.init);
         },
         'BlockStatement': function(node){
-            node.body.map(getVars, this.extend('block'));
+            node.body.map(mapWrapper(this.extend('block')));
         },
         'CallExpression': function(node, list){
-            getVars.call(this, node.calee, list);
-            node.arguments.map(getVars, this);
+            getVars.call(this, node.callee.object, list);
+            getVars.call(this, node.callee.property, list);
+            node.arguments.map(mapWrapper(this));
             /*var scope;
             if(list && list.length) {
                 list.push(node);
@@ -96,6 +101,7 @@ module.exports = (function () {
 
             if(needList){
                 list = list || [];
+                if(!Array.isArray(list))list = [];
                 list.push(node.property);
                 getVars.call(this, node.object, list);
                 if(!wasList && needList){
@@ -103,7 +109,7 @@ module.exports = (function () {
                     scope = (this.deepUsed[list[0].name] || (this.deepUsed[list[0].name] = {}));
                     key = list.map(function(node){
                         if(node.type==='Literal')
-                            return node.value.replace(/\./g,'\\.');
+                            return (node.value+'').replace(/\./g,'\\.');
                         return (node.computed ? '~':'')+node.name;
                     }).join('.');
                     node._id = counter++;
@@ -152,7 +158,7 @@ module.exports = (function () {
                 //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }else {
                 this.used[node.name] = true;
-                if(list === void 0 || list === false || typeof list === 'number') {
+                if(list === void 0) {
                     scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
                     node._id = counter++;
                     (scope[node.name] || (scope[node.name] = [])).push(node);
@@ -325,7 +331,7 @@ module.exports = (function () {
     var getFullUnDefined = function (obj, collector) {
         var deepUsed = obj.deepUsed;
         /*console.log(deepUsed);
-        console.log(obj.used);
+        console.log(obj.used);`
         console.log(Object.keys(obj.declared))*/
 
         var i, undef = {};
@@ -341,9 +347,11 @@ module.exports = (function () {
         obj.subScopes.forEach(function(scope){
             apply(undef, getFullUnDefined(scope, collector));
         });
-        delete undef.Math;
-        delete undef.console;
-        //console.log(undef)
+        for(i in undef){
+            if(extractor.knownVars[i])
+                delete undef[i];
+        }
+
         return undef;
 
     };
@@ -367,7 +375,15 @@ module.exports = (function () {
             };
         },
         extractors: extractors,
-        rules: rules
+        rules: rules,
+        knownVars: {
+            Math: true,
+            console: 1,
+            Date: 1,
+            parseInt: 1,
+            parseFloat: 1,
+            JSON: 1
+        }
     };
     return extractor;
 })();

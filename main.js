@@ -14,6 +14,7 @@ var header = '<!DOCTYPE HTML>' +
     '<script>module = {};</script>' +
 
     '<script src="bundle.js"></script>' +
+    //script src="bundle3.js"></script>' +
     '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
     '<link rel="stylesheet" type="text/css" href="highlight.css">' +
     '</head><body>';
@@ -104,7 +105,7 @@ var server = http.createServer(function (req, res) {
                 compiled = Core.Compile.Compiler.compile(subObj);
 
                 return res.end(header +
-                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();</script>' +
+                    '<script>console.log("INIT");QObject = Base.QObject; Q = ' + compiled + ';</script></head><body><script>var c=new Q.main();c.load();</script>' +
                     footer);
             } else {
 
@@ -165,8 +166,7 @@ var server = http.createServer(function (req, res) {
             return res.end(e.message);
         }
     } catch (e) {
-        if (debug)throw e;
-        return res.end('Поебень (' + path + ')');
+        return res.end(e.stack);
     }
 
 
