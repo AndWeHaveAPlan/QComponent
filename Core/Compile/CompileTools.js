@@ -9,7 +9,9 @@
 module.exports = (function () {
     'use strict';
     var namesCount = {};
-    var VariableExtractor = require('./VariableExtractor'),
+    var QObject = require('../../Base/QObject'),
+        AbstractComponent = require('../../Base/Components/AbstractComponent'),
+        VariableExtractor = require('./VariableExtractor'),
         ASTtransformer = require('./ASTtransformer');
     var primitives = {
         'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Variant': true
@@ -66,8 +68,9 @@ module.exports = (function () {
             if (prop.type==='Variant')
                 return JSON.stringify(prop.value);
 
-            if(prop.type === 'ItemTemplate')
-                return scope.cls(prop.type).compile(true).join('\n');
+            var known = QObject._knownComponents[prop.type];
+            if(known && known.prototype instanceof AbstractComponent)
+                return scope.cls(prop).compile(true).join('\n');
 
             var val = this.dataExtractor(prop);
 

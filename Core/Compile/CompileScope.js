@@ -25,7 +25,7 @@ module.exports = (function () {
             return child;
         },
         cls: function(name){
-            var cls = new CompileClass({name: name || 'this'}, this);
+            var cls = new CompileClass(typeof name === 'object' ? name : {type: name || 'this'}, this);
             this.classes.push(cls);
             return cls;
         }
