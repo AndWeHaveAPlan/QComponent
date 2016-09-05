@@ -5,3 +5,9 @@ public/bundle.js
 public/bundle2.js
 public/test.qs
 .vscode/
+/typings
+/typings.json
+/QComponent.sln.DotSettings
+/QComponent.sln
+/.vs/QComponent/v14/.suo
+/.vs/config/applicationhost.config
