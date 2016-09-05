@@ -11,6 +11,9 @@ module.exports = UIComponent.extend('Page', {
     createEl: function () {
         this.el = QObject.document.createElement('div');
     },
+    load: function () {
+        QObject.document.body.appendChild(this.el);
+    },
     _prop: {
         title: new Property('String', { description: 'Page Title' }, {
             set: function (name, value) {
