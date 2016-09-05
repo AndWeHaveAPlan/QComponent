@@ -5,28 +5,57 @@
 var QObject = require('../QObject'),
     Sequence = require('./Sequence'),
     Selector = require('./Selector'),
-    AbstractComponent = require('../Components/AbstractComponent');
+    AbstractComponent = require('../Components/AbstractComponent'),
+    Property = require('../Property');
 
 var Scenario = AbstractComponent.extend('Scenario', {
+    _prop: {
+        value: new Property('Scenario', {},
+            {
+                get: function (name, value) {
+                    return this;
+                }
+            }, null),
+        currentPage: new Property('Page', {},
+            {
+                get: Property.defaultGetter,
+                set: function () { }
+            }, null)
+    },
     load: function () {
-        Scenario.currentScenario = this;
-
-        this.processSequence(this.sequences[0]);
+        this.next();
     },
     next: function () {
-        this.processSequence(this.sequences[0]);
-    },
-    processSequence: function (sequence) {
+        var sequence = (this.sequences[0]);
         if (sequence.canGoNext()) {
             var sel = sequence.next();
             if (sel instanceof Selector) {
                 var p = new (sel.get('page'))();
-                p.set('scenario', this);
-                QObject.document.body = p.el;
+                this._setPage(p);
             } else {
                 console.log('not selector');
             }
         }
+    },
+    back: function () {
+        var sequence = (this.sequences[0]);
+        if (sequence.canGoBack()) {
+            var sel = sequence.back();
+            if (sel instanceof Selector) {
+                var p = new (sel.get('page'))();
+                this._setPage(p);
+            } else {
+                console.log('not selector');
+            }
+        }
+    },
+    _setPage: function (page) {
+        page.set('scenario', this);
+        this.set('currentPage', page);
+        QObject.document.body.innerHTML = '';
+        QObject.document.body.appendChild(page.el);
+
+        //p.on('finish', this.processSequence(sequence));
     }
 }, function (cfg) {
     var self = this;
