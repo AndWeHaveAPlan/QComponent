@@ -1,31 +1,40 @@
+def Page page0
+	width: 100%
+	height: 100%
+
+	background: #ccc
+	h1: Page 0
+
+	TextBox type: {{scenario.insuranceType}}
+	    placeholder: 'osago/casco'
+
 def Page page1
 	width: 100%
 	height: 100%
+	public Scenario scenario
+
 	background: #fcc
-	h1: Page 1
-	input: Finish
-	    type: button
-		.click: ()=>{
-		    scenario.next();
-		}
+	h1: OSAGO
 
 def Page page2
 	width: 100%
 	height: 100%
 	background: #cfc
-	h1: Page 2
+	h1: CASCO
 
 
 
 def Scenario main
 	public String phone: null
-	public String insuranceType: null
+	public String insuranceType: 'osago'
 	public String paymentData: null
 
 	Sequence
-		Selector
+		Selector:
+			page: page0
+		Selector: insuranceType=='osago'
 			page: page1
-		Selector
+		Selector: insuranceType=='casco'
 			page: page2
 		Selector
 			page: page3
@@ -41,7 +50,9 @@ def Scenario main
 			page: osagoPage
 
 		cascoPage: insuranceType=='casco'
-
+		if insuranceType=='casco'
+			cascoPage
+		else
 		Selector: insuranceType=='casco'
 			page: cascoPage
 

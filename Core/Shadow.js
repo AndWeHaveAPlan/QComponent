@@ -12,6 +12,7 @@ module.exports = (function() {
             AbstractComponent: require('./Shadow/AbstractComponent'),
             UIComponent: require('./Shadow/UIComponent'),
             HTMLComponent: require('./Shadow/HTMLComponent'),
+            Selector: require('./Shadow/Selector'),
             String: {},
             Boolean: {},
             Variant: {},

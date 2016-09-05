@@ -71,11 +71,11 @@ module.exports = (function () {
          */
         propertyGetter: function (prop, scope) {
 
-            function checkType(sourceType,targetType) {
+            function checkType(sourceType, targetType) {
                 var type = (scope.metadata[sourceType] && scope.metadata[sourceType].type) || (QObject._knownComponents[sourceType] && QObject._knownComponents[sourceType]._type);
                 if (type && targetType === type) {
                     return true;
-                } else if (type !== 'QObject') {
+                } else if (type !== 'QObject' && type !== void (0)) {
                     return checkType(type, targetType);
                 } else {
                     return false;
@@ -86,7 +86,7 @@ module.exports = (function () {
                 return JSON.stringify(prop.value);
 
             var known = QObject._knownComponents[prop.type];
-     
+
             if (known && known.prototype instanceof AbstractComponent) {
                 if (prop.value && checkType(prop.value, prop.type)) {
                     return 'QObject._knownComponents[\'' + prop.value + '\']';
