@@ -13,7 +13,8 @@ var header = '<!DOCTYPE HTML>' +
     '<meta name="referrer" content="no-referrer">' +
     '<script>module = {};</script>' +
 
-    '<script src="bundle.js"></script>' +
+    //'<script src="bundle.js"></script>' +
+    '<script src="bundle3.js"></script>' +
     '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
     '<link rel="stylesheet" type="text/css" href="highlight.css">' +
     '</head><body>';

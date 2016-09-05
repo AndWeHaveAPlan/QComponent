@@ -7,6 +7,7 @@ var UIComponent = require('../UIComponent');
 var Property = require('../../Property');
 
 module.exports = UIComponent.extend('FlexSizeComponent', {
+
     _prop: {
         flexDefinition: new Property('String', {description: ""}, {
             get: Property.defaultGetter,
