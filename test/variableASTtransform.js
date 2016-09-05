@@ -10,11 +10,11 @@ var assert = require('chai').assert,
 
 describe("ast transformations", function () {
     "use strict";
+    var VariableExtractor = Core.Compile.VariableExtractor;
     var transform = function(source){
         var vars = VariableExtractor.parse(source), o = vars.getFullUnDefined();
         return new ASTtransformer().transform(vars.getAST(), o, {escodegen: {format: {compact: true}}});
     };
-    var VariableExtractor = Core.Compile.VariableExtractor;
     it("should work in simple cases", function () {
         assert.equal(transform('a=2;'), 'a.set([\'value\'],2);');
         assert.equal(transform('a=b;'), 'a.set([\'value\'],b.get([\'value\']));');

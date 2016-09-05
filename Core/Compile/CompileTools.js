@@ -9,7 +9,9 @@
 module.exports = (function () {
     'use strict';
     var namesCount = {};
-    var VariableExtractor = require('./VariableExtractor'),
+    var QObject = require('../../Base/QObject'),
+        AbstractComponent = require('../../Base/Components/AbstractComponent'),
+        VariableExtractor = require('./VariableExtractor'),
         ASTtransformer = require('./ASTtransformer');
     var primitives = {
         'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Variant': true
@@ -66,8 +68,9 @@ module.exports = (function () {
             if (prop.type==='Variant')
                 return JSON.stringify(prop.value);
 
-            if(prop.type === 'ItemTemplate')
-                return scope.cls(prop.type).compile(true).join('\n');
+            var known = QObject._knownComponents[prop.type];
+            if(known && known.prototype instanceof AbstractComponent)
+                return scope.cls(prop).compile(true).join('\n');
 
             var val = this.dataExtractor(prop);
 
@@ -333,18 +336,129 @@ module.exports = (function () {
             }
         },
         builder: {
-            events: function (item) {
+            events: function (item, cls) {
                 var name = (item.name || item.tmpName);
-                var out = [];
+                var out = [], i, _i, events, event, fn,
+                    meta = cls.metadata,
+                    transformFnGet = function(node, stack, scope) {
+                        var list = stack.slice().reverse(),
+                            first = list[0];
+                        var env = tools.isNameOfEnv(first.name, meta),
+                            who;
+                        if (env.type in primitives) {
+                            who = ASTtransformer.craft.Identifier('self')
+                        } else {
+                            who = list.shift();
+                        }
+                        return {
+                            'type': 'CallExpression',
+                            'callee': {
+                                'type': 'MemberExpression',
+                                'computed': false,
+                                'object': who,
+                                'property': {
+                                    'type': 'Identifier',
+                                    'name': 'get'
+                                }
+                            },
+                            'arguments': [
+                                {
+                                    'type': 'ArrayExpression',
+                                    'elements': list.length ? list.map(function (item) {
+                                        if (item.computed) {
+                                            return scope.doTransform.call(scope.me, item, scope.options);
+                                        } else {
+                                            var out = {
+                                                'type': 'Literal',
+                                                'value': item.name,
+                                                'raw': '\'' + item.name + '\''
+                                            };
+                                            if ('_id' in item)
+                                                out._id = item._id;
+
+                                            return out;
+                                        }
+                                    }) : [{
+                                        'type': 'Literal',
+                                        'value': 'value',
+                                        'raw': '\'value\''
+                                    }]
+                                }
+                            ]
+                        };
+
+
+                    },
+                    transformFnSet = function(node, stack, scope){
+                        var list = stack.slice().reverse(),
+                            first = list[0];
+                        var env = tools.isNameOfEnv(first.name, meta),
+                            who;
+                        if(env.type in primitives) {
+                            who = ASTtransformer.craft.Identifier('self')
+                        }else {
+                            who = list.shift();
+                        }
+                        return {
+                            'type': 'CallExpression',
+                            'callee': {
+                                'type': 'MemberExpression',
+                                'computed': false,
+                                'object': who,
+                                'property': {
+                                    'type': 'Identifier',
+                                    'name': 'set'
+                                }
+                            },
+                            'arguments': [
+                                {
+                                    'type': 'ArrayExpression',
+                                    'elements':
+                                        list.length ? list.map(function(item){
+                                            if(item.computed){
+                                                return scope.doTransform.call(scope.me, item, scope.options);
+                                            }else{
+                                                var out = {
+                                                    'type': 'Literal',
+                                                    'value': item.name,
+                                                    'raw': '\''+item.name+'\''
+                                                };
+                                                if('_id' in item)
+                                                    out._id = item._id;
+
+                                                return out;
+                                            }
+                                        }) : [{
+                                            'type': 'Literal',
+                                            'value': 'value',
+                                            'raw': '\'value\''
+                                        }]
+
+
+                                },
+                                node.right
+                            ]
+
+                        };
+
+                    },
+                    options = {
+                        variableTransformerSet: transformFnSet,
+                        variableTransformerGet: transformFnGet
+                    },
+                    transformer = new ASTtransformer();
                 //out += name+'._subscribeList = [];\n';
                 //out += '\t\tthis._subscr = function(){\n';
 
                 //out+=name+'.removableOn(\''+evt.events+'\',function(' + evt.args.join(',') + '){\n' + evt.fn + '\n})';
+                events = item.events;
+                for( i = 0, _i = events.length; i < _i; i++){
+                    event = events[i];
+                    fn = transformer.transform(event.fn.ast, event.fn.vars, options);
+                    out.push(name + '.on(\'' + event.events + '\',function(' + event.args.join(',') + '){\n' + fn + '\n}, '+name+');');
+                }
 
-                item.events.forEach(function (evt) {
-                    out.push(name + '.on(\'' + evt.events + '\',function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, '+name+');');
                     //out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, this));\n';
-                });
                 //out += '\t\t};\n';
                 //out += '\t\tthis._subscr();\n';
                 return out;

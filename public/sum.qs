@@ -6,8 +6,8 @@ def LogicalComponent Summator
 
 def Page main
   Summator s1
-    a: {{i1.value}}
-    b: {{i2.value}}
+    a: {{i1}}
+    b: {{i2}}
 
   input i1
       type: number

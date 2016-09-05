@@ -17,7 +17,7 @@ module.exports = (function () {
         this.scope = scope;
         this.props = [];
         QObject.apply(this, cfg);
-        var type = this.name;
+        var type = this.type;
         var metadata = this.scope.metadata[type];
 
         if (!metadata) { /** it is not in compiling classes */
@@ -39,7 +39,7 @@ module.exports = (function () {
         compile: function (inline) {
 
             var vars = this.vars,
-                name = this.name,
+                name = this.type,
                 scope = this.scope;
 
             var metadataItem = this.metadata,
@@ -49,7 +49,7 @@ module.exports = (function () {
             inline = !!inline;
 
             if (inline) {
-                this.name = name = metadataItem._type + uuid();
+                this.type = name = metadataItem._type + uuid();
             }
 
             this.scope.vars[metadataItem._type] = '_known[\'' + metadataItem._type + '\']';
@@ -68,7 +68,7 @@ module.exports = (function () {
                 {name: 'value', value: 'new Base.Property("Variant")'}
             ];
 
-            var compiledChildren = metadataItem.children ? metadataItem.children.map(function (el) {
+            var compiledChildren = this.children || metadataItem.children ? (this.children || metadataItem.children).map(function (el) {
                 return scope.child({cls: _self, child: el, parent: _self});//el, item, props, vars, 0);
             }) : '//no children\n';
 
@@ -84,18 +84,18 @@ module.exports = (function () {
                 '}}, function(){',
                 '    ' + metadataItem._type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
-                metadataItem.events ? this.builder.events(metadataItem) : '',
+                metadataItem.events ? this.builder.events(metadataItem, _self) : '',
                 '',
                 out,
-                this.makePublic(metadataItem.public, metadataItem, vars),
-                this.makePublic(metadataItem.private, metadataItem, vars),
+                this.makePublic(metadataItem.public, metadataItem, scope),
+                this.makePublic(metadataItem.private, metadataItem, scope),
                 compiledChildren,
                 '    this._init();',
                 '})' + (inline ? '' : ';')
             ];
             return tools.indent(1, source);
         },
-        makePublic: function (props, def, vars) {
+        makePublic: function (props, def, scope) {
             var i, prop, pipes, out = '', propVal;
             for (i in props) {
                 prop = props[i];
@@ -105,7 +105,7 @@ module.exports = (function () {
                     out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);//'clsMakePublic');//'this.id', i, def, 'this.id', prop);
                 } else {
 
-                    propVal = tools.propertyGetter(prop, vars);
+                    propVal = tools.propertyGetter(prop, scope);//vars);
 
                     //console.log(i,propVal, JSON.stringify(prop));
                     if(!(propVal instanceof Error))
