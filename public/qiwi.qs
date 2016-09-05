@@ -30,7 +30,7 @@ def Page main
         NumberKeyboard k1
         Button b1: Далее
             .click: function(e){
-                        s1.visibility='collapsed';
+                s1.visibility = 'collapsed';
             }
             float: right
             enabled: false

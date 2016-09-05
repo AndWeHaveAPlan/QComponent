@@ -6,7 +6,7 @@ module.exports = (function () {
     /**
      * Factory of factories of properties
      */
-    var QObject = require('./QObject');
+    var QObject;
     var dataTypes = {
         Boolean: {
             set: function () {
@@ -57,10 +57,10 @@ module.exports = (function () {
         if ((!validate || (validate && validate(value))) && value !== oldValue) {
             this.parent._data[key] = value;
             if (prop._set.call(this.parent, key, value, oldValue) !== false) {
-                this.parent._onPropertyChanged(this.parent, key, value, oldValue);
+                this.parent._onPropertyChanged(this.parent, [key], value, oldValue);
                 if (proxy) {
                     for (var i = 0; i < proxy.length; i++) {
-                        this.parent._onPropertyChanged(this.parent, proxy[i], value, oldValue)
+                        this.parent._onPropertyChanged(this.parent, [proxy[i]], value, oldValue);
                     }
                 }
             } else {
@@ -76,6 +76,7 @@ module.exports = (function () {
     };
 
     var Property = function (type, metadata, cfg, defaultValue) {
+        QObject = QObject || require('./QObject');
         metadata = metadata || {};
         cfg = cfg || {};
         this.cfg = cfg;

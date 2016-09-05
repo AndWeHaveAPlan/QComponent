@@ -8,21 +8,7 @@ var tools = module.exports = (function() {
     };
     var variableExtractor = require('./VariableExtractor'),
         QObject = require('../../Base').QObject;
-    var extractors = {
-            quote: function (token) {
-                return token.pureData;
-            },
-            brace: function(token){
-                return token.pureData;
-            }
-        },
-        extractor = function(token){
-            var extractor = extractors[token.type];
-            if(!extractor){
-                throw new Error('unknown token type `'+token.type+'`')
-            }
-            return extractor(token);
-        };
+    
     return {
         removeFirstWord: function (item, word) {
             var subItem = Object.create(item.items[0]), pos;
@@ -82,29 +68,13 @@ var tools = module.exports = (function() {
             }
             return out;
         },
-        dataExtractor: function (prop) {
-            var type = prop.type;
-            var val = prop.value,
-                out;
-            if (typeof val === 'string') {
-                out = val;
-            } else {
-                out = val.map(extractor).join('');
-            }
-
-            if (type === 'Variant' || type === 'String')
-                return JSON.stringify(out);
-            else if(type === 'Array' || type === 'Number' || type === 'Boolean')
-                return out;
-            console.warn('Unknown type: '+type);
-            return new Error('Unknown type: '+type);
-        },
+        
         
         /** recursive parsing of braces */
         _transformPipes: function (pipedOut, items) {
             var i, _i = items.length, item, data,
                 unUsed, out = pipedOut.items, werePipes = false,
-                vars;
+                vars, subResult;
 
             for (i = 0, _i; i < _i; i++) {
                 item = items[i];
@@ -123,7 +93,7 @@ var tools = module.exports = (function() {
                         out.push({type: 'fn', pureData: data});
                     } else {
                         try {
-                            out.push({type: 'text', pureData: eval(data), col: item.col, row: item.row});
+                            out.push({type: 'text', pureData: eval(data)/** TODO escape this security breach */, col: item.col, row: item.row});
                         } catch (e) {
                             QObject.Error('Evaluation error', {item: item, data: e});
                         }
@@ -131,10 +101,11 @@ var tools = module.exports = (function() {
                     //debugger;
                 } else if (item.type === 'brace') {
                     out.push({pureData: item.info, type: 'text'});
-                    werePipes = werePipes || this._transformPipes(pipedOut, item.items);
+                    subResult = this._transformPipes(pipedOut, item.items);
+                    werePipes = werePipes || subResult;
                     out.push({pureData: item._info, type: 'text'});
                 } else {
-                    out.push({pureData: item.pureData, type: 'text'});
+                    out.push({pureData: item.pureData, type: item.type, data: item.data});
                 }
             }
             return werePipes;
@@ -188,21 +159,7 @@ var tools = module.exports = (function() {
             }
             return pipes;
         },
-        compilePipe: {
-            raw: function(val){
-                return val.map(function (item) {
-                    return item.pureData;
-                }).join('');
-            },
-            string: function(val){
-                return val.map(function (item) {
-                    if (item.type === 'text')
-                        return '\'' + item.pureData + '\'';// TODO: escape
-                    else
-                        return '(' + item.pureData + ')';
-                 }).join('+');
-            }
-        },
+        
         /**
          * Split items by symbol
          */

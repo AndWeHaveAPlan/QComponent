@@ -284,7 +284,7 @@ module.exports = (function() {
                                 this.isProperty('default', sub.type, localShadow)
                             );
 
-                        console.log(info.type, !!isProperty)
+                        //console.log(info.type, !!isProperty)
                         if (isProperty) {
                             info.name = info.type;
                             child.type = info.type = isProperty.type;
@@ -378,7 +378,8 @@ module.exports = (function() {
 
             }
         };
-    Linker.prototype = new QObject(Linker.prototype);
+
+    Linker.prototype = new QObject().apply(Linker.prototype);
 
     return Linker;
 })();

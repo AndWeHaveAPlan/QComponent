@@ -10,11 +10,11 @@ var assert = require('chai').assert,
 
 describe("ast transformations", function () {
     "use strict";
+    var VariableExtractor = Core.Compile.VariableExtractor;
     var transform = function(source){
         var vars = VariableExtractor.parse(source), o = vars.getFullUnDefined();
-        return new ASTtransformer().transform(vars.getAST(), o, {compact: true});
+        return new ASTtransformer().transform(vars.getAST(), o, {escodegen: {format: {compact: true}}});
     };
-    var VariableExtractor = Core.Compile.VariableExtractor;
     it("should work in simple cases", function () {
         assert.equal(transform('a=2;'), 'a.set([\'value\'],2);');
         assert.equal(transform('a=b;'), 'a.set([\'value\'],b.get([\'value\']));');
@@ -27,6 +27,9 @@ describe("ast transformations", function () {
     it("should work in complex cases", function () {
         assert.equal(transform('a.b.c=2;'), 'a.set([\'b\',\'c\'],2);');
         assert.equal(transform('a.b.c[d]=2;'), 'a.set([\'b\',\'c\',d.get([\'value\'])],2);');
+        //assert.equal(transform('a.b.c[d]'), 'a.set([\'b\',\'c\',d.get([\'value\'])],2);');
+
+        
         assert.equal(transform('var x; a.b.c[d?x:d.e]=2;'), 'var x;a.set([\'b\',\'c\',d.get([\'value\'])?x:d.get([\'e\'])],2);');
     });
 
@@ -49,7 +52,7 @@ describe("ast transformations", function () {
         assert.equal(transform('var x;\nx().slice();'),'var x;x().slice();');
         assert.equal(transform('var x = list1.itemSource;\n'+
             'x = x.push({name: addOne}).slice();\n'+
-            'list1.itemSource = x;'),'var x=list1.get([\'itemSource\']);x=x.push({name:addOne}).slice();list1.set([\'itemSource\'],x);');
+            'list1.itemSource = x;'),'var x=list1.get([\'itemSource\']);x=x.push({name:addOne.get([\'value\'])}).slice();list1.set([\'itemSource\'],x);');
     });
 
 });

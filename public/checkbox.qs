@@ -17,7 +17,7 @@ def UIComponent main
    String href: "http://google.com"
    TextBox:
        text: {{value}}
-   Checkbox1 c1:
+   Checkbox c1:
        checked: {{value}}
    HBox hbox:
        a:
@@ -27,5 +27,5 @@ def UIComponent main
            value: {{value}}
            href: {{href}}
    div d1:
-       Checkbox1 c2:
+       Checkbox c2:
            checked: {{value}}

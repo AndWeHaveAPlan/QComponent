@@ -16,6 +16,11 @@ module.exports = {
         mixins: {
             focusable: require('./Base/Mixins/focusable')
         },
+        Workflow:{
+            Scenario: require('./Base/Workflow/Scenario'),
+            Selector: require('./Base/Workflow/Selector'),
+            Sequence: require('./Base/Workflow/Sequence')
+        },
         UI: {
             Fields: {
                 Base: require('./Base/Components/UI/Field/Base')
@@ -23,6 +28,7 @@ module.exports = {
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             TextBox: require('./Base/Components/UI/TextBox'),
+            NumberBox: require('./Base/Components/UI/NumberBox'),
             MaskedInput: require('./Base/Components/UI/MaskedInput'),
             ListBox: require('./Base/Components/UI/ListBox'),
             WrapPanel: require('./Base/Components/UI/WrapPanel'),
