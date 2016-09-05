@@ -14,7 +14,7 @@ var DQIndex = require('z-lib-structure-dqIndex');
 
 module.exports = UIComponent.extend('ContainerComponent', {
     _prop: {
-        value: new Property('Variant', {description: 'Same as ItemSource', overrideKey: 'itemSource'}, {}, {}),
+        value: Property.generate.proxy('itemSource'),//new Property('Variant', {description: 'Same as ItemSource', overrideKey: 'itemSource'}, {}, {}),
         selectionColor: new Property('String', {description: 'Selection color (css notation)'}, null, '#3b99fc'), //qiwi color
         selectedIndex: new Property('Number', {description: 'Index of current selected item'}, {
             set: function (name, val, oldVal) {

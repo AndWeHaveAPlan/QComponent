@@ -23,7 +23,8 @@ module.exports = UIComponent.extend('ItemTemplate', {
                 this.textNode.set('value', val);
             },
             get: Property.defaultGetter
-        })
+        }),
+        'default': new Property('Variant')
     }
 }, function (cfg) {
     UIComponent.call(this, cfg);

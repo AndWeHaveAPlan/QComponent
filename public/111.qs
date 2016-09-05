@@ -4,8 +4,18 @@ def Page main
         enabled: true
         interval: 1000
         .tick: function () {
+
             counter += coeff
+
+            var list = list1.itemSource;
+            for (var i = 0; i < coeff; i++) {
+
+                list.push({color: 'red', size: 5})
+                break;
+            }
+            list1.itemSource = list.slice();
             counterRed += coeff
+
             time += 1
         }
 
@@ -20,15 +30,15 @@ def Page main
         padding: 5px
         enabled: {{improveCounter == 1 && counterYellow >= 5}}
         .click: function () {
-            if (improveCounter == 1) {
-                coeff += 1
+            if (improveCounter == 1){
+                coeff += 1;
                 console.log("коэффициент: ", coeff)
             }
-            
             improveCounter+=1;
 
             console.log("импрув каунтер: ", improveCounter)
             improve.enabled = false
+            timer.enabled = true;
         }
     span: {{"оранжевых: 0, желтых: "+counterYellow+", красных: "+counterRed+ " время: "+time}}
         margin: 10px
@@ -53,20 +63,26 @@ def Page main
     input make40: red to yellow
         type: button
         padding: 5px
-        enabled: {{counterRed >= 10}}
+        enabled: {{counterRed >= 2}}
         // false// {{list1.itemSource.filter((item)->return item.color=='red').length>9}}
         .click: function () {
-            counterRed -= 10
+            counterRed -= 2
             counterYellow += 1
             var list = list1.itemSource;
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 2; i++)
                 list.pop();
             list.unshift({color: 'yellow', size: 40})
             list1.itemSource = list.slice();
 
         }
 
-
+    input: make purple
+        type: button
+        padding: 5px
+        .click: () ->
+          var list = list1.itemSource;
+          list.unshift({color: 'purple', size: 40*4})
+          list1.itemSource = list.slice();
 
     WrapPanel list1
         //itemWidth: 25%

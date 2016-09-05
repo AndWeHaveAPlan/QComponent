@@ -72,10 +72,11 @@ module.exports = (function () {
         propertyGetter: function (prop, scope) {
 
             function checkType(sourceType,targetType) {
+                console.log(sourceType,targetType)
                 var type = (scope.metadata[sourceType] && scope.metadata[sourceType].type) || (QObject._knownComponents[sourceType] && QObject._knownComponents[sourceType]._type);
                 if (type && targetType === type) {
                     return true;
-                } else if (type !== 'QObject') {
+                } else if (type !== 'QObject' && type !== void 0) {
                     return checkType(type, targetType);
                 } else {
                     return false;
@@ -242,6 +243,20 @@ module.exports = (function () {
             return false;
 
         },
+        
+        isNameOfProp: function(name, metadata){
+            var prop;
+            if(!metadata)
+                throw new Error('Corrupted metadata');
+            prop = metadata._prop;
+
+            if(prop[name])
+                return prop[name].prototype;
+            if(prop['default'])
+                return prop['default'].prototype;
+            return false;
+        },
+
         makePipe: function (pipe, item, scope, cls, prop, place, def) {//sourceComponent, targetProperty, def, childId, prop) {
 
             var pipeSources = [];
@@ -277,7 +292,7 @@ module.exports = (function () {
                             console.log(cName);
                             if (cName == 'this') {
                                 source = 'this.id + \'.' + pipeVar.property.name + '\'';
-                            } else if (env = this.isNameOfEnv(cName, cls.metadata)) {//(def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
+                            } else if ((env = this.isNameOfEnv(cName, cls.metadata)) || (env = this.isNameOfProp(cName, cls.metadata))) {//(def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
                                 if (env.type in primitives) {
                                     source = 'self.id + \'.' + fullName + '\'';
                                 } else {
@@ -409,8 +424,6 @@ module.exports = (function () {
                                 }
                             ]
                         };
-
-
                     },
                     transformFnSet = function (node, stack, scope) {
                         var list = stack.slice().reverse(),
