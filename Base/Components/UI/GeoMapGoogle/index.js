@@ -10,28 +10,22 @@ var symbolByNumber = require('./symbolByNumber');
 var arrToLanLng = require('./arrToLanLng');
 var minMax = require('./minMax');
 var loadScript = require('./loadScript')
-
 // require('./MapLabel');
 
 function getApiByKey(apiKey) {
-  return 'https://maps.googleapis.com/maps/api/js?key=' + apiKey;
+  return (
+    'https://maps.googleapis.com/maps/api/js?key=' +
+    apiKey +
+    '&language=en'
+  )
 }
 
+// TODO
+// ubrat'
+//
 function getElementByQuokkaId(id) {
   return window.c.get(id).el;
 }
-
-// Available colors
-// [blue, red, purple, yellow, green]
-//
-// function markerIconByColor(color) {
-//   return(
-//     'http://maps.google.com/mapfiles/ms/icons/'
-//     + color
-//     + '-dot.png'
-//   );
-// }
-// https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi-dotless.png
 
 module.exports = UIComponent.extend('GeoMapGoogle', {
   createEl: function() {
@@ -63,27 +57,9 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         require('./MapLabel');
         self.mapApi = google.maps;
         self.directionsService = new google.maps.DirectionsService;
-
-        // self.directionsDisplay = new google.maps.DirectionsRenderer;
-        // self.directionsDisplay.setMap(self.gmap);
-
-        var moveListElementId = self.get('moveListElementId');
-
-        var moveListElement1 = document.getElementById(moveListElementId);
-
-        // TODO
-        // replace getElementByQuokkaId with findOne
-        //
-        var moveListElement2 = getElementByQuokkaId(moveListElementId);
-
-        console.log('moveListElementId', moveListElementId);
-        console.log('moveListElement1', moveListElement1);
-        console.log('moveListElement2', moveListElement2);
-
         self.directionsDisplay = new google.maps.DirectionsRenderer({
           // draggable: true,
-          map: self.gmap,
-          panel: moveListElement2
+          map: self.gmap
         });
 
         self._createHome.call(self);
@@ -152,11 +128,30 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         if (status === google.maps.DirectionsStatus.OK) {
 
           self.directionsDisplay.setDirections(response);
-          console.log('in makeRoute, response:', response);
+
+          var newMoveList = self._updateMoveList.call(self);
+          self.set('moveList', newMoveList);
         } else {
           console.error('Directions request failed due to ' + status);
+          self.set('moveList', []);
         }
       });
+  },
+
+  _updateMoveList: function() {
+    // Route connects start and end point
+    var firstRoute = this.directionsDisplay.directions.routes[0];
+    // Necessary point of route split it to legs
+    // We have only 2 points === 1 leg
+    var firstLeg = firstRoute.legs[0];
+    // Steps are route moving guides
+    var moveList = firstLeg.steps.map(function(step) {
+      var instructions = step.instructions;
+      var durationText = step.duration.text;
+      return [instructions, durationText].join('. ')
+    });
+
+    return moveList;
   },
 
   _prop: {
@@ -204,16 +199,13 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         }
       }
     }),
-    moveListElementId: new Property('String', {} , {
+    moveList: new Property('Array', {}, {
       get: Property.defaultGetter,
-      set: function(key, value) {
-        // TODO
-        // Rerender routes
-
-        console.log('moveListElementId set', value);
-      }
-    })
-
-
+      set: function() {}
+    }, []),
+    type: new Property('String', {}, {
+      get: Property.defaultGetter,
+      set: function() {}
+    }, 'yandex')
   }
 });
