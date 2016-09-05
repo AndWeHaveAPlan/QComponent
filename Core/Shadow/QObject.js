@@ -121,7 +121,9 @@ module.exports = (function() {
                 delete vars[args[i]];
             return {
                 args: args,
-                fn: new ASTtransformer().transform(parsed.getAST(), vars)
+                fn: {ast: parsed.getAST(), vars: vars}/* new ASTtransformer().transform(parsed.getAST(), vars),
+                tree: parsed.getAST(),
+                vars: vars */
             };
         }
     };

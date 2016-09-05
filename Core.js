@@ -19,3 +19,4 @@ Base.QObject.apply(module.exports, {
     }
 });
 Core.Compile.ASTtransformer = require("./Core/Compile/ASTtransformer");
+Core.Compile.VariableExtractor = require("./Core/Compile/VariableExtractor");

@@ -123,6 +123,15 @@ module.exports = (function(){
                 );
             }
             node.right = doTransform.call(this, node.right, options);
+
+            if(options.variableTransformerSet){
+                stack.push(pointer);
+                return options.variableTransformerSet(node, stack, {
+                    me: _self,
+                    options: options,
+                    doTransform: doTransform
+                });
+            }
             var out = {
 
                     "type": "CallExpression",
@@ -188,6 +197,15 @@ module.exports = (function(){
                 if(options.variableTransformer){
                     stack.push(pointer.object);
                     return options.variableTransformer(node, stack);
+                }
+
+                if(options.variableTransformerGet){
+                    stack.push(pointer.object);
+                    return options.variableTransformerGet(node, stack, {
+                        me: _self,
+                            options: options,
+                            doTransform: doTransform
+                    });
                 }
 
                 return {
@@ -269,6 +287,9 @@ module.exports = (function(){
             if( '_id' in node && node._id in this && node._id !== null ){
                 if(options.variableTransformer){
                     return options.variableTransformer(node);
+                }
+                if(options.variableTransformerGet){
+                    return options.variableTransformerGet(node, [node]);
                 }
                 return {
                         "type": "CallExpression",
