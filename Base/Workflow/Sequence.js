@@ -10,7 +10,7 @@ module.exports = AbstractComponent.extend('Sequence', {
 
     },
     canGoBack: function () {
-        return (this.cursor - 1) > 0;
+        return (this.cursor - 1) >= 0;
 
     },
     next: function () {
