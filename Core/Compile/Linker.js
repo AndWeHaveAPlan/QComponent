@@ -281,7 +281,7 @@ module.exports = (function() {
                          * {property info}: if matched */
                         isProperty = !(info.type in kws) &&
                             (this.isProperty(info.type, sub.type, localShadow) ||
-                                this.isProperty('default', sub.type, localShadow)
+                                (!(child.type in localShadow) && !(info.type in shadow) && this.isProperty('default', sub.type, localShadow))
                             );
 
                         //console.log(info.type, !!isProperty)

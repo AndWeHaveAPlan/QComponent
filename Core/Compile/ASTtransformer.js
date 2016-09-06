@@ -10,6 +10,7 @@ module.exports = (function(){
         escodegen = require('escodegen');
 
     var rules = {
+        'BlockStatement': '*body',
         'Program': '*body',
         'NewExpression': ['callee', '*arguments'],
         'ExpressionStatement': 'expression',
@@ -177,9 +178,6 @@ module.exports = (function(){
             };
             //assert.deepEqual(node, out);
             return out;
-        },
-        'BlockStatement': function(node, options){
-            return node; // TODO unshit
         },
         'MemberExpression': function(node, options){
             var _self = this;

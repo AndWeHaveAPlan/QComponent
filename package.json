@@ -17,6 +17,7 @@
     "z-observable": "*",
     "observable-sequence": "*",
     "z-lib-structure-dqIndex": "*",
+    "z-lib-structure-dequeue": "*",
     "tiny-uuid": "*",
     "esprima": "*",
     "escodegen": "*"
