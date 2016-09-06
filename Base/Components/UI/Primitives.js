@@ -77,7 +77,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
         type: Property.generate.attributeProperty('type'),
         checked: Property.generate.attributeProperty('checked'),
         placeholder: Property.generate.attributeProperty('placeholder'),
-        value: new Property('Variant', {description: 'Base HTML input'}, {
+        value: new Property('String', {description: 'Base HTML input'}, {
             get: function (key, value) {
                 if (this._data.type === 'number') {
                     var val = parseFloat(value);

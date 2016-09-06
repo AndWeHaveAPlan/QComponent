@@ -1,3 +1,13 @@
+/// <reference path="../quokka.d.ts" />
+
+var QObject = require('./QObject');
+var AbstractComponent = require('./AbstractComponent');
+
+var q = new QObject();
+var ac = new AbstractComponent();
+
+//ac.get
+
 var types = {};
 
 module.exports = {

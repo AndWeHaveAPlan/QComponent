@@ -7,7 +7,7 @@
  */
 
 var QObject = require('./QObject');
-var Component = require('./Components/AbstractComponent');
+var AbstractComponent = require('./Components/AbstractComponent');
 var SimplePipe = require('./Pipes/SimplePipe');
 
 /**
@@ -36,52 +36,6 @@ EventManager.prototype.getOnValueChangedEventListener = function (sender, names,
 
         who = sid, what = names, j, _j, pointer, deeper, val, w,
         selfCall = false;
-    /*if (sender.id == this.owner.id) {
-        key = names.join('.');
-        if(newValue instanceof QObject._knownComponents.AbstractComponent){
-            who = sid;
-            selfCall = true;
-            what = names;
-        } else {
-            who = 'self';
-            what = names;//void 0;*!/
-        }
-    }
-
-    var listeners = this._listeners[who];
-
-    if(listeners) {
-
-        if(selfCall) {
-            who = this.owner;
-        }else {
-            who = this._registredComponents[who];
-        }
-            pointer = listeners;
-            for(j = 0, _j = what.length; j < _j; j++){
-                w = what[j];
-                pointer = pointer.deeper[w];
-                var propName = what.slice(0,j+1);
-                val = who.get(propName);
-                if(!pointer)
-                    break;
-                for (i = 0, _i = pointer.fns.length; i < _i; i++) {
-                    pointer.fns[i].call(this, propName, val);
-                }
-            }
-        /!*}else{
-            deeper = listeners.deeper;
-            if (deeper)
-                for(j in deeper) {
-                    listeners = deeper[j];
-                    who = this._registredComponents[who];
-                    val = who.get([j]);
-                    for (i = 0, _i = listeners.length; i < _i; i++) {
-                        listeners[i].call(who, j, val);
-                    }
-                }
-        }*!/
-    }*/
     var propertyPipes = this._registredPipes[key];
 
     if (propertyPipes) {

@@ -2,12 +2,13 @@ def Page main
 
     Timer timer:
         enabled: true
-        interval: 100
+        interval: 1000
         .tick: function () {
             counter += coeff
             counterRed += coeff+1
-            time += 1;
-			list1.itemSource.push({color: 'red', size: counterRed});			
+            time += 1;			
+			list1.itemSource.splice((Math.random()*list1.itemSource.length)|0,0,{color: 'red', size: 20});
+					
         }
 
     public Number improveCounter: 1
@@ -40,32 +41,27 @@ def Page main
         type: button
         padding: 5px
         .click: function(){
-            counter += 1
-            counterRed += 1
-            var list = list1.itemSource;
-            list.push({color: 'red', size: 20})
-            //list1.itemSource = list.slice();
-			list1.addItem({color: 'red', size: 20});
+            counter += 1;
+            counterRed += 1;			
 
+			list1.itemSource.push({color: 'red', size: 20});
         }
 
     span outp1: {{counter}}{{' (+ '+coeff+')'}}
         margin: 10px
 
-    input make40: red to yellow
+    input make40: red to yellow {{ counterRed }}
         type: button
-        padding: 5px
+        padding: 5px		
         enabled: {{counterRed >= 10}}
         // false// {{list1.itemSource.filter((item)->return item.color=='red').length>9}}
         .click: function () {
             counterRed -= 10
-            counterYellow += 1
-            var list = list1.itemSource;
-            for (var i = 0; i < 10; i++)
-                list.pop();
-            list.unshift({color: 'yellow', size: 40})
-            list1.itemSource = list.slice();
-
+            counterYellow += 1            
+            
+			for(var i=0;i<10;i++)
+			    list1.itemSource.pop();
+            list1.itemSource.unshift({color: 'yellow', size: 40});
         }
 
 

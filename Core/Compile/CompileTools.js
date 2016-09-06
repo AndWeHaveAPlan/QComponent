@@ -242,16 +242,16 @@ module.exports = (function () {
             return false;
 
         },
-        
-        isNameOfProp: function(name, metadata){
+
+        isNameOfProp: function (name, metadata) {
             var prop;
-            if(!metadata || !metadata._prop)
-                throw new Error('Corrupted metadata for `'+name+'`');
+            if (!metadata || !metadata._prop)
+                throw new Error('Corrupted metadata for `' + name + '`');
             prop = metadata._prop;
 
-            if(prop[name])
+            if (prop[name])
                 return prop[name].prototype;
-            if(prop['default'])
+            if (prop['default'])
                 return prop['default'].prototype;
             return false;
         },
@@ -315,6 +315,18 @@ module.exports = (function () {
                     }
                 }
             }
+
+            return 'this.createDependency([\n' +
+                '\t\t' +
+                pipeSources.map(function (item) {
+                    console.log(item);
+                    return item;
+                }).join(',') +
+                '\n\t],' + childId + '.id+\'.' + targetProperty + '\',\n' +
+                '\tfunction (' + mutatorArgs.join(',') + ') {\n' +
+                '\t\treturn ' + fn + '\n' +
+                '\t});';
+
             return 'eventManager.registerPipe(new Base.Pipes.MutatingPipe([\n' +
                 '\t\t' +
                 pipeSources.map(function (item) {
