@@ -36,6 +36,13 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
         })
     },
 
+    //createDependency: function (from, to, func) {
+    //    to = this.id + '.' + to;
+    //    //var mp = new MutatingPipe()...
+    //    var mp = {};
+    //    this._eventManager.registerPipe(mp);
+    //},
+
     addChild: function (component) {
         this._children.push(component);
         return this;

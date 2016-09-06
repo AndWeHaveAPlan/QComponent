@@ -245,8 +245,8 @@ module.exports = (function () {
         
         isNameOfProp: function(name, metadata){
             var prop;
-            if(!metadata)
-                throw new Error('Corrupted metadata');
+            if(!metadata || !metadata._prop)
+                throw new Error('Corrupted metadata for `'+name+'`');
             prop = metadata._prop;
 
             if(prop[name])
@@ -319,8 +319,7 @@ module.exports = (function () {
                 '\t\t' +
                 pipeSources.map(function (item) {
                     console.log(item);
-                    return item;//
-                    return item + '.value';
+                    return item;
                 }).join(',') +
                 '\n\t], {\n' +
                 '\t\tcomponent: ' + childId + '.id, property: \'' + targetProperty + '\'\n' +

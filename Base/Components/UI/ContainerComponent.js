@@ -11,6 +11,7 @@ var Property = require('../../Property');
 
 var ObservableSequence = require('observable-sequence');
 var DQIndex = require('z-lib-structure-dqIndex');
+var dequeue = require('z-lib-structure-dequeue');
 
 module.exports = UIComponent.extend('ContainerComponent', {
     addItem: function (item, index) {
@@ -30,14 +31,27 @@ module.exports = UIComponent.extend('ContainerComponent', {
         //this._children.splice(index,0,newComp);
 
     },
+    _wrapItem: function (item) {
+        var template = this._data.itemTemplate;
+        var newComp = new template();
+        if ((typeof item != 'object') || Array.isArray(item)) {
+            newComp.set('value', item);
+        } else {
+            for (var key in item)
+                if (item.hasOwnProperty(key))
+                    newComp.set(key, item[key]);
+        }
+
+        return newComp;
+    },
     _handleChildren: function () { },
     _prop: {
         value: new Property('ContainerComponent', {},
-        {
-            get: function() {
-                return this;
-            }
-        }),
+            {
+                get: function () {
+                    return this;
+                }
+            }),
         selectionColor: new Property('String', { description: 'Selection color (css notation)' }, null, '#3b99fc'), //qiwi color
         selectedIndex: new Property('Number', { description: 'Index of current selected item' }, {
             set: function (name, val, oldVal) {
@@ -58,29 +72,33 @@ module.exports = UIComponent.extend('ContainerComponent', {
 
         }, {}),
         itemSource: new Property('Array', { description: 'Index of current selected item' }, {
-            set: function (name, val) {
+            set: function (name, value, old, e) {
                 var self = this;
-                var template = this._data.itemTemplate;//QObject._knownComponents[this.get('itemTemplate')];
+                var val = value;
+                if (!(value instanceof ObservableSequence)) {
+                    value = new ObservableSequence(new dequeue());
+                    val.forEach(function (v) {
+                        value.push(v);
+                    });
+                    e.value(value);
+                }
 
                 this._children.splice(0, this._children.length);
 
-                for (var i = 0, length = val.length; i < length; i++) {
-                    var newComp = new template();
-                    if ((typeof val[i] != 'object') || Array.isArray(val[i])) {
-                        newComp.set('value', val[i]);
-                    } else {
-                        for (var key in val[i])
-                            if (val[i].hasOwnProperty(key))
-                                newComp.set(key, val[i][key]);
-                    }
+                value.forEach(function (item, i) {
+                    var newComp = self._wrapItem(item);
+                    self._handleChildren(newComp, i);
+                    self._children.push(newComp);
+                });
 
-                    this._handleChildren(newComp, i);
-
-                    this._children.push(newComp);
-                }
+                value.on('add', function (item, prevItem, nextItem, index) {
+                    var newComp = self._wrapItem(item);
+                    self._handleChildren(newComp, index);
+                    self._children.splice(index, 0, newComp);
+                });
             },
             get: Property.defaultGetter
-        }, []),
+        }, new ObservableSequence(new dequeue())),
         itemTemplate: new Property('ItemTemplate', { description: 'Visual presentation of items' }, {
             set: function (name, val) {
             },
