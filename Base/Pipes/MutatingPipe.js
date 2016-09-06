@@ -53,13 +53,13 @@ MutatingPipe.prototype._process = function (changedKey, component) {
         }
     }
 
-    var value = mutators[0].apply(this, args);
+    var value = mutators[0].apply(component, args);
 
     for (var i = 1; i < length; i++) {
-        value = mutators[i](value);
+        value = mutators[i].call(component, value);
     }
 
-    if (value != void(0))
+    if (value !== void (0))
         component.set(this.targetPropertyName, value);
 };
 
