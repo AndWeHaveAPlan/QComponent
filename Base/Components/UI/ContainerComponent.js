@@ -13,10 +13,33 @@ var ObservableSequence = require('observable-sequence');
 var DQIndex = require('z-lib-structure-dqIndex');
 
 module.exports = UIComponent.extend('ContainerComponent', {
+    addItem: function (item, index) {
+        var template = this._data.itemTemplate;
+        var newComp = new template();
+        if ((typeof item != 'object') || Array.isArray(item)) {
+            newComp.set('value', item);
+        } else {
+            for (var key in item)
+                if (item.hasOwnProperty(key))
+                    newComp.set(key, item[key]);
+        }
+
+        this._handleChildren(newComp, this._children.length);
+
+        this._children.push(newComp);
+        //this._children.splice(index,0,newComp);
+
+    },
+    _handleChildren: function () { },
     _prop: {
-        value: new Property('Variant', {description: 'Same as ItemSource', overrideKey: 'itemSource'}, {}, {}),
-        selectionColor: new Property('String', {description: 'Selection color (css notation)'}, null, '#3b99fc'), //qiwi color
-        selectedIndex: new Property('Number', {description: 'Index of current selected item'}, {
+        value: new Property('ContainerComponent', {},
+        {
+            get: function() {
+                return this;
+            }
+        }),
+        selectionColor: new Property('String', { description: 'Selection color (css notation)' }, null, '#3b99fc'), //qiwi color
+        selectedIndex: new Property('Number', { description: 'Index of current selected item' }, {
             set: function (name, val, oldVal) {
                 var children = this.el.childNodes;
                 if (oldVal != -1 && oldVal < children.length)
@@ -28,16 +51,16 @@ module.exports = UIComponent.extend('ContainerComponent', {
             },
             get: Property.defaultGetter
         }, -1),
-        selectedItem: new Property('Variant', {description: 'Index of current selected item'}, {
+        selectedItem: new Property('Variant', { description: 'Index of current selected item' }, {
             set: function (name, val, oldVal) {
             },
             get: Property.defaultGetter
 
         }, {}),
-        itemSource: new Property('Array', {description: 'Index of current selected item'}, {
+        itemSource: new Property('Array', { description: 'Index of current selected item' }, {
             set: function (name, val) {
                 var self = this;
-                var template = this.get('itemTemplate');//QObject._knownComponents[this.get('itemTemplate')];
+                var template = this._data.itemTemplate;//QObject._knownComponents[this.get('itemTemplate')];
 
                 this._children.splice(0, this._children.length);
 
@@ -58,10 +81,8 @@ module.exports = UIComponent.extend('ContainerComponent', {
             },
             get: Property.defaultGetter
         }, []),
-        itemTemplate: new Property('ItemTemplate', {description: 'Visual presentation of items'}, {
+        itemTemplate: new Property('ItemTemplate', { description: 'Visual presentation of items' }, {
             set: function (name, val) {
-                //var oldVal = this._data['itemTemplate'];
-                //this._itemTemplate = QObject._knownComponents[val];
             },
             get: Property.defaultGetter
         }, QObject._knownComponents.ItemTemplate)
