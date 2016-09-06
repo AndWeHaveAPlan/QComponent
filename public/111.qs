@@ -1,14 +1,13 @@
 def Page main
 
     Timer timer:
-        enabled: false
-        interval: 1
+        enabled: true
+        interval: 100
         .tick: function () {
             counter += coeff
-            counterRed += coeff
+            counterRed += coeff+1
             time += 1;
-			list1.addItem({color: 'red', size: 40});
-
+			list1.itemSource.push({color: 'red', size: counterRed});			
         }
 
     public Number improveCounter: 1
