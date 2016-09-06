@@ -6,7 +6,6 @@ var UIComponent = require('../UIComponent'),
     QObject = require('../../QObject'),
     Property = require('../../Property');
 
-
 module.exports = UIComponent.extend('Page', {
     createEl: function () {
         this.el = QObject.document.createElement('div');
@@ -28,4 +27,10 @@ module.exports = UIComponent.extend('Page', {
         */
         scenario: new Property('Scenario')
     }
-});
+},
+    function (cfg) {
+        cfg = cfg || {};
+        cfg.height = cfg.height || '100%';
+        cfg.height = cfg.width || '100%';
+        UIComponent.apply(this, arguments);
+    });

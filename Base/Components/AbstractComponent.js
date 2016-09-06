@@ -4,6 +4,8 @@
 
 var QObject = require('./../QObject'),
     EventManager = require('./../EventManager'),
+    MutatingPipe = require('./../Pipes/MutatingPipe'),
+    SimplePipe = require('./../Pipes/SimplePipe'),
     ObservableSequence = require('observable-sequence'),
     DQIndex = require('z-lib-structure-dqIndex'),
     Property = require('../Property');
@@ -34,6 +36,21 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
             },
             get: Property.defaultGetter
         })
+    },
+
+    /**
+     * 
+     * @param {} from 
+     * @param {} to 
+     * @param {} func 
+     * @returns {} 
+     */
+    createDependency: function (from, to, func) {
+        if (func) {
+            this._eventManager.registerPipe(new MutatingPipe(from, to).addMutator(func));
+        } else {
+            this._eventManager.registerPipe(new SimplePipe(from, to));
+        }
     },
 
     addChild: function (component) {
@@ -95,7 +112,7 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     subscribe: function (callback) {
         this._onPropertyChanged.addFunction(callback);
     },
-    
+
     find: function (matcher) {
         var out = [];
         var matches = matcher.split(' '), match = matches[0],
@@ -148,8 +165,8 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     this._children = new ObservableSequence(new DQIndex('id'));
     this._children.on('add', this._onChildAdd.bind(this));
     var mnu = this;
-    this._children.on('remove', function(c){
-        mnu._onChildRemove.call(mnu,c)
+    this._children.on('remove', function (c) {
+        mnu._onChildRemove.call(mnu, c)
 
     });
 

@@ -242,6 +242,10 @@ module.exports = (function () {
             }
             var base = mixin;
 
+            if ('_prop' in cfg) {
+
+            }
+
             /** remove deep applied */
             var overlays = deepApply.reduce(function (storage, deepName) {
                 if (deepName in cfg) {
@@ -255,6 +259,14 @@ module.exports = (function () {
 
             for (i in overlays) {
                 proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
+            }
+
+            //TODO refactor this shit
+            var props = proto._prop;
+            for (i in props) {
+                if (props[i].proxyFor) {
+                    proto._prop[i] = new Property(props[props[i].proxyFor].prototype.type, {}, { proxyFor: props[i].proxyFor });
+                }
             }
 
             return proto;

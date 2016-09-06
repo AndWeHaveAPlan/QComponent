@@ -71,12 +71,11 @@ module.exports = (function () {
          */
         propertyGetter: function (prop, scope) {
 
-            function checkType(sourceType,targetType) {
-                console.log(sourceType,targetType)
+            function checkType(sourceType, targetType) {
                 var type = (scope.metadata[sourceType] && scope.metadata[sourceType].type) || (QObject._knownComponents[sourceType] && QObject._knownComponents[sourceType]._type);
                 if (type && targetType === type) {
                     return true;
-                } else if (type !== 'QObject' && type !== void 0) {
+                } else if (type !== 'QObject' && type !== void (0)) {
                     return checkType(type, targetType);
                 } else {
                     return false;
@@ -87,7 +86,7 @@ module.exports = (function () {
                 return JSON.stringify(prop.value);
 
             var known = QObject._knownComponents[prop.type];
-     
+
             if (known && known.prototype instanceof AbstractComponent) {
                 if (prop.value && checkType(prop.value, prop.type)) {
                     return 'QObject._knownComponents[\'' + prop.value + '\']';
@@ -243,16 +242,16 @@ module.exports = (function () {
             return false;
 
         },
-        
-        isNameOfProp: function(name, metadata){
+
+        isNameOfProp: function (name, metadata) {
             var prop;
-            if(!metadata)
-                throw new Error('Corrupted metadata');
+            if (!metadata || !metadata._prop)
+                throw new Error('Corrupted metadata for `' + name + '`');
             prop = metadata._prop;
 
-            if(prop[name])
+            if (prop[name])
                 return prop[name].prototype;
-            if(prop['default'])
+            if (prop['default'])
                 return prop['default'].prototype;
             return false;
         },
@@ -316,12 +315,23 @@ module.exports = (function () {
                     }
                 }
             }
+
+            return 'this.createDependency([\n' +
+                '\t\t' +
+                pipeSources.map(function (item) {
+                    console.log(item);
+                    return item;
+                }).join(',') +
+                '\n\t],' + childId + '.id+\'.' + targetProperty + '\',\n' +
+                '\tfunction (' + mutatorArgs.join(',') + ') {\n' +
+                '\t\treturn ' + fn + '\n' +
+                '\t});';
+
             return 'eventManager.registerPipe(new Base.Pipes.MutatingPipe([\n' +
                 '\t\t' +
                 pipeSources.map(function (item) {
                     console.log(item);
-                    return item;//
-                    return item + '.value';
+                    return item;
                 }).join(',') +
                 '\n\t], {\n' +
                 '\t\tcomponent: ' + childId + '.id, property: \'' + targetProperty + '\'\n' +

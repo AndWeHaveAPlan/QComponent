@@ -124,10 +124,11 @@ module.exports = (
                     set: function (key, val, oldValue) {
                         switch (val) {
                             case 'visible':
-                                this.el.style.display = 'initial';
+                                this.el.style.display = '';
+                                this.el.style.opacity = 1;
                                 break;
-                            case 'hidden ':
-                                this.el.style.display = 'initial';
+                            case 'hidden':
+                                this.el.style.display = '';
                                 this.el.style.opacity = 0;
                                 break;
                             case 'collapsed':
@@ -212,15 +213,23 @@ module.exports = (
             /**
              * @override 
              */
-            _onChildAdd: function (child) {
+            _onChildAdd: function (child, prev, next) {
                 base._onChildAdd.call(this, child);
+
+                var insertInto;
+
+                if (this._contentContainer) {
+                    insertInto = this._contentContainer.el;
+                } else {
+                    insertInto = this.el;
+                }
 
                 //isert to DOM or _contentContainer
                 if (child.el) {
-                    if (self._contentContainer) {
-                        this._contentContainer.el.appendChild(child.el);
+                    if (!next) {
+                        insertInto.appendChild(child.el);
                     } else {
-                        this.el.appendChild(child.el);
+                        insertInto.insertBefore(child.el, next.el);
                     }
                 }
             },

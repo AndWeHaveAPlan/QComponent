@@ -30,6 +30,10 @@ var Scenario = AbstractComponent.extend('Scenario', {
         if (sequence.canGoNext()) {
             var sel = sequence.next();
             if (sel instanceof Selector) {
+
+                if (!sel.get('value'))
+                    return this.next();
+
                 var p = new (sel.get('page'))();
                 this._setPage(p);
             } else {
@@ -42,6 +46,10 @@ var Scenario = AbstractComponent.extend('Scenario', {
         if (sequence.canGoBack()) {
             var sel = sequence.back();
             if (sel instanceof Selector) {
+
+                if (!sel.get('value'))
+                    return this.back();
+
                 var p = new (sel.get('page'))();
                 this._setPage(p);
             } else {

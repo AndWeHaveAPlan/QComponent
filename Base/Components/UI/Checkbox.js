@@ -17,9 +17,13 @@ module.exports = UIComponent.extend('Checkbox', {
         });
     },
     _prop: {
-        checked: Property.generate.attributeProperty('checked'),
+        //checked: Property.generate.attributeProperty('checked'),
+        checked: new Property('Boolean', {},
+        {
+            
+        },false),
         disabled: Property.generate.attributeProperty('disabled'),
-        value: new Property('String', {},{overrideKey: 'checked'})
+        value: Property.generate.proxy('checked')
     },
     simlink: {
 

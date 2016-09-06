@@ -7,19 +7,17 @@ module.exports = (function () {
      * Factory of factories of properties
      */
     var QObject;
+    var ObservableSequence = require('observable-sequence');
+    var dequeue = require('z-lib-structure-dequeue');
+
     var dataTypes = {
         Boolean: {
-            set: function () {
-
+            set: function (key, value, old, e) {
+                if ((value !== !!value) && (value !== 'true' && value !== 'false'))
+                    e.cancel();
             },
             get: function (key, value) {
                 return value;
-            },
-            validate: function (value) {
-                if ((value !== !!value) && (value !== 'true' && value !== 'false'))
-                    return false;
-                else
-                    return true;
             }
         },
         Number: {
@@ -28,17 +26,26 @@ module.exports = (function () {
             },
             get: function (key, value) {
                 return value;
-            },
-            validate: function (value) {
-                if (typeof value !== 'number')
-                    return true;
-                else
-                    return true;
             }
         },
         Variant: {
-            set: function (value) {
+            set: function () {
 
+            },
+            get: function (key, value) {
+                return value;
+            }
+        },
+        Array: {
+            set: function (key, value, old, e) {
+                var val = value;
+                if (!(value instanceof ObservableSequence)) {
+                    value = new ObservableSequence(new dequeue());
+                    val.forEach(function (v) {
+                        value.push(v);
+                    });
+                    e.value(val);
+                }
             },
             get: function (key, value) {
                 return value;
@@ -46,29 +53,52 @@ module.exports = (function () {
         }
     };
 
+    var SetterFlags = function () { };
+    SetterFlags.prototype = {
+        canceled: false,
+        valueSetted: false,
+        _value: null,
+        value: function (val) {
+            this._value = val;
+            this.valueSetted = true;
+        },
+        cancel: function () {
+            this.canceled = true;
+        }
+    };
+
     var setter = function (value) {
         var key = this.proxyFor || this.key,
             oldValue = this.parent._data[key],
-            validate = this.validate,
             proxy = this.parent._prop.__proxy[key],
-            prop = this.parent._prop[this.proxyFor] || this;
+            prop = this.parent._prop[this.proxyFor] || this,
+            flags;
 
 
-        if ((!validate || (validate && validate(value))) && value !== oldValue) {
+        if (value !== oldValue) {
+            flags = new SetterFlags();
             this.parent._data[key] = value;
-            if (prop._set.call(this.parent, key, value, oldValue) !== false) {
-                this.parent._onPropertyChanged(this.parent, [key], value, oldValue);
-                if (proxy) {
-                    for (var i = 0; i < proxy.length; i++) {
-                        this.parent._onPropertyChanged(this.parent, [proxy[i]], value, oldValue);
-                    }
-                }
-            } else {
-                this.parent._data[key] = oldValue;
-            }
+            prop._set.call(this.parent, key, value, oldValue, flags);
+            if (!flags.canceled) {
+                if (flags.valueSetted)
+                    value = this.parent._data[key] = flags._value;
+                if (value !== oldValue) {
+                    this.parent._onPropertyChanged(this.parent, [key], value, oldValue);
+                    if (proxy) {
+                        for (var i = 0; i < proxy.length; i++) {
+                            this.parent._onPropertyChanged(this.parent, [proxy[i]], value, oldValue);
+                        }
 
-        } else
+                    }
+                    return true;
+                }
+            }
+        } else {
             return false;
+        }
+
+        this.parent._data[key] = oldValue;
+        return false;
     };
     var getter = function () {
         var key = this.proxyFor || this.key;
@@ -79,11 +109,13 @@ module.exports = (function () {
         QObject = QObject || require('./QObject');
         metadata = metadata || {};
         cfg = cfg || {};
+
+
         this.cfg = cfg;
         if ('set' in metadata || 'get' in metadata)
-            throw new Error('do not put get\\set to metadata');
+            throw new Error('do not put get/set to metadata');
         var dataType = dataTypes[type],
-            proto = {parent: null};
+            proto = { parent: null };
 
         /** if type is in known classes */
         if (!dataType && QObject._knownComponents[type])
@@ -121,10 +153,13 @@ module.exports = (function () {
 
             //TODO null default case
             if (value) {
-                //this.parent._data[key] = value;
                 this.set(value);
             }
         };
+
+        //
+        if (cfg.proxyFor) cls.proxyFor = cfg.proxyFor;
+
         cls.prototype = proto;
         proto.metadata = metadata;
         if (!('set' in cfg) && !('get' in cfg)) {
@@ -133,9 +168,6 @@ module.exports = (function () {
         } else {
             proto._set = cfg.set;
             proto._get = cfg.get;
-        }
-        if (('validate' in cfg) || (!('validate' in cfg) && ('validate' in dataType))) {
-            proto.validate = cfg.validate || dataType.validate;
         }
 
         proto.set = setter;
@@ -147,24 +179,22 @@ module.exports = (function () {
     };
     Property.generate = {
         proxy: function (proxyFor) {
-            return new Property('Variant', {description: 'Proxy for ' + proxyFor + ' property'}, {proxyFor: proxyFor});
+            return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property' }, { proxyFor: proxyFor });
         },
         typed: function (name, cls) {
             return {
-                set: function () {
-
+                set: function (key, value, old, e) {
+                    if (!(value instanceof cls || (value && value.prototype && value.prototype instanceof cls)))
+                        return e.cancel();
                 },
                 get: function (key, value) {
                     return value;
-                },
-                validate: function (value) {
-                    return value instanceof cls || (value && value.prototype && value.prototype instanceof cls);
                 }
             };
         },
         cssProperty: function (text) {
             return new Property('String',
-                {description: text},
+                { description: text },
                 {
                     set: function (key, val) {
                         if (val) {
@@ -181,7 +211,7 @@ module.exports = (function () {
         },
         attributeProperty: function (attr) {
             return new Property('String',
-                {description: attr},
+                { description: attr },
                 {
                     set: function (key, val) {
                         if (!val) {
@@ -201,6 +231,9 @@ module.exports = (function () {
             );
         }
     };
+
     Property.defaultGetter = dataTypes.Variant.get;
+    Property.defaultSetter = function (name, value) { };
+
     return Property;
 })();
