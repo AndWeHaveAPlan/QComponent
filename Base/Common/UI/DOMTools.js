@@ -14,6 +14,7 @@ var DOM = (function () {
             DOM.DOM = true;
         };
     var DomWrapper = function () {
+            this.on('DOM', this._loaded, this);
             this.init();
         },
         maxZ = 66613,
@@ -173,6 +174,20 @@ var DOM = (function () {
                     return el;
                 }
             },
+
+            _loaded: function () {
+                var list = this._load;
+                for(var i = list.length;i;);
+                    list[--i]();
+                this._load = [];
+            },
+            load: function (fn) {
+                this._load.push(fn);
+                if(this.DOM)
+                    this._loaded();
+            },
+            _load: [],
+
             hide: function (el) {
                 this.display(el, 'none');
             },
@@ -269,4 +284,4 @@ var DOM = (function () {
     return new DomWrapper();
 })();
 
-module.exports = DOM;
+module.exports = DOM.init();

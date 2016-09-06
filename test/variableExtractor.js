@@ -33,7 +33,7 @@ describe("variable extractor", function () {
         console.log(JSON.stringify(vars.getFullUnDefined(vars.getUnDefined()),null,2));
         assert.equal(dontGiveAShitCompare(vars.getFullUnDefined(vars.getUnDefined(), {a: {b: true}})));
     })
-    /*it("should work in simple cases", function (){
+    it("should work in simple cases", function (){
         var vars = VariableExtractor.parse('a+c;var d = 2+b');
         assert.deepEqual(vars.getUnDefined(), {a:true, b: true, c: true});
 
@@ -68,5 +68,5 @@ describe("variable extractor", function () {
         var vars = VariableExtractor.parse('this.val');
         assert.deepEqual(vars.getUnDefined(), {this:true});
         assert.equal(dontGiveAShitCompare(vars.getFullUnDefined(), {this:{'this.val':true}}), true);
-    });*/
+    });
 });

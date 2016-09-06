@@ -6,7 +6,8 @@ var Matrix2D = require('../Common/Matrix2D');
 var AbstractComponent = require('./AbstractComponent'),
     ObservableSequence = require('observable-sequence'),
     ContentContainer = require('./ContentContainer'),
-    Property = require('../Property');
+    Property = require('../Property'),
+    UIEventManager = require('../Common/UIEventManager');
 
 
 module.exports = (
