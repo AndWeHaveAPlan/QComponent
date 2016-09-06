@@ -65,8 +65,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
         self._makeSearchBox(self.gmap);
 
-        self._createHome.call(self);
-        self._createPins.call(self);
+        self._createHome(self);
+        self._createPins(self);
 
         self.set('ready', true);
       }
@@ -89,10 +89,6 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     var searchBox = new google.maps.places.SearchBox(input);
     // var searchBox = new google.maps.places.Autocomplete(input);
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-
-    console.log('_makeSearchBox', input);
-
 
     // Bias the SearchBox results towards current map's viewport.
     map.addListener('bounds_changed', function() {
@@ -204,7 +200,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
           self.directionsDisplay.setDirections(response);
 
-          var newMoveList = self._updateMoveList.call(self);
+          var newMoveList = self._updateMoveList(self);
           self.set('moveList', newMoveList);
         } else {
           console.error('Directions request failed due to ' + status);
@@ -246,7 +242,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
           set: function(key, value) {
             var zoomFixed = minMax(value, 0, 18);
 
-            this.gmap.setZoom(zoomFixed)
+            this.gmap.setZoom(zoomFixed);
             return zoomFixed;
           }
         }, 11
@@ -259,8 +255,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
             // CHANGE to update pins on module load
             //
             if (this.mapApi) {
-              this._removePins.call(this);
-              this._createPins.call(this);
+              this._removePins(this);
+              this._createPins(this);
             }
           }
         }
@@ -269,8 +265,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       get: Property.defaultGetter,
       set: function(key, value) {
         if (this.mapApi) {
-          this._removeHome.call(this);
-          this._createHome.call(this);
+          this._removeHome(this);
+          this._createHome(this);
         }
       }
     }),
