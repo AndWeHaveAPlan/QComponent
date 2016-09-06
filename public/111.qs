@@ -1,12 +1,14 @@
 def Page main
 
     Timer timer:
-        enabled: true
-        interval: 1000
+        enabled: false
+        interval: 1
         .tick: function () {
             counter += coeff
             counterRed += coeff
-            time += 1
+            time += 1;
+			list1.addItem({color: 'red', size: 40});
+
         }
 
     public Number improveCounter: 1
@@ -43,7 +45,8 @@ def Page main
             counterRed += 1
             var list = list1.itemSource;
             list.push({color: 'red', size: 20})
-            list1.itemSource = list.slice();
+            //list1.itemSource = list.slice();
+			list1.addItem({color: 'red', size: 20});
 
         }
 
@@ -70,16 +73,17 @@ def Page main
 
     WrapPanel list1
         //itemWidth: 25%
-        width: 205px
+		scroll: vertical
+        width: 100%
         height: 60%
         background: white
         color: black
         border: 1px solid black
         itemTemplate:
             div
-                width: {{(size||20)+'px'}}
+                width: {{(size)+'px'}}
                 height:{{(size||20)+'px'}}
-                background: {{color||'#f00'}}
+                background: {{color||'red'}}
                 border: 1px #fff solid
         itemSource: [
 

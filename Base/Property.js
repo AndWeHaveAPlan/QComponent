@@ -79,11 +79,13 @@ module.exports = (function () {
         QObject = QObject || require('./QObject');
         metadata = metadata || {};
         cfg = cfg || {};
+
+
         this.cfg = cfg;
         if ('set' in metadata || 'get' in metadata)
-            throw new Error('do not put get\\set to metadata');
+            throw new Error('do not put get/set to metadata');
         var dataType = dataTypes[type],
-            proto = {parent: null};
+            proto = { parent: null };
 
         /** if type is in known classes */
         if (!dataType && QObject._knownComponents[type])
@@ -121,10 +123,13 @@ module.exports = (function () {
 
             //TODO null default case
             if (value) {
-                //this.parent._data[key] = value;
                 this.set(value);
             }
         };
+
+        //
+        if (cfg.proxyFor) cls.proxyFor = cfg.proxyFor;
+
         cls.prototype = proto;
         proto.metadata = metadata;
         if (!('set' in cfg) && !('get' in cfg)) {
@@ -147,7 +152,7 @@ module.exports = (function () {
     };
     Property.generate = {
         proxy: function (proxyFor) {
-            return new Property('String', {description: 'Proxy for ' + proxyFor + ' property'}, {proxyFor: proxyFor});
+            return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property' }, { proxyFor: proxyFor });
         },
         typed: function (name, cls) {
             return {
@@ -164,7 +169,7 @@ module.exports = (function () {
         },
         cssProperty: function (text) {
             return new Property('String',
-                {description: text},
+                { description: text },
                 {
                     set: function (key, val) {
                         if (val) {
@@ -181,7 +186,7 @@ module.exports = (function () {
         },
         attributeProperty: function (attr) {
             return new Property('String',
-                {description: attr},
+                { description: attr },
                 {
                     set: function (key, val) {
                         if (!val) {

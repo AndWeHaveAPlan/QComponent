@@ -2,7 +2,17 @@ module.exports = (function () {
     'use strict';
     var LogicalComponent = require('./LogicalComponent');
     var Property = require('../../Property');
+    if(typeof window !== 'undefined')
+    {
+        var requestAnimationFrame = window.requestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.msRequestAnimationFrame;
+    }else
+    {
+        requestAnimationFrame = function(a) { a(); };
 
+    }
     var Timer = LogicalComponent.extend('Timer', {
 
         start: function () {
@@ -26,7 +36,10 @@ module.exports = (function () {
         _tick: function (self) {
             return function () {
                 self.set('tick', true);
-                self.fire('tick');
+                //requestAnimationFrame(function() {
+                    self.fire('tick');
+                //});
+
             };
         },
 
