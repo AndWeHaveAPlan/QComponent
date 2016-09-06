@@ -14,23 +14,36 @@ var DQIndex = require('z-lib-structure-dqIndex');
 var dequeue = require('z-lib-structure-dequeue');
 
 module.exports = UIComponent.extend('ContainerComponent', {
-    addItem: function (item, index) {
-        var template = this._data.itemTemplate;
-        var newComp = new template();
-        if ((typeof item != 'object') || Array.isArray(item)) {
-            newComp.set('value', item);
-        } else {
-            for (var key in item)
-                if (item.hasOwnProperty(key))
-                    newComp.set(key, item[key]);
-        }
-
-        this._handleChildren(newComp, this._children.length);
-
-        this._children.push(newComp);
-        //this._children.splice(index,0,newComp);
-
+    /**
+     * 
+     * @param {} item 
+     * @param {} prevItem 
+     * @param {} nextItem 
+     * @param {} index 
+     * @returns {} 
+     */
+    _itemAddEventHandler: function (item, prevItem, nextItem, index) {
+        var newComp = this._wrapItem(item);
+        this._handleChildren(newComp, index);
+        this._children.splice(index, 0, newComp);
     },
+    /**
+     * 
+     * @param {} item 
+     * @param {} prevItem 
+     * @param {} nextItem 
+     * @param {} index 
+     * @returns {} 
+     */
+    _itemRemoveEventHandler: function (item, prevItem, nextItem, index) {
+        this._children.splice(index, 1);
+    },
+    /**
+     * Wrap object in ItemTemplate
+     * 
+     * @param {Object} item 
+     * @returns {} 
+     */
     _wrapItem: function (item) {
         var template = this._data.itemTemplate;
         var newComp = new template();
@@ -73,6 +86,10 @@ module.exports = UIComponent.extend('ContainerComponent', {
         }, {}),
         itemSource: new Property('Array', { description: 'Index of current selected item' }, {
             set: function (name, value, old, e) {
+                //TODO unsubscribe methods
+                //old.off('add', this._itemAddEventHandler.bind(this));
+                //old.off('remove', this._itemRemoevEventHandler.bind(this));
+
                 var self = this;
                 var val = value;
                 if (!(value instanceof ObservableSequence)) {
@@ -91,11 +108,8 @@ module.exports = UIComponent.extend('ContainerComponent', {
                     self._children.push(newComp);
                 });
 
-                value.on('add', function (item, prevItem, nextItem, index) {
-                    var newComp = self._wrapItem(item);
-                    self._handleChildren(newComp, index);
-                    self._children.splice(index, 0, newComp);
-                });
+                value.on('add', this._itemAddEventHandler.bind(this));
+                value.on('remove', this._itemRemoveEventHandler.bind(this));
             },
             get: Property.defaultGetter
         }, new ObservableSequence(new dequeue())),
