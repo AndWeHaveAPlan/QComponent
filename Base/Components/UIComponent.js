@@ -123,10 +123,11 @@ module.exports = (
                     set: function (key, val, oldValue) {
                         switch (val) {
                             case 'visible':
-                                this.el.style.display = 'initial';
+                                this.el.style.display = '';
+                                this.el.style.opacity = 1;
                                 break;
-                            case 'hidden ':
-                                this.el.style.display = 'initial';
+                            case 'hidden':
+                                this.el.style.display = '';
                                 this.el.style.opacity = 0;
                                 break;
                             case 'collapsed':
