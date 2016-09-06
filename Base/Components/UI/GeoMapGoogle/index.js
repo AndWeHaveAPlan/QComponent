@@ -77,7 +77,9 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
     var input = UIComponent.document.createElement('input');
     input.type = "text";
-    input.style = [
+
+    var style = [
+      input.getAttribute('style'),
       "padding: 8px",
       "margin: 8px",
       "font-family: Roboto,Arial,sans-serif",
@@ -85,6 +87,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       "box-shadow: rgba(0, 0, 0, 0.298039) 0px 1px 4px -1px",
       "border-radius: 2px"
     ].join('; ');
+    input.setAttribute('style', style);
 
     var searchBox = new google.maps.places.SearchBox(input);
     // var searchBox = new google.maps.places.Autocomplete(input);
@@ -233,13 +236,16 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
           set: function(key, value) {}
         }, false
       ),
-      zoom: new Property('Number', {
+      zoom:
+      new Property('Number', {
           description: 'Map zoom level (setZoom for gmap)'
         }, {
           get: function(key, value) {
+            // console.log('get', this);
             return this.gmap? this.gmap.getZoom() : value;
           },
           set: function(key, value) {
+            // console.log('set', this);
             var zoomFixed = minMax(value, 0, 18);
 
             this.gmap.setZoom(zoomFixed);
@@ -247,6 +253,23 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
           }
         }, 11
       ),
+
+      // Property.generate.number(11, {
+      //     description: 'Map zoom level',
+      //     get: function(key, value) {
+      //       console.log('get', this);
+      //       return this.gmap? this.gmap.getZoom() : value;
+      //     },
+      //     set: function(key, value) {
+      //       console.log('set', this);
+      //       var zoomFixed = minMax(value, 0, 18);
+      //
+      //       this.gmap.setZoom(zoomFixed);
+      //       return zoomFixed;
+      //     }
+      //   }
+      // ),
+
       pins: new Property('Array', {
           description: 'Mark on map'
         }, {
