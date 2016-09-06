@@ -22,11 +22,13 @@ function AbstractPipe(source, target) {
             this._addInputSource(currentSource);
         }
     } else {
-        this._addInputSource(source)
+        this._addInputSource(source);
     }
 
-    this.targetComponent = target.component;
-    this.targetPropertyName = target.property;
+    var parsedTarget = this._parseTarget(target);
+
+    this.targetComponent = parsedTarget.component;
+    this.targetPropertyName = parsedTarget.property;
 }
 
 AbstractPipe.prototype = Object.create(QObject.prototype);
@@ -40,25 +42,24 @@ AbstractPipe.create = function () {
  * @param source
  * @private
  */
-AbstractPipe.prototype._parseInput = function (input) {
+AbstractPipe.prototype._parseTarget = function (input) {
 
-    var newSourceBinding = {};
+    var result = {
+        component: '',
+        property: ''
+    };
 
-    if (typeof input === 'string' || input instanceof String) {
-        var firstDotIndex = input.indexOf('.');
-        if (firstDotIndex < 0)return;
-
-        newSourceBinding.key = source;
-        newSourceBinding.componentName = source.substr(0, firstDotIndex);
-        newSourceBinding.propertyName = source.substr(firstDotIndex + 1);
-
+    if (!(typeof input === 'string' || input instanceof String)) {
+        result.component = input.component;
+        result.property = input.property;
     } else {
-        newSourceBinding.key = source.component + '.' + source.property;
-        newSourceBinding.componentName = source.component;
-        newSourceBinding.propertyName = source.property;
+        var parts = input.split('.');
+
+        result.property = parts.splice(1).join('.');
+        result.component = parts.join('.');
     }
 
-    this.sourceBindings[newSourceBinding.key] = newSourceBinding;
+    return result;
 };
 
 /**
