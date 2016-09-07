@@ -43,8 +43,8 @@ EventManager.prototype.getOnValueChangedEventListener = function (sender, names,
             var currentPipe = propertyPipes[i];
 
             val = sender.get(currentPipe.sourceBindings[key].propertyName);
-            if (key == sender.id + '.' + currentPipe.sourceBindings[key].propertyName)
-                val = newValue;
+            /*if (key == sender.id + '.' + currentPipe.sourceBindings[key].propertyName)
+                val = newValue;*/
 
             var targetComponent = this._registredComponents[currentPipe.targetComponent];
             if (targetComponent) {

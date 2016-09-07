@@ -18,6 +18,6 @@ def Page main
   input LOL5:6
       type: number
 
-  span: {{LOL0+LOL1+LOL2+LOL0.value}}
+  span: {{LOL0+LOL1+LOL2+LOL0}}
 
   div.red
