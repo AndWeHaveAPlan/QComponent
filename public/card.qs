@@ -1,13 +1,6 @@
 def Page main
 
-  VBox
-    div
-	   TextBox tb: werfwefsdfsd
-	       placeholder: rrrrrr
-		   validator: (value) ->
-		      var a=234;
-		      debugger;
-			 
+  VBox			 
     div
       CardForm cf
     div
