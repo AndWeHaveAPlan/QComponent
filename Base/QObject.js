@@ -105,14 +105,14 @@ module.exports = (function () {
             var lastName = names[names.length - 1];
 
             if (names.length > 1) {
-                var getted = this.get(names.slice(0, names.length - 1).join('.'));
+                var getted = this.get(names.slice(0, -1).join('.'));
                 if (getted)
                     if (getted instanceof QObject) {
                         getted.set(lastName, value);
                         ret = value;
                     } else {
                         ret = getted[lastName] = value;
-                        this._onPropertyChanged(this, names, value);
+                        this._onPropertyChanged(this, names.slice(0, -1), value);
                     }
             } else {
                 if (!this._prop[firstName]) {

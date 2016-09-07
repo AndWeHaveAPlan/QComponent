@@ -12,9 +12,10 @@ module.exports = (function () {
     var QObject = require('../../Base/QObject'),
         AbstractComponent = require('../../Base/Components/AbstractComponent'),
         VariableExtractor = require('./VariableExtractor'),
-        ASTtransformer = require('./ASTtransformer');
+        ASTtransformer = require('./ASTtransformer'),
+        shadow = require('./../Shadow');
     var primitives = {
-        'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Variant': true
+        'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Variant': true, 'Function': true
     };
     var extractors = {
         quote: function (token) {
@@ -22,14 +23,27 @@ module.exports = (function () {
         },
         brace: function (token) {
             return token.pureData;
+        },
+        text: function (token) {
+            return token.pureData;
         }
     },
-        extractor = function (token) {
-            var extractor = extractors[token.type];
-            if (!extractor) {
-                throw new Error('unknown token type `' + token.type + '`')
+        typedExtractors = {
+            'Function': function (token, type) {
+                var t = shadow.QObject.eventParser(type.item, type.item.children);
+                t++;
             }
-            return extractor(token);
+        },
+        extractor = function (token, prop) {
+            var extractor;
+            extractor = typedExtractors[prop.type];
+            if (!extractor) {
+                extractor = extractors[token.type];
+                if (!extractor) {
+                    throw new Error('unknown token type `' + token.type + '`')
+                }
+            }
+            return extractor(token, prop);
         };
 
     function getTmpName(type) {
@@ -51,9 +65,11 @@ module.exports = (function () {
             var val = prop.value,
                 out;
             if (typeof val === 'string') {
-                out = val;
+                out = extractor({ type: 'text', pureData: val }, prop);
             } else {
-                out = val.map(extractor).join('');
+                out = val.map(function (item) {
+                    return extractor(item, prop);
+                }).join(''); // TODO pizda
             }
 
             if (type === 'Variant' || type === 'String')
@@ -87,7 +103,7 @@ module.exports = (function () {
 
             var known = QObject._knownComponents[prop.type];
 
-            if (known && known.prototype instanceof AbstractComponent) {
+            if (known && known.prototype instanceof QObject) {
                 if (prop.value && checkType(prop.value, prop.type)) {
                     return 'QObject._knownComponents[\'' + prop.value + '\']';
                 } else {
@@ -295,10 +311,10 @@ module.exports = (function () {
                                 if (env.type in primitives) {
                                     source = 'self.id + \'.' + fullName + '\'';
                                 } else {
-                                    if (fullName.match(/\.value$/))
-                                        source = '\'' + fullName + '\'';//'[\'' + fullName + '\', \'value\']';
-                                    else
-                                        source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
+                                    //if (fullName.match(/\.value$/))
+                                    source = '\'' + fullName + '\'';//'[\'' + fullName + '\', \'value\']';
+                                    //else
+                                    //    source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
                                 }
 
                             } else {
@@ -326,23 +342,6 @@ module.exports = (function () {
                 '\tfunction (' + mutatorArgs.join(',') + ') {\n' +
                 '\t\treturn ' + fn + '\n' +
                 '\t});';
-
-            return 'eventManager.registerPipe(new Base.Pipes.MutatingPipe([\n' +
-                '\t\t' +
-                pipeSources.map(function (item) {
-                    console.log(item);
-                    return item;
-                }).join(',') +
-                '\n\t], {\n' +
-                '\t\tcomponent: ' + childId + '.id, property: \'' + targetProperty + '\'\n' +
-                '\t}).addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
-                '\t\treturn ' + fn + '\n' +
-                '\t}));';
-
-
-            /*return (this.functionWaterfall(fn, pipe, item, scope,cls, prop, place)+
-                '.after(function(val){eventManager.s([\''+
-                (item.name||item.tmpName)+'\',\''+ prop.name +'\'], val)});');*/
         },
 
         functionNet: function () {

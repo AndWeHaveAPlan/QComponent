@@ -47,7 +47,7 @@ def Page main
                 type: button
                 enabled: {{ gm.ready }}
                 .click: ()=>{
-                    gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
+                    gm.makeRoute(gm.home,gm.pins[0].coords);
                 }
             ListBox:
                 overflow: auto

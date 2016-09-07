@@ -34,6 +34,7 @@ module.exports = {
             WrapPanel: require('./Base/Components/UI/WrapPanel'),
             HBox: require('./Base/Components/UI/HBox'),
             NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
+            ItemTemplate: require('./Base/Components/UI/ItemTemplate'),
             Slider: require('./Base/Components/UI/Slider'),
             Page: require('./Base/Components/UI/Page'),
             VBox: require('./Base/Components/UI/VBox'),
