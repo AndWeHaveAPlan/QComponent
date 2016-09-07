@@ -203,8 +203,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
           self.directionsDisplay.setDirections(response);
 
-          var newMoveList = self._updateMoveList(self);
-          self.set('moveList', newMoveList);
+          self._updateMoveList(self);
         } else {
           console.error('Directions request failed due to ' + status);
           self.set('moveList', []);
@@ -225,7 +224,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       return [instructions, durationText].join('. ')
     });
 
-    return moveList;
+    this.set('moveList', moveList);
   },
 
   _prop: {
