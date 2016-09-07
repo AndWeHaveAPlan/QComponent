@@ -25,31 +25,17 @@ module.exports = UIComponent.extend('GeoMap', {
                     zoom: self.get('zoom'),
                     controls: ['zoomControl', 'searchControl']
                 });
-                self.pinns = new ymaps.GeoObjectCollection(null, {
+                self.pins = new ymaps.GeoObjectCollection(null, {
                     preset: 'islands#blueCircleDotIconWithCaption'
                 });
                 self.home = new ymaps.GeoObjectCollection(null, {
                     preset: 'islands#redCircleDotIconWithCaption'
                 });
 
-                var home = self._data.home;
-                if (home)
-                    self.home.add(
-                        new ymaps.Placemark(home, {
-                            iconCaption: 'You are here'
-                        })
-                    );
+                self._createHome(self);
+                self._createPins(self);
 
-                var pins = self._data.pins;
-                if (pins)
-                    for (var i = 0; i < pins.length; i++) {
-                        var p = pins[i];
-                        p && self.pinns.add(new ymaps.Placemark(p.coords, {
-                            iconCaption: p.name
-                        }));
-                    }
-
-                self.ymap.geoObjects.add(self.pinns).add(self.home);
+                self.ymap.geoObjects.add(self.pins).add(self.home);
 
                 self.set('ready', true);
             });
@@ -71,23 +57,64 @@ module.exports = UIComponent.extend('GeoMap', {
                 self.route = route;
                 self.ymap.geoObjects.add(self.route);
 
-                function foo(){
-                    var way, segments, moveList = [], tempRoute = route.getActiveRoute();
-
-                    for (var i = 0; i < tempRoute.getPaths().getLength(); i++) {
-                        way = tempRoute.getPaths().get(i);
-                        segments = way.getSegments();
-                        for (var j = 0; j < segments.getLength(); j++) {
-                            var segment = segments.get(j);
-                            moveList.push(segment.properties.get('text'));
-                        }
-                    }
-                    self.set('moveList', moveList);
-                }
-
-                route.events.add('activeroutechange',foo);
-                foo();
+                // Was binded one more time in every method call
+                // route.events.add('activeroutechange',self._updateMoveList);
+                self._updateMoveList();
             });
+    },
+
+    _updateMoveList: function() {
+        var way, segments, moveList = [],
+            tempRoute = this.route.getActiveRoute();
+
+        for (var i = 0; i < tempRoute.getPaths().getLength(); i++) {
+            way = tempRoute.getPaths().get(i);
+            segments = way.getSegments();
+            for (var j = 0; j < segments.getLength(); j++) {
+                var segment = segments.get(j);
+                moveList.push(segment.properties.get('text'));
+            }
+        }
+
+        this.set('moveList', moveList);
+    },
+
+    _createHome: function() {
+      var homeData = this.get('home');
+      //
+      if(homeData && this.home) {
+        this.home.add(
+          new ymaps.Placemark(homeData, { iconCaption: 'You are here' })
+        );
+      }
+
+    },
+
+    _removeHome: function() {
+      if(this.home)
+        this.home.removeAll();
+    },
+
+    _createPins: function() {
+      var self = this;
+
+      var pinsData = this.get('pins');
+      //
+      if(pinsData && this.pins) {
+        for (var i = 0; i < pinsData.length; i++) {
+          var p = pinsData[i];
+          self.pins.add(
+            new ymaps.Placemark(p.coords, {
+              iconCaption: p.name
+            })
+          );
+        }
+      }
+    },
+
+    _removePins: function() {
+      if(this.pins)
+        this.pins.removeAll();
     },
 
     _prop: {
@@ -114,15 +141,8 @@ module.exports = UIComponent.extend('GeoMap', {
             get: Property.defaultGetter,
             set: function (key, value) {
                 if (this.mapApi) {
-                    this.pinns.removeAll();
-                    for (var i = 0; i < value.length; i++) {
-                        var p=value[i];
-                        this.pinns.add(
-                            new ymaps.Placemark(p.coords, {
-                                iconCaption: p.name
-                            })
-                        );
-                    }
+                    this._removePins(this);
+                    this._createPins(this);
                 }
             }
         }),
@@ -130,32 +150,13 @@ module.exports = UIComponent.extend('GeoMap', {
             get: Property.defaultGetter,
             set: function (key, value) {
                 if (this.mapApi)
-                    ymaps.ready(function () {
-                        this.home.removeAll();
-                        this.home.add(
-                            new ymaps.Placemark(value, {
-                                iconCaption: 'You are here'
-                            })
-                        );
-                    });
+                    this._removeHome(this);
+                    this._createHome(this);
             }
         }),
         moveList: new Property('Array',{},{
             get: Property.defaultGetter,
             set: function(){}
         },[])
-    },
-    addChild: function (child) {
-        var div = new Primitive.div();
-        div.addChild(child);
-        this._children.push(div);
-
-        var children = this.el.childNodes;
-        var count = children.length;
-        for (var i = 0, length = children.length; i < length; i++) {
-            children[i].style.height = 100 / count + '%';
-            children[i].style.position = 'relative';
-            children[i].style.width = '100%';
-        }
     }
 });
