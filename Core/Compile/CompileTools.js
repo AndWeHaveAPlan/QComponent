@@ -311,10 +311,10 @@ module.exports = (function () {
                                 if (env.type in primitives) {
                                     source = 'self.id + \'.' + fullName + '\'';
                                 } else {
-                                    //if (fullName.match(/\.value$/))
+                                    if (fullName.match(/\.value$/))
                                     source = '\'' + fullName + '\'';//'[\'' + fullName + '\', \'value\']';
-                                    //else
-                                    //    source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
+                                    else
+                                        source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
                                 }
 
                             } else {

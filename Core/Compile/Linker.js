@@ -44,7 +44,7 @@ module.exports = (function() {
                 PUBLIC: function (text, item) {
                     var type = text.match(parser.nameRegexp)[0],
                         info, bonus = text.substr(text.indexOf(type) + type.length),
-                        newItem;
+                         newItem;
 
                     newItem = tools.removeFirstWord(item, type);
 
