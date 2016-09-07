@@ -35,8 +35,14 @@ module.exports = UIComponent.extend('InputField', {
         this.set('value', newVal);
     },
     createEl: function () {
-        var self = this;
         this.el = UIComponent.document.createElement('div');
+    },
+    validate: function(value) {
+        var valid = this.get('validator')(value);
+        if (!valid)
+            this.set('input.background', '#fcc');
+        else
+            this.set('input.background', 'none');
     },
     _prop: {
         value: new Property('String', {}, {
@@ -45,6 +51,7 @@ module.exports = UIComponent.extend('InputField', {
                 this._data.input.set('value', value);
             }
         }, ''),
+        validator: new Property('Function', {}, {}, function () { return false; }),
         placeholder: Property.generate.attributeProperty('placeholder'),
         input: new Property('input')
     }
@@ -97,7 +104,7 @@ module.exports = UIComponent.extend('InputField', {
         valueString = valueString.substring(0, selRange.selStart) + String.fromCharCode(event.keyCode) + valueString.substring(selRange.selEnd);
 
         self._updateValue(valueString, selRange);
-
+        self.validate(this.value);
         this.setSelectionRange(selRange.selStart + 1, selRange.selStart + 1);
     });
 
@@ -108,19 +115,19 @@ module.exports = UIComponent.extend('InputField', {
         };
         var delta = 0;
 
-        if (!(event.keyCode == 8 || event.keyCode == 46)) {
+        if (!(event.keyCode === 8 || event.keyCode === 46)) {
             return;
         }
 
         self._startChange(this.value, selRange);
         var valueString = this.value;
 
-        if (event.keyCode == 8) { //backspace
+        if (event.keyCode === 8) { //backspace
             valueString = valueString.substring(0, (selRange.selEnd == selRange.selStart) ? selRange.selStart - 1 : selRange.selStart) + valueString.substring(selRange.selEnd);
-            if (selRange.selEnd == selRange.selStart)
+            if (selRange.selEnd === selRange.selStart)
                 delta = -1;
         }
-        if (event.keyCode == 46) {  //delete
+        if (event.keyCode === 46) {  //delete
             valueString = valueString.substring(0, selRange.selStart) + valueString.substring((selRange.selEnd == selRange.selStart) ? selRange.selEnd + 1 : selRange.selEnd);
         }
 
@@ -128,8 +135,7 @@ module.exports = UIComponent.extend('InputField', {
         event.stopPropagation();
 
         self._updateValue(valueString, selRange);
-
-        //delta += this.value.length - length;
+        self.validate(this.value);
         this.setSelectionRange(selRange.selStart + delta, selRange.selStart + delta);
     });
 
@@ -140,7 +146,7 @@ module.exports = UIComponent.extend('InputField', {
         };
         var clipboardData = event.clipboardData || window.clipboardData;
         var pastedData = clipboardData.getData('Text');
-        
+
         self._startChange(this.value, selRange);
         var valueString = this.value;
 
@@ -148,7 +154,7 @@ module.exports = UIComponent.extend('InputField', {
         event.preventDefault();
 
         valueString = valueString.substring(0, selRange.selStart) + pastedData + valueString.substring(selRange.selEnd);
-        
+
         self._updateValue(valueString, selRange);
 
         this.setSelectionRange(selRange.selEnd + pastedData.length, selRange.selEnd + pastedData.length);
