@@ -1,5 +1,9 @@
 def Page main
-
+  .loaded: ()->
+    console.log('CARD FORM IS LOADED')
+    chuchu('da');
+  Function chuchu: (da)->
+    console.log(da,da,da);
   VBox
     div
 	   TextBox tb: werfwefsdfsd
