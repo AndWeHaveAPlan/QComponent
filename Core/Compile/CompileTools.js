@@ -299,31 +299,17 @@ module.exports = (function () {
             /*fn = this._functionTransform(fn);
             fn = {"var1":"cf.cardData.name"," fn ":"JSON.stringify(var1);"};*/
             //console.log(this.functionWaterfall(fn))
-            var env;
+            var env, cache = {};
             for (var cName in pipe.vars) {
-                if (pipe.vars.hasOwnProperty(cName)) {
-                    for (var fullName in pipe.vars[cName]) {
-                        if (pipe.vars[cName].hasOwnProperty(fullName)) {
+                for (var fullName in pipe.vars[cName]) {
 
-                            var pipeVar = pipe.vars[cName][fullName];
-                            var source;// = '\'' + fullName + '\'';
-                            console.log(cName);
-                            if (cName === 'this') {
-                                source = 'this.id + \'.' + pipeVar.property.name + '\'';
-                            } else if ((env = this.isNameOfEnv(cName, cls.metadata)) || (env = this.isNameOfProp(cName, cls.metadata))) {//(def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
-                                if (env.type in primitives) {
-                                    source = 'self.id + \'.' + fullName + '\'';
-                                } else {
-                                    //if (fullName.match(/\.value$/))
-                                    source = '\'' + fullName + '\'';//'[\'' + fullName + '\', \'value\']';
-                                    //else
-                                    //    source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
-                                }
-
-                            } else {
-                                source = '\'' + fullName + '\'';
-                            }
-
+                    var pipeVars = pipe.vars[cName][fullName];
+                    for(var i = 0, _i = pipeVars.length; i<_i;i++) {
+                        var pipeVar = pipeVars[i];
+                        //var source;// = '\'' + fullName + '\'';
+                        var source = tools.getVarAccessor(pipeVar, cls.metadata);
+                        if(!cache[source]) {
+                            cache[source] = true;
                             pipeSources.push(source);
 
                             var mArg = fullName.replace(/\./g, '');
@@ -345,6 +331,36 @@ module.exports = (function () {
                 '\tfunction (' + mutatorArgs.join(',') + ') {\n' +
                 '\t\treturn ' + fn + '\n' +
                 '\t});';
+        },
+        getVarAccessor: function (tree, metadata) {
+            var source, env, pointer = tree, stack = [], cName, fullName;
+            if(pointer.object) {
+
+                while (pointer.object) {
+                    stack.push(pointer.property);
+                    pointer = pointer.object;
+                }
+                stack.push(pointer);
+                stack = stack.reverse();
+            }else{
+                stack.push(pointer);
+            }
+
+            if (cName === 'this') {
+                source = 'this.id + \'.' + pipeVar.property.name + '\'';
+            } else if ((env = this.isNameOfEnv(cName, cls.metadata)) || (env = this.isNameOfProp(cName, cls.metadata))) {//(def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
+                if (env.type in primitives) {
+                    source = 'self.id + \'.' + fullName + '\'';
+                } else {
+                    if (fullName.match(/\.value$/))
+                        source = '\'' + fullName + '\'';//'[\'' + fullName + '\', \'value\']';
+                    else
+                        source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
+                }
+            } else {
+                source = '\'' + fullName + '\'';
+            }
+            return source;
         },
 /*
         functionNet: function () {
@@ -400,7 +416,7 @@ module.exports = (function () {
                     event = events[i];
 
                     var fnBody = tools.functionTransform(event, cls.metadata);
-                    out.push(name + '.on(\'' + event.events + '\','+fnBody+', ' + name + ');');
+                    out.push((name||'this') + '.on(\'' + event.events + '\','+fnBody+', ' + name + ');');
                 }
 
                 //out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, this));\n';
@@ -408,9 +424,9 @@ module.exports = (function () {
                 //out += '\t\tthis._subscr();\n';
                 return out;
             }
+
         },
         functionTransform: function(fnObj, meta){
-
             var transformFnGet = function (node, stack, scope) {
                 var list = stack.slice().reverse(),
                     first = list[0];
