@@ -2,28 +2,28 @@ def Page main
     height:100%
     Title: ajax test
 
-    HTTPRequest ajax1
+    AJAX ajax1
+		autoActivate: true
         method: GET
         url: /qstyle.css
 
-    HTTPRequest ajax2
-        autoActivate: false
+    AJAX ajax2   
         method: GET
         url: /qstyle.css
 
-    HTTPRequest ajax3
+    AJAX ajax3
         method: POST
         url: /qstyle.css
 
     h1: GET
 
     h2: autoActivate: true
-    div: {{ajax1.result}}
+    div: {{ajax1}}
         height: 100px
         width: 100%
 
     h2: autoActivate: false
-    div: {{ajax2.result}}
+    //div: {{ajax2.value}}
     input: Send
         type: button
         .click: () -> ajax2.send()

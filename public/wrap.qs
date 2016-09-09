@@ -36,10 +36,10 @@ def Page main
                     margin: 6.5px 0 0
                 .mouseenter: ()=>
                         self.scale = [1.5, 1.5];
-                        //console.log('mouseenter');
+                        console.log('mouseenter');
                 .mouseleave: ()=>
                         self.scale = [1, 1];
-                        //console.log('mouseleave');
+                        console.log('mouseleave');
             itemSource: ((function(){
                     var arr = [];
                     for( var i = 1; i < 100; i++){
