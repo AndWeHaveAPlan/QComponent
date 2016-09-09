@@ -371,7 +371,7 @@ module.exports = (function () {
                         throw new Error('Unknown variable `'+node.name+'`');
                 }
                 if(env.type in primitives){
-                    if(i<_i-1)
+                    if(i < _i - 1)
                         throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
                 }else{
                     metadata = shadow[env.type];
@@ -455,7 +455,7 @@ module.exports = (function () {
                     event = events[i];
 
                     var fnBody = tools.functionTransform(event, cls.metadata);
-                    out.push((name||'this') + '.on(\'' + event.events + '\','+fnBody+', ' + name + ');');
+                    out.push((name||'this') + '.on(\'' + event.events + '\','+fnBody+', ' + (name||'this') + ');');
                 }
 
                 //out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, this));\n';
@@ -476,6 +476,7 @@ module.exports = (function () {
                 } else {
                     who = list.shift();
                 }
+                console.log(stack)
                 return {
                     'type': 'CallExpression',
                     'callee': {
