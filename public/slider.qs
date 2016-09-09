@@ -7,13 +7,13 @@ def Page main
             to: 255
             fillColor: rgb({{s1.value|0}}, 0, 0)
 
-        span: Red: {{s1.value}}
+        span: Red: {{s1}}
 
         Slider s2: 100
             from: -255
             to: 255
             step: 1
-            fillColor: rgb(0, {{s2.value}}, 0)
+            fillColor: rgb(0, {{s2}}, 0)
 
         span: Green: {{s2}}
 
@@ -21,13 +21,13 @@ def Page main
             from: 0
             to: 255
             step: 5
-            fillColor: rgb(0, 0, {{s3.value}})
+            fillColor: rgb(0, 0, {{s3}})
 
-        span: Blue: {{s3.value}}
+        span: Blue: {{s3}}
 
 
         input: 8
-          type: button
+          type: number
           .click: ()->
             //this.set('value', this.get('value')+1)
             this.value = this.value+1;

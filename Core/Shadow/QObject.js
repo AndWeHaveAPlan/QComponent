@@ -25,7 +25,7 @@ module.exports = (function() {
 
             var splitted = tools.split(item.items, ':', 2);
 
-            return {name: tools.detox(tools.trim(splitted[0])), value: tools.detox(tools.trim(splitted[1]), true)};
+            return {name: tools.trim(tools.detox(tools.trim(splitted[0]))), value: tools.detox(tools.trim(splitted[1]), true)};
 
         },
         eventParser: function (item, children) {            
