@@ -16,7 +16,7 @@ module.exports = {
         mixins: {
             focusable: require('./Base/Mixins/focusable')
         },
-        Workflow:{
+        Workflow: {
             Scenario: require('./Base/Workflow/Scenario'),
             Selector: require('./Base/Workflow/Selector'),
             Sequence: require('./Base/Workflow/Sequence')
@@ -27,12 +27,15 @@ module.exports = {
             },
             Primitives: require('./Base/Components/UI/Primitives'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
+            RadioButton: require('./Base/Components/UI/RadioButton'),
+            RadioButtonGroup: require('./Base/Components/UI/RadioButtonGroup'),
             TextBox: require('./Base/Components/UI/TextBox'),
             NumberBox: require('./Base/Components/UI/NumberBox'),
             MaskedInput: require('./Base/Components/UI/MaskedInput'),
             ListBox: require('./Base/Components/UI/ListBox'),
             WrapPanel: require('./Base/Components/UI/WrapPanel'),
             HBox: require('./Base/Components/UI/HBox'),
+            Button: require('./Base/Components/UI/Button'),
             NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
             ItemTemplate: require('./Base/Components/UI/ItemTemplate'),
             Slider: require('./Base/Components/UI/Slider'),
