@@ -1,0 +1,699 @@
+[
+  {
+    "row": 1,
+    "col": 2,
+    "first": {
+      "row": 1,
+      "col": 1,
+      "type": "text",
+      "data": " kk",
+      "pureData": "kk"
+    },
+    "items": [
+      {
+        "row": 1,
+        "col": 1,
+        "type": "text",
+        "data": " kk",
+        "pureData": "kk"
+      },
+      {
+        "row": 1,
+        "col": 4,
+        "type": "comment",
+        "data": "/*\n@alias: HBox\n//@tags: layout, container\n'@description: HBox - /*layout* / component. It children would be rendered horizontally.\n  By default children would be placed in equal space cells. You can specify widths by adding attributes `flex` and\n  `width`\\`size` to children items. `width` and `size` are  the same, the only difference is that you can also use\n  `size` for layouting in VBox.\n@example:\n  ```qs\n  HBox\n   Button: Ok\n      flex: 1\n    Button: Apply\n      width: 200px\n    Button: Cancel\n      flex: 2\n    Spacer\n      flex: 3\n  ```\n@extend: component\n*/",
+        "pureData": "\n@alias: HBox\n//@tags: layout, container\n'@description: HBox - /*layout* / component. It children would be rendered horizontally.\n  By default children would be placed in equal space cells. You can specify widths by adding attributes `flex` and\n  `width`\\`size` to children items. `width` and `size` are  the same, the only difference is that you can also use\n  `size` for layouting in VBox.\n@example:\n  ```qs\n  HBox\n   Button: Ok\n      flex: 1\n    Button: Apply\n      width: 200px\n    Button: Cancel\n      flex: 2\n    Spacer\n      flex: 3\n  ```\n@extend: component\n"
+      }
+    ]
+  },
+  {
+    "row": 22,
+    "col": 1,
+    "first": {
+      "row": 22,
+      "col": 1,
+      "type": "text",
+      "data": "a a  aaa",
+      "pureData": "a a  aaa"
+    },
+    "items": [
+      {
+        "row": 22,
+        "col": 1,
+        "type": "text",
+        "data": "a a  aaa",
+        "pureData": "a a  aaa"
+      }
+    ]
+  },
+  {
+    "row": 23,
+    "col": 4,
+    "first": {
+      "row": 23,
+      "col": 1,
+      "type": "text",
+      "data": "   bb",
+      "pureData": "bb"
+    },
+    "items": [
+      {
+        "row": 23,
+        "col": 1,
+        "type": "text",
+        "data": "   bb",
+        "pureData": "bb"
+      }
+    ]
+  },
+  {
+    "row": 24,
+    "col": 1,
+    "first": {
+      "row": 24,
+      "col": 1,
+      "type": "text",
+      "data": "div.mdl-",
+      "pureData": "div.mdl-"
+    },
+    "items": [
+      {
+        "row": 24,
+        "col": 1,
+        "type": "text",
+        "data": "div.mdl-",
+        "pureData": "div.mdl-"
+      },
+      {
+        "row": 24,
+        "col": 9,
+        "type": "comment",
+        "data": "/*comment*/",
+        "pureData": "comment"
+      },
+      {
+        "row": 24,
+        "col": 20,
+        "type": "text",
+        "data": "grid ",
+        "pureData": "grid "
+      },
+      {
+        "row": 24,
+        "col": 25,
+        "type": "comment",
+        "data": "//lulza",
+        "pureData": "lulza"
+      }
+    ]
+  },
+  {
+    "row": 25,
+    "col": 3,
+    "first": {
+      "row": 25,
+      "col": 1,
+      "type": "text",
+      "data": "  foreach items",
+      "pureData": "foreach items"
+    },
+    "items": [
+      {
+        "row": 25,
+        "col": 1,
+        "type": "text",
+        "data": "  foreach items",
+        "pureData": "foreach items"
+      },
+      {
+        "row": 25,
+        "col": 16,
+        "type": "comment",
+        "data": "/*tral*/",
+        "pureData": "tral"
+      }
+    ]
+  },
+  {
+    "row": 26,
+    "col": 5,
+    "first": {
+      "row": 26,
+      "col": 5,
+      "type": "text",
+      "data": "div.mdl-cell. ",
+      "pureData": "div.mdl-cell. "
+    },
+    "items": [
+      {
+        "row": 26,
+        "col": 1,
+        "type": "comment",
+        "data": "/**/",
+        "pureData": ""
+      },
+      {
+        "row": 26,
+        "col": 5,
+        "type": "text",
+        "data": "div.mdl-cell. ",
+        "pureData": "div.mdl-cell. "
+      },
+      {
+        "row": 26,
+        "col": 19,
+        "type": "quote",
+        "data": "\"\\'\\' \\'\\' /*ni*/\"",
+        "pureData": "\\'\\' \\'\\' /*ni*/"
+      },
+      {
+        "row": 26,
+        "col": 37,
+        "type": "brace",
+        "info": "{",
+        "_info": "}",
+        "data": "{{/ijij}}",
+        "pureData": "{{/ijij}}",
+        "items": [
+          {
+            "row": 26,
+            "col": 38,
+            "type": "brace",
+            "info": "{",
+            "_info": "}",
+            "data": "{/ijij}",
+            "pureData": "{/ijij}",
+            "items": [
+              {
+                "row": 26,
+                "col": 39,
+                "type": "text",
+                "data": "/ijij",
+                "pureData": "/ijij"
+              }
+            ],
+            "parent": "~CIRCULAЯ~"
+          }
+        ],
+        "parent": "~CIRCULAЯ~"
+      },
+      {
+        "row": 26,
+        "col": 46,
+        "type": "text",
+        "data": " mdl-cell--",
+        "pureData": " mdl-cell--"
+      },
+      {
+        "row": 26,
+        "col": 57,
+        "type": "brace",
+        "info": "{",
+        "_info": "}",
+        "data": "{{count|12/count}}",
+        "pureData": "{{count|12/count}}",
+        "items": [
+          {
+            "row": 26,
+            "col": 58,
+            "type": "brace",
+            "info": "{",
+            "_info": "}",
+            "data": "{count|12/count}",
+            "pureData": "{count|12/count}",
+            "items": [
+              {
+                "row": 26,
+                "col": 59,
+                "type": "text",
+                "data": "count|12/count",
+                "pureData": "count|12/count"
+              }
+            ],
+            "parent": "~CIRCULAЯ~"
+          }
+        ],
+        "parent": "~CIRCULAЯ~"
+      },
+      {
+        "row": 26,
+        "col": 75,
+        "type": "text",
+        "data": "-col.mdl-cell--",
+        "pureData": "-col.mdl-cell--"
+      },
+      {
+        "row": 26,
+        "col": 90,
+        "type": "brace",
+        "info": "{",
+        "_info": "}",
+        "data": "{{count|12/count}}",
+        "pureData": "{{count|12/count}}",
+        "items": [
+          {
+            "row": 26,
+            "col": 91,
+            "type": "brace",
+            "info": "{",
+            "_info": "}",
+            "data": "{count|12/count}",
+            "pureData": "{count|12/count}",
+            "items": [
+              {
+                "row": 26,
+                "col": 92,
+                "type": "text",
+                "data": "count|12/count",
+                "pureData": "count|12/count"
+              }
+            ],
+            "parent": "~CIRCULAЯ~"
+          }
+        ],
+        "parent": "~CIRCULAЯ~"
+      },
+      {
+        "row": 26,
+        "col": 108,
+        "type": "text",
+        "data": "-col-tablet",
+        "pureData": "-col-tablet"
+      }
+    ]
+  },
+  {
+    "row": 27,
+    "items": [
+      {
+        "row": 27,
+        "col": 1,
+        "type": "comment",
+        "data": "//      render this",
+        "pureData": "      render this"
+      }
+    ]
+  },
+  {
+    "row": 28,
+    "items": [
+      {
+        "row": 28,
+        "col": 1,
+        "type": "comment",
+        "data": "/*jajica*/",
+        "pureData": "jajica"
+      }
+    ]
+  },
+  {
+    "row": 29,
+    "col": 5,
+    "first": {
+      "row": 29,
+      "col": 1,
+      "type": "text",
+      "data": "    def UICancer",
+      "pureData": "def UICancer"
+    },
+    "items": [
+      {
+        "row": 29,
+        "col": 1,
+        "type": "text",
+        "data": "    def UICancer",
+        "pureData": "def UICancer"
+      }
+    ]
+  },
+  {
+    "row": 30,
+    "col": 7,
+    "first": {
+      "row": 30,
+      "col": 1,
+      "type": "text",
+      "data": "      childrenType: raw",
+      "pureData": "childrenType: raw"
+    },
+    "items": [
+      {
+        "row": 30,
+        "col": 1,
+        "type": "text",
+        "data": "      childrenType: raw",
+        "pureData": "childrenType: raw"
+      }
+    ]
+  },
+  {
+    "row": 31,
+    "items": []
+  },
+  {
+    "row": 32,
+    "col": 5,
+    "first": {
+      "row": 32,
+      "col": 1,
+      "type": "text",
+      "data": "    div",
+      "pureData": "div"
+    },
+    "items": [
+      {
+        "row": 32,
+        "col": 1,
+        "type": "text",
+        "data": "    div",
+        "pureData": "div"
+      }
+    ]
+  },
+  {
+    "row": 33,
+    "items": [
+      {
+        "row": 33,
+        "col": 7,
+        "type": "comment",
+        "data": "//USE ClosureScript",
+        "pureData": "USE ClosureScript"
+      }
+    ]
+  },
+  {
+    "row": 34,
+    "items": []
+  },
+  {
+    "row": 35,
+    "col": 9,
+    "first": {
+      "row": 35,
+      "col": 1,
+      "type": "text",
+      "data": "        .click: ",
+      "pureData": ".click: "
+    },
+    "items": [
+      {
+        "row": 35,
+        "col": 1,
+        "type": "text",
+        "data": "        .click: ",
+        "pureData": ".click: "
+      },
+      {
+        "row": 35,
+        "col": 17,
+        "type": "brace",
+        "info": "(",
+        "_info": ")",
+        "data": "()",
+        "pureData": "()",
+        "items": [],
+        "parent": "~CIRCULAЯ~"
+      },
+      {
+        "row": 35,
+        "col": 19,
+        "type": "text",
+        "data": " ->",
+        "pureData": " ->"
+      }
+    ]
+  },
+  {
+    "row": 36,
+    "col": 13,
+    "first": {
+      "row": 36,
+      "col": 1,
+      "type": "text",
+      "data": "            if",
+      "pureData": "if"
+    },
+    "items": [
+      {
+        "row": 36,
+        "col": 1,
+        "type": "text",
+        "data": "            if",
+        "pureData": "if"
+      },
+      {
+        "row": 36,
+        "col": 15,
+        "type": "brace",
+        "info": "(",
+        "_info": ")",
+        "data": "( store.pos {{}} < line.length )",
+        "pureData": "( store.pos {{}} < line.length )",
+        "items": [
+          {
+            "row": 36,
+            "col": 16,
+            "type": "text",
+            "data": " store.pos ",
+            "pureData": " store.pos "
+          },
+          {
+            "row": 36,
+            "col": 27,
+            "type": "brace",
+            "info": "{",
+            "_info": "}",
+            "data": "{{}}",
+            "pureData": "{{}}",
+            "items": [
+              {
+                "row": 36,
+                "col": 28,
+                "type": "brace",
+                "info": "{",
+                "_info": "}",
+                "data": "{}",
+                "pureData": "{}",
+                "items": [],
+                "parent": "~CIRCULAЯ~"
+              }
+            ],
+            "parent": "~CIRCULAЯ~"
+          },
+          {
+            "row": 36,
+            "col": 31,
+            "type": "text",
+            "data": " < line.length ",
+            "pureData": " < line.length "
+          }
+        ],
+        "parent": "~CIRCULAЯ~"
+      },
+      {
+        "row": 36,
+        "col": 47,
+        "type": "brace",
+        "info": "{",
+        "_info": "}",
+        "data": "{\n                store.matched = true;\n           }",
+        "pureData": "{\n                store.matched = true;\n           }",
+        "items": [
+          {
+            "row": 36,
+            "col": 48,
+            "type": "text",
+            "data": "\n                store.matched = true;\n           ",
+            "pureData": "\n                store.matched = true;\n           "
+          }
+        ],
+        "parent": "~CIRCULAЯ~"
+      },
+      {
+        "row": 38,
+        "col": 13,
+        "type": "text",
+        "data": "else",
+        "pureData": "else"
+      },
+      {
+        "row": 38,
+        "col": 17,
+        "type": "brace",
+        "info": "{",
+        "_info": "}",
+        "data": "{\n                store.pos -= line.length + 1;\n            }",
+        "pureData": "{\n                store.pos -= line.length + 1;\n            }",
+        "items": [
+          {
+            "row": 38,
+            "col": 18,
+            "type": "text",
+            "data": "\n                store.pos -= line.length + 1;\n            ",
+            "pureData": "\n                store.pos -= line.length + 1;\n            "
+          }
+        ],
+        "parent": "~CIRCULAЯ~"
+      }
+    ]
+  },
+  {
+    "row": 41,
+    "col": 9,
+    "first": {
+      "row": 41,
+      "col": 1,
+      "type": "text",
+      "data": "        .mouseup",
+      "pureData": ".mouseup"
+    },
+    "items": [
+      {
+        "row": 41,
+        "col": 1,
+        "type": "text",
+        "data": "        .mouseup",
+        "pureData": ".mouseup"
+      },
+      {
+        "row": 41,
+        "col": 17,
+        "type": "brace",
+        "info": "(",
+        "_info": ")",
+        "data": "()",
+        "pureData": "()",
+        "items": [],
+        "parent": "~CIRCULAЯ~"
+      },
+      {
+        "row": 41,
+        "col": 19,
+        "type": "text",
+        "data": " ->",
+        "pureData": " ->"
+      }
+    ]
+  },
+  {
+    "row": 42,
+    "items": []
+  },
+  {
+    "row": 43,
+    "col": 1,
+    "first": {
+      "row": 43,
+      "col": 1,
+      "type": "text",
+      "data": "Input i1",
+      "pureData": "Input i1"
+    },
+    "items": [
+      {
+        "row": 43,
+        "col": 1,
+        "type": "text",
+        "data": "Input i1",
+        "pureData": "Input i1"
+      }
+    ]
+  },
+  {
+    "row": 44,
+    "col": 1,
+    "first": {
+      "row": 44,
+      "col": 1,
+      "type": "text",
+      "data": "Input i2",
+      "pureData": "Input i2"
+    },
+    "items": [
+      {
+        "row": 44,
+        "col": 1,
+        "type": "text",
+        "data": "Input i2",
+        "pureData": "Input i2"
+      }
+    ]
+  },
+  {
+    "row": 45,
+    "items": []
+  },
+  {
+    "row": 46,
+    "col": 1,
+    "first": {
+      "row": 46,
+      "col": 1,
+      "type": "text",
+      "data": "Button: ",
+      "pureData": "Button: "
+    },
+    "items": [
+      {
+        "row": 46,
+        "col": 1,
+        "type": "text",
+        "data": "Button: ",
+        "pureData": "Button: "
+      },
+      {
+        "row": 46,
+        "col": 9,
+        "type": "brace",
+        "info": "{",
+        "_info": "}",
+        "data": "{{'У вас'+ i1 +'новых писем'+ i2}}",
+        "pureData": "{{'У вас'+ i1 +'новых писем'+ i2}}",
+        "items": [
+          {
+            "row": 46,
+            "col": 10,
+            "type": "brace",
+            "info": "{",
+            "_info": "}",
+            "data": "{'У вас'+ i1 +'новых писем'+ i2}",
+            "pureData": "{'У вас'+ i1 +'новых писем'+ i2}",
+            "items": [
+              {
+                "row": 46,
+                "col": 11,
+                "type": "quote",
+                "data": "'У вас'",
+                "pureData": "У вас"
+              },
+              {
+                "row": 46,
+                "col": 18,
+                "type": "text",
+                "data": "+ i1 +",
+                "pureData": "+ i1 +"
+              },
+              {
+                "row": 46,
+                "col": 24,
+                "type": "quote",
+                "data": "'новых писем'",
+                "pureData": "новых писем"
+              },
+              {
+                "row": 46,
+                "col": 37,
+                "type": "text",
+                "data": "+ i2",
+                "pureData": "+ i2"
+              }
+            ],
+            "parent": "~CIRCULAЯ~"
+          }
+        ],
+        "parent": "~CIRCULAЯ~"
+      }
+    ]
+  }
+]

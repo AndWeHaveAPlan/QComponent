@@ -12,6 +12,7 @@ module.exports = UIComponent.extend('Page', {
     },
     load: function () {
         QObject.document.body.appendChild(this.el);
+        this.fire('loaded');
     },
     _prop: {
         title: new Property('String', { description: 'Page Title' }, {

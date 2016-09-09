@@ -85,7 +85,7 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 }
                 return value;
             },
-            set: function (attr, val) {
+            set: function (attr, val, oldVal, e) {
                 if (!val) {
                     this.el.removeAttribute(attr);
                     delete this.el[attr];
@@ -95,6 +95,10 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 }
 
                 this.el[attr] = val;
+                if (typeof val !== 'number' && this._data.type === 'number') {
+                    val = parseFloat(val);
+                    e.value(isNaN(val) ? 0 : val);
+                }
             }
         })
     }

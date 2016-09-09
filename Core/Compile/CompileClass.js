@@ -84,7 +84,7 @@ module.exports = (function () {
                 '}}, function(){',
                 '    ' + metadataItem._type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
-                metadataItem.events ? this.builder.events(metadataItem, _self) : '',
+                metadataItem.events ? tools.builder.events(metadataItem, _self) : '',
                 '',
                 out,
                 this.makePublic(metadataItem.public, metadataItem, scope),
@@ -105,7 +105,7 @@ module.exports = (function () {
                     out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);//'clsMakePublic');//'this.id', i, def, 'this.id', prop);
                 } else {
 
-                    propVal = tools.propertyGetter(prop, scope);//vars);
+                    propVal = tools.propertyGetter(prop, scope, scope.vars, this);//vars);
 
                     //console.log(i,propVal, JSON.stringify(prop));
                     if(!(propVal instanceof Error))
