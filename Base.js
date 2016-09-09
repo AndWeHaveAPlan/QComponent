@@ -55,7 +55,7 @@ module.exports = {
             Timer: require('./Base/Components/Logical/Timer'),
             Random: require('./Base/Components/Logical/Random'),
             Title: require('./Base/Components/Logical/Title'),
-            HTTPRequest: require('./Base/Components/Logical/HTTPRequest')
+            AJAX: require('./Base/Components/Logical/AJAX')
         }
     },
     EventManager: require('./Base/EventManager'),
