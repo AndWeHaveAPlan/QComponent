@@ -20,6 +20,7 @@ function EventManager(owner) {
     this._tempPipes = [];
     this._listeners = {};
     this.owner = owner;
+    this.radioButtonGroups = {};
 }
 
 EventManager.prototype = new QObject();
@@ -104,7 +105,7 @@ EventManager.prototype._release = function (pipe) {
             var currentSource = bindingSources[source];
             var componentName = currentSource.componentName || this.owner.id;
             component = this._registredComponents[componentName];
-            currentSource.value = component ? component.get(currentSource.propertyName) : void(0);
+            currentSource.value = component ? component.get(currentSource.propertyName) : void (0);
 
             var pipes = this._registredPipes[currentSource.key];
             pipes ? pipes.push(pipe) : this._registredPipes[currentSource.key] = [pipe];
@@ -129,25 +130,25 @@ EventManager.prototype.releaseThePipes = function () {
 };
 
 
-EventManager.prototype.s = function(key, val){
+EventManager.prototype.s = function (key, val) {
     var who = key[0], what = key[1];
 
-    var cmp = this._registredComponents[ who === 'main'?this.owner.id:who];
+    var cmp = this._registredComponents[who === 'main' ? this.owner.id : who];
     cmp && cmp.set(what, val);
 
 };
-var P = function(){};
+var P = function () { };
 P.prototype = {
     i: 0,
     needProcess: false,
-    after: function(fn){
+    after: function (fn) {
         this._done = fn;
-        if(this.needProcess)
+        if (this.needProcess)
             this.done.apply(this, this.needProcess);
 
     },
-    done: function(){
-        if(this._done) {
+    done: function () {
+        if (this._done) {
             this._done.apply(this, arguments);
             this.needProcess = false;
         } else {
@@ -158,22 +159,22 @@ P.prototype = {
 /**
  * tiny promise
  */
-EventManager.prototype.p = function(args, fn){
+EventManager.prototype.p = function (args, fn) {
     var vals = [], i, _i,
         lastValue, firstCall = true,
         res = new P(),
         callFn = function () {
             var out = fn.apply(this, vals);
-            if(firstCall || lastValue !== out){
+            if (firstCall || lastValue !== out) {
                 res.done(out, lastValue);
                 lastValue = out; firstCall = false;
             }
         },
-        wrap = function (name, i) {  
+        wrap = function (name, i) {
             var lastValue, firstCall = true;
             return function (key, val) {
                 var str = JSON.stringify(val);
-                if(firstCall || lastValue !== str){//val){
+                if (firstCall || lastValue !== str) {//val){
                     vals[i] = val;
                     callFn();
                     lastValue = str;//val;
@@ -186,7 +187,7 @@ EventManager.prototype.p = function(args, fn){
         filled = 0;
     var point,
         currentVal;
-    for(i = 0, _i = args.length; i <_i;i++){
+    for (i = 0, _i = args.length; i < _i; i++) {
         arg = args[i];
         point = this._listeners;
 
@@ -199,15 +200,15 @@ EventManager.prototype.p = function(args, fn){
         } else {
             pointer = this._registredComponents[arg[0]];
 
-            for(var j = 1, _j = arg.length; j < _j; j++) {
-                point = point[arg[j]] || (point[arg[j]] = {fns: [], deeper: {}});
+            for (var j = 1, _j = arg.length; j < _j; j++) {
+                point = point[arg[j]] || (point[arg[j]] = { fns: [], deeper: {} });
                 point.fns.push(wrap(arg, i));
                 point = point.deeper;
 
 
 
             }
-            if(arg.length > 1)
+            if (arg.length > 1)
                 currentVal = pointer.get(arg.slice(1));
             else
                 currentVal = pointer.get(['value']);
@@ -218,7 +219,7 @@ EventManager.prototype.p = function(args, fn){
             }
         }
     }
-    if(filled === _i)
+    if (filled === _i)
         callFn();
     return res;
 };
