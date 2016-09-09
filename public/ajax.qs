@@ -23,7 +23,7 @@ def Page main
         width: 100%
 
     h2: autoActivate: false
-    //div: {{ajax2.value}}
+    div: {{ajax2.value}}
     input: Send
         type: button
         .click: () -> ajax2.send()
