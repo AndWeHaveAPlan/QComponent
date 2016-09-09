@@ -64,8 +64,13 @@ module.exports = (function () {
             node.body.map(mapWrapper(this.extend('block')));
         },
         'CallExpression': function(node, list){
-            getVars.call(this, node.callee.object, list);
-            getVars.call(this, node.callee.property, list);
+
+            if(node.callee.object) {
+                getVars.call(this, node.callee.object, list);
+                getVars.call(this, node.callee.property, list);
+            }else{
+                getVars.call(this, node.callee, list);
+            }
             node.arguments.map(mapWrapper(this));
             /*var scope;
             if(list && list.length) {
