@@ -105,7 +105,7 @@ module.exports = (function () {
                     out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);//'clsMakePublic');//'this.id', i, def, 'this.id', prop);
                 } else {
 
-                    propVal = tools.propertyGetter(prop, scope);//vars);
+                    propVal = tools.propertyGetter(prop, scope, scope.vars, this);//vars);
 
                     //console.log(i,propVal, JSON.stringify(prop));
                     if(!(propVal instanceof Error))

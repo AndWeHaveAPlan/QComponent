@@ -15,7 +15,7 @@ module.exports = (function () {
         ASTtransformer = require('./ASTtransformer'),
         shadow = require('./../Shadow');
     var primitives = {
-        'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Variant': true, 'Function': true
+        'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Function': true
     };
     var extractors = {
         quote: function (token) {
@@ -264,8 +264,15 @@ module.exports = (function () {
 
         isNameOfProp: function (name, metadata) {
             var prop;
-            if (!metadata || !metadata._prop)
-                throw new Error('Corrupted metadata for `' + name + '`');
+            if (!metadata || !metadata._prop) {
+                if(metadata.public){ // it is shadow
+                    if(metadata.public[name])
+                        return metadata.public[name];
+                    else
+                        return false;
+                }else
+                    throw new Error('Corrupted metadata for `' + name + '`');
+            }
             prop = metadata._prop;
 
             if (prop[name])
@@ -307,7 +314,7 @@ module.exports = (function () {
                     for(var i = 0, _i = pipeVars.length; i<_i;i++) {
                         var pipeVar = pipeVars[i];
                         //var source;// = '\'' + fullName + '\'';
-                        var source = tools.getVarAccessor(pipeVar, cls.metadata);
+                        var source = tools.getVarAccessor(pipeVar, cls, scope);
                         if(!cache[source]) {
                             cache[source] = true;
                             pipeSources.push(source);
@@ -332,8 +339,11 @@ module.exports = (function () {
                 '\t\treturn ' + fn + '\n' +
                 '\t});';
         },
-        getVarAccessor: function (tree, metadata) {
-            var source, env, pointer = tree, stack = [], cName, fullName;
+        getVarAccessor: function (tree, cls, scope) {
+            var source, env, pointer = tree, stack = [], cName, fullName,
+                i, _i, node, selfFlag = true,
+                metadata = cls.metadata,
+                out = [];
             if(pointer.object) {
 
                 while (pointer.object) {
@@ -345,6 +355,35 @@ module.exports = (function () {
             }else{
                 stack.push(pointer);
             }
+
+
+            for(i = 0, _i = stack.length; i < _i; i++){
+                node = stack[i];
+                if(!env || env.type !== 'Variant') {
+                    env = this.isNameOfEnv(node.name, metadata);
+                    if(env && i === 0){ // first token is from `self`
+                        selfFlag = false;
+                    }
+                    if(!env)
+                        env = this.isNameOfProp(node.name, metadata);
+
+                    if(!env)
+                        throw new Error('Unknown variable `'+node.name+'`');
+                }
+                if(env.type in primitives){
+                    if(i<_i-1)
+                        throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
+                }else{
+                    metadata = shadow[env.type];
+                }
+                out.push(node.name);
+            }
+            if(!(env.type in primitives || env.type === 'Variant')){
+                out.push('value');
+            }
+
+            return (selfFlag?'self.id+\'.':'\'')+out.join('.')+'\'';
+            console.log(env, out)
 
             if (cName === 'this') {
                 source = 'this.id + \'.' + pipeVar.property.name + '\'';
