@@ -13,9 +13,9 @@ module.exports = UIComponent.extend('GeoMap', {
         this.el = UIComponent.document.createElement('div');
         this.el.id = this.id;
 
-        var script = document.createElement("script");
+        var script = UIComponent.document.createElement("script");
         script.src = 'https://api-maps.yandex.ru/2.1/?lang=en_US';
-        document.head.appendChild(script);
+        UIComponent.document.head.appendChild(script);
 
         script.onload = function () {
             ymaps.ready(function () {

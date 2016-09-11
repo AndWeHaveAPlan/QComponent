@@ -38,6 +38,7 @@ module.exports = (function () {
         },
         Array: {
             set: function (key, value, old, e) {
+
                 var val = value;
                 if (!(value instanceof ObservableSequence)) {
                     value = new ObservableSequence(new dequeue());

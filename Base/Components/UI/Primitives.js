@@ -98,6 +98,8 @@ exports['input'] = exports['HtmlPrimitive'].extend('input', {
                 if (typeof val !== 'number' && this._data.type === 'number') {
                     val = parseFloat(val);
                     e.value(isNaN(val) ? 0 : val);
+                }else if(typeof val === 'number' && this._data.type !== 'number'){
+                    e.value(val+'');
                 }
             }
         })

@@ -6,7 +6,7 @@ module.exports = (function () {
     var esprima,
         counter = 0;
 
-    var getVars = function(node, list){
+    var getVars = function(node, list, doNotExtract){
         if(!node) return;
         var type = node.type,
             extractor = extractors[type],
@@ -16,7 +16,7 @@ module.exports = (function () {
 
             throw new Error('No extractor for type `'+ type +'`');
         }
-        extractor.call(scope, node, list);
+        extractor.call(scope, node, list,doNotExtract);
         return scope;
     };
 
@@ -63,14 +63,14 @@ module.exports = (function () {
         'BlockStatement': function(node){
             node.body.map(mapWrapper(this.extend('block')));
         },
-        'CallExpression': function(node, list){
+        'CallExpression': function(node, list, doNotExtract){
 
-            if(node.callee.object) {
-                getVars.call(this, node.callee.object, list);
-                getVars.call(this, node.callee.property, list);
-            }else{
+            // if(node.callee.object) {
+            //     getVars.call(this, node.callee.object, list);
+            //     getVars.call(this, node.callee.property, list, true);
+            // }else{
                 getVars.call(this, node.callee, list);
-            }
+            // }
             node.arguments.map(mapWrapper(this));
             /*var scope;
             if(list && list.length) {
@@ -91,13 +91,13 @@ module.exports = (function () {
 
             //'callee', '*arguments'
         },
-        'MemberExpression': function(node, list){
-            var needList = list !== false,
+        'MemberExpression': function(node, list, doNotExtract){
+            var needList = list !== false && doNotExtract !== true,
                 wasList = !!list,
                 scope, key;
 
             if(!needList || list === void 0)
-                getVars.call(this, node.object, false);
+                getVars.call(this, node.object, false, true);
 
             node.property.computed = node.computed;
             if(node.computed !== false)
@@ -119,14 +119,6 @@ module.exports = (function () {
                     }).join('.');
                     node._id = counter++;
                     (scope[key] || (scope[key] = [])).push(node);
-                    /*list.map(function(node){
-                            if(node.type==='Literal')
-                                return {value: node.value, type: 'text', computed: false};
-                            if(node.computed)
-                                return {value: node.name, type: 'name', computed: true};
-                            else
-                                return {value: node.name, type: 'name', computed: false};
-                        });*/
                 }
 
             }
@@ -152,7 +144,7 @@ module.exports = (function () {
             });
             getVars.call(subScope,node.body);
         },
-        'Identifier': function(node, list){
+        'Identifier': function(node, list, doNotExtract){
             var scope;
             if(list && list.length) {
                 list.push(node);
@@ -162,11 +154,13 @@ module.exports = (function () {
                  ] = true;*/
                 //if(this.deepUsed.a && this.deepUsed.a['a,g']) debugger;
             }else {
-                this.used[node.name] = true;
-                if(list === void 0) {
-                    scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
-                    node._id = counter++;
-                    (scope[node.name] || (scope[node.name] = [])).push(node);
+                if(doNotExtract !== true) {
+                    this.used[node.name] = true;
+                    if (list === void 0) {
+                        scope = (this.deepUsed[node.name] || (this.deepUsed[node.name] = {}));
+                        node._id = counter++;
+                        (scope[node.name] || (scope[node.name] = [])).push(node);
+                    }
                 }
             }
         },
@@ -189,7 +183,7 @@ module.exports = (function () {
                 }
             }
         },
-        'Literal': function(node, list){
+        'Literal': function(node, list, doNotExtract){
 
             if(list && list.length) {
                 list.push(node);
@@ -219,7 +213,7 @@ module.exports = (function () {
         for(var i in rules){
             if(rules.hasOwnProperty(i)){
                 var val = rules[i];
-                var fn = new Function('getVars', 'return function(node, e){' +
+                var fn = new Function('getVars', 'return function(node, e, a, b){' +
                     'var _self = this;'+
                     (val instanceof Array ? val : [val]).map(function(statement){
                         var each;
@@ -228,10 +222,10 @@ module.exports = (function () {
                         (statement = statement.substr(1));
                         if(each){
                             return 'node[\''+statement+'\'].map(function(el){' +
-                                'getVars.call(_self, el, e)' +
+                                'getVars.call(_self, el, e, a, b)' +
                                 '}, this);';
                         }else{
-                            return 'getVars.call(this,node[\''+statement+'\'], e);';
+                            return 'getVars.call(this,node[\''+statement+'\'], e, a, b);';
                         }
                     }).join('\n')+';}');
                 i.split(',').forEach(setExtractor);
