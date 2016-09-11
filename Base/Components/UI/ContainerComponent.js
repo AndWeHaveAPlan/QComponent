@@ -84,7 +84,6 @@ module.exports = UIComponent.extend('ContainerComponent', {
                 //TODO unsubscribe methods
                 //old.off('add', this._itemAddEventHandler.bind(this));
                 //old.off('remove', this._itemRemoevEventHandler.bind(this));
-
                 var self = this;
                 var val = value;
                 if (!(value instanceof ObservableSequence)) {

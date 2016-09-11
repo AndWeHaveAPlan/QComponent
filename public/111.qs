@@ -80,8 +80,6 @@ def Page main
                 height:{{(size||20)+'px'}}
                 background: {{color||'red'}}
                 border: 1px #fff solid
-        itemSource: [
-
-            ]
+        itemSource: []
 
 //{color:'#ce0', size: 40}, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1
