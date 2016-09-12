@@ -44,7 +44,7 @@ module.exports = (function(){
 
 */
 
-    var doTransform = function(node, options){
+    var doTransform = function(node, options, parent){
         if(!node) return;
 
         var type = node.type,
@@ -53,7 +53,7 @@ module.exports = (function(){
         if(!extractor){
             throw new Error('No extractor for type `'+ type +'`');
         }
-        return extractor.call(this, node, options);
+        return extractor.call(this, node, options, parent);
     };
     var generateNumber = function(value){
         return {
@@ -82,13 +82,13 @@ module.exports = (function(){
     var extractors = {
         'UpdateExpression': function(node, options){
             if(node.prefix){
-                return doTransform.call(this, node.argument, options);
+                return doTransform.call(this, node.argument, options, node);
             }else{
                 return doTransform.call( this, generateAssignment(
                     node.argument,
                     node.operator.charAt(0),
                     generateNumber(1)
-                ), options);
+                ), options, node);
             }
 
         },
@@ -99,7 +99,7 @@ module.exports = (function(){
 
             /** if variable is declared - do nothing */
             if(!('_id' in node.left) || !(node.left._id in this) || node.left._id === null) {
-                node.right = doTransform.call(this,node.right, options);
+                node.right = doTransform.call(this,node.right, options, node);
                 return node;
             }
 
@@ -120,10 +120,10 @@ module.exports = (function(){
                         node.left, node.operator.substr(0, node.operator.length - 1),
                         node.right
                     ),
-                    options
+                    options, node
                 );
             }
-            node.right = doTransform.call(this, node.right, options);
+            node.right = doTransform.call(this, node.right, options, node);
 
             if(options.variableTransformerSet){
                 stack.push(pointer);
@@ -131,7 +131,7 @@ module.exports = (function(){
                     me: _self,
                     options: options,
                     doTransform: doTransform
-                });
+                }, node);
             }
             var out = {
 
@@ -152,7 +152,7 @@ module.exports = (function(){
                                 (stack.length ? stack.reverse().map(function(item){
                                     //console.log(JSON.stringify(item,null,2));
                                     if(item.computed){
-                                        return doTransform.call(_self, item, options);
+                                        return doTransform.call(_self, item, options, node);
                                     }else{
                                         var out = {
                                             "type": "Literal",
@@ -179,7 +179,7 @@ module.exports = (function(){
             //assert.deepEqual(node, out);
             return out;
         },
-        'MemberExpression': function(node, options){
+        'MemberExpression': function(node, options, parent){
             var _self = this;
 
             if( '_id' in node && node._id in this && node._id !== null ){
@@ -203,7 +203,7 @@ module.exports = (function(){
                         me: _self,
                             options: options,
                             doTransform: doTransform
-                    });
+                    }, parent);
                 }
 
                 return {
@@ -224,7 +224,7 @@ module.exports = (function(){
                                     (stack.length ? stack.reverse().map(function(item){
                                         //console.log(JSON.stringify(item,null,2));
                                         if(item.computed){
-                                            return doTransform.call(_self, item, options);
+                                            return doTransform.call(_self, item, options, node);
                                         }else{
                                             var out = {
                                                 "type": "Literal",
@@ -248,8 +248,8 @@ module.exports = (function(){
             }else {
                 node = Object.create(node);
 
-                node.object = doTransform.call(this, node.object, options);
-                node.property = doTransform.call(this, node.property, options);
+                node.object = doTransform.call(this, node.object, options, node);
+                node.property = doTransform.call(this, node.property, options, node);
                 return node;
             }
         },
@@ -260,20 +260,20 @@ module.exports = (function(){
             if(node.callee.type === 'MemberExpression') {
                 return {
                     "type": "CallExpression",
-                    "callee": {
+                    "callee": doTransform.call(this, node.callee, options, node)/*{
                         "type": "MemberExpression",
                         "computed": node.callee.computed,
                         "object": doTransform.call(this, node.callee.object, options),
                         "property": node.callee.computed ? // IF property is dynamic - try to get deeper
                             doTransform.call(this, node.callee.property, options) : node.callee.property
-                    },
-                    "arguments": node.arguments.map(mapWrapper(this, options))
+                    }*/,
+                    "arguments": node.arguments.map(mapWrapper(this, options, node))
                 };
             }else{
                 return {
                     "type": "CallExpression",
-                    "callee": doTransform.call(this, node.callee, options),
-                    "arguments": node.arguments.map(mapWrapper(this, options))
+                    "callee": doTransform.call(this, node.callee, options, node),
+                    "arguments": node.arguments.map(mapWrapper(this, options, node))
                 };
             }
 
@@ -343,10 +343,10 @@ module.exports = (function(){
                             (statement = statement.substr(1));
                             if (each) {
                                 return 'node[\'' + statement + '\'] = node[\'' + statement + '\'].map(function(item){' +
-                                        'return doTransform.call(this, item, options);' +
+                                        'return doTransform.call(this, item, options, node);' +
                                     '}, this);';
                             } else {
-                                return 'node[\'' + statement + '\'] = doTransform.call(this, node[\'' + statement + '\'], options);';
+                                return 'node[\'' + statement + '\'] = doTransform.call(this, node[\'' + statement + '\'], options, node);';
                             }
                         }
                     }).join('\n')+';return node;}');
@@ -375,18 +375,69 @@ module.exports = (function(){
 
     };
 
-    ASTtransformer.craft = {
+    var craft = ASTtransformer.craft = {
+        CallExpression: function(context, fnName, args){
+            return {
+                'type': 'CallExpression',
+                'callee': {
+                    'type': 'MemberExpression',
+                    'computed': false,
+                    'object': context,
+                    'property': craft.Identifier(fnName)
+                },
+                'arguments': [
+                    {
+                        'type': 'ArrayExpression',
+                        'elements': args
+                    }
+                ]
+            };
+        },
+        MemberExpression: function(object, property){
+            return {
+                "type": "MemberExpression",
+                "computed": false,
+                "object": object,
+                "property": property
+            };
+        },    
         Identifier: function(name){
             return {
                 "type": "Identifier",
                 "name": name
-            }
+            };
         },
         js: function(tree, options){
             options = options || {};
             return escodegen.generate(tree, options.escodegen);
+        },
+        Literal: function(name){
+            return {
+                'type': 'Literal',
+                'value': name,
+                'raw': '\''+name+'\''
+            };
         }
     };
     return ASTtransformer;
 })();
+/*list.length ? list.map(function (item) {
+    if (item.computed) {
+        return scope.doTransform.call(scope.me, item, scope.options);
+    } else {
+        var out = {
+            'type': 'Literal',
+            'value': item.name,
+            'raw': '\'' + item.name + '\''
+        };
+        if ('_id' in item)
+            out._id = item._id;
+
+        return out;
+    }
+}) : [{
+    'type': 'Literal',
+    'value': 'value',
+    'raw': '\'value\''
+}]*/
 

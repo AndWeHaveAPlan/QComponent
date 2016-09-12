@@ -339,11 +339,78 @@ module.exports = (function () {
                 '\t\treturn ' + fn + '\n' +
                 '\t});';
         },
+        getVarInfo: function(stack, metadata, child){
+            var i, _i, out = [], node, env, selfFlag = false, context = false,
+                envFlag, propFlag, valueFlag = false, thisFlag = false, lastEnv, lastName;
+            for(i = 0, _i = stack.length; i < _i; i++){
+
+                envFlag = propFlag = false;
+
+                node = stack[i];
+                if(!env || env.type !== 'Variant') {
+
+                    if(node.type === 'ThisExpression'){
+                        env = child;
+                        thisFlag = true;
+                    }else {
+                        env = this.isNameOfEnv(node.name, metadata);
+                        if(env)
+                            envFlag = true;
+                    }
+
+                    if(env && i === 0 && env.type in primitives){ // first token is from `self`
+                        selfFlag = true;
+                    }
+
+
+                    if(!env) {
+                        env = this.isNameOfProp(node.name, metadata);
+
+                        if (env)
+                            propFlag = true;
+                    }
+
+
+
+                    if(!env) {
+                        if(lastEnv) {
+                            console.log(out);
+                            throw new Error('Can not resolve `' + node.name + '` from `' + lastName + '` <' + lastEnv.type + '>');
+                        }else
+                            throw new Error('Unknown variable `' + node.name + '`');
+                    }
+                }
+                if(env.type in primitives){
+                    metadata = shadow[env.type];
+                    if(context === false)
+                        context = i;
+                    //if(i < _i - 1)
+                    //    throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
+                }else{
+                    metadata = shadow[env.type];
+                }
+                out.push({name: node.name, env: envFlag, prop: propFlag, node: node, e: env});
+                lastEnv = env;
+                lastName = node.name;
+            }
+            if(!(env.type in primitives || env.type === 'Variant')){
+                valueFlag = true;
+            }
+            if(out[0].prop)
+                selfFlag = true;
+
+            return {
+                varParts: out,
+                self: selfFlag,
+                context: context,
+                valueFlag: valueFlag,
+                thisFlag: thisFlag
+            };
+        },
         getVarAccessor: function (tree, cls, scope) {
-            var source, env, pointer = tree, stack = [], cName, fullName,
-                i, _i, node, selfFlag = true,
+            var pointer = tree, stack = [],
                 metadata = cls.metadata,
-                out = [];
+                info;
             if(pointer.object) {
 
                 while (pointer.object) {
@@ -356,34 +423,11 @@ module.exports = (function () {
                 stack.push(pointer);
             }
 
-
-            for(i = 0, _i = stack.length; i < _i; i++){
-                node = stack[i];
-                if(!env || env.type !== 'Variant') {
-                    env = this.isNameOfEnv(node.name, metadata);
-                    if(env && i === 0){ // first token is from `self`
-                        selfFlag = false;
-                    }
-                    if(!env)
-                        env = this.isNameOfProp(node.name, metadata);
-
-                    if(!env)
-                        throw new Error('Unknown variable `'+node.name+'`');
-                }
-                if(env.type in primitives){
-                    if(i < _i - 1)
-                        throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
-                }else{
-                    metadata = shadow[env.type];
-                }
-                out.push(node.name);
-            }
-            if(!(env.type in primitives || env.type === 'Variant')){
-                out.push('value');
-            }
-
-            return (selfFlag?'self.id+\'.':'\'')+out.join('.')+'\'';
-            console.log(env, out)
+            info = tools.getVarInfo(stack, metadata);
+            if(info.valueFlag)
+                info.varParts.push({name: 'value'});
+            return (info.self ? 'self.id+\'.' : '\'') + info.varParts.map(function(el){return el.name;}).join('.') +'\'';
+            /*console.log(env, out)
 
             if (cName === 'this') {
                 source = 'this.id + \'.' + pipeVar.property.name + '\'';
@@ -399,7 +443,7 @@ module.exports = (function () {
             } else {
                 source = '\'' + fullName + '\'';
             }
-            return source;
+            return source;*/
         },
 /*
         functionNet: function () {
@@ -442,7 +486,7 @@ module.exports = (function () {
             }
         },
         builder: {
-            events: function (item, cls) {
+            events: function (item, cls, child) {
                 var name = (item.name || item.tmpName);
                 var out = [], i, _i, events, event;
 
@@ -454,7 +498,7 @@ module.exports = (function () {
                 for (i = 0, _i = events.length; i < _i; i++) {
                     event = events[i];
 
-                    var fnBody = tools.functionTransform(event, cls.metadata);
+                    var fnBody = tools.functionTransform(event, cls.metadata, child);
                     out.push((name||'this') + '.on(\'' + event.events + '\','+fnBody+', ' + (name||'this') + ');');
                 }
 
@@ -465,54 +509,66 @@ module.exports = (function () {
             }
 
         },
-        functionTransform: function(fnObj, meta){
-            var transformFnGet = function (node, stack, scope) {
+        functionTransform: function(fnObj, meta, child){
+            var transformFnGet = function (node, stack, scope, parent) {
                 var list = stack.slice().reverse(),
-                    first = list[0];
-                var env = tools.isNameOfEnv(first.name, meta),
-                    who;
-                if (env.type in primitives) {
-                    who = ASTtransformer.craft.Identifier('self')
-                } else {
-                    who = list.shift();
-                }
-                console.log(stack)
-                return {
-                    'type': 'CallExpression',
-                    'callee': {
-                        'type': 'MemberExpression',
-                        'computed': false,
-                        'object': who,
-                        'property': {
-                            'type': 'Identifier',
-                            'name': 'get'
-                        }
-                    },
-                    'arguments': [
-                        {
-                            'type': 'ArrayExpression',
-                            'elements': list.length ? list.map(function (item) {
-                                if (item.computed) {
-                                    return scope.doTransform.call(scope.me, item, scope.options);
-                                } else {
-                                    var out = {
-                                        'type': 'Literal',
-                                        'value': item.name,
-                                        'raw': '\'' + item.name + '\''
-                                    };
-                                    if ('_id' in item)
-                                        out._id = item._id;
+                    varParts,
 
-                                    return out;
-                                }
-                            }) : [{
-                                'type': 'Literal',
-                                'value': 'value',
-                                'raw': '\'value\''
-                            }]
-                        }
-                    ]
-                };
+                    info = tools.getVarInfo(list, meta, child),
+                    firstToken = info.varParts[0],
+                    who;
+
+                if (info.self) {
+                    who = ASTtransformer.craft.Identifier('self');
+                } else {
+                    info.context--;
+                    info.varParts.shift();
+
+                    who = ASTtransformer.craft.Identifier(firstToken.name);
+
+                }
+
+                var beforeContext = [], afterContext = [], i, _i, item,
+                    varItem;
+                varParts = info.varParts;
+
+                // need to keep context
+                if(info.context === false)
+                    info.context = info.varParts.length - 1;
+
+                for(i = 0, _i = varParts.length; i < _i; i++){
+                    item = varParts[i];
+
+                    if (item.computed) {
+                        varItem = scope.doTransform.call(scope.me, item.node, scope.options);
+                    } else {
+                        varItem = {
+                            'type': 'Literal',
+                            'value': item.name,
+                            'raw': '\'' + item.name + '\''
+                        };
+                        if ('_id' in item)
+                            varItem._id = item._id;
+                    }
+
+                    if( i <= info.context )
+                        beforeContext.push(varItem);
+                    else
+                        afterContext.push(item.node);
+                }
+
+                var c = ASTtransformer.craft, // craft short link
+                    out = c.CallExpression(who, 'get', beforeContext );
+
+                if(info.valueFlag)
+                    afterContext.push(c.Literal('value'));
+
+
+                for(i = 0, _i = afterContext.length; i < _i; i++)
+                    out = c.MemberExpression(out, afterContext[i]);
+
+                return out;
+
             },
                 transformFnSet = function (node, stack, scope) {
                     var list = stack.slice().reverse(),

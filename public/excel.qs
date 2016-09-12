@@ -1,23 +1,23 @@
 def Page main
 
-  input LOL0:1
+  input LOL0: 1
+    type: number
+    .click: ()->
+        this.value++;
+
+  input LOL1: 2
     type: number
 
-  input LOL1:2
-    type: number
-
-  input LOL2:3
+  input LOL2: 3
       type: number
 
-  input LOL3:4
+  input LOL3: 4
       type: number
 
-  input LOL4:5
+  input LOL4: 5
       type: number
 
-  input LOL5:6
+  input LOL5: 6
       type: number
 
-  span: {{LOL0+LOL1+LOL2+LOL0+LOL3.value}}
-
-  div.red
+  span: {{LOL0+LOL1+LOL2+LOL0+LOL3}}
