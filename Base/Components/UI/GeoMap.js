@@ -91,6 +91,7 @@ module.exports = UIComponent.extend('GeoMap', {
     },
 
     _prop: {
+        makeRoute: new Property('Function'),
         ready: new Property('Boolean', {description: 'True if YMap api ready'}, {
             get: Property.defaultGetter,
             set: function (key, value) {

@@ -59,6 +59,7 @@ module.exports = (function () {
         }catch(e){
             err = e;
             console.log(e)
+            console.log(compiled)
 
         }
 
