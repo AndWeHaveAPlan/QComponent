@@ -13,59 +13,56 @@ var EventManager = require('../../EventManager')
 
 module.exports = UIComponent.extend('GeoMap2', {
     createEl: function () {
-        UIComponent.prototype.createEl.call(this);
         var self = this;
 
-        // Create child map
-        // myMap = { gmap,  ymap }
-        //
+        // UIComponent.prototype.createEl.call(this);
+        self.el = UIComponent.document.createElement('div');
+        self.el.id = self.id;
+
         var mapType = self.get('type');
-        //
-        console.log('mapType', mapType);
-
-        // self._ensureMapInit("google");
-        // self._ensureMapInit("yandex");
-
         self.myMap = self._createMap(mapType);
-        this._ownComponents.push(self.myMap);
+        // self.el.appendChild(self.myMap.el);
+        self._ownComponents.push(self.myMap);
 
-        self.myMap._renderEl();
 
         // this._ownComponents.remove(self.myMap);
         // this._ownComponents.push(self.myMap);
 
         // Make pipe to connect 'ready' and child 'ready' props
-
         self.localEventManager = new EventManager(self);
         self.localEventManager.registerComponent(self);
         self.localEventManager.registerComponent(self.myMap);
-        // self.localEventManager.createSimplePipe(
-        //   {component: self.myMap.id, property: "ready"},
-        //   {component: self.id,       property: "ready"}
-        // );
+        self.localEventManager.releaseThePipes();
 
-        var mutatingPipe = new MutatingPipe(
+        self.localEventManager.createSimplePipe(
           {component: self.myMap.id, property: "ready"},
           {component: self.id,       property: "ready"}
         );
-        mutatingPipe.addMutator(function (number) {
-            // if (!number)
-            //     return '';
-            //
-            // if (number.substring(0, 1) == 4) {
-            //     return self.visaImg;
-            // }
-            // var n = parseInt(number.substring(0, 2));
-            // if (n >= 51 && n <= 55) {
-            //     return self.masterCardImg;
-            // }
 
-            console.log('geomap mutatingPipe');
+        // var mutatingPipe = new MutatingPipe(
+        //   {component: self.myMap.id, property: "ready"},
+        //   {component: self.id,       property: "ready"}
+        // );
+        // mutatingPipe.addMutator(function (value) {
+        //
+        //     // self.myMap._renderEl();
+        //     // if (!number)
+        //     //     return '';
+        //     //
+        //     // if (number.substring(0, 1) == 4) {
+        //     //     return self.visaImg;
+        //     // }
+        //     // var n = parseInt(number.substring(0, 2));
+        //     // if (n >= 51 && n <= 55) {
+        //     //     return self.masterCardImg;
+        //     // }
+        //
+        //     console.log('geomap mutatingPipe');
+        //
+        //     return value;
+        // });
 
-            return number;
-        });
-
-        this.localEventManager.registerPipe(mutatingPipe);
+        // this.localEventManager.registerPipe(mutatingPipe);
     },
 
     makeRoute: function(from, to) {
@@ -112,29 +109,27 @@ module.exports = UIComponent.extend('GeoMap2', {
           description: 'True if GeoMap api ready'
         }, {
           get: function(key, value) {
-            console.log('geomap2 '+key+' get');
+            console.log('geomap2 '+key+' get', value);
             //
             // if(this.myMap) return this.myMap.get(key, value);
             return value
           },
           set: function(key, value) {
-            console.log('geomap2 '+key+' set');
+            console.log('geomap2 '+key+' set', value);
           }
         }, false
       ),
-
-      value: new Property.generate.proxy('ready'),
 
       zoom: new Property('Number', {
           description: 'Map zoom level'
         }, {
           get: function(key, value) {
-            console.log('get '+ key, value);
+            console.log('geomap2 get '+ key, value);
             //
             if(this.myMap) return this.myMap.get(key, value);
           },
           set: function(key, value) {
-            console.log('set '+ key, value);
+            console.log('geomap2 set '+ key, value);
             //
             if(this.myMap) this.myMap.set(key, value);
           }
@@ -144,12 +139,12 @@ module.exports = UIComponent.extend('GeoMap2', {
           description: 'Markers on map'
         }, {
           get: function(key, value) {
-            console.log('get '+ key, value);
+            console.log('geomap2 get '+ key, value);
             //
             if(this.myMap) return this.myMap.get(key, value);
           },
           set: function(key, value) {
-            console.log('set '+ key, value);
+            console.log('geomap2 set '+ key, value);
             //
             if(this.myMap) this.myMap.set(key, value);
           }
@@ -157,19 +152,19 @@ module.exports = UIComponent.extend('GeoMap2', {
       ),
       home: new Property('Array', {description: 'You are here point'}, {
         get: function(key, value) {
-          console.log('get '+ key, value);
+          console.log('geomap2 get '+ key, value);
           //
           if(this.myMap) return this.myMap.get(key, value);
         },
         set: function(key, value) {
-          console.log('set '+ key, value);
+          console.log('geomap2 set '+ key, value);
           //
           if(this.myMap) this.myMap.set(key, value);
         }
       }),
       moveList: new Property('Array', {}, {
         get: function(key, value) {
-          console.log('get '+ key, value);
+          console.log('geomap2 get '+ key, value);
           //
           if(this.myMap) return this.myMap.get(key, value);
         },
@@ -178,7 +173,7 @@ module.exports = UIComponent.extend('GeoMap2', {
       type: new Property('String', {}, {
         get: Property.defaultGetter,
         set: function(key, value) {
-          console.log('set '+ key, value);
+          console.log('geomap2 set '+ key, value);
           //
           // !push === pop ???
           // if(this.myMap) {
@@ -186,7 +181,17 @@ module.exports = UIComponent.extend('GeoMap2', {
           // }
           // console.log("set('type') this.myMap = ", this.myMap);
 
-          // this._ownComponents.remove(this.myMap);
+
+          // // remove inner map
+          // this.el.removeChild(this.myMap.el);
+          //
+          // // create new map and append it
+          // var mapType = value;
+          //
+          // this.myMap = this._createMap(mapType);
+          // this.el.appendChild(this.myMap.el);
+
+
 
           // this._createMap(value);
           // this.gmap._printEl();
@@ -201,7 +206,7 @@ module.exports = UIComponent.extend('GeoMap2', {
           // }
           // this._ownComponents.push(this.myMap);
         }
-      }, 'yandex')
-      // }, 'google')
+      // }, 'yandex')
+      }, 'google')
     }
 });

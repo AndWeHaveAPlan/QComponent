@@ -21,21 +21,17 @@ module.exports = UIComponent.extend('GeoMapYandex', {
             ymaps.ready(function () {
                 console.log('GeoMapYandex onload');
 
+                self._renderEl();
                 self.set('ready', true);
-
-                self._onloadActions.forEach(function(fn) { fn(); })
-                self._onloadActions = [];
             });
         };
     },
-
-    _onloadActions: [],
 
     _renderEl() {
       console.log('GeoMapYandex _renderEl');
       var self = this;
 
-      function action() {
+      // function action() {
         self.mapApi = ymaps;
         self.ymap = new ymaps.Map(self.id, {
             center: [55.76, 37.64],
@@ -54,14 +50,14 @@ module.exports = UIComponent.extend('GeoMapYandex', {
         self._createPins();
 
         self.ymap.geoObjects.add(self.pins).add(self.home);
-      }
+      // }
 
-      // main logic
-      if(this.get('ready')) {
-        action();
-      } else {
-        this._onloadActions.push(action);
-      }
+      // // main logic
+      // if(this.get('ready')) {
+      //   action();
+      // } else {
+      //   this._onloadActions.push(action);
+      // }
 
     },
 
@@ -143,15 +139,13 @@ module.exports = UIComponent.extend('GeoMapYandex', {
     _prop: {
         ready: new Property('Boolean', {description: 'True if YMap api ready'}, {
             get: function (key, value) {
-              console.log('ymap '+key+' get');
+              console.log('ymap '+key+' get', value);
               return value;
             },
             set: function (key, value) {
-              console.log('ymap '+key+' set');
+              console.log('ymap '+key+' set', value);
             }
         }, false),
-
-        value: new Property.generate.proxy('ready'),
 
         zoom: new Property('Number', {description: 'Map zoom level (setZoom for ymap)'}, {
             get: Property.defaultGetter,

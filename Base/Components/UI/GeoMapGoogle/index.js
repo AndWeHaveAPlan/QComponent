@@ -37,22 +37,18 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       src: getApiByKey(apiKey),
 
       onload: function() {
-        console.log('GeoMapGoogle !todo onloadActions! loadScript.onload');
+        console.log('GeoMapGoogle !todo onloadActions! loadScript.onload', google.maps);
 
         // TODO
         // make normal module
         require('./MapLabel');
 
+
+        self._renderEl();
         self.set('ready', true);
       }
     });
   },
-
-  _printEl: function() {
-    console.log('_printEl', this.el);
-  },
-
-  // _onloadActions: [],
 
   _renderEl() {
     console.log('GeoMapGoogle _renderEl');
@@ -268,8 +264,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
     value: new Property.generate.proxy('ready'),
 
-    zoom:
-    new Property('Number', {
+    zoom: new Property('Number', {
         description: 'Map zoom level (setZoom for gmap)'
       }, {
         get: function(key, value) {
@@ -288,22 +283,6 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         }
       }, 11
     ),
-
-    // Property.generate.number(11, {
-    //     description: 'Map zoom level',
-    //     get: function(key, value) {
-    //       console.log('get', this);
-    //       return this.gmap? this.gmap.getZoom() : value;
-    //     },
-    //     set: function(key, value) {
-    //       console.log('set', this);
-    //       var zoomFixed = minMax(value, 0, 18);
-    //
-    //       this.gmap.setZoom(zoomFixed);
-    //       return zoomFixed;
-    //     }
-    //   }
-    // ),
 
     pins: new Property('Array', {
         description: 'Mark on map'
