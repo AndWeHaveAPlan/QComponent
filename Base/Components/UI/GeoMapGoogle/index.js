@@ -23,9 +23,8 @@ function getApiByKey(apiKey) {
 
 module.exports = UIComponent.extend('GeoMapGoogle', {
   createEl: function() {
-    console.log('GeoMapGoogle createEl');
-
     var self = this;
+    console.log('GeoMapGoogle createEl');
 
     this.el = UIComponent.document.createElement('div');
     this.el.id = this.id;
@@ -36,14 +35,14 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     loadScript({
       src: getApiByKey(apiKey),
 
+      // globalName: 'google.maps',
+
       onload: function() {
         console.log('GeoMapGoogle !todo onloadActions! loadScript.onload', google.maps);
 
         // TODO
         // make normal module
         require('./MapLabel');
-
-
         self._renderEl();
         self.set('ready', true);
       }
@@ -52,32 +51,33 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
   _renderEl() {
     console.log('GeoMapGoogle _renderEl');
+    var self = this;
 
     // Temporaly commented to fix error
     // Uncaught TypeError: Cannot read property 'offsetWidth' of null
 
     var elem = document.getElementById(self.id);
     //
-    this.gmap = new google.maps.Map(elem, {
+    self.gmap = new google.maps.Map(elem, {
       center: arrToLanLng([55.76, 37.64]),
-      zoom: this.get('zoom'),
+      zoom: self.get('zoom'),
 
       // TODO
       // make alternatives
       // controls: ['zoomControl', 'searchControl']
     });
 
-    this.mapApi = google.maps;
-    this.directionsService = new google.maps.DirectionsService;
-    this.directionsDisplay = new google.maps.DirectionsRenderer({
+    self.mapApi = google.maps;
+    self.directionsService = new google.maps.DirectionsService;
+    self.directionsDisplay = new google.maps.DirectionsRenderer({
       // draggable: true,
-      map: this.gmap
+      map: self.gmap
     });
 
-    this._makeSearchBox(this.gmap);
+    self._makeSearchBox(self.gmap);
 
-    this._createHome();
-    this._createPins();
+    self._createHome();
+    self._createPins();
   },
 
   _makeSearchBox: function(map) {

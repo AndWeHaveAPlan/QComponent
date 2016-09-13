@@ -3,12 +3,16 @@
  */
 
 module.exports = function(options) {
-  var script = document.createElement("script");
-  script.async = true;
-  script.defer = true;
+  // if(options.globalName && window[options.globalName]) {
+  //   options.onload();
+  // } else {
+    var script = document.createElement("script");
+    script.async = true;
+    script.defer = true;
 
-  script.src = options.src;
-  script.onload = options.onload;
+    script.src = options.src;
+    script.onload = options.onload;
 
-  document.head.appendChild(script);
+    document.head.appendChild(script);
+  // }
 }
