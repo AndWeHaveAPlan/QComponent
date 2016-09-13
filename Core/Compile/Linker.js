@@ -164,6 +164,7 @@ module.exports = (function() {
 
                         defines[j] = defs[j];
                         (depend[j] || (depend[j] = [])).push(type);
+
                         (subclasses[type] || (subclasses[type] = [])).push(j);
 
 
