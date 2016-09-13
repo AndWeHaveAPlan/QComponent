@@ -32,8 +32,9 @@ module.exports = {
             Page: require('./Base/Components/UI/Page'),
             VBox: require('./Base/Components/UI/VBox'),
             Image: require('./Base/Components/UI/Image'),
-            GeoMap: require('./Base/Components/UI/GeoMap'),
+            GeoMapYandex: require('./Base/Components/UI/GeoMapYandex'),
             GeoMapGoogle: require('./Base/Components/UI/GeoMapGoogle'),
+            GeoMap2: require('./Base/Components/UI/GeoMap2'),
             CardForm: require('./Base/Components/UI/CardForm'),
             DOMTools: require('./Base/Common/UI/DOMTools'),
             If: require('./Base/Components/UI/If')

@@ -8,7 +8,7 @@ def Page main
         height: 100%
         width: 100%
 
-        GeoMap gm:
+        GeoMapYandex gm:
             zoom: 11
             home: [55.794425,37.587836]
             pins: {{[list.selectedItem]}}
