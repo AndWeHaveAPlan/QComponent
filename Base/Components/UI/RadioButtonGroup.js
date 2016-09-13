@@ -12,7 +12,7 @@ var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
         var self = this;
         self._radioButtons[rb.id] = rb;
 
-        if (rb.get(checked)) {
+        if (rb.get('checked')) {
             self._radioButtons.forEach(function (btn) {
                 if (btn.id !== rb.id)
                     btn.set('checked', false);
