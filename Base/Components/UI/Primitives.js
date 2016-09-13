@@ -13,11 +13,18 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     _prop: {
         value: new Property('String', {description: 'text content'}, {
             set: function (name, val) {
+                //if (!this.textNode) {
+                //    this.textNode = new exports['textNode'];
+                //    this._ownComponents.push(this.textNode);
+                //}
+                //this.textNode.set('value', val);
+
                 if (!this.textNode) {
-                    this.textNode = new exports['textNode'];
-                    this._ownComponents.push(this.textNode);
+                    this.textNode = UIComponent.document.createTextNode('');
+                    this.el.appendChild(this.textNode);
                 }
-                this.textNode.set('value', val);
+                this.textNode.nodeValue = val;
+
             },
             get: Property.defaultGetter
         }),
@@ -30,9 +37,10 @@ exports['HtmlPrimitive'] = UIComponent.extend('HtmlPrimitive', {
     }
 });
 
+
 /**
  *
- */
+ *
 exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     //leaf: true,
     createEl: function () {
@@ -46,7 +54,7 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
             get: Property.defaultGetter
         })
     }
-});
+}); */
 
 /**
  *
