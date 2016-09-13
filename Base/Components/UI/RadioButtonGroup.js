@@ -7,17 +7,25 @@ var Property = require('../../Property');
 var RadioButton = require('./RadioButton');
 
 var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
-    _radioButtons: [],
+    _radioButtons: {},
     addRadioButton: function (rb) {
         var self = this;
-        self._radioButtons.push(rb);
-        rb.on('checked', function () {
+        self._radioButtons[rb.id] = rb;
+
+        if (rb.get(checked)) {
             self._radioButtons.forEach(function (btn) {
                 if (btn.id !== rb.id)
                     btn.set('checked', false);
             });
-            self.set('value', rb.get('value'));
-        });
+        }
+
+        rb.on('checked', function () {
+                self._radioButtons.forEach(function (btn) {
+                    if (btn.id !== rb.id)
+                        btn.set('checked', false);
+                });
+                self.set('value', rb.get('value'));
+            });
     },
     _onChildAdd: function (child) {
         UIComponent.prototype._onChildAdd.call(this, child);
