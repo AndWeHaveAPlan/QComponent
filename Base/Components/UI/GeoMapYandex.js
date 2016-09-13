@@ -6,7 +6,7 @@ var Property = require('../../Property');
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 
-module.exports = UIComponent.extend('GeoMap', {
+module.exports = UIComponent.extend('GeoMapYandex', {
     createEl: function () {
         var self = this;
 
@@ -19,27 +19,50 @@ module.exports = UIComponent.extend('GeoMap', {
 
         script.onload = function () {
             ymaps.ready(function () {
-                self.mapApi = ymaps;
-                self.ymap = new ymaps.Map(self.id, {
-                    center: [55.76, 37.64],
-                    zoom: self.get('zoom'),
-                    controls: ['zoomControl', 'searchControl']
-                });
-                self.pins = new ymaps.GeoObjectCollection(null, {
-                    preset: 'islands#blueCircleDotIconWithCaption'
-                });
-                self.home = new ymaps.GeoObjectCollection(null, {
-                    preset: 'islands#redCircleDotIconWithCaption'
-                });
-
-                self._createHome(self);
-                self._createPins(self);
-
-                self.ymap.geoObjects.add(self.pins).add(self.home);
+                console.log('GeoMapYandex onload');
 
                 self.set('ready', true);
+
+                self._onloadActions.forEach(function(fn) { fn(); })
+                self._onloadActions = [];
             });
         };
+    },
+
+    _onloadActions: [],
+
+    _renderEl() {
+      console.log('GeoMapYandex _renderEl');
+      var self = this;
+
+      function action() {
+        self.mapApi = ymaps;
+        self.ymap = new ymaps.Map(self.id, {
+            center: [55.76, 37.64],
+            zoom: self.get('zoom'),
+            controls: ['zoomControl', 'searchControl']
+        });
+
+        self.pins = new ymaps.GeoObjectCollection(null, {
+            preset: 'islands#blueCircleDotIconWithCaption'
+        });
+        self.home = new ymaps.GeoObjectCollection(null, {
+            preset: 'islands#redCircleDotIconWithCaption'
+        });
+
+        self._createHome();
+        self._createPins();
+
+        self.ymap.geoObjects.add(self.pins).add(self.home);
+      }
+
+      // main logic
+      if(this.get('ready')) {
+        action();
+      } else {
+        this._onloadActions.push(action);
+      }
+
     },
 
     makeRoute:function(from, to) {
@@ -119,10 +142,17 @@ module.exports = UIComponent.extend('GeoMap', {
 
     _prop: {
         ready: new Property('Boolean', {description: 'True if YMap api ready'}, {
-            get: Property.defaultGetter,
+            get: function (key, value) {
+              console.log('ymap '+key+' get');
+              return value;
+            },
             set: function (key, value) {
+              console.log('ymap '+key+' set');
             }
         }, false),
+
+        value: new Property.generate.proxy('ready'),
+
         zoom: new Property('Number', {description: 'Map zoom level (setZoom for ymap)'}, {
             get: Property.defaultGetter,
             set: function (key, value) {
@@ -137,6 +167,7 @@ module.exports = UIComponent.extend('GeoMap', {
                 return value;
             }
         }, 11),
+
         pins: new Property('Array', {description: 'Mark on map'}, {
             get: Property.defaultGetter,
             set: function (key, value) {

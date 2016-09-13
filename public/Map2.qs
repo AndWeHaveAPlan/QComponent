@@ -8,11 +8,10 @@ def Page main
         height: 100%
         width: 100%
 
-        GeoMapGoogle gm:
+        GeoMap2 gm:
             zoom: 11
             home: [55.794425,37.587836]
             pins: {{[list.selectedItem]}}
-            type: google
             height: 100%
             width: 100%
 
@@ -51,6 +50,8 @@ def Page main
                     var from = gm.get('home');
                     var to = gm.get('pins.0.coords');
 
+                    console.log('from/to: ', from, to);
+
                     if(to) { gm.makeRoute(from, to); }
                     else { console.error("Destination isn't selected"); }
                 }
@@ -82,6 +83,7 @@ def Page main
                 enabled: {{ gm.ready }}
                 .click: ()=>{
                     console.log('Карты yandex');
+                    gm.set('type', 'yandex');
                 }
             input: Карты google
                 margin: 12px
@@ -91,6 +93,7 @@ def Page main
                 enabled: {{ gm.ready }}
                 .click: ()=>{
                     console.log('Карты google');
+                    gm.set('type', 'google');
                 }
             ListBox:
                 overflow: auto

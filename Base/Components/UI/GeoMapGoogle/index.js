@@ -21,59 +21,71 @@ function getApiByKey(apiKey) {
   )
 }
 
-// TODO
-// ubrat'
-//
-function getElementByQuokkaId(id) {
-  return window.c.get(id).el;
-}
-
 module.exports = UIComponent.extend('GeoMapGoogle', {
   createEl: function() {
+    console.log('GeoMapGoogle createEl');
+
     var self = this;
 
     this.el = UIComponent.document.createElement('div');
     this.el.id = this.id;
 
+    // nikita's api key
     var apiKey = 'AIzaSyDgxDWQ9w-4tEtfV9dnACRN_eUBAp_OaBA';
     //
     loadScript({
       src: getApiByKey(apiKey),
 
       onload: function() {
-
-        var elem = document.getElementById(self.id);
-        //
-        self.gmap = new google.maps.Map(elem, {
-          center: arrToLanLng([55.76, 37.64]),
-          zoom: self.get('zoom'),
-
-          // TODO
-          // make alternatives
-          // controls: ['zoomControl', 'searchControl']
-        });
+        console.log('GeoMapGoogle !todo onloadActions! loadScript.onload');
 
         // TODO
         // make normal module
         require('./MapLabel');
-        self.mapApi = google.maps;
-        self.directionsService = new google.maps.DirectionsService;
-        self.directionsDisplay = new google.maps.DirectionsRenderer({
-          // draggable: true,
-          map: self.gmap
-        });
-
-        self._makeSearchBox(self.gmap);
-
-        self._createHome(self);
-        self._createPins(self);
 
         self.set('ready', true);
       }
     });
   },
 
-  _makeSearchBox(map) {
+  _printEl: function() {
+    console.log('_printEl', this.el);
+  },
+
+  // _onloadActions: [],
+
+  _renderEl() {
+    console.log('GeoMapGoogle _renderEl');
+
+    // Temporaly commented to fix error
+    // Uncaught TypeError: Cannot read property 'offsetWidth' of null
+
+    var elem = document.getElementById(self.id);
+    //
+    this.gmap = new google.maps.Map(elem, {
+      center: arrToLanLng([55.76, 37.64]),
+      zoom: this.get('zoom'),
+
+      // TODO
+      // make alternatives
+      // controls: ['zoomControl', 'searchControl']
+    });
+
+    this.mapApi = google.maps;
+    this.directionsService = new google.maps.DirectionsService;
+    this.directionsDisplay = new google.maps.DirectionsRenderer({
+      // draggable: true,
+      map: this.gmap
+    });
+
+    this._makeSearchBox(this.gmap);
+
+    this._createHome();
+    this._createPins();
+  },
+
+  _makeSearchBox: function(map) {
+    console.log('GeoMapGoogle _makeSearchBox');
 
     var input = UIComponent.document.createElement('input');
     input.type = "text";
@@ -145,6 +157,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
   },
 
   _createHome: function() {
+    console.log('GeoMapGoogle _createHome');
+
     var homeData = this.get('home');
     //
     if(homeData) {
@@ -158,11 +172,15 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
   },
 
   _removeHome: function() {
+    console.log('GeoMapGoogle _removeHome');
+
     if(this.home)
       TextMarker.remove(this.home);
   },
 
   _createPins: function() {
+    console.log('GeoMapGoogle _createPins');
+
     var self = this;
 
     var pinsData = this.get('pins');
@@ -185,6 +203,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
   },
 
   _removePins: function() {
+    console.log('GeoMapGoogle _removePins');
+
     if(this.pins)
       this.pins.forEach(function(pin) {
         TextMarker.remove(pin);
@@ -192,6 +212,10 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
   },
 
   makeRoute: function(from, to) {
+      console.log('GeoMapGoogle makeRoute');
+
+      if (!this.mapApi) return;
+
       var self = this;
 
       this.route = this.directionsService.route({
@@ -203,7 +227,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
           self.directionsDisplay.setDirections(response);
 
-          self._updateMoveList(self);
+          var newMoveList = self._updateMoveList(self);
+          self.set('moveList', newMoveList);
         } else {
           console.error('Directions request failed due to ' + status);
           self.set('moveList', []);
@@ -212,6 +237,8 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
   },
 
   _updateMoveList: function() {
+    console.log('GeoMapGoogle _updateMoveList');
+
     // Route connects start and end point
     var firstRoute = this.directionsDisplay.directions.routes[0];
     // Necessary point of route split it to legs
@@ -224,65 +251,74 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       return [instructions, durationText].join('. ')
     });
 
-    this.set('moveList', moveList);
+    return moveList;
   },
 
   _prop: {
-      ready: new Property('Boolean', {
-          description: 'True if GoogleMap api ready'
-        }, {
-          get: Property.defaultGetter,
-          set: function(key, value) {}
-        }, false
-      ),
-      zoom:
-      new Property('Number', {
-          description: 'Map zoom level (setZoom for gmap)'
-        }, {
-          get: function(key, value) {
-            // console.log('get', this);
-            return this.gmap? this.gmap.getZoom() : value;
-          },
-          set: function(key, value) {
-            // console.log('set', this);
-            var zoomFixed = minMax(value, 0, 18);
+    ready: new Property('Boolean', {
+        description: 'True if GoogleMap api ready'
+      }, {
+        get: Property.defaultGetter,
+        set: function(key, value) {
+          console.log('GeoMapGoogle set '+ key);
+          return value;
+        }
+      }, false
+    ),
 
+    value: new Property.generate.proxy('ready'),
+
+    zoom:
+    new Property('Number', {
+        description: 'Map zoom level (setZoom for gmap)'
+      }, {
+        get: function(key, value) {
+          // console.log('get', this);
+          if(this.mapApi && this.gmap)
+            return this.gmap.getZoom();
+          else return value;
+        },
+        set: function(key, value) {
+          // console.log('set', this);
+          if (this.mapApi && this.gmap) {
+            var zoomFixed = minMax(value, 0, 18);
             this.gmap.setZoom(zoomFixed);
             return zoomFixed;
           }
-        }, 11
-      ),
+        }
+      }, 11
+    ),
 
-      // Property.generate.number(11, {
-      //     description: 'Map zoom level',
-      //     get: function(key, value) {
-      //       console.log('get', this);
-      //       return this.gmap? this.gmap.getZoom() : value;
-      //     },
-      //     set: function(key, value) {
-      //       console.log('set', this);
-      //       var zoomFixed = minMax(value, 0, 18);
-      //
-      //       this.gmap.setZoom(zoomFixed);
-      //       return zoomFixed;
-      //     }
-      //   }
-      // ),
+    // Property.generate.number(11, {
+    //     description: 'Map zoom level',
+    //     get: function(key, value) {
+    //       console.log('get', this);
+    //       return this.gmap? this.gmap.getZoom() : value;
+    //     },
+    //     set: function(key, value) {
+    //       console.log('set', this);
+    //       var zoomFixed = minMax(value, 0, 18);
+    //
+    //       this.gmap.setZoom(zoomFixed);
+    //       return zoomFixed;
+    //     }
+    //   }
+    // ),
 
-      pins: new Property('Array', {
-          description: 'Mark on map'
-        }, {
-          get: Property.defaultGetter,
-          set: function(key, value) {
-            // CHANGE to update pins on module load
-            //
-            if (this.mapApi) {
-              this._removePins(this);
-              this._createPins(this);
-            }
+    pins: new Property('Array', {
+        description: 'Mark on map'
+      }, {
+        get: Property.defaultGetter,
+        set: function(key, value) {
+          // CHANGE to update pins on module load
+          //
+          if (this.mapApi) {
+            this._removePins(this);
+            this._createPins(this);
           }
         }
-      ),
+      }
+    ),
     home: new Property('Array', {description: 'You are here point'}, {
       get: Property.defaultGetter,
       set: function(key, value) {
@@ -296,9 +332,5 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       get: Property.defaultGetter,
       set: function() {}
     }, []),
-    type: new Property('String', {}, {
-      get: Property.defaultGetter,
-      set: function() {}
-    }, 'yandex')
   }
 });
