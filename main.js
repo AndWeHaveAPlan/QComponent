@@ -59,17 +59,22 @@ var server = http.createServer(function (req, res) {
         } else {
             var entries = fs.readdirSync(path);
 
-            var out = '';
+            var out = [];
 
             for (var i = 0; i < entries.length; i++) {
                 var cEntry = entries[i];
                 var stat = fs.statSync(Path.join(path, cEntry));
                 if (!stat.isDirectory() && cEntry.indexOf('.qs') !== -1) {
-                    out += '<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>';
+                    out.push({key: cEntry.toLowerCase(), html:'<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>'});
                 }
             }
 
-            return res.end(header + out + footer);
+            return res.end(header +
+                out
+                    .sort(function(a,b){return a.key>b.key?1:a.key<b.key?-1:0;})
+                    .map(function(el){return el.html;})
+                    .join('\n') +
+                footer);
         }
 
 
