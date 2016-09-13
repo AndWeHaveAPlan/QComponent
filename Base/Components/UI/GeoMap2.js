@@ -19,54 +19,34 @@ module.exports = UIComponent.extend('GeoMap2', {
         self.el = UIComponent.document.createElement('div');
         self.el.id = self.id;
 
-        var mapType = self.get('type');
-        self.myMap = self._createMap(mapType);
-        // self.el.appendChild(self.myMap.el);
-        self._ownComponents.push(self.myMap);
-
-
-        // this._ownComponents.remove(self.myMap);
-        // this._ownComponents.push(self.myMap);
-
-        // Make pipe to connect 'ready' and child 'ready' props
-        self.localEventManager = new EventManager(self);
-        self.localEventManager.registerComponent(self);
-        self.localEventManager.registerComponent(self.myMap);
-        self.localEventManager.releaseThePipes();
-
-        self.localEventManager.createSimplePipe(
-          {component: self.myMap.id, property: "ready"},
-          {component: self.id,       property: "ready"}
-        );
-
-        // var mutatingPipe = new MutatingPipe(
-        //   {component: self.myMap.id, property: "ready"},
-        //   {component: self.id,       property: "ready"}
-        // );
-        // mutatingPipe.addMutator(function (value) {
-        //
-        //     // self.myMap._renderEl();
-        //     // if (!number)
-        //     //     return '';
-        //     //
-        //     // if (number.substring(0, 1) == 4) {
-        //     //     return self.visaImg;
-        //     // }
-        //     // var n = parseInt(number.substring(0, 2));
-        //     // if (n >= 51 && n <= 55) {
-        //     //     return self.masterCardImg;
-        //     // }
-        //
-        //     console.log('geomap mutatingPipe');
-        //
-        //     return value;
-        // });
-
-        // this.localEventManager.registerPipe(mutatingPipe);
+        self._remakeMapByType(self.get('type'));
     },
 
     makeRoute: function(from, to) {
       if(this.myMap) this.myMap.makeRoute(from, to);
+    },
+
+    _remakeMapByType: function(mapType) {
+      var self = this;
+
+      // remove previous map
+      if(this.myMap) this.el.removeChild(this.myMap.el);
+
+      // create and append new map
+      self.myMap = self._createMap(mapType);
+      self.el.appendChild(self.myMap.el);
+      // self._ownComponents.push(self.myMap);
+
+      // Make pipe to connect 'ready' and child 'ready' props
+      self.localEventManager = new EventManager(self);
+      self.localEventManager.registerComponent(self);
+      self.localEventManager.registerComponent(self.myMap);
+      self.localEventManager.releaseThePipes();
+
+      self.localEventManager.createSimplePipe(
+        {component: self.myMap.id, property: "ready"},
+        {component: self.id,       property: "ready"}
+      );
     },
 
     _createMap: function(type) {
@@ -174,39 +154,12 @@ module.exports = UIComponent.extend('GeoMap2', {
         get: Property.defaultGetter,
         set: function(key, value) {
           console.log('geomap2 set '+ key, value);
-          //
-          // !push === pop ???
-          // if(this.myMap) {
-          //   this._ownComponents.remove(this.myMap);
-          // }
-          // console.log("set('type') this.myMap = ", this.myMap);
+          var self = this;
 
-
-          // // remove inner map
-          // this.el.removeChild(this.myMap.el);
-          //
-          // // create new map and append it
-          // var mapType = value;
-          //
-          // this.myMap = this._createMap(mapType);
-          // this.el.appendChild(this.myMap.el);
-
-
-
-          // this._createMap(value);
-          // this.gmap._printEl();
-          // this.gmap._renderEl();
-
-          // this._ownComponents.add(this.myMap);
-
-          // if(value === 'yandex') { this.myMap = this.ymap; }
-          // else if(value === 'google') { this.myMap = this.gmap; }
-          // else {
-          //   console.error('GeoMap.set(\'type\') can\'t handle "'+ value +'" value');
-          // }
-          // this._ownComponents.push(this.myMap);
+          self.set('ready', false);
+          self._remakeMapByType(value);
         }
-      // }, 'yandex')
-      }, 'google')
+      }, 'yandex')
+      // }, 'google')
     }
 });
