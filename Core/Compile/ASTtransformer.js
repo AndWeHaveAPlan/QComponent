@@ -394,9 +394,10 @@ module.exports = (function(){
             };
         },
         MemberExpression: function(object, property){
+
             return {
                 "type": "MemberExpression",
-                "computed": false,
+                "computed": property.type === 'Literal',
                 "object": object,
                 "property": property
             };
