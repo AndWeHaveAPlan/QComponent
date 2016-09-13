@@ -32,6 +32,6 @@ module.exports = UIComponent.extend('Page', {
     function (cfg) {
         cfg = cfg || {};
         cfg.height = cfg.height || '100%';
-        cfg.height = cfg.width || '100%';
-        UIComponent.apply(this, arguments);
+        cfg.width = cfg.width || '100%';
+        UIComponent.call(this, cfg);
     });
