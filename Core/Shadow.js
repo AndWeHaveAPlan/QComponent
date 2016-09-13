@@ -25,6 +25,12 @@ module.exports = (function() {
                     pop: new Property('Function'),
                     unshift: new Property('Function'),
                     length: new Property('Number'),
+                    _unknownProperty: function(key){
+                        if(typeof key === 'number')
+                            return new Property('Variant');
+                        else 
+                            return false;
+                    }
                 }
             },
             Number: {

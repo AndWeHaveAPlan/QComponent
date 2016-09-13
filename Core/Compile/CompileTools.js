@@ -263,7 +263,7 @@ module.exports = (function () {
         },
 
         isNameOfProp: function (name, metadata) {
-            var prop;
+            var prop, tmp;
             if (!metadata || !metadata._prop) {
                 if(metadata.public){ // it is shadow
                     if(metadata.public[name])
@@ -279,6 +279,11 @@ module.exports = (function () {
                 return prop[name].prototype;
             if (prop['default'])
                 return prop['default'].prototype;
+            if (prop['_unknownProperty']) {
+                tmp = prop['_unknownProperty'](name);
+                if(tmp)
+                    return tmp.prototype;
+            }
             return false;
         },
 
@@ -341,19 +346,25 @@ module.exports = (function () {
         },
         getVarInfo: function(stack, metadata, child){
             var i, _i, out = [], node, env, selfFlag = false, context = false,
-                envFlag, propFlag, valueFlag = false, thisFlag = false, lastEnv, lastName;
+                envFlag, propFlag, valueFlag = false, thisFlag = false, lastEnv, lastName,
+
+                name;
             for(i = 0, _i = stack.length; i < _i; i++){
 
                 envFlag = propFlag = false;
 
                 node = stack[i];
-                if(!env || env.type !== 'Variant') {
+                if(node.type === 'Literal')
+                    name = node.value;
+                else
+                    name = node.name;
 
+                if(!env || env.type !== 'Variant') {
                     if(node.type === 'ThisExpression'){
                         env = child;
                         thisFlag = true;
                     }else {
-                        env = this.isNameOfEnv(node.name, metadata);
+                        env = this.isNameOfEnv(name, metadata);
                         if(env)
                             envFlag = true;
                     }
@@ -362,22 +373,19 @@ module.exports = (function () {
                         selfFlag = true;
                     }
 
-
                     if(!env) {
-                        env = this.isNameOfProp(node.name, metadata);
+                        env = this.isNameOfProp(name, metadata);
 
                         if (env)
                             propFlag = true;
                     }
 
-
-
                     if(!env) {
                         if(lastEnv) {
                             console.log(out);
-                            throw new Error('Can not resolve `' + node.name + '` from `' + lastName + '` <' + lastEnv.type + '>');
+                            throw new Error('Can not resolve `' + name + '` from `' + lastName + '` <' + lastEnv.type + '>');
                         }else
-                            throw new Error('Unknown variable `' + node.name + '`');
+                            throw new Error('Unknown variable `' + name + '`');
                     }
                 }
                 if(env.type in primitives){
@@ -389,9 +397,9 @@ module.exports = (function () {
                 }else{
                     metadata = shadow[env.type];
                 }
-                out.push({name: node.name, env: envFlag, prop: propFlag, node: node, e: env});
+                out.push({name: name, env: envFlag, prop: propFlag, node: node, e: env});
                 lastEnv = env;
-                lastName = node.name;
+                lastName = name;
             }
             if(!(env.type in primitives || env.type === 'Variant')){
                 valueFlag = true;
