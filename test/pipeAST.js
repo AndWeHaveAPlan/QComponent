@@ -32,12 +32,12 @@ module.exports = (function () {
             compile(
                 'def Page main',
                 '  GeoMap g1',
-                //'    .click: (e)->g1.makeRoute(17);',
-                '    .unclick: (e)->g1.home.push(2)',
+                '    .click: (e)->g1.makeRoute(17);',
+                '    .unclick: (e)->g1.home.push(17)',
 
                 function (err, main) {
-                  //  assert.equal(main.findOne('#g1').eventList.click.list[0].fn.toString(), 'function (e){\ng1.makeRoute(17);\n}');
-                    assert.equal(main.findOne('#g1').eventList.unclick.list[0].fn.toString(), 'function (e){\ng1.get(\'home\').push(17);\n}');
+                    assert.equal(main.findOne('#g1').eventList.click.list[0].fn.toString(), 'function (e){\ng1.makeRoute(17);\n}');
+                    assert.equal(main.findOne('#g1').eventList.unclick.list[0].fn.toString(), 'function (e){\ng1.get([\'home\']).push(17);\n}');
                     done();
                 });
         });
