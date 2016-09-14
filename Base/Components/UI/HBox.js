@@ -11,25 +11,37 @@ module.exports = FlexSizeComponent.extend('HBox', {
         var self = this;
         var children = this.el.childNodes;
         var fDef = this._flexDefinition || {parts: [], starCount: 0, flexLength: 0, fixLength: 0};
+        clearTimeout(this.updateTimeout);
+        this.updateTimeout = setTimeout(function () {
+            var freePixelWidth = self.el.clientWidth,
+                flexWidths = 0,
+                pixelWidths = 0,
+                width,
+                i, length, fPart;
 
-        setTimeout(function () {
-            var freeWidth = 100 - 100 * (fDef.fixLength / self.el.clientWidth);
-            var startUndef = -1;
-            for (var i = 0, length = children.length; i < length; i++) {
-                var fPart = fDef.parts[i];
-                var width = freeWidth / (fDef.starCount > 0 ? fDef.starCount : 1) + '%';
+            for (i = 0, length = children.length; i < length; i++) {
+                fPart = fDef.parts[i < fDef.parts.length ? i : fDef.parts.length - 1];
                 if (fPart) {
                     if (fPart.flex && fPart.part > 0) // 25*
-                        width = freeWidth * (fPart.part / fDef.flexLength) + '%';
+                        flexWidths += fPart.part;
+                    if (!fPart.flex) { // 25
+                        pixelWidths += fPart.part;
+                    }
+                } else {
+                    flexWidths += 1;
+                }
+            }
+            for (i = 0, length = children.length; i < length; i++) {
+                fPart = fDef.parts[i < fDef.parts.length ? i : fDef.parts.length - 1];
+                if (fPart) {
+                    if (fPart.flex && fPart.part > 0) // 25*
+                        width = (freePixelWidth-pixelWidths)/flexWidths*fPart.part + 'px';
                     if (!fPart.flex) { // 25
                         width = fPart.part + 'px';
                     }
                 } else {
-                    if (startUndef < 0)
-                        startUndef = i;
-                    width = freeWidth / (children.length - startUndef) + '%';
+                    width = (freePixelWidth-pixelWidths)/flexWidths + 'px';
                 }
-
                 children[i].style.width = width;
             }
         }, 0);
