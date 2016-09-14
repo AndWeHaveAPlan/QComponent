@@ -118,7 +118,7 @@ module.exports = (
                         }
                     },
                     get: Property.defaultGetter
-                }, 'visible');
+                }, 'none');
                 out.visibility = new Property('String', { description: 'visibility of element' }, {
                     set: function (key, val, oldValue) {
                         switch (val) {
@@ -270,10 +270,10 @@ module.exports = (
             this._contentContainer = void (0);
             this._transformMatrix = Matrix2D.createEmpty();
             this._initChildren();
-            if (this.el && this.el.setAttribute) {
+            //if (this.el && this.el.setAttribute) {
                 this.el.setAttribute('qId', this.id);
                 this.el.setAttribute('qType', this._type);
-            }
+            //}
         });
 
         return UIComponent;

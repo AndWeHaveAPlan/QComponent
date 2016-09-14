@@ -90,7 +90,7 @@ module.exports = (function () {
                 this.makePublic(metadataItem.public, metadataItem, scope),
                 this.makePublic(metadataItem.private, metadataItem, scope),
                 compiledChildren,
-                '    this._init();',
+                //'    this._init();',
                 '})' + (inline ? '' : ';')
             ];
             return tools.indent(1, source);
