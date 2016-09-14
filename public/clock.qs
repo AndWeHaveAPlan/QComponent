@@ -64,9 +64,9 @@ def Page main
 
             t0.enabled = !t0.enabled
 
-            self.rotatHour = 0
-            self.rotatMinute = 0
-            self.rotatSecond = 0
+            rotatHour = 0
+            rotatMinute = 0
+            rotatSecond = 0
 
         }
 
@@ -75,14 +75,14 @@ def Page main
         interval: 1000
         .tick: function(){
             var d = new Date();
-            self.seconds = d.getSeconds();
-            self.minutes = d.getMinutes();
-            self.hours = d.getHours();
-            if (self.hours > 12)
-                self.hours -= 12
-            self.rotatHour = 360/12*self.hours
-            self.rotatMinute = 360/60*self.minutes - self.rotatHour
-            self.rotatSecond = 360/60*self.seconds - self.rotatMinute - self.rotatHour
+            seconds = d.getSeconds();
+            minutes = d.getMinutes();
+            hours = d.getHours();
+            if (hours > 12)
+                hours -= 12
+            rotatHour = 360/12*hours
+            rotatMinute = 360/60*minutes - rotatHour
+            rotatSecond = 360/60*seconds - rotatMinute - rotatHour
     }
 
     span: часы {{hours}}, минуты {{minutes}}, секунды {{seconds}}
@@ -93,9 +93,9 @@ def Page main
         type: button
         width: 100px
         .click: function(){
-            self.rotatHour += 50;
-            if (self.rotatHour >= 360)
-                self.rotatHour -= 360;
+            rotatHour += 50;
+            if (rotatHour >= 360)
+                rotatHour -= 360;
         }
     span: отклонение = {{rotatHour}} градусов
 
@@ -110,9 +110,9 @@ def Page main
         type: button
         width: 100px
         .click: function(){
-            self.rotatHour += degPlus-0;
-            if (self.rotatHour >= 360)
-                self.rotatHour -= 360;
+            rotatHour += degPlus-0;
+            if (rotatHour >= 360)
+                rotatHour -= 360;
         }
 
     br
@@ -123,13 +123,13 @@ def Page main
         type: button
         width: 100px
         .click: function(){
-            if (self.sqCenter < 50)
-                self.sqCenter += 5
+            if (sqCenter < 50)
+                sqCenter += 5
         }
     input: наружу
         type: button
         width: 100px
         .click: function(){
-            if (self.sqCenter > 0)
-                self.sqCenter -= 5
+            if (sqCenter > 0)
+                sqCenter -= 5
         }

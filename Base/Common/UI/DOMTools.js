@@ -1,10 +1,8 @@
 /**
  * Created by zibx on 05.08.16.
  */
-
 var DOM = (function () {
     'use strict';
-
     var QObject = require('../../QObject'),
         document = QObject.document;
     var blockRegExp = new RegExp('DIV|H[0-8]|HR|MARQUEE'),
@@ -12,9 +10,12 @@ var DOM = (function () {
         domLoad = function () {
             DOM.fire('DOM');
             DOM.DOM = true;
+            DOM._loaded();
         };
     var DomWrapper = function () {
+            //this.on('DOM', this._loaded, this);
             this.init();
+            this._load = [];
         },
         maxZ = 66613,
         proto = DomWrapper.prototype = {
@@ -76,7 +77,6 @@ var DOM = (function () {
             removeClass: function removeClass(obj, className) {
                 if (this.hasClass(obj, className)) {
                     className = ( ' ' + obj.className + ' ' ).replace(' ' + className + ' ', ' ');
-
                     obj.className = className.substr(1, className.length - 2);
                 }
             }, /*end cut*/
@@ -86,7 +86,6 @@ var DOM = (function () {
                     childNodes = el.childNodes;
                 if (!childNodes)
                     return;
-
                 i = _i = childNodes.length;
                 for (; i;)
                     el.removeChild(childNodes[--i]);
@@ -96,7 +95,6 @@ var DOM = (function () {
                 var text = val.toString();
                 return (text.indexOf('%') > -1 ? text : (text.indexOf('px') ? text : text + 'px' ) );
             },
-
             elementInDocument: function (element) {
                 if (element)
                     while (element = element.parentNode) {
@@ -111,7 +109,6 @@ var DOM = (function () {
                 while (parent !== null && parent !== document && !( contain = parent === container)) {
                     parent = parent.parentNode;
                 }
-
                 return contain;
             },
             getMaxZ: function () {
@@ -173,6 +170,18 @@ var DOM = (function () {
                     return el;
                 }
             },
+            _loaded: function () {
+                var list = this._load;
+                for(var i = list.length;i;)
+                    list[--i]();
+                this._load = [];
+            },
+            load: function (fn) {
+                this._load.push(fn);
+                if(this.DOM)
+                    this._loaded();
+            },
+
             hide: function (el) {
                 this.display(el, 'none');
             },
@@ -190,7 +199,6 @@ var DOM = (function () {
             hideEl: function (el) {
                 el.style.display = 'none';
             },
-
             showEl: function (el) {
                 el.style.display = 'block';
             },
@@ -200,7 +208,6 @@ var DOM = (function () {
                         fn.apply(this, JS.toArray(arguments));
                     },
                     out = proto.addRemovableListener(el, type, wrapFn);
-
                 return out;
             },
             addListener: function (el, type, fn) {
@@ -219,19 +226,17 @@ var DOM = (function () {
                         this.remove = JS.emptyFn;
                     }
                 };
-
                 return function (el, type, fn) {
                     this.addListener(el, type, fn);
                     return new removableListener(el, type, fn);
                 };
             })(),
             init: function () {
-                if(typeof window === 'undefined')return;
+                if(typeof window === 'undefined')return this;
                 if (typeof window.addEventListener === 'function') {
                     proto.query = function (a, b) {
                         return a.querySelector(b);
                     };
-
                     proto._addListener = function (el, type, fn) {
                         return el.addEventListener(type, fn, false);
                     };
@@ -256,17 +261,12 @@ var DOM = (function () {
                         return el['on' + type] = null;
                     };
                 }
-
-                this.addListener(window, 'load', domLoad);
                 observable.prototype._init.call(this);
-
+                this.addListener(window, 'load', domLoad);
                 delete this.init;
                 return this;
-
             }
         };
-
     return new DomWrapper();
 })();
-
-module.exports = DOM;
+module.exports = DOM.init();
