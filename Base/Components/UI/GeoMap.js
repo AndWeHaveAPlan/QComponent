@@ -11,7 +11,7 @@ var GeoMapYandex = require('./GeoMapYandex');
 var MutatingPipe = require('../../Pipes/MutatingPipe');
 var EventManager = require('../../EventManager')
 
-module.exports = UIComponent.extend('GeoMap2', {
+module.exports = UIComponent.extend('GeoMap', {
     createEl: function () {
         var self = this;
 
@@ -89,13 +89,13 @@ module.exports = UIComponent.extend('GeoMap2', {
           description: 'True if GeoMap api ready'
         }, {
           get: function(key, value) {
-            console.log('geomap2 '+key+' get', value);
+            console.log('geomap '+key+' get', value);
             //
             // if(this.myMap) return this.myMap.get(key, value);
             return value
           },
           set: function(key, value) {
-            console.log('geomap2 '+key+' set', value);
+            console.log('geomap '+key+' set', value);
           }
         }, false
       ),
@@ -104,12 +104,12 @@ module.exports = UIComponent.extend('GeoMap2', {
           description: 'Map zoom level'
         }, {
           get: function(key, value) {
-            console.log('geomap2 get '+ key, value);
+            console.log('geomap get '+ key, value);
             //
             if(this.myMap) return this.myMap.get(key, value);
           },
           set: function(key, value) {
-            console.log('geomap2 set '+ key, value);
+            console.log('geomap set '+ key, value);
             //
             if(this.myMap) this.myMap.set(key, value);
           }
@@ -119,12 +119,12 @@ module.exports = UIComponent.extend('GeoMap2', {
           description: 'Markers on map'
         }, {
           get: function(key, value) {
-            console.log('geomap2 get '+ key, value);
+            console.log('geomap get '+ key, value);
             //
             if(this.myMap) return this.myMap.get(key, value);
           },
           set: function(key, value) {
-            console.log('geomap2 set '+ key, value);
+            console.log('geomap set '+ key, value);
             //
             if(this.myMap) this.myMap.set(key, value);
           }
@@ -132,19 +132,19 @@ module.exports = UIComponent.extend('GeoMap2', {
       ),
       home: new Property('Array', {description: 'You are here point'}, {
         get: function(key, value) {
-          console.log('geomap2 get '+ key, value);
+          console.log('geomap get '+ key, value);
           //
           if(this.myMap) return this.myMap.get(key, value);
         },
         set: function(key, value) {
-          console.log('geomap2 set '+ key, value);
+          console.log('geomap set '+ key, value);
           //
           if(this.myMap) this.myMap.set(key, value);
         }
       }),
       moveList: new Property('Array', {}, {
         get: function(key, value) {
-          console.log('geomap2 get '+ key, value);
+          console.log('geomap get '+ key, value);
           //
           if(this.myMap) return this.myMap.get(key, value);
         },
@@ -153,7 +153,7 @@ module.exports = UIComponent.extend('GeoMap2', {
       type: new Property('String', {}, {
         get: Property.defaultGetter,
         set: function(key, value) {
-          console.log('geomap2 set '+ key, value);
+          console.log('geomap set '+ key, value);
           var self = this;
 
           self.set('ready', false);

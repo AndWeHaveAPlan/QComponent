@@ -8,7 +8,7 @@ def Page main
         height: 100%
         width: 100%
 
-        GeoMap2 gm:
+        GeoMapYandex gm:
             zoom: 11
             home: [55.794425,37.587836]
             pins: {{[list.selectedItem]}}
@@ -47,53 +47,7 @@ def Page main
                 type: button
                 enabled: {{ gm.ready }}
                 .click: ()=>{
-                    var from = gm.get('home');
-                    var to = gm.get('pins.0.coords');
-
-                    console.log('from/to: ', from, to);
-
-                    if(to) { gm.makeRoute(from, to); }
-                    else { console.error("Destination isn't selected"); }
-                }
-            input: Увеличить
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    var newZoom = gm.get('zoom') + 1;
-                    gm.set('zoom', newZoom);
-                }
-            input: Уменьшить
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    var newZoom = gm.get('zoom') - 1;
-                    gm.set('zoom', newZoom);
-                }
-            input: Карты yandex
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    console.log('Карты yandex');
-                    gm.set('type', 'yandex');
-                }
-            input: Карты google
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    console.log('Карты google');
-                    gm.set('type', 'google');
+                    gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
                 }
             ListBox:
                 overflow: auto
