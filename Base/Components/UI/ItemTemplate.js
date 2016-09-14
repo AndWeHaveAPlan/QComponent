@@ -17,10 +17,10 @@ module.exports = UIComponent.extend('ItemTemplate', {
         value: new Property('String', {description: 'text content'}, {
             set: function (name, val) {
                 if (!this.textNode) {
-                    this.textNode = new Primitives['textNode'];
-                    this._children.unshift(this.textNode);
+                    this.textNode = UIComponent.document.createTextNode('');
+                    this.el.appendChild(this.textNode);
                 }
-                this.textNode.set('value', val);
+                this.textNode.nodeValue = val;
             },
             get: Property.defaultGetter
         }),

@@ -287,10 +287,17 @@ module.exports = (function () {
         },
 
         _init: function () {
-            var cfg = this._cfg;
+            var cfg = this._cfg || {};
             for (var p in cfg) {
                 if (cfg.hasOwnProperty(p)) {
                     this.set([p], cfg[p]);
+                }
+            }
+
+            var prop = this._prop;
+            for (var i in prop) {
+                if (!(i in cfg) && i !== '__proxy' && i !== 'default') {
+                    this.set([i], prop[i].metadata.defaultValue);
                 }
             }
 
@@ -306,7 +313,7 @@ module.exports = (function () {
                     newProp[i] = prop[i];
                 } else {
                     if (i in cfg)
-                        newProp[i] = new prop[i](this, i);//, cfg[i]);
+                        newProp[i] = new prop[i](this, i, cfg[i]);
                     else
                         newProp[i] = new prop[i](this, i);
                 }

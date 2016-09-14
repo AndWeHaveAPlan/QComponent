@@ -68,6 +68,10 @@ module.exports = (function () {
         }
     };
 
+    /**
+     * 
+     * @param value
+     */
     var setter = function (value) {
         var key = this.proxyFor || this.key,
             oldValue = this.parent._data[key],
@@ -101,11 +105,22 @@ module.exports = (function () {
         this.parent._data[key] = oldValue;
         return false;
     };
+
+    /**
+     * 
+     */
     var getter = function () {
         var key = this.proxyFor || this.key;
         return this._get.call(this.parent, key, this.parent._data[key]);
     };
 
+    /**
+     * 
+     * @param type
+     * @param metadata
+     * @param cfg
+     * @param defaultValue
+     */
     var Property = function (type, metadata, cfg, defaultValue) {
         QObject = QObject || require('./QObject');
         metadata = metadata || {};
@@ -132,6 +147,12 @@ module.exports = (function () {
             proto.value = metadata.defaultValue = defaultValue;
         }
 
+        /**
+         * 
+         * @param parent
+         * @param key
+         * @param value
+         */
         var cls = function (parent, key, value) {
             if (!parent._prop.__proxy)
                 parent._prop.__proxy = {};
@@ -146,15 +167,6 @@ module.exports = (function () {
                     parent._prop.__proxy[this.proxyFor] = [];
 
                 parent._prop.__proxy[this.proxyFor].push(key);
-            }
-
-            if (this.setDefault) {
-                this.parent._data[key] = this.value;
-            }
-
-            //TODO null default case
-            if (value) {
-                this.set(value);
             }
         };
 

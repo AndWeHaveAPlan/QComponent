@@ -65,10 +65,12 @@ module.exports = UIComponent.extend('ContainerComponent', {
         selectionColor: new Property('String', { description: 'Selection color (css notation)' }, null, '#3b99fc'), //qiwi color
         selectedIndex: new Property('Number', { description: 'Index of current selected item' }, {
             set: function (name, val, oldVal) {
+                if (val < 0) return;
+
                 var children = this.el.childNodes;
                 if (oldVal !== -1 && oldVal < children.length)
                     children[oldVal].style.background = 'none';
-                if (val < children.length)
+                if (val < children.length && val > -1)
                     children[val].style.background = this._data['selectionColor'];
 
                 this.set('selectedItem', this.get('itemSource').get(val));
