@@ -1,12 +1,12 @@
 def Page main
   .loaded: ()->
     console.log('CARD FORM IS LOADED')
-    chuchu('da');
-  Function chuchu: (da)->
-    console.log(da,da,da);
+    //chuchu('da');
+  //Function chuchu: (da)->
+    //console.log(da,da,da);
   VBox
-    div
-      CardForm cf
+    height: 300px
+    CardForm cf
     div
       span: number {{' '+cf.cardData.number}}
       //span: {{' '+cf.cardData.number}}

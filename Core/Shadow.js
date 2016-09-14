@@ -36,7 +36,6 @@ module.exports = (function() {
             Number: {
                 linkerSetter: function (value) {
 
-
                 }
             },
             Function: {

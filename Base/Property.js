@@ -80,7 +80,8 @@ module.exports = (function () {
             flags;
 
 
-        if (value !== oldValue) {
+        if ((value !== oldValue) || this.firstSet) {
+            this.firstSet = false;
             flags = new SetterFlags();
             this.parent._data[key] = value;
             prop._set.call(this.parent, key, value, oldValue, flags);
@@ -145,6 +146,8 @@ module.exports = (function () {
         if (arguments.length > 3) {
             proto.setDefault = true;
             proto.value = metadata.defaultValue = defaultValue;
+        } else {
+            proto.setDefault = false;
         }
 
         /**
@@ -160,13 +163,18 @@ module.exports = (function () {
             this.parent = parent;
             this.key = key;
             this.proxyFor = cfg.proxyFor;
+            this.firstSet = true;
 
             if (this.proxyFor) {
-
                 if (!parent._prop.__proxy[this.proxyFor])
                     parent._prop.__proxy[this.proxyFor] = [];
-
                 parent._prop.__proxy[this.proxyFor].push(key);
+            }
+
+            if (arguments.length > 2) {
+                this.parent._data[key] = value;
+            } else if (this.metadata.defaultValue) {
+                this.parent._data[key] = this.metadata.defaultValue;
             }
         };
 

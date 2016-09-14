@@ -37,7 +37,7 @@ module.exports = UIComponent.extend('InputField', {
     createEl: function () {
         this.el = UIComponent.document.createElement('div');
     },
-    validate: function(value) {
+    validate: function (value) {
         var valid = this.get('validator')(value);
         if (!valid)
             this.set('input.background', '#fcc');
@@ -70,6 +70,7 @@ module.exports = UIComponent.extend('InputField', {
 
     this.addChild(input);
     this._eventManager.registerComponent(input);
+    this.set('input', input);
 
     var mutatingPipe = new MutatingPipe([input.id + '.value'], {
         component: this.id,
