@@ -3,6 +3,14 @@
  */
 module.exports = (function(){
     'use strict';
+    /*
+    Ok, lets reinvent the Event Manager!
+    What do we need from it?
+    First of all - we need a single point of catching and processing of events.
+    Catching is for logging\user behaviour analysis\debugging\recording unit tests.
+    Processing is for
+     */
+
     var Keyboard = require('../Common/UI/Keyboard'),
         QObject = require('../QObject'),
         DOM = require('../Common/UI/DOMTools'),
@@ -53,9 +61,14 @@ module.exports = (function(){
                 fireEvents.call( catcher.scope, catcher, code, e, 'press' );
             }
         },
+        _mouseWrappers: {
+            move: function (e) {
+                var catcher = this._catchers[0];
+                if( !catcher ) return ;
+                fireEvents.call( catcher.scope, catcher, code, e, 'press' );
+            }
+        },
         _attach: function () {
-
-            debugger;
             for( var event in this._kbWrappers )
                 if( this._kbWrappers.hasOwnProperty( event ) )
                     DOM.addListener(QObject.document, 'key' + event, this._kbWrappers[event].bind(this) );
