@@ -34,7 +34,7 @@ module.exports = {
             Image: require('./Base/Components/UI/Image'),
             GeoMapYandex: require('./Base/Components/UI/GeoMapYandex'),
             GeoMapGoogle: require('./Base/Components/UI/GeoMapGoogle'),
-            GeoMap2: require('./Base/Components/UI/GeoMap2'),
+            GeoMap: require('./Base/Components/UI/GeoMap'),
             CardForm: require('./Base/Components/UI/CardForm'),
             DOMTools: require('./Base/Common/UI/DOMTools'),
             If: require('./Base/Components/UI/If')

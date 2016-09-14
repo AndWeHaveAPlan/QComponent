@@ -6,7 +6,7 @@ var Property = require('../../../Property');
 var Primitive = require('../Primitives');
 var UIComponent = require('../../UIComponent');
 var TextMarker = require('./TextMarker');
-var symbolByNumber = require('./symbolByNumber');
+var charByNumber = require('./charByNumber');
 var arrToLanLng = require('./arrToLanLng');
 var minMax = require('./minMax');
 var loadScript = require('./loadScript')
@@ -34,14 +34,15 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     //
     loadScript({
       src: getApiByKey(apiKey),
-
-      // globalName: 'google.maps',
-
+      //
+      globalName: 'google.maps',
+      //
       onload: function() {
         console.log('GeoMapGoogle !todo onloadActions! loadScript.onload', google.maps);
 
         // TODO
         // make normal module
+        // do only after first load
         require('./MapLabel');
         self._renderEl();
         self.set('ready', true);
@@ -191,7 +192,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         return TextMarker.create({
           position: arrToLanLng(pos),
           map: self.gmap,
-          label: symbolByNumber(index),
+          label: charByNumber(index),
           text: name
         });
       });

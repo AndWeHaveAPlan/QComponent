@@ -5,6 +5,7 @@
 var Property = require('../../Property');
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
+var loadScript = require('./GeoMapGoogle/loadScript');
 
 module.exports = UIComponent.extend('GeoMapYandex', {
     createEl: function () {
@@ -17,14 +18,20 @@ module.exports = UIComponent.extend('GeoMapYandex', {
         script.src = 'https://api-maps.yandex.ru/2.1/?lang=en_US';
         document.head.appendChild(script);
 
-        script.onload = function () {
+        loadScript({
+          src: 'https://api-maps.yandex.ru/2.1/?lang=en_US',
+          //
+          globalName: 'ymaps',
+          //
+          onload: function() {
             ymaps.ready(function () {
                 console.log('GeoMapYandex onload');
 
                 self._renderEl();
                 self.set('ready', true);
             });
-        };
+          }
+        });
     },
 
     _renderEl() {

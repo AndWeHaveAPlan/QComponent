@@ -2,10 +2,16 @@
  * Created by nikita on 01.09.16.
  */
 
+var deep = require('deep-property');
+
 module.exports = function(options) {
-  // if(options.globalName && window[options.globalName]) {
-  //   options.onload();
-  // } else {
+  function haveNameInWindowScope() {
+    return deep.get(window, options.globalName);
+  }
+
+  if(options.globalName && haveNameInWindowScope()) {
+    setTimeout(options.onload, 0);
+  } else {
     var script = document.createElement("script");
     script.async = true;
     script.defer = true;
@@ -14,5 +20,5 @@ module.exports = function(options) {
     script.onload = options.onload;
 
     document.head.appendChild(script);
-  // }
+  }
 }
