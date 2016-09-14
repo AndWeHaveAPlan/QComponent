@@ -21,7 +21,11 @@ module.exports = {
             Selector: require('./Base/Workflow/Selector'),
             Sequence: require('./Base/Workflow/Sequence')
         },
+        Common: {
+            UIEventManager: require('./Base/Common/UIEventManager')
+        },
         UI: {
+
             Fields: {
                 Base: require('./Base/Components/UI/Field/Base')
             },
