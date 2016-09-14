@@ -390,8 +390,12 @@ module.exports = (function () {
                 }
                 if(env.type in primitives){
                     metadata = shadow[env.type];
-                    if(context === false)
+                    if(context === false) {
                         context = i;
+                        // we need to keep context
+                        if(env.type==='Function')
+                            context--;
+                    }
                     //if(i < _i - 1)
                     //    throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
                 }else{
@@ -566,7 +570,11 @@ module.exports = (function () {
                 }
 
                 var c = ASTtransformer.craft, // craft short link
+                    out;//
+                if(beforeContext.length)
                     out = c.CallExpression(who, 'get', beforeContext );
+                else
+                    out = who;
 
                 if(info.valueFlag)
                     afterContext.push(c.Literal('value'));

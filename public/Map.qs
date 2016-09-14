@@ -1,7 +1,7 @@
 def Page main
     title: Карта туриста
-    width:100%
-    height:100%
+    //width:100%
+    //height:100%
 
     HBox// hbox
         flexDefinition: 293* 1* 400
