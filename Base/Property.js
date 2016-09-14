@@ -147,6 +147,12 @@ module.exports = (function () {
             proto.value = metadata.defaultValue = defaultValue;
         }
 
+        /**
+         * 
+         * @param parent
+         * @param key
+         * @param value
+         */
         var cls = function (parent, key, value) {
             if (!parent._prop.__proxy)
                 parent._prop.__proxy = {};
