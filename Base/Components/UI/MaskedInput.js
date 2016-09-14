@@ -17,6 +17,8 @@ module.exports = InputField.extend('MaskedInput', {
     },
     _unmask: function (str, selRange) {
 
+        selRange = selRange || { selStart: 0, selEnd: 0 };
+
         var beforeSelStart = 0;
         var beforeSelEnd = 0;
 
@@ -42,6 +44,7 @@ module.exports = InputField.extend('MaskedInput', {
         return str;
     },
     _enmask: function (str, selRange) {
+        selRange = selRange || { selStart: 0, selEnd: 0 };
         var mask = this._data.mask;
         if (!mask) return str;
 

@@ -22,6 +22,7 @@ module.exports = (function () {
      * @class
      */
     function QObject(cfg) {
+        this._propReady = false;
         cfg && this.apply(cfg);
         this._cfg = cfg || {};
         observable.prototype._init.call(this);
@@ -115,10 +116,20 @@ module.exports = (function () {
                         this._onPropertyChanged(this, names.slice(0, -1), value);
                     }
             } else {
+
+                // create default
                 if (!this._prop[firstName]) {
                     this._prop[firstName] = new (this._prop.default || this.defaultPropertyFactory)(this, firstName);
                 }
-                this._prop[firstName].set(value);
+
+                if (this._propReady) {
+                    this._prop[firstName].set(value);
+                } else {
+                    this._prop[firstName].metadata.defaultValue = value;
+                    this._prop[firstName].setDefault = true;
+                    this._data[firstName] = value;
+                }
+
                 ret = value;
             }
 
@@ -225,6 +236,12 @@ module.exports = (function () {
             mixins[name] = cfg;
         },
 
+        /**
+         * 
+         * @param {} cfg 
+         * @param {} mixin 
+         * @returns {} 
+         */
         _mixing: function (cfg, mixin/* base */) {
 
             if (prototype.isArray(mixin)) {
@@ -282,11 +299,20 @@ module.exports = (function () {
         //QObject.prototype = prototype;//.apply.call({}, prototype);
         _prop: {},
 
+        /**
+         * 
+         * @returns {} 
+         */
         _afterInit: function () {
             this._init();
         },
 
+        /**
+         * 
+         * @returns {} 
+         */
         _init: function () {
+            this._propReady = true;
             var cfg = this._cfg || {};
             for (var p in cfg) {
                 if (cfg.hasOwnProperty(p)) {
@@ -296,14 +322,18 @@ module.exports = (function () {
 
             var prop = this._prop;
             for (var i in prop) {
-                if (!(i in cfg) && i !== '__proxy' && i !== 'default') {
+                if (!(i in cfg) && i !== '__proxy' && i !== 'default' && prop[i].setDefault) {
                     this.set([i], prop[i].metadata.defaultValue);
                 }
             }
-
             delete this._cfg;
         },
 
+        /**
+         * 
+         * @param {} cfg 
+         * @returns {} 
+         */
         _initProps: function (cfg) {
             var prop = this._prop, i,
                 newProp = this._prop = {};

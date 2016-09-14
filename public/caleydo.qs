@@ -1,6 +1,7 @@
 def Page main
-//    rotation: {{s1.value}}
+//    rotation: {{s1.value}}    
     div
+	//scroll: both
 
         //rotation: {{s1.value/2}}
         HBox

@@ -4,10 +4,10 @@
 
 var QObject = require('../../QObject');
 var UIComponent = require('../UIComponent');
+var ItemTemplate = require('./ItemTemplate');
 var Property = require('../../Property');
 
 var ObservableSequence = require('observable-sequence');
-var DQIndex = require('z-lib-structure-dqIndex');
 var dequeue = require('z-lib-structure-dequeue');
 
 module.exports = UIComponent.extend('ContainerComponent', {
@@ -110,9 +110,8 @@ module.exports = UIComponent.extend('ContainerComponent', {
             get: Property.defaultGetter
         }, new ObservableSequence(new dequeue())),
         itemTemplate: new Property('ItemTemplate', { description: 'Visual presentation of items' }, {
-            set: function (name, val) {
-            },
+            set: Property.defaultSetter,
             get: Property.defaultGetter
-        }, QObject._knownComponents.ItemTemplate)
+        }, ItemTemplate)
     }
 });
