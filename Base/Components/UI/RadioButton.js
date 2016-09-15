@@ -42,12 +42,15 @@ var RadioButton = UIComponent.extend('RadioButton', {
                     this.input.checked = value;
                 }
             }, false),
-        radioButtonGroup: new Property('String', {},
+        group: new Property('RadioButtonGroup', {},
             {
                 get: Property.defaultGetter,
                 set: function (name, value, oldValue, e) {
+                    if (value) {
+                        value.addRadioButton(this);
+                    }
                 }
-            }, 'default'),
+            }),
         value: new Property('String')
     }
 });

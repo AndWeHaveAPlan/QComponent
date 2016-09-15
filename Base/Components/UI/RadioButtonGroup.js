@@ -9,22 +9,21 @@ var RadioButton = require('./RadioButton');
 var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
     _radioButtons: {},
     _setChecked: function(rb) {
-        for (var key in this._radioButtons) {
-            if (key !== rb.id)
-                this._radioButtons[key].set('checked', false);
+        var radioButtons = this._radioButtons;
+        for (var key in radioButtons) {
+            if (radioButtons.hasOwnProperty(key)) {
+                if (key !== rb.id)
+                    radioButtons[key].set('checked', false);
+            }
         }
         this.set('value', rb.get('value'));
     },
     addRadioButton: function (rb) {
         var self = this;
-
         if (self._radioButtons[rb.id]) return;
-
         self._radioButtons[rb.id] = rb;
-        
         if (rb.get('checked')) 
             self._setChecked(rb);
-
         rb.on('checked', function () {
             self._setChecked(rb);
         });
