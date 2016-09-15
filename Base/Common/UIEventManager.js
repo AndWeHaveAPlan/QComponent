@@ -8,14 +8,59 @@ module.exports = (function(){
     What do we need from it?
     First of all - we need a single point of catching and processing of events.
     Catching is for logging\user behaviour analysis\debugging\recording unit tests.
-    Processing is for
+    Processing is for security (Event manager can be placed on server), running unit tests.
+
+    So, lets design.
+
+
+  KEYBOARD AND ANY BUTTONS:
+
+    Active Element (keyboard) <- tab mixture
+          | if not used
+          v
+    Shortcut manager
+          | if not used
+          v
+    Parent element <- tab mixture (if custom tab behavior)
+          |
+          v
+         ... till parent is null
+
+  -------------------------------------
+
+  MOUSE (mousedown, scroll, over):
+
+    Undermouse Element
+          |
+          v
+    Parent element <- tab mixture (if custom tab behavior)
+          |
+          v
+         ... till parent is null
+
+
+  MOUSE (mouseup, mousemove, leave):
+
+    Mousedown\over[] captured Element
+         |
+         v
+    Parent element <- tab mixture (if custom tab behavior)
+         |
+         v
+        ... till parent is null
+
+  -------------------------------------
+
+  So. We can do it in the way of honor, but it would be slow.
+  
+
      */
 
     var Keyboard = require('../Common/UI/Keyboard'),
         QObject = require('../QObject'),
         DOM = require('../Common/UI/DOMTools'),
         pressCountCounter = 0,
-        handleOnDown = QObject.arrayToObject([ // keycodes that should be passed through down event
+        systemKeys = QObject.arrayToObject([ // keycodes that should be passed through down event
             5, 6, 8, 8, 9, 12, 13, 16, 16, 17,
             17, 19, 20, 27, 27, 33, 34, 35, 36, 37, 38,
             39, 40, 45, 46, 63, 91, 93, 112, 113,
@@ -44,14 +89,14 @@ module.exports = (function(){
                 var catcher = this._catchers[0];
                 if( !catcher ) return ;
                 var code = String.fromCharCode( e.which || e.keyCode ).toLowerCase().charCodeAt(0);
-                ( code in handleOnDown ) && fireEvents.call( catcher.scope, catcher, code, e, 'down' );
+                ( code in systemKeys ) && fireEvents.call( catcher.scope, catcher, code, e, 'down' );
             },
             up: function( e ){
                 pressCountCounter = 0;
                 var catcher = this._catchers[0];
                 if( !catcher ) return ;
                 var code = String.fromCharCode( e.which || e.keyCode ).toLowerCase().charCodeAt(0);
-                ( code in handleOnDown ) && fireEvents.call( catcher.scope, catcher, code, e, 'up' );
+                ( code in systemKeys ) && fireEvents.call( catcher.scope, catcher, code, e, 'up' );
             },
             press: function( e ){
                 pressCountCounter++;
