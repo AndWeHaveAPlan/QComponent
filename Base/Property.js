@@ -51,6 +51,15 @@ module.exports = (function () {
             get: function (key, value) {
                 return value;
             }
+        },
+        Function: {
+            set: function(key, value, old, e){
+                this[key] = value;
+                e.cancel();
+            },
+            get: function(key, value){
+                return this[key];
+            }
         }
     };
 
