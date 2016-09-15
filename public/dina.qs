@@ -53,10 +53,10 @@ def Page main
                 self.sinHor = setLeft.value || 0
             }
 
-        MaskedInput: 12345
+        /*MaskedInput: 12345
             width: 100px
             background: #6666dd
-            mask: "(***) ddd-dddd"
+            mask: "(***) ddd-dddd"*/
 
         div: ba-dum-tsss {{setLeft.background}}
             width: 500px
@@ -114,8 +114,8 @@ def Page main
                         }
                 GeoMap
                     zoom: 11
-                    width: 100%
-                    height: 50%
+                    width: 300px
+                    height: 150px
                     home: [55.794425,37.587836]
 
             span: triangles
@@ -126,9 +126,22 @@ def Page main
                 margin: 20px
 
             span: are my favourite shapes
-            input
-                type: radio
+            RadioButtonGroup
+                padding: 30px
+                RadioButton
+                    caption: "2+3"
+                    checked: true
+                RadioButton
+                    caption: "ch2"
+                RadioButton
+                    caption: "ch2"
+            Checkbox
+                caption: "123*9"
                 checked: true
+            Checkbox
+                caption: "lolo"
+            NumberBox
+                number: 789067
             input addOne
                 type: text
                 width: 100px
@@ -231,7 +244,7 @@ def Page main
         //public Date date1:
         span: {{arr1}}
             background: pink
-        MaskedInput: 7777рпааапрпарап
+        /*MaskedInput: 7777рпааапрпарап
             mask: 'ddd-dd-dd'
             background: pink
             padding: 10px
@@ -259,14 +272,15 @@ def Page main
             //-overflow
             //transform-origin
             //-scroll
+                */
 
-    div phot
+    /*div phot
         position: absolute
         top: 20px
         left: 20px
         Image
             width: 700px
             height: 500px
-            stretch: uniform
+            stretch: uniform*/
 
 //{{Math.ceil(s1.value/2)}}
