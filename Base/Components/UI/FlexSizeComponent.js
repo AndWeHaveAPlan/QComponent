@@ -9,38 +9,44 @@ var Property = require('../../Property');
 module.exports = UIComponent.extend('FlexSizeComponent', {
 
     _prop: {
-        flexDefinition: new Property('String', {description: ""}, {
+        flexDefinition: new Property('String', { description: "" }, {
             get: Property.defaultGetter,
             set: function (name, value) {
-                var fDef = this._flexDefinition
+                var flexDefinition = this._flexDefinition
                     ? this._flexDefinition
-                    : (this._flexDefinition = {parts: [], starCount: 0, flexLength: 0, fixLength: 0});
-                var parts = this._data['flexDefinition'].split(' ');
+                    : { parts: [], starCount: 0, flexLength: 0, fixLength: 0 };
+                var stringParts = value.split(' ');
 
-                for (var i = 0; i < parts.length; i++) {
-                    var fPart = parts[i];
-                    var flex = false;
-                    if (fPart[fPart.length - 1] === '*') {
-                        flex = true;
-                        fPart = fPart.substring(0, fPart.length - 1);
-                    }
+                for (var i = 0; i < stringParts.length; i++) {
+                    var fPart = stringParts[i];
+
+                    if (fPart.length === 0) continue;
+
+                    var newPart = { part: 0, flex: true };
 
                     var parsedFloat = parseFloat(fPart);
-                    if (fPart.length === 0) {
-                        fDef.starCount += 1;
-                        fDef.parts.push({flex: flex, part: 0})
-                    } else if (parsedFloat == fPart) {
-                        fDef.parts.push({flex: flex, part: parsedFloat});
-                        if (flex)
-                            fDef.flexLength += parsedFloat;
-                        else
-                            fDef.fixLength += parsedFloat;
-                    }
-                }
+                    if (fPart[fPart.length - 1] === '*') {
+                        newPart.flex = true;
 
+                        if (!parsedFloat) {
+                            flexDefinition.starCount += 1;
+                        } else {
+                            newPart.part = parsedFloat;
+                            flexDefinition.flexLength += parsedFloat;
+                        }
+
+                    } else {
+                        newPart.flex = false;
+                        newPart.part = parsedFloat;
+                        flexDefinition.fixLength += parsedFloat;
+                    }
+
+                    flexDefinition.parts.push(newPart);
+                }
+                this._flexDefinition = flexDefinition;
                 this.updateLayout();
             }
-        }, '*')
+        }, '')
     }
 }, function (cfg) {
     UIComponent.call(this, cfg);

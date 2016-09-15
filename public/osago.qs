@@ -1,12 +1,13 @@
 def Page page0
 	width: 100%
 	height: 100%
+	public Scenario scenario
 
 	background: #ccc
 	h1: Page 0
 
-	TextBox type: {{scenario.insuranceType}}
-	    placeholder: 'osago/casco'
+	//TextBox type: {{scenario.insuranceType}}
+	//    placeholder: 'osago/casco'
 
 def Page page1
 	width: 100%

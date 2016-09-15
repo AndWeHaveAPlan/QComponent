@@ -10,37 +10,27 @@ module.exports = FlexSizeComponent.extend('VBox', {
     updateLayout: function () {
         var self = this;
         var children = this.el.childNodes;
-        var fDef = this._flexDefinition || { parts: [], starCount: 0, flexLength: 0, fixLength: 0 };
+
         clearTimeout(this.updateTimeout);
         this.updateTimeout = setTimeout(function () {
-            var freePixelHeight = self.el.clientHeight,
-                flexHeights = 0,
-                pixelHeights = 0,
-                height,
-                i, length, fPart;
+            var fDef = self._flexDefinition || { parts: [], starCount: 0, flexLength: 0, fixLength: 0 };
+            var starCount = fDef.starCount;
+            if (fDef.parts.length === 0)
+                starCount = children.length;
 
-            for (i = 0, length = children.length; i < length; i++) {
-                fPart = fDef.parts[i < fDef.parts.length ? i : fDef.parts.length - 1];
+            var freeHeight = 100 - 100 * (fDef.fixLength / self.el.clientHeight);
+
+            for (var i = 0, length = children.length; i < length; i++) {
+                var fPart = fDef.parts[i];
+                var height = freeHeight / starCount + '%';
                 if (fPart) {
                     if (fPart.flex && fPart.part > 0) // 25*
-                        flexHeights += fPart.part;
-                    if (!fPart.flex) { // 25
-                        pixelHeights += fPart.part;
-                    }
-                } else {
-                    flexHeights += 1;
-                }
-            }
-            for (i = 0, length = children.length; i < length; i++) {
-                fPart = fDef.parts[i < fDef.parts.length ? i : fDef.parts.length - 1];
-                if (fPart) {
-                    if (fPart.flex && fPart.part > 0) // 25*
-                        height = (freePixelHeight - pixelHeights) / flexHeights * fPart.part + 'px';
+                        height = freeHeight * (fPart.part / fDef.flexLength) + '%';
                     if (!fPart.flex) { // 25
                         height = fPart.part + 'px';
                     }
                 } else {
-                    height = (freePixelHeight - pixelHeights) / flexHeights + 'px';
+                    height = freeHeight / starCount + '%';
                 }
                 children[i].style.height = height;
             }
@@ -52,7 +42,9 @@ module.exports = FlexSizeComponent.extend('VBox', {
         this._children.push(div);
 
         div.el.style.position = 'relative';
-        div.el.style.height = '100%';
+        div.el.style.width = '100%';
         div.el.style.overflow = 'hidden';
+
+        this.updateLayout();
     }
 });
