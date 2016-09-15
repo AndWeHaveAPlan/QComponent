@@ -136,8 +136,6 @@ module.exports = (function () {
         metadata = metadata || {};
         cfg = cfg || {};
 
-
-        this.cfg = cfg;
         if ('set' in metadata || 'get' in metadata)
             throw new Error('do not put get/set to metadata');
         var dataType = dataTypes[type],
@@ -213,9 +211,10 @@ module.exports = (function () {
         },
         typed: function (name, cls) {
             return {
-                set: function (key, value, old, e) {
+                set: function(key, value, old, e) {
                     if (!(value instanceof cls || (value && value.prototype && value.prototype instanceof cls)))
                         return e.cancel();
+                    return;
                 },
                 get: function (key, value) {
                     return value;
