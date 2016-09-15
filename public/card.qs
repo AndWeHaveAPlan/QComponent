@@ -5,6 +5,7 @@ def Page main
   //Function chuchu: (da)->
     //console.log(da,da,da);
   VBox
+    flexDefinition: 4* 1*
     height: 300px
     CardForm cf
     div
