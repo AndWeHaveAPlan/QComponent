@@ -5,6 +5,7 @@ def Page main
 
     //THead
     HBox:
+	    flexDefinition: 25* 25* 25* 25* 25*
         height: 50px;
         h2: img
         h2: Image.stretch: none
@@ -15,6 +16,7 @@ def Page main
 
     HBox
         height: 400px
+		flexDefinition: 25* 25* 25* 25* 25*
 
         img
             src: {{imgSrc.value}}
