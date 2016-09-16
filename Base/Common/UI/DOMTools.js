@@ -205,7 +205,7 @@ var DOM = (function () {
             addOnceListener: function (el, type, fn) {
                 var wrapFn = function () {
                         out.remove();
-                        fn.apply(this, JS.toArray(arguments));
+                        fn.apply(this, QObject.toArray(arguments));
                     },
                     out = proto.addRemovableListener(el, type, wrapFn);
                 return out;
@@ -223,7 +223,7 @@ var DOM = (function () {
                 removableListener.prototype = {
                     remove: function () {
                         proto.removeListener.apply(this, this.data);
-                        this.remove = JS.emptyFn;
+                        this.remove = QObject.emptyFn;
                     }
                 };
                 return function (el, type, fn) {
