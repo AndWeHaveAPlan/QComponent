@@ -323,6 +323,17 @@ module.exports = (function () {
          * @returns {} 
          */
         _initProps: function (cfg) {
+            var proxy = this._prop.__proxy;
+
+            for (var p in this._prop) {
+                var property = this._prop[p];
+                if (property.proxyFor) {
+                    proxy[property.proxyFor]
+                        ? proxy[property.proxyFor].push(p)
+                        : proxy[property.proxyFor] = [p];
+                }
+            }
+
             delete cfg._prop;
         }
     };
