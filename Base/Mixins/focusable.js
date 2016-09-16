@@ -7,7 +7,21 @@ module.exports = (function () {
         Property = require('../Property'),
         DOMTools = require('../Common/UI/DOMTools'),
         Keyboard = require('../Common/UI/Keyboard');
+    var list = [];
     QObject.mixin('focusable', {
+        focusable: true,
+        _init: function(){
+            var item,
+                tabIndex = this.get('tabIndex')|0;
+            for(var i = list.length-1; i>=0;i--){
+                item = list[i];
+                if((item.get('tabIndex')|0) <= tabIndex)
+                    break;
+            }
+            i++;
+            list.splice(i,0,this);
+            console.log(list.map(QObject.getProperty('id')));
+        },
         blur: function () {
             if( !this._data.focused || this.fire('tryBlur') === false )
                 return false;
@@ -95,7 +109,7 @@ module.exports = (function () {
             var listen = this[ arguments[0] || 'listen' ];
 
             if (listen) {
-                JS.each(listen, function() {
+                QObject.each(listen, function() {
                     if (this && typeof this.remove == "function")
                         this.remove();
                     else if (typeof this === 'function')
