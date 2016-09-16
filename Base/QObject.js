@@ -34,10 +34,9 @@ module.exports = (function () {
         delete cfg.id;
 
         this._onPropertyChanged = new MulticastDelegate();
-        //this.defaultPropertyFactory = new Property('Variant', { description: 'Someshit' });
 
         this._initProps(cfg);
-        //this._init();
+        this.lateSet = {};
     }
 
     var prototype = {
@@ -75,7 +74,7 @@ module.exports = (function () {
                 }
                 return ret;
             } else if (names.length === 1) {
-                return names[0] in this._prop ? this._prop[names[0]].get() : void (0);
+                return names[0] in this._prop ? this._prop[names[0]].get(this, names[0]) : void (0);
             } else {
                 return void (0);
             }
@@ -119,17 +118,11 @@ module.exports = (function () {
 
                 // create default
                 if (!this._prop[firstName]) {
-                    this._prop[firstName] = new Property('Variant', { description: 'Someshit' }).init(this, firstName);
+                    this._prop[firstName] = new Property('Variant', { description: 'Someshit' });//.init(this, firstName);
                 }
 
-                if (this._propReady) {
-                    this._prop[firstName].set(value);
-                } else {
-                    this._prop[firstName].metadata.defaultValue = value;
-                    this._prop[firstName].setDefault = true;
-                    this._data[firstName] = value;
-                }
 
+                this._prop[firstName].set(this, firstName, value);
                 ret = value;
             }
 
@@ -293,7 +286,7 @@ module.exports = (function () {
         },
 
         //QObject.prototype = prototype;//.apply.call({}, prototype);
-        _prop: {},
+        _prop: { __proxy: {} },
 
         /**
          * 
@@ -308,14 +301,12 @@ module.exports = (function () {
          * @returns {} 
          */
         _init: function () {
-            this._propReady = true;
-
             var cfg = this._cfg || {};
-            /*for (var p in cfg) {
+            for (var p in cfg) {
                 if (cfg.hasOwnProperty(p)) {
                     this.set([p], cfg[p]);
                 }
-            }*/
+            }
 
             var prop = this._prop;
             for (var i in prop) {
@@ -332,18 +323,6 @@ module.exports = (function () {
          * @returns {} 
          */
         _initProps: function (cfg) {
-            var prop = this._prop, i;
-
-            for (i in prop) {
-                if (i === 'default' || i === '__proxy') {
-                } else {
-                    if (i in cfg)
-                        prop[i].init(this, i, cfg[i]);
-                    else
-                        prop[i].init(this, i);
-                }
-            }
-
             delete cfg._prop;
         }
     };

@@ -84,10 +84,10 @@ module.exports = (function () {
      * @param defaultValue
      */
     var Property = function (type, metadata, cfg, defaultValue) {
-        this.metadata = metadata = metadata || {};
+        this.metadata = metadata || {};
         cfg = cfg || {};
 
-        if ('set' in metadata || 'get' in metadata)
+        if ('set' in this.metadata || 'get' in this.metadata)
             throw new Error('do not put get/set to metadata');
 
         var dataType = dataTypes[type];
@@ -99,12 +99,12 @@ module.exports = (function () {
         if (!dataType)
             dataType = dataTypes.Variant;
 
-        this.proxyFor = metadata.proxyFor = cfg.proxyFor;
-        this.type = metadata.type = type;
+        this.proxyFor = this.metadata.proxyFor = cfg.proxyFor;
+        this.type = this.metadata.type = type;
 
         if (arguments.length > 3) {
             this.setDefault = true;
-            metadata.defaultValue = defaultValue;
+            this.metadata.defaultValue = defaultValue;
         } else {
             this.setDefault = false;
         }
@@ -116,6 +116,8 @@ module.exports = (function () {
             this._set = cfg.set;
             this._get = cfg.get;
         }
+
+        this.firstSet = true;
     };
 
     Property.prototype = {
@@ -127,12 +129,12 @@ module.exports = (function () {
          * @returns {} 
          */
         init: function (parent, key, value) {
+            debugger;
             if (!parent._prop.__proxy)
                 parent._prop.__proxy = {};
 
-            this.parent = parent;
+            //this.parent = parent;
             this.key = key;
-            this.firstSet = true;
 
             if (this.proxyFor) {
                 if (!parent._prop.__proxy[this.proxyFor])
@@ -153,27 +155,27 @@ module.exports = (function () {
          * @param {} value 
          * @returns {} 
          */
-        set: function (value) {
-            var key = this.proxyFor || this.key,
-                oldValue = this.parent._data[key],
-                proxy = this.parent._prop.__proxy[key],
-                prop = this.parent._prop[this.proxyFor] || this,
+        set: function (obj, key, value) {
+            key = this.proxyFor || key;
+            var oldValue = obj._data[key],
+                proxy = obj._prop.__proxy[key],
+                prop = obj._prop[this.proxyFor] || this,
                 flags;
 
 
             if ((value !== oldValue) || this.firstSet) {
                 this.firstSet = false;
                 flags = new SetterFlags();
-                this.parent._data[key] = value;
-                prop._set.call(this.parent, key, value, oldValue, flags);
+                obj._data[key] = value;
+                prop._set.call(obj, key, value, oldValue, flags);
                 if (!flags.canceled) {
                     if (flags.valueSetted)
-                        value = this.parent._data[key] = flags._value;
+                        value = obj._data[key] = flags._value;
                     if (value !== oldValue) {
-                        this.parent._onPropertyChanged(this.parent, [key], value, oldValue);
+                        obj._onPropertyChanged(obj, [key], value, oldValue);
                         if (proxy) {
                             for (var i = 0; i < proxy.length; i++) {
-                                this.parent._onPropertyChanged(this.parent, [proxy[i]], value, oldValue);
+                                obj._onPropertyChanged(obj, [proxy[i]], value, oldValue);
                             }
 
                         }
@@ -184,16 +186,16 @@ module.exports = (function () {
                 return false;
             }
 
-            this.parent._data[key] = oldValue;
+            obj._data[key] = oldValue;
             return false;
         },
         /**
          * 
          * @returns {} 
          */
-        get: function () {
-            var key = this.proxyFor || this.key;
-            return this._get.call(this.parent, key, this.parent._data[key]);
+        get: function (obj, key) {
+            key = this.proxyFor || key;
+            return this._get.call(obj, key, obj._data[key]);
         }
     };
 
