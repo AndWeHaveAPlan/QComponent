@@ -154,28 +154,28 @@ module.exports = (
                         this.el.style.transform = m.toStyleString();
                     },
                     get: Property.defaultGetter
-                }, [0, 0]);
+                });
                 out.translation = new Property('Array', { description: 'Component translation ([x,y] in "pixels")' }, {
                     set: function (key, val, oldValue) {
                         var m = Matrix2D.createTranslation(val[0], val[1]);
                         this.el.style.transform = m.toStyleString();
                     },
                     get: Property.defaultGetter
-                }, [0, 0]);
+                });
                 out.scale = new Property('Array', { description: 'Component scale ([x,y] relative)' }, {
                     set: function (key, val, oldValue) {
                         var m = Matrix2D.createScale(val[0], val[1]);
                         this.el.style.transform = m.toStyleString();
                     },
                     get: Property.defaultGetter
-                }, [1, 1]);
+                });
                 out.skew = new Property('Array', { description: 'Component skew ([x,y] relative)' }, {
                     set: function (key, val, oldValue) {
                         var m = Matrix2D.createSkew(val[0], val[1]);
                         this.el.style.transform = m.toStyleString();
                     },
                     get: Property.defaultGetter
-                },[0,0]);
+                });
                 out.transform = new Property('Array', { description: 'Complex transform' }, {
                     set: function (key, val, oldValue) {
                         this._transformMatrix = Matrix2D.createEmpty();
@@ -205,7 +205,7 @@ module.exports = (
                     get: function (key, value) {
                         return value;
                     }
-                }, []);
+                });
                 return out;
             })(),
 
