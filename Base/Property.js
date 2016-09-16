@@ -123,35 +123,6 @@ module.exports = (function () {
     Property.prototype = {
         /**
          * 
-         * @param {} parent 
-         * @param {} key 
-         * @param {} value 
-         * @returns {} 
-         */
-        init: function (parent, key, value) {
-            debugger;
-            if (!parent._prop.__proxy)
-                parent._prop.__proxy = {};
-
-            //this.parent = parent;
-            this.key = key;
-
-            if (this.proxyFor) {
-                if (!parent._prop.__proxy[this.proxyFor])
-                    parent._prop.__proxy[this.proxyFor] = [];
-                parent._prop.__proxy[this.proxyFor].push(key);
-            }
-
-            if (arguments.length > 2) {
-                this.parent._data[key] = value;
-            } else if (this.metadata.defaultValue) {
-                this.parent._data[key] = this.metadata.defaultValue;
-            }
-
-            return this;
-        },
-        /**
-         * 
          * @param {} value 
          * @returns {} 
          */
