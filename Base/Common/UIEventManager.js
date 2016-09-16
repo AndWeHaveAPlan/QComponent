@@ -52,10 +52,24 @@ module.exports = (function(){
   -------------------------------------
 
   So. We can do it in the way of honor, but it would be slow.
-  
+  Lets construct a prototype chain for all events.
+  It would be stack.
+  New item would be based on old one with new function in proper positions.
 
      */
-
+    var ListeningItem = function (cfg) {
+        var oldOne = stack[stack.length-1] || {};
+        var newOne = function(){};
+        newOne.prototype = oldOne;
+        newOne = QObject.apply(new newOne(), cfg);
+        stack.push(newOne);
+        return newOne;
+    };
+    ListeningItem.prototype = {
+        stack: []
+    };
+    var stack = ListeningItem.stack = ListeningItem.prototype.stack;
+    
     var Keyboard = require('../Common/UI/Keyboard'),
         QObject = require('../QObject'),
         DOM = require('../Common/UI/DOMTools'),
