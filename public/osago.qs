@@ -31,7 +31,7 @@ def Scenario main
 	public String paymentData: null
 
 	Sequence
-		Selector:
+		Selector
 			page: page0
 		Selector: insuranceType=='osago'
 			page: page1
