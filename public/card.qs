@@ -5,21 +5,28 @@ def Page main
   //Function chuchu: (da)->
     //console.log(da,da,da);
   VBox
-    flexDefinition: 4* 1*
-    height: 300px
+    flexDefinition: 2* 2*
+    height: 600px
     CardForm cf
     div
-      span: number {{' '+cf.cardData.number}}
+      span: number {{' '+cf.number}}
       //span: {{' '+cf.cardData.number}}
 
       br
 
       span: name:
-      span: {{' '+cf.cardData.name}}
+      span: {{' '+cf.cardData.cardholderName}}
 
       br
 
       span: valid:
-      span: {{' '+cf.cardData.date}}
+      span: {{' '+cf.validDate}}
 
-    //span: {{JSON.stringify(cf.cardData)}}
+	  br
+
+	  span: cvv:
+      span: {{' '+cf.cvv}}
+
+	  br
+
+      span: {{JSON.stringify(cf.cardData)}}

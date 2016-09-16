@@ -51,7 +51,7 @@ module.exports = UIComponent.extend('InputField', {
                 this._data.input.set('value', value);
             }
         }, ''),
-        validator: new Property('Function', {}, {}, function () { return false; }),
+        validator: new Property('Function', {}, {}, function () { return true; }),
         placeholder: Property.generate.attributeProperty('placeholder'),
         input: new Property('input')
     }
