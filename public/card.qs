@@ -5,8 +5,8 @@ def Page main
   //Function chuchu: (da)->
     //console.log(da,da,da);
   VBox
-    flexDefinition: 4* 1*
-    height: 300px
+    flexDefinition: 2* 2*
+    height: 600px
     CardForm cf
     div
       span: number {{' '+cf.number}}
@@ -21,6 +21,11 @@ def Page main
 
       span: valid:
       span: {{' '+cf.validDate}}
+
+	  br
+
+	  span: cvv:
+      span: {{' '+cf.cvv}}
 
 	  br
 

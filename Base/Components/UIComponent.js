@@ -90,7 +90,7 @@ module.exports = (
             },
 
             _prop: (function () {
-                var out = ('left,right,top,bottom,height,width,float,border,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,font-family,font-size'
+                var out = ('left,right,top,bottom,height,width,float,border,border-left,border-right,border-top,border-bottom,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,border-top-right-radius,border-bottom-right-radius,font-family,font-size'
                     .split(',')
                     .reduce(function (store, key) {
                         store[key] = Property.generate.cssProperty('Element`s css property ' + key);
@@ -271,8 +271,8 @@ module.exports = (
             this._transformMatrix = Matrix2D.createEmpty();
             this._initChildren();
             //if (this.el && this.el.setAttribute) {
-                this.el.setAttribute('qId', this.id);
-                this.el.setAttribute('qType', this._type);
+            this.el.setAttribute('qId', this.id);
+            this.el.setAttribute('qType', this._type);
             //}
         });
 

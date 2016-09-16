@@ -50,13 +50,63 @@ module.exports = UIComponent.extend('CardForm', {
 },
     function (cfg) {
         UIComponent.apply(this, arguments);
-        this._set('border', '2px solid #000');
-        this._set('border-radius', '11px');
+        //this._set('border', '2px solid #000');
+        //this._set('border-radius', '11px');
         this._set('height', '202px');
-        this._set('width', '318px');
+        //this._set('width', '318px');
+        this._set('width', '398px');
 
         var self = this;
         var tmp;
+
+        var backForm = new Primitives.div({
+            'height': '202px',
+            'width': '90px',
+            'border-top-right-radius': '11px',
+            'border-bottom-right-radius': '11px',
+            'border-top': '2px solid #000',
+            'border-bottom': '2px solid #000',
+            'border-right': '2px solid #000',
+            'position': 'absolute',
+            top: '0',
+            right: '0'
+        });
+        this.addChild(backForm);
+
+        var frontForm = new Primitives.div({
+            'border-radius': '11px',
+            'height': '202px',
+            'width': '318px',
+            'border': '2px solid #000',
+            'position': 'absolute',
+            top: '0',
+            left: '0'
+        });
+        this.addChild(frontForm);
+
+        var cvvInput = new MaskedInput({
+            id: 'cvvInput',
+            'mask': 'ddd',
+            'border': '1px solid #ccc',
+            'position': 'absolute',
+            'top': '50px',
+            'right': '18px',
+            'width': '3.2ch',
+            'font-family': 'monospace',
+            'font-size': '21px'
+        });
+        backForm.addChild(cvvInput);
+        this._eventManager.registerComponent(cvvInput);
+
+        tmp = new Primitives.span({
+            'value': 'CVV/CVC',
+            'position': 'absolute',
+            'top': '35px',
+            'right': '17px',
+            'width': '38px',
+            'font-size': '9px'
+        });
+        backForm.addChild(tmp);
 
         var cardNumber = new MaskedInput({
             id: 'cardNumber',
@@ -70,7 +120,8 @@ module.exports = UIComponent.extend('CardForm', {
             'font-family': 'monospace',
             'font-size': '21px'
         });
-        this._ownComponents.push(cardNumber);
+        frontForm.addChild(cardNumber);
+        this._eventManager.registerComponent(cardNumber);
 
         var validDate = new MaskedInput({
             id: 'validDate',
@@ -84,7 +135,8 @@ module.exports = UIComponent.extend('CardForm', {
             'font-family': 'monospace',
             'font-size': '16px'
         });
-        this._ownComponents.push(validDate);
+        frontForm.addChild(validDate);
+        this._eventManager.registerComponent(validDate);
 
         tmp = new Primitives.span({
             'value': 'VALID THRU',
@@ -94,7 +146,7 @@ module.exports = UIComponent.extend('CardForm', {
             'width': '28px',
             'font-size': '9px'
         });
-        this._ownComponents.push(tmp);
+        frontForm.addChild(tmp);
 
         var cardholderName = new TextBox({
             id: 'cardholderName',
@@ -107,7 +159,8 @@ module.exports = UIComponent.extend('CardForm', {
             'font-family': 'monospace',
             'font-size': '14px'
         });
-        this._ownComponents.push(cardholderName);
+        frontForm.addChild(cardholderName);
+        this._eventManager.registerComponent(cardholderName);
 
         var sysLogo = new Image({
             id: 'sysLogo',
@@ -118,11 +171,10 @@ module.exports = UIComponent.extend('CardForm', {
             'height': '30px',
             stretch: 'uniform'
         });
-        this._ownComponents.push(sysLogo);
+        frontForm.addChild(sysLogo);
+        this._eventManager.registerComponent(sysLogo);
 
-        /*
-                 
-        */
+
 
         var mutatingPipe = new MutatingPipe(['cardNumber.pureText'], {
             component: 'cardNumber',
@@ -145,7 +197,7 @@ module.exports = UIComponent.extend('CardForm', {
             if (!number)
                 return '';
 
-            if (number.substring(0, 1) === 4) {
+            if (number.substring(0, 1) == 4) {
                 return self.visaImg;
             }
             var n = parseInt(number.substring(0, 2));
@@ -167,7 +219,7 @@ module.exports = UIComponent.extend('CardForm', {
             component: this.id,
             property: 'cardholderName'
         });
-        this._eventManager.createSimplePipe(['cvv.value'], {
+        this._eventManager.createSimplePipe(['cvvInput.value'], {
             component: this.id,
             property: 'cvv'
         });
