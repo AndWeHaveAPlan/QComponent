@@ -57,7 +57,7 @@ module.exports = (function(){
   New item would be based on old one with new function in proper positions.
 
      */
-    var ListeningItem = function (cfg) {
+    var ListeningLayer = function (cfg) {
         var oldOne = stack[stack.length-1] || {};
         var newOne = function(){};
         newOne.prototype = oldOne;
@@ -65,11 +65,11 @@ module.exports = (function(){
         stack.push(newOne);
         return newOne;
     };
-    ListeningItem.prototype = {
+    ListeningLayer.prototype = {
         stack: []
     };
-    var stack = ListeningItem.stack = ListeningItem.prototype.stack;
-    
+    var stack = ListeningLayer.stack = ListeningLayer.prototype.stack;
+
     var Keyboard = require('../Common/UI/Keyboard'),
         QObject = require('../QObject'),
         DOM = require('../Common/UI/DOMTools'),
