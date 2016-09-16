@@ -50,11 +50,9 @@ module.exports = UIComponent.extend('CardForm', {
 },
     function (cfg) {
         UIComponent.apply(this, arguments);
-        //this._set('border', '2px solid #000');
-        //this._set('border-radius', '11px');
-        this._set('height', '202px');
-        //this._set('width', '318px');
-        this._set('width', '398px');
+        this.set('height', '202px');
+        this.set('width', '398px');
+        this.set('border-radius', '11px');
 
         var self = this;
         var tmp;
