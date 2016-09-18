@@ -47,6 +47,10 @@ module.exports = UIComponent.extend('GeoMap', {
         {component: self.myMap.id, property: "ready"},
         {component: self.id,       property: "ready"}
       );
+      self.localEventManager.createSimplePipe(
+        {component: self.myMap.id, property: "moveList"},
+        {component: self.id,       property: "moveList"}
+      );
     },
 
     _createMap: function(type) {

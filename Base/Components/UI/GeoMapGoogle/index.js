@@ -186,11 +186,19 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       self.pins = pinsData
       .filter(function(options) { return options.coords && options.name; })
       .map(function(options, index) {
-        var pos = options.coords;
         var name = options.name;
+        var coords = options.coords;
+        
+        // name: 'Такси',
+        // icon: main.icon,
+        // coords: [55.751617, 37.617887],
+        // route: [55.794425,37.587836],
+        // moving: true
+
+        console.log('pin options', options);
 
         return TextMarker.create({
-          position: arrToLanLng(pos),
+          position: arrToLanLng(coords),
           map: self.gmap,
           label: charByNumber(index),
           text: name

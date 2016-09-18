@@ -9,7 +9,7 @@ def Page main
         height: 100%
         width: 100%
 
-        GeoMap gm:
+        GeoMapGoogle gm:
             zoom: 11
             home: [55.794425,37.587836]
             pins: {{[list.selectedItem]}}
@@ -82,26 +82,6 @@ def Page main
                 .click: ()=>{
                     var newZoom = gm.get('zoom') - 1;
                     gm.set('zoom', newZoom);
-                }
-            input: Карты yandex
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    console.log('Карты yandex');
-                    gm.set('type', 'yandex');
-                }
-            input: Карты google
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    console.log('Карты google');
-                    gm.set('type', 'google');
                 }
             ListBox:
                 overflow: auto
