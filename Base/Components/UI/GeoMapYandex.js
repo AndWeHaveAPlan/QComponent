@@ -163,7 +163,7 @@ module.exports = UIComponent.extend('GeoMapYandex', {
                     value = 0;
 
                 if (this.ymap)
-                    this.ymap.setZoom(value, {duration: 1000});
+                    this.ymap.setZoom(value, {duration: 200});
 
                 return value;
             }

@@ -1,4 +1,5 @@
 def Page main
+    public String icon: "https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png"
     title: Карта туриста
     width:100%
     height:100%
@@ -29,6 +30,13 @@ def Page main
                     div: {{name}}
                        padding: 12px
                 itemSource: [
+                    {
+                      name: 'Такси',
+                      icon: main.icon,
+                      coords: [55.751617, 37.617887],
+                      route: [55.794425,37.587836],
+                      moving: true
+                    },
                     {name:'Кремль', coords:[55.751617, 37.617887]},
                     {name:'Поклонная гора', coords:[55.734076, 37.516858]},
                     {name:'Офис Квокки',coords:[55.773381, 37.621968]},
@@ -47,7 +55,33 @@ def Page main
                 type: button
                 enabled: {{ gm.ready }}
                 .click: ()=>{
-                    gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
+                    var from = gm.get('home');
+                    var to = gm.get('pins.0.coords');
+
+                    console.log('from/to: ', from, to);
+
+                    if(to) { gm.makeRoute(from, to); }
+                    else { console.error("Destination isn't selected"); }
+                }
+            input: Увеличить
+                margin: 12px
+                padding: 12px
+                width: 376px
+                type: button
+                enabled: {{ gm.ready }}
+                .click: ()=>{
+                    var newZoom = gm.get('zoom') + 1;
+                    gm.set('zoom', newZoom);
+                }
+            input: Уменьшить
+                margin: 12px
+                padding: 12px
+                width: 376px
+                type: button
+                enabled: {{ gm.ready }}
+                .click: ()=>{
+                    var newZoom = gm.get('zoom') - 1;
+                    gm.set('zoom', newZoom);
                 }
             ListBox:
                 overflow: auto
