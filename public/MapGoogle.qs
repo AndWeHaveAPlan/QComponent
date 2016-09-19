@@ -1,5 +1,4 @@
 def Page main
-    public String icon: "https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png"
     title: Карта туриста
     width:100%
     height:100%
@@ -22,6 +21,7 @@ def Page main
             background: black
 
         div
+            public String carIcon: "https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png"
             height: 100%
             width: 100%
             overflow: auto
@@ -32,7 +32,7 @@ def Page main
                 itemSource: [
                     {
                       name: 'Такси',
-                      icon: main.icon,
+                      icon: {{carIcon}},
                       coords: [55.751617, 37.617887],
                       route: [55.794425,37.587836],
                       moving: true
