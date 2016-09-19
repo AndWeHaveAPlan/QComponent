@@ -1,4 +1,5 @@
 def UIComponent Flash
+  public String link
   embed e1
     quality: high
     pluginspage: http://www.macromedia.com/go/getfashplayer

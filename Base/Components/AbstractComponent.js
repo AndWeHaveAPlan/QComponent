@@ -26,6 +26,7 @@ var QObject = require('./../QObject'),
  */
 var AbstractComponent = QObject.extend('AbstractComponent', {
     _prop: {
+        value: new Property('Variant'),
         id: new Property('String', { description: 'Component ID' }, {
             set: function (key, val) {
                 if (this.id && this.id !== val)
