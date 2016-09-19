@@ -14,7 +14,8 @@ module.exports = {
         UIComponent: require('./Base/Components/UIComponent'),
         ContentContainer: require('./Base/Components/ContentContainer'),
         mixins: {
-            focusable: require('./Base/Mixins/focusable')
+            focusable: require('./Base/Mixins/focusable'),
+            tabCycle: require('./Base/Mixins/tabCycle')
         },
         Workflow: {
             Scenario: require('./Base/Workflow/Scenario'),

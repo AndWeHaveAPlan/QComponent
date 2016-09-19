@@ -68,7 +68,7 @@ module.exports = (function(){
     };
     ListeningLayer.prototype = {
         stack: [],
-        demolish: function(){
+        remove: function(){
             stack.pop();
             currentLayer = stack[stack.length - 1] || {};
         }
@@ -155,6 +155,9 @@ module.exports = (function(){
                 } );
             });
 
+        },
+        getLayer: function (cfg) {
+            return new ListeningLayer(cfg || {});
         }
     };
     var manager = new UIEventManager();

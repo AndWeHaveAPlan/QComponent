@@ -6,7 +6,8 @@ module.exports = (function () {
     var observable = require('z-observable'),
         MulticastDelegate = require('./MulticastDelegate'),
         Property = require('./Property'),
-        uuid = require('tiny-uuid');
+        uuid = require('tiny-uuid'),
+        loggingNS = {};
 
     var components = {},
         mixins = {},
@@ -223,6 +224,7 @@ module.exports = (function () {
         },
         mixin: function (name, cfg) {
             mixins[name] = cfg;
+            cfg._type = name;
         },
 
         _mixing: function (cfg, mixin/* base */) {
@@ -362,6 +364,20 @@ module.exports = (function () {
             return function(a){
                 return a[ prop ];
             };
+        },
+        logging: function (ns, val) {
+            loggingNS[ns] = val === void 0 ? true : val;
+        },
+        console: function(ns){
+            var out = {};
+            for(var i in console)
+                out[i] = (function(fnName){
+                    return function(){
+                        if(loggingNS[ns])
+                            return console[fnName].apply(console, arguments);
+                    }
+                })(i);
+            return out;
         }
     };
 
