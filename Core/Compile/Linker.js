@@ -314,7 +314,21 @@ module.exports = (function() {
                                 localShadow[info.type] = shadow[info.type];
                                 //console.log('!!', child.type);
                             } else if (!isProperty){
-                                throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')');
+                                var suggestions = [{name: child.type, type: childrenHolder.type}];
+                                var holderType = childrenHolder.type, lastHolderType = child.type,
+                                    holder = childrenHolder;
+
+                                while(holderType){
+
+                                    holder = localShadow[holderType] || shadow[holderType];
+                                    if(holder) {
+                                        holderType = holder.type;
+                                    }
+                                    suggestions.push({name: lastHolderType, type: holderType});
+                                    lastHolderType = holderType;
+                                }
+                                throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')\n' +
+                                    'Suggestions:\n'+ suggestions.map(function(item){ return '\tdefine property `' + child.type + '` in '+ item.name +' <'+item.type+'>';}).join('\n'));
                             }
                         }
 
