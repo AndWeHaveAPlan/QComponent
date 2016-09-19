@@ -29,6 +29,8 @@ module.exports = UIComponent.extend('GeoMapYandex', {
 
                 self._renderEl();
                 self.set('ready', true);
+
+                window.m = self.ymap;
             });
           }
         });
@@ -189,6 +191,20 @@ module.exports = UIComponent.extend('GeoMapYandex', {
         moveList: new Property('Array',{},{
             get: Property.defaultGetter,
             set: function(){}
-        },[])
+        },[]),
+
+        center: new Property('Array', {description: 'Map viewport center position'}, {
+            get: function (key, value) {
+              if(this.mapApi) {
+                return this.ymap.getCenter();
+              }
+              else return value;
+            },
+            set: function (key, value) {
+              if(this.mapApi) {
+                this.ymap.setCenter(value);
+              }
+            },
+        }, []),
     }
 });
