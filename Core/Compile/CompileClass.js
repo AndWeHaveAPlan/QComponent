@@ -102,13 +102,13 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);//'clsMakePublic');//'this.id', i, def, 'this.id', prop);
+                    out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);
                 } else {
 
                     propVal = tools.propertyGetter(prop, scope, scope.vars, this);//vars);
 
                     //console.log(i,propVal, JSON.stringify(prop));
-                    if(!(propVal instanceof Error))
+                    if(!(propVal instanceof Error) && propVal!=='')
                         out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }
