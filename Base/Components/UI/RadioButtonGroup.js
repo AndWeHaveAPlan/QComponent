@@ -7,8 +7,7 @@ var Property = require('../../Property');
 var RadioButton = require('./RadioButton');
 
 var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
-    _radioButtons: {},
-    _setChecked: function(rb) {
+    _setChecked: function (rb) {
         var radioButtons = this._radioButtons;
         for (var key in radioButtons) {
             if (radioButtons.hasOwnProperty(key)) {
@@ -22,7 +21,7 @@ var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
         var self = this;
         if (self._radioButtons[rb.id]) return;
         self._radioButtons[rb.id] = rb;
-        if (rb.get('checked')) 
+        if (rb.get('checked'))
             self._setChecked(rb);
         rb.on('checked', function () {
             self._setChecked(rb);
@@ -38,6 +37,10 @@ var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
     _prop: {
         value: new Property('String')
     }
-});
+},
+    function (cfg) {
+        UIComponent.apply(this, arguments);
+        this._radioButtons = {};
+    });
 
 module.exports = RadioButtonGroup;

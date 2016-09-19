@@ -24,7 +24,7 @@ module.exports = (function () {
      */
     function QObject(cfg) {
         this._propReady = false;
-        cfg && this.apply(cfg);
+        cfg && this.applyBut(this, cfg, ['_init']);
         this._cfg = cfg || {};
         observable.prototype._init.call(this);
 
@@ -37,7 +37,6 @@ module.exports = (function () {
         this._onPropertyChanged = new MulticastDelegate();
 
         this._initProps(cfg);
-        this.lateSet = {};
     }
 
     var prototype = {
@@ -162,8 +161,9 @@ module.exports = (function () {
                 source = object2 || object1,
                 target = object2 ? object1 : this;
 
-            for (i in source)
+            for (i in source) {
                 target[i] = source[i];
+            }
             return target;
         },
 
@@ -186,6 +186,15 @@ module.exports = (function () {
             return target;
         },
 
+        applyBut: function(el1, el2, but) {
+            but = QObject.arrayToObject(but);
+            var i;
+
+            for (i in el2)
+                !but[i] && (el1[i] = el2[i]);
+
+            return el1;
+        },
         /**
          * Copy all properties of one object to another and make them not enumerable and not overwritable
          *
@@ -280,7 +289,7 @@ module.exports = (function () {
                 return storage;
             }, {}), i;
 
-            var proto = prototype.apply(Object.create(base), cfg);
+            var proto = prototype.applyBut(Object.create(base), cfg, ['_init']);
 
             for (i in overlays) {
                 proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);

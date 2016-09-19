@@ -28,6 +28,7 @@ module.exports = (function () {
                 xhr.send();
         },
         _prop: {
+            send: new Property('Function'),
             method: new Property('String', { description: 'HTTP Method (GET|POST|...)' }, {}, 'GET'),
             sendData: new Property('Variant', { description: 'Data to send' }, {}, void 0),
             result: new Property('String', { description: '' }, {}, ''),
