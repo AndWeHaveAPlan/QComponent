@@ -27,6 +27,7 @@
     "istanbul": "*",
     "dom-lite": "*",
     "mocha-jsdom": "*",
-    "jsdom": "*"
+    "jsdom": "*",
+    "browserify": "*"
   }
 }

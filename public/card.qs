@@ -5,8 +5,15 @@ def Page main
   //Function chuchu: (da)->
     //console.log(da,da,da);
   VBox
-    flexDefinition: 2* 2*
-    height: 600px
+    flexDefinition: 2* 2* 2*
+    height: 100%
+
+	div
+	    TextBox tb1: qwerty
+		TextBox tb2: {{tb1}}
+		TextBox tb3: {{tb1.value}}
+		TextBox tb4: {{tb1.text}}
+
     CardForm cf
     div
       span: number {{' '+cf.number}}

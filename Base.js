@@ -14,7 +14,8 @@ module.exports = {
         UIComponent: require('./Base/Components/UIComponent'),
         ContentContainer: require('./Base/Components/ContentContainer'),
         mixins: {
-            focusable: require('./Base/Mixins/focusable')
+            focusable: require('./Base/Mixins/focusable'),
+            tabCycle: require('./Base/Mixins/tabCycle')
         },
         Workflow: {
             Scenario: require('./Base/Workflow/Scenario'),
@@ -30,6 +31,7 @@ module.exports = {
                 Base: require('./Base/Components/UI/Field/Base')
             },
             Primitives: require('./Base/Components/UI/Primitives'),
+            Label: require('./Base/Components/UI/Label'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             RadioButton: require('./Base/Components/UI/RadioButton'),
             RadioButtonGroup: require('./Base/Components/UI/RadioButtonGroup'),

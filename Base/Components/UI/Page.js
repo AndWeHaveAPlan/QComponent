@@ -7,6 +7,7 @@ var UIComponent = require('../UIComponent'),
     Property = require('../../Property');
 
 module.exports = UIComponent.extend('Page', {
+    mixin: 'tabCycle',
     createEl: function () {
         this.el = QObject.document.createElement('div');
     },

@@ -67,8 +67,8 @@ module.exports = (function () {
             if (typeof val === 'string') {
                 out = extractor({ type: 'text', pureData: val }, prop, cls);
             } else {
-                if(type === 'Function')
-                    out =  extractor(val[0], prop, cls);
+                if (type === 'Function')
+                    out = extractor(val[0], prop, cls);
                 else
                     out = val.map(function (item) {
                         return extractor(item, prop, cls);
@@ -265,24 +265,24 @@ module.exports = (function () {
         isNameOfProp: function (name, metadata) {
             var prop, tmp;
             if (!metadata || !metadata._prop) {
-                if(metadata.public){ // it is shadow
-                    if(metadata.public[name])
+                if (metadata.public) { // it is shadow
+                    if (metadata.public[name])
                         return metadata.public[name];
                     else
                         return false;
-                }else
+                } else
                     throw new Error('Corrupted metadata for `' + name + '`');
             }
             prop = metadata._prop;
 
             if (prop[name])
-                return prop[name].prototype;
+                return prop[name];
             if (prop['default'])
-                return prop['default'].prototype;
+                return prop['default'];
             if (prop['_unknownProperty']) {
                 tmp = prop['_unknownProperty'](name);
                 if(tmp)
-                    return tmp.prototype;
+                    return tmp;
             }
             return false;
         },
@@ -316,11 +316,11 @@ module.exports = (function () {
                 for (var fullName in pipe.vars[cName]) {
 
                     var pipeVars = pipe.vars[cName][fullName];
-                    for(var i = 0, _i = pipeVars.length; i<_i;i++) {
+                    for (var i = 0, _i = pipeVars.length; i < _i; i++) {
                         var pipeVar = pipeVars[i];
                         //var source;// = '\'' + fullName + '\'';
                         var source = tools.getVarAccessor(pipeVar, cls, scope);
-                        if(!cache[source]) {
+                        if (!cache[source]) {
                             cache[source] = true;
                             pipeSources.push(source);
 
@@ -344,71 +344,71 @@ module.exports = (function () {
                 '\t\treturn ' + fn + '\n' +
                 '\t});';
         },
-        getVarInfo: function(stack, metadata, child){
+        getVarInfo: function (stack, metadata, child) {
             var i, _i, out = [], node, env, selfFlag = false, context = false,
                 envFlag, propFlag, valueFlag = false, thisFlag = false, lastEnv, lastName,
 
                 name;
-            for(i = 0, _i = stack.length; i < _i; i++){
+            for (i = 0, _i = stack.length; i < _i; i++) {
 
                 envFlag = propFlag = false;
 
                 node = stack[i];
-                if(node.type === 'Literal')
+                if (node.type === 'Literal')
                     name = node.value;
                 else
                     name = node.name;
 
-                if(!env || env.type !== 'Variant') {
-                    if(node.type === 'ThisExpression'){
+                if (!env || env.type !== 'Variant') {
+                    if (node.type === 'ThisExpression') {
                         env = child;
                         thisFlag = true;
-                    }else {
+                    } else {
                         env = this.isNameOfEnv(name, metadata);
-                        if(env)
+                        if (env)
                             envFlag = true;
                     }
 
-                    if(env && i === 0 && env.type in primitives){ // first token is from `self`
+                    if (env && i === 0 && env.type in primitives) { // first token is from `self`
                         selfFlag = true;
                     }
 
-                    if(!env) {
+                    if (!env) {
                         env = this.isNameOfProp(name, metadata);
 
                         if (env)
                             propFlag = true;
                     }
 
-                    if(!env) {
-                        if(lastEnv) {
+                    if (!env) {
+                        if (lastEnv) {
                             console.log(out);
                             throw new Error('Can not resolve `' + name + '` from `' + lastName + '` <' + lastEnv.type + '>');
-                        }else
+                        } else
                             throw new Error('Unknown variable `' + name + '`');
                     }
                 }
-                if(env.type in primitives){
+                if (env.type in primitives) {
                     metadata = shadow[env.type];
-                    if(context === false) {
+                    if (context === false) {
                         context = i;
                         // we need to keep context
-                        if(env.type==='Function')
+                        if (env.type === 'Function')
                             context--;
                     }
                     //if(i < _i - 1)
                     //    throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
-                }else{
+                } else {
                     metadata = shadow[env.type];
                 }
-                out.push({name: name, env: envFlag, prop: propFlag, node: node, e: env});
+                out.push({ name: name, env: envFlag, prop: propFlag, node: node, e: env });
                 lastEnv = env;
                 lastName = name;
             }
-            if(!(env.type in primitives || env.type === 'Variant')){
+            if (!(env.type in primitives || env.type === 'Variant')) {
                 valueFlag = true;
             }
-            if(out[0].prop)
+            if (out[0].prop)
                 selfFlag = true;
 
             return {
@@ -423,7 +423,7 @@ module.exports = (function () {
             var pointer = tree, stack = [],
                 metadata = cls.metadata,
                 info;
-            if(pointer.object) {
+            if (pointer.object) {
 
                 while (pointer.object) {
                     stack.push(pointer.property);
@@ -431,14 +431,14 @@ module.exports = (function () {
                 }
                 stack.push(pointer);
                 stack = stack.reverse();
-            }else{
+            } else {
                 stack.push(pointer);
             }
 
             info = tools.getVarInfo(stack, metadata);
-            if(info.valueFlag)
-                info.varParts.push({name: 'value'});
-            return (info.self ? 'self.id+\'.' : '\'') + info.varParts.map(function(el){return el.name;}).join('.') +'\'';
+            if (info.valueFlag)
+                info.varParts.push({ name: 'value' });
+            return (info.self ? 'self.id+\'.' : '\'') + info.varParts.map(function (el) { return el.name; }).join('.') + '\'';
             /*console.log(env, out)
 
             if (cName === 'this') {
@@ -457,29 +457,29 @@ module.exports = (function () {
             }
             return source;*/
         },
-/*
-        functionNet: function () {
-            var getValue = function (s) {
-                if (typeof s === 'string') {
-                    return s
-                } else {
-                    var fn = s[' fn '], i, m = 0, vars = [], varNames = [], varsHash = {};
-                    for (i in s)
-                        if (i !== ' fn ') {
-                            vars[m] = getValue(s[i]);
-                            varNames[m] = i;
-                            varsHash[i] = m++;
+        /*
+                functionNet: function () {
+                    var getValue = function (s) {
+                        if (typeof s === 'string') {
+                            return s
+                        } else {
+                            var fn = s[' fn '], i, m = 0, vars = [], varNames = [], varsHash = {};
+                            for (i in s)
+                                if (i !== ' fn ') {
+                                    vars[m] = getValue(s[i]);
+                                    varNames[m] = i;
+                                    varsHash[i] = m++;
+                                }
+                            //console.log(vars, varNames)
+                            //console.log(new Function(varNames.join(','),'return '+fn).toString())
+                            return vars
                         }
-                    //console.log(vars, varNames)
-                    //console.log(new Function(varNames.join(','),'return '+fn).toString())
-                    return vars
-                }
-
-
-            }
-            getValue(s);
-        },
-        */
+        
+        
+                    }
+                    getValue(s);
+                },
+                */
         compilePipe: {
             raw: function (val) {
                 return val.map(function (item) {
@@ -511,7 +511,7 @@ module.exports = (function () {
                     event = events[i];
 
                     var fnBody = tools.functionTransform(event, cls.metadata, child);
-                    out.push((name||'this') + '.on(\'' + event.events + '\','+fnBody+', ' + (name||'this') + ');');
+                    out.push((name || 'this') + '.on(\'' + event.events + '\',' + fnBody + ', ' + (name || 'this') + ');');
                 }
 
                 //out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, this));\n';
@@ -521,7 +521,7 @@ module.exports = (function () {
             }
 
         },
-        functionTransform: function(fnObj, meta, child){
+        functionTransform: function (fnObj, meta, child) {
             var transformFnGet = function (node, stack, scope, parent) {
                 var list = stack.slice().reverse(),
                     varParts,
@@ -545,10 +545,10 @@ module.exports = (function () {
                 varParts = info.varParts;
 
                 // need to keep context
-                if(info.context === false)
+                if (info.context === false)
                     info.context = info.varParts.length - 1;
 
-                for(i = 0, _i = varParts.length; i < _i; i++){
+                for (i = 0, _i = varParts.length; i < _i; i++) {
                     item = varParts[i];
 
                     if (item.computed) {
@@ -563,7 +563,7 @@ module.exports = (function () {
                             varItem._id = item._id;
                     }
 
-                    if( i <= info.context )
+                    if (i <= info.context)
                         beforeContext.push(varItem);
                     else
                         afterContext.push(item.node);
@@ -571,16 +571,16 @@ module.exports = (function () {
 
                 var c = ASTtransformer.craft, // craft short link
                     out;//
-                if(beforeContext.length)
-                    out = c.CallExpression(who, 'get', beforeContext );
+                if (beforeContext.length)
+                    out = c.CallExpression(who, 'get', beforeContext);
                 else
                     out = who;
 
-                if(info.valueFlag)
+                if (info.valueFlag)
                     afterContext.push(c.Literal('value'));
 
 
-                for(i = 0, _i = afterContext.length; i < _i; i++)
+                for (i = 0, _i = afterContext.length; i < _i; i++)
                     out = c.MemberExpression(out, afterContext[i]);
 
                 return out;
@@ -611,25 +611,25 @@ module.exports = (function () {
                             {
                                 'type': 'ArrayExpression',
                                 'elements':
-                                    list.length ? list.map(function (item) {
-                                        if (item.computed) {
-                                            return scope.doTransform.call(scope.me, item, scope.options);
-                                        } else {
-                                            var out = {
-                                                'type': 'Literal',
-                                                'value': item.name,
-                                                'raw': '\'' + item.name + '\''
-                                            };
-                                            if ('_id' in item)
-                                                out._id = item._id;
+                                list.length ? list.map(function (item) {
+                                    if (item.computed) {
+                                        return scope.doTransform.call(scope.me, item, scope.options);
+                                    } else {
+                                        var out = {
+                                            'type': 'Literal',
+                                            'value': item.name,
+                                            'raw': '\'' + item.name + '\''
+                                        };
+                                        if ('_id' in item)
+                                            out._id = item._id;
 
-                                            return out;
-                                        }
-                                    }) : [{
-                                        'type': 'Literal',
-                                        'value': 'value',
-                                        'raw': '\'value\''
-                                    }]
+                                        return out;
+                                    }
+                                }) : [{
+                                    'type': 'Literal',
+                                    'value': 'value',
+                                    'raw': '\'value\''
+                                }]
 
 
                             },
@@ -646,7 +646,7 @@ module.exports = (function () {
                 transformer = new ASTtransformer(),
                 fn = fnObj.fn;
             fn = transformer.transform(fn.ast, fn.vars, options);
-            return  'function(' + fnObj.args.join(',') + '){\n' + fn + '\n}';
+            return 'function(' + fnObj.args.join(',') + '){\n' + fn + '\n}';
         },
         indent: function (number, data) {
             if (!number)

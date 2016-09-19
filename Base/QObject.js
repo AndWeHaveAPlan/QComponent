@@ -6,7 +6,8 @@ module.exports = (function () {
     var observable = require('z-observable'),
         MulticastDelegate = require('./MulticastDelegate'),
         Property = require('./Property'),
-        uuid = require('tiny-uuid');
+        uuid = require('tiny-uuid'),
+        loggingNS = {};
 
     var components = {},
         mixins = {},
@@ -34,10 +35,9 @@ module.exports = (function () {
         delete cfg.id;
 
         this._onPropertyChanged = new MulticastDelegate();
-        this.defaultPropertyFactory = new Property('Variant', { description: 'Someshit' });
 
         this._initProps(cfg);
-        //this._init();
+        this.lateSet = {};
     }
 
     var prototype = {
@@ -75,7 +75,7 @@ module.exports = (function () {
                 }
                 return ret;
             } else if (names.length === 1) {
-                return names[0] in this._prop ? this._prop[names[0]].get() : void (0);
+                return names[0] in this._prop ? this._prop[names[0]].get(this, names[0]) : void (0);
             } else {
                 return void (0);
             }
@@ -119,17 +119,20 @@ module.exports = (function () {
 
                 // create default
                 if (!this._prop[firstName]) {
-                    this._prop[firstName] = new (this._prop.default || this.defaultPropertyFactory)(this, firstName);
+                    //if (this.dynamic) {
+                        this._prop[firstName] = new Property('Variant', { description: 'Someshit' });
+                    /*} else {
+                        debugger;
+                        throw new Error('`' +
+                            this._type +
+                            '` does not contain definition for `' +
+                            firstName +
+                            '` and not declared as dynamic');
+                    }*/
                 }
 
-                if (this._propReady) {
-                    this._prop[firstName].set(value);
-                } else {
-                    this._prop[firstName].metadata.defaultValue = value;
-                    this._prop[firstName].setDefault = true;
-                    this._data[firstName] = value;
-                }
 
+                this._prop[firstName].set(this, firstName, value);
                 ret = value;
             }
 
@@ -234,6 +237,7 @@ module.exports = (function () {
         },
         mixin: function (name, cfg) {
             mixins[name] = cfg;
+            cfg._type = name;
         },
 
         /**
@@ -244,12 +248,20 @@ module.exports = (function () {
          */
         _mixing: function (cfg, mixin/* base */) {
 
+            var mixinInit = [];
             if (prototype.isArray(mixin)) {
                 mixin.push(cfg);
                 return mixin.reduce(function (base, mixin) {
                     var name = mixin;
-                    if (typeof mixin === 'string')
+                    if (typeof mixin === 'string') {
+                        if(mixins[mixin]){
+                            if(mixins[mixin]._mixinsInit && mixins[mixin]._mixinsInit.length)
+                                mixinInit = mixinInit.concat(mixins[mixin]._mixinsInit);
+
+                            mixins[mixin]._init && mixinInit.push(mixins[mixin]._init);
+                        }
                         mixin = components[mixin] || mixins[mixin];
+                    }
 
                     if (!mixin)
                         throw new Error('Unknows mixin `' + name + '`');
@@ -258,10 +270,6 @@ module.exports = (function () {
                 });
             }
             var base = mixin;
-
-            if ('_prop' in cfg) {
-
-            }
 
             /** remove deep applied */
             var overlays = deepApply.reduce(function (storage, deepName) {
@@ -278,14 +286,6 @@ module.exports = (function () {
                 proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
             }
 
-            //TODO refactor this shit
-            var props = proto._prop;
-            for (i in props) {
-                if (props[i].proxyFor) {
-                    proto._prop[i] = new Property(props[props[i].proxyFor].prototype.type, {}, { proxyFor: props[i].proxyFor });
-                }
-            }
-
             return proto;
         },
 
@@ -298,6 +298,7 @@ module.exports = (function () {
 
         //QObject.prototype = prototype;//.apply.call({}, prototype);
         _prop: {},
+        __proxy: {},
 
         /**
          * 
@@ -305,6 +306,11 @@ module.exports = (function () {
          */
         _afterInit: function () {
             this._init();
+            if(this._mixinsInit){
+                for(var i = 0, mixins = this._mixinsInit, _i = mixins.length; i < _i; i++){
+                    mixins[i].call(this);
+                }
+            }
         },
 
         /**
@@ -312,7 +318,6 @@ module.exports = (function () {
          * @returns {} 
          */
         _init: function () {
-            this._propReady = true;
             var cfg = this._cfg || {};
             for (var p in cfg) {
                 if (cfg.hasOwnProperty(p)) {
@@ -322,7 +327,7 @@ module.exports = (function () {
 
             var prop = this._prop;
             for (var i in prop) {
-                if (!(i in cfg) && i !== '__proxy' && i !== 'default' && prop[i].setDefault) {
+                if (!(i in cfg) && i !== 'default' && prop[i].setDefault) {
                     this.set([i], prop[i].metadata.defaultValue);
                 }
             }
@@ -335,20 +340,62 @@ module.exports = (function () {
          * @returns {} 
          */
         _initProps: function (cfg) {
-            var prop = this._prop, i,
-                newProp = this._prop = {};
+            var proxy = this.__proxy;
 
-            for (i in prop) {
-                if (i === 'default') {
-                    newProp[i] = prop[i];
-                } else {
-                    if (i in cfg)
-                        newProp[i] = new prop[i](this, i, cfg[i]);
-                    else
-                        newProp[i] = new prop[i](this, i);
+            for (var p in this._prop) {
+                var property = this._prop[p];
+                if (property.proxyFor) {
+                    proxy[property.proxyFor]
+                        ? proxy[property.proxyFor].push(p)
+                        : proxy[property.proxyFor] = [p];
                 }
             }
+
             delete cfg._prop;
+        },
+        
+        each: function(el, callback){
+            var i, _i, out;
+
+            if( el === null || el === void 0 )
+                return false;
+
+            if( QObject.isArray( el ) ){
+                for( i = 0, _i = el.length; i < _i; i++ ){
+                    out = callback.call( el[i], el[i], i );
+                    if( out !== void 0 ) // breakable
+                        return out;
+                }
+            }else{
+                for( i in el )
+                    if( el.hasOwnProperty( i ) ){
+                        out = callback.call( el[i], i, el[i] );
+                        if( out !== void 0 ) // breakable
+                            return out;
+                    }
+
+            }
+        },
+        emptyFn: function(){},
+        getProperty: function( prop ){
+            return function(a){
+                return a[ prop ];
+            };
+        },
+        logging: function (ns, val) {
+            loggingNS[ns] = val === void 0 ? true : val;
+        },
+        console: function(ns){
+            var out = {};
+            for(var i in console)
+                out[i] = (function(fnName) {
+                    return function() {
+                        if (loggingNS[ns])
+                            return console[fnName].apply(console, arguments);
+                        return void 0;
+                    };
+                })(i);
+            return out;
         }
     };
 
