@@ -276,13 +276,13 @@ module.exports = (function () {
             prop = metadata._prop;
 
             if (prop[name])
-                return prop[name].prototype;
+                return prop[name];
             if (prop['default'])
-                return prop['default'].prototype;
+                return prop['default'];
             if (prop['_unknownProperty']) {
                 tmp = prop['_unknownProperty'](name);
                 if(tmp)
-                    return tmp.prototype;
+                    return tmp;
             }
             return false;
         },
