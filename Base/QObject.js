@@ -118,16 +118,16 @@ module.exports = (function () {
 
                 // create default
                 if (!this._prop[firstName]) {
-                    if (this.dynamic) {
+                    //if (this.dynamic) {
                         this._prop[firstName] = new Property('Variant', { description: 'Someshit' });
-                    } else {
+                    /*} else {
                         debugger;
                         throw new Error('`' +
                             this._type +
                             '` does not contain definition for `' +
                             firstName +
                             '` and not declared as dynamic');
-                    }
+                    }*/
                 }
 
 
