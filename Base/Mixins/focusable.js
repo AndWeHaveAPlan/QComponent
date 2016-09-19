@@ -6,20 +6,35 @@ module.exports = (function () {
     var QObject = require('../QObject'),
         Property = require('../Property'),
         DOMTools = require('../Common/UI/DOMTools'),
-        Keyboard = require('../Common/UI/Keyboard');
-    var list = [];
+        Keyboard = require('../Common/UI/Keyboard'),
+        UIEventManager = require('../Common/UIEventManager'),
+        console = QObject.console('focusable'),
+        tabCycle = require('./tabCycle');
+    QObject.logging('focusable');
+
     QObject.mixin('focusable', {
         focusable: true,
         _init: function(){
             var item,
-                tabIndex = this.get('tabIndex')|0;
-            for(var i = list.length-1; i>=0;i--){
+                tabIndex = this.get('tabIndex')|0, i;
+            for(i = list.length - 1; i >= 0; i--){
                 item = list[i];
                 if((item.get('tabIndex')|0) <= tabIndex)
                     break;
             }
             i++;
             list.splice(i,0,this);
+            this.on('tab', function (direction) {
+                var i = list.indexOf(this),
+                    next = ((i + direction)+list.length) % list.length;
+                console.log('tab from', this.id);
+                console.log('call focus on', list[next].id);
+                list[next].focus();
+
+            });
+            this.on('focus', function (direction) {
+                console.log('focused', this.id);
+            });
             console.log(list.map(QObject.getProperty('id')));
         },
         blur: function () {
@@ -68,9 +83,10 @@ module.exports = (function () {
             this.listen = {
                 windowBlur: DOMTools.addRemovableListener(window, 'blur', blurFn),
                 windowClick: DOMTools.addRemovableListener(document, 'click', blurFn),
-                keyboard: Keyboard.attach(this)
+                layer: UIEventManager.getLayer({owner: this}),
             };
 
+            this.listen.keyboard = new Keyboard(this.listen.layer);
             this.listen.keyboard.on({
                 'escape': function (e) {
                     if( this.fire('escapeKey', e) !== false ){
@@ -94,7 +110,7 @@ module.exports = (function () {
                     this.fire('spaceKey', e);
                 }
             });
-            if( this.autoTab ){
+            if( this.get('autoTab') || true ){ // TODO: remove after debug
                 this.listen.keyboard.on({
                     'tab': function(e){
                         this.blur();
@@ -157,7 +173,9 @@ module.exports = (function () {
         _prop: {
             blurOnEnter: new Property('Boolean', {description: 'input would be blured on pressing enter key'},{},true),
             createBlurElement: new Property('Boolean', {description: ''},{},true),
-            focused: new Property('Boolean', {description: 'focus flag'},{},false)
+            autoTab: new Property('Boolean', {description: 'default tab behaviour'},{},true),
+            focused: new Property('Boolean', {description: 'focus flag'},{},false),
+            tabIndex: new Property('Number', {description: 'priority of element in tab queue'},{},0)
         }
     });
 })();

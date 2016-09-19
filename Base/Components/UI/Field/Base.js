@@ -28,6 +28,9 @@ var TestInput = BaseInput.extend('TestInput', {
         
         //this.el.value = this.get('value');
     },
+    innerFocus: function () {
+        this.el.focus();
+    },
     _prop: {
         value: Property.generate.attributeProperty('value')
     }
