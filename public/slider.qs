@@ -23,6 +23,16 @@ def Page main
             step: 5
             fillColor: rgb(0, 0, {{s3}})
 
+        Slider a: 10
+            from: -20
+            to: 20
+
+        Slider b: 10
+            from: -20
+            to: 20
+
+        Label: {{a/b+Math.sqrt(s2)}}
+
         span: Blue: {{s3}}
 
 

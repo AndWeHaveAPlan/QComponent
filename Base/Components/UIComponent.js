@@ -25,6 +25,8 @@ module.exports = (
          */
         var UIComponent = AbstractComponent.extend('UIComponent', {
 
+            renderTo: null,
+
             createEl: function () {
                 var self = this;
                 if (!this.el) {
@@ -230,6 +232,7 @@ module.exports = (
                     } else {
                         insertInto.insertBefore(child.el, next.el);
                     }
+                    child.renderTo = insertInto;
                 }
             },
 
@@ -244,6 +247,7 @@ module.exports = (
                 } else {
                     this.el.removeChild(child.el);
                 }
+                child.renderTo = null;
             },
 
             /**
@@ -258,6 +262,7 @@ module.exports = (
                 }
                 // Add to DOM
                 if (child.el) {
+                    child.renderTo = this.el;
                     this.el.appendChild(child.el);
                     child.fire('addToParent');
                 }

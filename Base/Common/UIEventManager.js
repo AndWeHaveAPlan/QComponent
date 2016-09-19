@@ -52,14 +52,44 @@ module.exports = (function(){
   -------------------------------------
 
   So. We can do it in the way of honor, but it would be slow.
-  
+  Lets construct a prototype chain for all events.
+  It would be stack.
+  New item would be based on old one with new function in proper positions.
 
      */
+    var ListeningLayer = function (cfg) {
+        var oldOne = stack[stack.length-1] || {};
+        var newOne = function(){};
+        newOne.prototype = oldOne;
+        newOne = QObject.apply(new newOne(), cfg);
+        stack.push(newOne);
+        currentLayer = newOne;
+        return newOne;
+    };
+    ListeningLayer.prototype = {
+        stack: [],
+        remove: function(){
+            stack.pop();
+            currentLayer = stack[stack.length - 1] || {};
+        }
+    };
+    var stack = ListeningLayer.stack = ListeningLayer.prototype.stack,
+        currentLayer = {
+            keyup: function(e){
+                console.log(e);
+            },
+            mouseup: function(e){
+                console.log('mouse', e);
+            },
+            mousemove: function(e){
+                //console.log('mouse', e);
+            }
+        };
+
 
     var Keyboard = require('../Common/UI/Keyboard'),
         QObject = require('../QObject'),
         DOM = require('../Common/UI/DOMTools'),
-        pressCountCounter = 0,
         systemKeys = QObject.arrayToObject([ // keycodes that should be passed through down event
             5, 6, 8, 8, 9, 12, 13, 16, 16, 17,
             17, 19, 20, 27, 27, 33, 34, 35, 36, 37, 38,
@@ -67,38 +97,30 @@ module.exports = (function(){
             114, 115, 116, 117, 118, 119, 120, 121, 122, 123,
             144, 144, 145, 63272, 63275
         ]),
-        fireEvents = function( catcher, code, e, type ){
-            var events, i, _i;
-            if (events = [].concat(catcher.listeners[code] || [], catcher.listeners[-1] || [])) {
-                for( i = 0, _i = events.length; i < _i; i++ ){
-                    events[ i ].call( this, e, pressCountCounter, Math.floor( Math.sqrt(pressCountCounter) ), type );
-                }
+        fireEvent = function( name, e, pressCountCounter ){
+            var listener = currentLayer[name];
+            if(listener){
+                return listener(e, name, pressCountCounter);
             }
         };
-    var UIEventManager = function(){
-        this._catchers = [{scope: {}, listeners: {'-1': [function(){
-            console.log(arguments);
-            //debugger;
-        }
-        ]}}];
-    };
+    var UIEventManager = function(){};
     UIEventManager.prototype = {
-        _kbWrappers: {
-            down: function( e ){
+        /*_kbWrappers: {
+            keydown: function( e ){
                 pressCountCounter++;
                 var catcher = this._catchers[0];
                 if( !catcher ) return ;
                 var code = String.fromCharCode( e.which || e.keyCode ).toLowerCase().charCodeAt(0);
                 ( code in systemKeys ) && fireEvents.call( catcher.scope, catcher, code, e, 'down' );
             },
-            up: function( e ){
+            keyup: function( e ){
                 pressCountCounter = 0;
                 var catcher = this._catchers[0];
                 if( !catcher ) return ;
                 var code = String.fromCharCode( e.which || e.keyCode ).toLowerCase().charCodeAt(0);
                 ( code in systemKeys ) && fireEvents.call( catcher.scope, catcher, code, e, 'up' );
             },
-            press: function( e ){
+            keypress: function( e ){
                 pressCountCounter++;
                 var catcher = this._catchers[0];
                 if( !catcher ) return ;
@@ -107,16 +129,35 @@ module.exports = (function(){
             }
         },
         _mouseWrappers: {
-            move: function (e) {
-                var catcher = this._catchers[0];
-                if( !catcher ) return ;
-                fireEvents.call( catcher.scope, catcher, code, e, 'press' );
+            mousemove: function (e) {
+                return fireEvents( 'mousemove', e );
+            },
+            mousedown: function(e){
+
             }
-        },
+        },*/
         _attach: function () {
-            for( var event in this._kbWrappers )
-                if( this._kbWrappers.hasOwnProperty( event ) )
-                    DOM.addListener(QObject.document, 'key' + event, this._kbWrappers[event].bind(this) );
+            var mouse = ['move', 'down', 'up'].map(function(item){return 'mouse'+item}).concat('click', 'scroll'),
+                keyboard = ['down', 'press', 'up'].map(function(item){return 'key'+item}),
+                other = ['resize'],
+                pressCountCounter = 0;
+            mouse.forEach(function(eventName){
+                DOM.addListener(QObject.document, eventName, function (e) {
+                    return fireEvent(eventName, e);
+                } );
+            });
+            keyboard.forEach(function(eventName){
+                DOM.addListener(QObject.document, eventName, function (e) {
+                    pressCountCounter++;
+                    if(eventName==='keyup')
+                        pressCountCounter = 0;
+                    return fireEvent(eventName, e, pressCountCounter);
+                } );
+            });
+
+        },
+        getLayer: function (cfg) {
+            return new ListeningLayer(cfg || {});
         }
     };
     var manager = new UIEventManager();

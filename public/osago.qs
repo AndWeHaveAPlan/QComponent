@@ -6,7 +6,7 @@ def Page page0
 	background: #ccc
 	h1: Page 0
 
-	//TextBox type: {{scenario.insuranceType}}
+	//TextBox type: {{main.insuranceType}}
 	//    placeholder: 'osago/casco'
 
 def Page page1
