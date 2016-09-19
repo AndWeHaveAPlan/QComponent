@@ -10,12 +10,14 @@ var QObject = require('../QObject'),
 module.exports = AbstractComponent.extend('Selector', {
     _prop: {
         value: Property.generate.proxy('condition'),
-        condition: new Property('Boolean'),
+        condition: new Property('Boolean', {}, {
+            get: Property.defaultGetter,
+            set: Property.defaultSetter
+        }, true),
+
         page: new Property('Page', {}, {
             get: Property.defaultGetter,
-            set: function () {
-                return true;
-            }
+            set: Property.defaultSetter
         }, Page)
     }
 });

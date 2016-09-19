@@ -12,14 +12,13 @@ var Scenario = AbstractComponent.extend('Scenario', {
     _prop: {
         value: new Property('Scenario', {},
             {
-                get: function (name, value) {
-                    return this;
-                }
+                get: Property.defaultGetter,
+                set: Property.defaultSetter
             }, null),
         currentPage: new Property('Page', {},
             {
                 get: Property.defaultGetter,
-                set: function () { }
+                set: Property.defaultSetter
             }, null)
     },
     load: function () {
