@@ -118,7 +118,16 @@ module.exports = (function () {
 
                 // create default
                 if (!this._prop[firstName]) {
-                    this._prop[firstName] = new Property('Variant', { description: 'Someshit' });//.init(this, firstName);
+                    if (this.dynamic) {
+                        this._prop[firstName] = new Property('Variant', { description: 'Someshit' });
+                    } else {
+                        debugger;
+                        throw new Error('`' +
+                            this._type +
+                            '` does not contain definition for `' +
+                            firstName +
+                            '` and not declared as dynamic');
+                    }
                 }
 
 
@@ -267,14 +276,6 @@ module.exports = (function () {
                 proto[i] = QObject.apply(Object.create(proto[i]), overlays[i]);
             }
 
-            //TODO refactor this shit
-            /*var props = proto._prop;
-            for (i in props) {
-                if (props[i].proxyFor) {
-                    proto._prop[i] = new Property(props[props[i].proxyFor].prototype.type, {}, { proxyFor: props[i].proxyFor });
-                }
-            }*/
-
             return proto;
         },
 
@@ -286,7 +287,8 @@ module.exports = (function () {
         },
 
         //QObject.prototype = prototype;//.apply.call({}, prototype);
-        _prop: { __proxy: {} },
+        _prop: {},
+        __proxy: {},
 
         /**
          * 
@@ -310,7 +312,7 @@ module.exports = (function () {
 
             var prop = this._prop;
             for (var i in prop) {
-                if (!(i in cfg) && i !== '__proxy' && i !== 'default' && prop[i].setDefault) {
+                if (!(i in cfg) && i !== 'default' && prop[i].setDefault) {
                     this.set([i], prop[i].metadata.defaultValue);
                 }
             }
@@ -323,7 +325,7 @@ module.exports = (function () {
          * @returns {} 
          */
         _initProps: function (cfg) {
-            var proxy = this._prop.__proxy;
+            var proxy = this.__proxy;
 
             for (var p in this._prop) {
                 var property = this._prop[p];
