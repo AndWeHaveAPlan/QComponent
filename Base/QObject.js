@@ -388,11 +388,12 @@ module.exports = (function () {
         console: function(ns){
             var out = {};
             for(var i in console)
-                out[i] = (function(fnName){
-                    return function(){
-                        if(loggingNS[ns])
+                out[i] = (function(fnName) {
+                    return function() {
+                        if (loggingNS[ns])
                             return console[fnName].apply(console, arguments);
-                    }
+                        return void 0;
+                    };
                 })(i);
             return out;
         }
