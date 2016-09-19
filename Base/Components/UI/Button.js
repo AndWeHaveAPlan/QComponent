@@ -16,7 +16,15 @@ module.exports = UIComponent.extend('Button', {
             self.fire('click');
         });
     },
+    hide: function () {
+        this.set('visibility', 'hidden');
+    },
+    show: function (){
+        this.set('visibility', 'visible');
+    },
     _prop: {
+        hide: new Property('Function'),
+        show: new Property('Function'),
         value: Property.generate.attributeProperty('value')
     }
 });
