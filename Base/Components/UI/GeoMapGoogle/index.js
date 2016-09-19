@@ -186,23 +186,33 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       self.pins = pinsData
       .filter(function(options) { return options.coords && options.name; })
       .map(function(options, index) {
-        var name = options.name;
-        var coords = options.coords;
-        
+        var name    = options.name;
+        var coords  = options.coords;
+
+        var icon    = options.icon;
+        var route   = options.route;
+        var moving  = options.moving;
+
         // name: 'Такси',
-        // icon: main.icon,
+        // icon: "https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png",
         // coords: [55.751617, 37.617887],
         // route: [55.794425,37.587836],
         // moving: true
 
         console.log('pin options', options);
 
-        return TextMarker.create({
+        var textMarker = TextMarker.create({
           position: arrToLanLng(coords),
           map: self.gmap,
           label: charByNumber(index),
           text: name
         });
+
+        // if(route) {
+        //   self.makeRoute(coords, route);
+        // }
+
+        return textMarker;
       });
     }
   },
@@ -226,11 +236,16 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       this.route = this.directionsService.route({
         origin: arrToLanLng(from),
         destination: arrToLanLng(to),
-        travelMode: google.maps.TravelMode.TRANSIT
+        travelMode: google.maps.TravelMode.TRANSIT,
+        optimizeWaypoints: true
       }, function(response, status) {
         if (status === google.maps.DirectionsStatus.OK) {
 
+          // Draw only current route
           self.directionsDisplay.setDirections(response);
+
+          // this.route
+          // pin: {marker, route}
 
           var newMoveList = self._updateMoveList(self);
           self.set('moveList', newMoveList);
@@ -319,6 +334,23 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     moveList: new Property('Array', {}, {
       get: Property.defaultGetter,
       set: function() {}
+    }, []),
+    center: new Property('Array', {description: 'Map viewport center position'}, {
+        get: function (key, value) {
+          if(this.mapApi && this.gmap) {
+            var center = this.gmap.getCenter();
+            //
+            return [center.lat(), center.lng()];
+          }
+          else return value;
+        },
+        set: function (key, value) {
+          if(this.mapApi && this.gmap) {
+            var center = arrToLanLng(value);
+            // 
+            this.gmap.setCenter(center);
+          }
+        },
     }, []),
   }
 });

@@ -21,7 +21,6 @@ def Page main
             background: black
 
         div
-            public String carIcon: "https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png"
             height: 100%
             width: 100%
             overflow: auto
@@ -32,9 +31,9 @@ def Page main
                 itemSource: [
                     {
                       name: 'Такси',
-                      icon: {{carIcon}},
+                      icon: "https://maps.gstatic.com/mapfiles/ms2/micons/cabs.png",
                       coords: [55.751617, 37.617887],
-                      route: [55.794425,37.587836],
+                      route: [55.709588, 37.564691],
                       moving: true
                     },
                     {name:'Кремль', coords:[55.751617, 37.617887]},
@@ -82,6 +81,26 @@ def Page main
                 .click: ()=>{
                     var newZoom = gm.get('zoom') - 1;
                     gm.set('zoom', newZoom);
+                }
+            input: Показать меня
+                margin: 12px
+                padding: 12px
+                width: 376px
+                type: button
+                enabled: {{ gm.ready }}
+                .click: ()=>{
+                    var home = gm.get('home');
+                    gm.set('center', home);
+                }
+            input: Вывести мое положение
+                margin: 12px
+                padding: 12px
+                width: 376px
+                type: button
+                enabled: {{ gm.ready }}
+                .click: ()=>{
+                    var home = gm.get('center');
+                    console.log('My position', home);
                 }
             ListBox:
                 overflow: auto

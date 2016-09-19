@@ -83,6 +83,26 @@ def Page main
                     var newZoom = gm.get('zoom') - 1;
                     gm.set('zoom', newZoom);
                 }
+            input: Показать меня
+                margin: 12px
+                padding: 12px
+                width: 376px
+                type: button
+                enabled: {{ gm.ready }}
+                .click: ()=>{
+                    var home = gm.get('home');
+                    gm.set('center', home);
+                }
+            input: Вывести мое положение
+                margin: 12px
+                padding: 12px
+                width: 376px
+                type: button
+                enabled: {{ gm.ready }}
+                .click: ()=>{
+                    var home = gm.get('center');
+                    console.log('My position', home);
+                }
             ListBox:
                 overflow: auto
                 itemSource: {{gm.moveList}}
