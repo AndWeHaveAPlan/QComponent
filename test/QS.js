@@ -8,13 +8,11 @@
 // Образцовопоказательный тест
 module.exports = (function () {
     'use strict';
-    var Base = require('../Base');
-    var assert = require('chai').assert;
-    var jsdom = require('jsdom');
-    var Core = require('../Core'),
-        QObject = Base.QObject,
-        fs = require('fs'),
-        bundle = fs.readFileSync('public/bundle.js')+'';
+
+    var assert = require('chai').assert,
+        compile = require('./common/compileQS'),
+        fs = require('fs');
+
 
 
     describe('test1', function(){
@@ -47,7 +45,7 @@ module.exports = (function () {
                 });
         });
 
-        /*
+
         it('should pipe different formats of array', function (done) {
             compile(
                 'def Page main',
@@ -77,7 +75,7 @@ module.exports = (function () {
          assert.equal(main.findOne('input#i4').get('value'), 154)
          done();
          });
-         });*/
+         });
         it('pipes transformation', function (done) {
             compile(
                 'def Page main',
@@ -99,13 +97,13 @@ module.exports = (function () {
                     done();
                 });
         });
-        /*it('should extract function', function (done) {
+        it('should extract function', function (done) {
             compile(
                 'def Page main',
                 '  Number m: 15',
                 '  input i1: 10',
                 '    .click: ()->{',
-                '        input x = i1;',
+                '        x = i1;',
                 '        ',
                 '//haha loh',
                 'debugger;',
@@ -123,56 +121,9 @@ module.exports = (function () {
                     );
                     done();
                 });
-        });*/
+        });
     });
 
 
-    function compile(){
-        var code = [], arg, i, _i, cb;
-        for( i = 0, _i = arguments.length; i < _i; i++){
-            arg = arguments[i];
-            if(typeof arg === 'function'){
-                cb = arg;
-                break;
-            }
-            code.push(arg);
-        }
-        code = code.join('\n');
 
-        var p = new Core.Compile.Linker({
-            mapping: {
-                id: 'id',
-                code: 'code'
-            }
-        });
-        var obj = p.add({
-            id: 'test',
-            code: code
-        });
-        var meta = p.getMetadata(),
-            subObj = {},
-            compiled,
-            err = false;
-        console.log('metadata extracted');
-        for (i in meta) {
-            meta[i] && meta[i].type && (subObj[i] = meta[i]);
-        }
-        compiled = Core.Compile.Compiler.compile(subObj);
-//console.log(compiled)
-        var doc = QObject.document = QObject.prototype.document = jsdom.jsdom();
-        try {
-            var test = new Function('document, Base', 'QObject = Base.QObject; Q = ' + compiled + '; return Q;');
-            var Q = test(doc, Base);
-            var main = new Q.main();
-        }catch(e){
-            err = e;
-            console.log(e)
-
-        }
-
-
-        setTimeout(function(){
-            cb(err, main, compiled);
-        }, 5);
-    }
 })();

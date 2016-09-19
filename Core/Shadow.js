@@ -6,6 +6,8 @@ var Base=require('../Base');
 
 module.exports = (function() {
     'use strict';
+    var Property = Base.Property;
+    
     var tools = require('./Compile/tools'),
         els = {
             QObject: require('./Shadow/QObject'),
@@ -16,10 +18,23 @@ module.exports = (function() {
             String: {},
             Boolean: {},
             Variant: {},
-            Array: {},
+            Array: {
+                _prop: {
+                    push: new Property('Function'),
+                    splice: new Property('Function'),
+                    pop: new Property('Function'),
+                    unshift: new Property('Function'),
+                    length: new Property('Number'),
+                    _unknownProperty: function(key){
+                        if(typeof key === 'number')
+                            return new Property('Variant');
+                        else 
+                            return false;
+                    }
+                }
+            },
             Number: {
                 linkerSetter: function (value) {
-
 
                 }
             },
@@ -54,7 +69,7 @@ module.exports = (function() {
                 var prop = _knownComponents[className].prototype._prop[propertyName];
                 els[className].public[propertyName] = {
                     name: propertyName,
-                    type: prop.prototype.type,
+                    type: prop.type,
                     value: ''
                 };
             }

@@ -7,12 +7,25 @@
 
 module.exports = (function () {
     'use strict';
-    return {
-        attach: function(){
-            return this;
-        },
-        on: function(){
+    var DOM = require('./DOMTools');
+
+    var KB = function (layer) {
+        this.layer = layer;
+    };
+    KB.prototype = {
+        on: function(cfg){
+            var i, keyCode = DOM.keyCode, map = {},
+                _self = this;
+            for(i in cfg){
+                map[keyCode[i]] = cfg[i];
+            }
+            this.layer.keydown = function(e){
+                var what = map[e.which];
+                if(what)
+                    return what.call(_self.layer.owner,e);
+            }
 
         }
     };
+    return KB;
 })();

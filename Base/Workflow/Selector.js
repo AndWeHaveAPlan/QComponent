@@ -4,7 +4,8 @@
 
 var QObject = require('../QObject'),
     AbstractComponent = require('../Components/AbstractComponent'),
-    Property = require('../Property');
+    Property = require('../Property'),
+    Page = require('../Components/UI/Page');
 
 module.exports = AbstractComponent.extend('Selector', {
     _prop: {
@@ -15,6 +16,6 @@ module.exports = AbstractComponent.extend('Selector', {
             set: function () {
                 return true;
             }
-        }, QObject._knownComponents.Page)
+        }, Page)
     }
 });

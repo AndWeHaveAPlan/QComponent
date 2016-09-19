@@ -6,9 +6,10 @@ module.exports = (function () {
     /**
      * Factory of factories of properties
      */
-    var QObject;
+    //var QObject = require('./QObject');
     var ObservableSequence = require('observable-sequence');
     var dequeue = require('z-lib-structure-dequeue');
+    var QObject = void 0;
 
     var dataTypes = {
         Boolean: {
@@ -50,6 +51,15 @@ module.exports = (function () {
             get: function (key, value) {
                 return value;
             }
+        },
+        Function: {
+            set: function (key, value, old, e) {
+                this[key] = value;
+                e.cancel();
+            },
+            get: function (key, value) {
+                return this[key];
+            }
         }
     };
 
@@ -67,55 +77,22 @@ module.exports = (function () {
         }
     };
 
-    var setter = function (value) {
-        var key = this.proxyFor || this.key,
-            oldValue = this.parent._data[key],
-            proxy = this.parent._prop.__proxy[key],
-            prop = this.parent._prop[this.proxyFor] || this,
-            flags;
-
-
-        if (value !== oldValue) {
-            flags = new SetterFlags();
-            this.parent._data[key] = value;
-            prop._set.call(this.parent, key, value, oldValue, flags);
-            if (!flags.canceled) {
-                if (flags.valueSetted)
-                    value = this.parent._data[key] = flags._value;
-                if (value !== oldValue) {
-                    this.parent._onPropertyChanged(this.parent, [key], value, oldValue);
-                    if (proxy) {
-                        for (var i = 0; i < proxy.length; i++) {
-                            this.parent._onPropertyChanged(this.parent, [proxy[i]], value, oldValue);
-                        }
-
-                    }
-                    return true;
-                }
-            }
-        } else {
-            return false;
-        }
-
-        this.parent._data[key] = oldValue;
-        return false;
-    };
-    var getter = function () {
-        var key = this.proxyFor || this.key;
-        return this._get.call(this.parent, key, this.parent._data[key]);
-    };
-
+    /**
+     * 
+     * @param type
+     * @param metadata
+     * @param cfg
+     * @param defaultValue
+     */
     var Property = function (type, metadata, cfg, defaultValue) {
         QObject = QObject || require('./QObject');
-        metadata = metadata || {};
+        this.metadata = metadata || {};
         cfg = cfg || {};
 
-
-        this.cfg = cfg;
-        if ('set' in metadata || 'get' in metadata)
+        if ('set' in this.metadata || 'get' in this.metadata)
             throw new Error('do not put get/set to metadata');
-        var dataType = dataTypes[type],
-            proto = { parent: null };
+
+        var dataType = dataTypes[type];
 
         /** if type is in known classes */
         if (!dataType && QObject._knownComponents[type])
@@ -124,59 +101,92 @@ module.exports = (function () {
         if (!dataType)
             dataType = dataTypes.Variant;
 
-        proto.type = metadata.type = type;
+        this.proxyFor = this.metadata.proxyFor = cfg.proxyFor;
+        this.type = this.metadata.type = type;
 
         if (arguments.length > 3) {
-            proto.setDefault = true;
-            proto.value = metadata.defaultValue = defaultValue;
-        }
-
-        var cls = function (parent, key, value) {
-            if (!parent._prop.__proxy)
-                parent._prop.__proxy = {};
-
-            this.parent = parent;
-            this.key = key;
-            this.proxyFor = cfg.proxyFor;
-
-            if (this.proxyFor) {
-
-                if (!parent._prop.__proxy[this.proxyFor])
-                    parent._prop.__proxy[this.proxyFor] = [];
-
-                parent._prop.__proxy[this.proxyFor].push(key);
-            }
-
-            if (this.setDefault) {
-                this.parent._data[key] = this.value;
-            }
-
-            //TODO null default case
-            if (value) {
-                this.set(value);
-            }
-        };
-
-        //
-        if (cfg.proxyFor) cls.proxyFor = cfg.proxyFor;
-
-        cls.prototype = proto;
-        proto.metadata = metadata;
-        if (!('set' in cfg) && !('get' in cfg)) {
-            proto._set = dataType.set;
-            proto._get = dataType.get;
+            this.setDefault = true;
+            this.metadata.defaultValue = defaultValue;
         } else {
-            proto._set = cfg.set;
-            proto._get = cfg.get;
+            this.setDefault = false;
         }
 
-        proto.set = setter;
-        proto.get = getter;
-        return cls;
+        if (!('set' in cfg) && !('get' in cfg)) {
+            this._set = dataType.set;
+            this._get = dataType.get;
+        } else {
+            this._set = cfg.set;
+            this._get = cfg.get;
+        }
+
+        this.firstSet = true;
     };
+
+    Property.prototype = {
+        /**
+         * 
+         * @param {} value 
+         * @returns {} 
+         */
+        set: function (obj, key, value) {
+            key = this.proxyFor || key;
+            var oldValue = obj._data[key],
+                proxy = obj.__proxy[key],
+                prop = obj._prop[this.proxyFor] || this,
+                flags;
+
+
+            if ((value !== oldValue) || this.firstSet) {
+                this.firstSet = false;
+                flags = new SetterFlags();
+                obj._data[key] = value;
+                prop._set.call(obj, key, value, oldValue, flags);
+                if (!flags.canceled) {
+                    if (flags.valueSetted)
+                        value = obj._data[key] = flags._value;
+                    if (value !== oldValue) {
+                        obj._onPropertyChanged(obj, [key], value, oldValue);
+                        if (proxy) {
+                            for (var i = 0; i < proxy.length; i++) {
+                                obj._onPropertyChanged(obj, [proxy[i]], value, oldValue);
+                            }
+
+                        }
+                        return true;
+                    }
+                }
+            } else {
+                return false;
+            }
+
+            obj._data[key] = oldValue;
+            return false;
+        },
+        /**
+         * 
+         * @returns {} 
+         */
+        get: function (obj, key) {
+            key = this.proxyFor || key;
+            return this._get.call(obj, key, obj._data[key]);
+        }
+    };
+
+    /**
+     * 
+     * @param {} name 
+     * @param {} cfg 
+     * @returns {} 
+     */
     Property.defineType = function (name, cfg) {
         dataTypes[name] = cfg;
     };
+
+
+
+    /**
+     * 
+     */
     Property.generate = {
         proxy: function (proxyFor) {
             return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property' }, { proxyFor: proxyFor });
@@ -186,6 +196,7 @@ module.exports = (function () {
                 set: function (key, value, old, e) {
                     if (!(value instanceof cls || (value && value.prototype && value.prototype instanceof cls)))
                         return e.cancel();
+                    return e;
                 },
                 get: function (key, value) {
                     return value;

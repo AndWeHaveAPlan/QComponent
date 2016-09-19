@@ -3,14 +3,11 @@
  */
 
 var QObject = require('../../QObject');
-var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 var ItemTemplate = require('./ItemTemplate');
-var ContentContainer = require('../ContentContainer');
 var Property = require('../../Property');
 
 var ObservableSequence = require('observable-sequence');
-var DQIndex = require('z-lib-structure-dqIndex');
 var dequeue = require('z-lib-structure-dequeue');
 
 module.exports = UIComponent.extend('ContainerComponent', {
@@ -68,28 +65,27 @@ module.exports = UIComponent.extend('ContainerComponent', {
         selectionColor: new Property('String', { description: 'Selection color (css notation)' }, null, '#3b99fc'), //qiwi color
         selectedIndex: new Property('Number', { description: 'Index of current selected item' }, {
             set: function (name, val, oldVal) {
+                if (val < 0) return;
+
                 var children = this.el.childNodes;
-                if (oldVal != -1 && oldVal < children.length)
+                if (oldVal !== -1 && oldVal < children.length)
                     children[oldVal].style.background = 'none';
-                if (val < children.length)
+                if (val < children.length && val > -1)
                     children[val].style.background = this._data['selectionColor'];
 
-                this.set('selectedItem', this.get('itemSource')[val]);
+                this.set('selectedItem', this.get('itemSource').get(val));
             },
             get: Property.defaultGetter
         }, -1),
         selectedItem: new Property('Variant', { description: 'Index of current selected item' }, {
-            set: function (name, val, oldVal) {
-            },
+            set: Property.defaultSetter,
             get: Property.defaultGetter
-
         }, {}),
         itemSource: new Property('Array', { description: 'Index of current selected item' }, {
             set: function (name, value, old, e) {
                 //TODO unsubscribe methods
                 //old.off('add', this._itemAddEventHandler.bind(this));
                 //old.off('remove', this._itemRemoevEventHandler.bind(this));
-
                 var self = this;
                 var val = value;
                 if (!(value instanceof ObservableSequence)) {
@@ -114,9 +110,8 @@ module.exports = UIComponent.extend('ContainerComponent', {
             get: Property.defaultGetter
         }, new ObservableSequence(new dequeue())),
         itemTemplate: new Property('ItemTemplate', { description: 'Visual presentation of items' }, {
-            set: function (name, val) {
-            },
+            set: Property.defaultSetter,
             get: Property.defaultGetter
-        }, QObject._knownComponents.ItemTemplate)
+        }, ItemTemplate)
     }
 });

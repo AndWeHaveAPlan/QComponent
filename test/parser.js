@@ -141,6 +141,16 @@ describe('Parser', function(){
 
         testCase = require( 'fs' ).readFileSync( './test/tokenize/tmp1.txt' ) + '';
         result = parser.tokenizer(testCase);
+
+        require( 'fs' ).writeFileSync('./test/tokenize/tmp1.tokens.json', JSON.stringify(result,function( key, value) {
+            if( key == 'parent') { return '~CIRCULAЯ~';}
+            else {return value;}
+        },2));
+        require( 'fs' ).writeFileSync('./test/tokenize/tmp1.ast.json', JSON.stringify(parser.treeBuilder( result),function( key, value) {
+            if( key == 'parent') { return '~CIRCULAЯ~';}
+            else {return value;}
+        },2));
+
         assert.equal(result[0].row, 1);
 
         var row, sub, rowNum, resNum = 0, full;

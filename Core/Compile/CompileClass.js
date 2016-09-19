@@ -84,13 +84,13 @@ module.exports = (function () {
                 '}}, function(){',
                 '    ' + metadataItem._type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
-                metadataItem.events ? this.builder.events(metadataItem, _self) : '',
+                metadataItem.events ? tools.builder.events(metadataItem, _self) : '',
                 '',
                 out,
                 this.makePublic(metadataItem.public, metadataItem, scope),
                 this.makePublic(metadataItem.private, metadataItem, scope),
                 compiledChildren,
-                '    this._init();',
+                //'    this._init();',
                 '})' + (inline ? '' : ';')
             ];
             return tools.indent(1, source);
@@ -102,13 +102,13 @@ module.exports = (function () {
                 pipes = prop.value;
 
                 if (pipes && pipes.isPipe) {
-                    out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);//'clsMakePublic');//'this.id', i, def, 'this.id', prop);
+                    out += tools.makePipe(pipes, this, this.scope,this, prop, true, def);
                 } else {
 
-                    propVal = tools.propertyGetter(prop, scope);//vars);
+                    propVal = tools.propertyGetter(prop, scope, scope.vars, this);//vars);
 
                     //console.log(i,propVal, JSON.stringify(prop));
-                    if(!(propVal instanceof Error))
+                    if(!(propVal instanceof Error) && propVal!=='')
                         out += '\tthis.set(\'' + i + '\', ' + propVal + ')\n';
                 }
             }

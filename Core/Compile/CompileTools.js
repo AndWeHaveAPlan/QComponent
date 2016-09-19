@@ -12,9 +12,10 @@ module.exports = (function () {
     var QObject = require('../../Base/QObject'),
         AbstractComponent = require('../../Base/Components/AbstractComponent'),
         VariableExtractor = require('./VariableExtractor'),
-        ASTtransformer = require('./ASTtransformer');
+        ASTtransformer = require('./ASTtransformer'),
+        shadow = require('./../Shadow');
     var primitives = {
-        'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Variant': true
+        'Number': true, 'String': true, 'Array': true, 'Boolean': true, 'Function': true
     };
     var extractors = {
         quote: function (token) {
@@ -22,14 +23,27 @@ module.exports = (function () {
         },
         brace: function (token) {
             return token.pureData;
+        },
+        text: function (token) {
+            return token.pureData;
         }
     },
-        extractor = function (token) {
-            var extractor = extractors[token.type];
-            if (!extractor) {
-                throw new Error('unknown token type `' + token.type + '`')
+        typedExtractors = {
+            'Function': function (token, type, cls) {
+                var t = shadow.QObject.eventParser(type.item, type.item.children);
+                return tools.functionTransform(t, cls.metadata);
             }
-            return extractor(token);
+        },
+        extractor = function (token, prop, cls) {
+            var extractor;
+            extractor = typedExtractors[prop.type];
+            if (!extractor) {
+                extractor = extractors[token.type];
+                if (!extractor) {
+                    throw new Error('unknown token type `' + token.type + '`')
+                }
+            }
+            return extractor(token, prop, cls);
         };
 
     function getTmpName(type) {
@@ -46,19 +60,24 @@ module.exports = (function () {
                 propList._prop[prop].prototype;
             return type ? type.type : false;
         },
-        dataExtractor: function (prop) {
+        dataExtractor: function (prop, cls) {
             var type = prop.type;
             var val = prop.value,
                 out;
             if (typeof val === 'string') {
-                out = val;
+                out = extractor({ type: 'text', pureData: val }, prop, cls);
             } else {
-                out = val.map(extractor).join('');
+                if (type === 'Function')
+                    out = extractor(val[0], prop, cls);
+                else
+                    out = val.map(function (item) {
+                        return extractor(item, prop, cls);
+                    }).join(''); // TODO pizda
             }
 
             if (type === 'Variant' || type === 'String')
                 return JSON.stringify(out);
-            else if (type === 'Array' || type === 'Number' || type === 'Boolean')
+            else if (type === 'Array' || type === 'Number' || type === 'Boolean' || type === 'Function')
                 return out;
             console.warn('Unknown type: ' + type);
             return new Error('Unknown type: ' + type);
@@ -69,7 +88,7 @@ module.exports = (function () {
          * @param {} scope 
          * @returns {} 
          */
-        propertyGetter: function (prop, scope) {
+        propertyGetter: function (prop, scope, vars, cls) {
 
             function checkType(sourceType, targetType) {
                 var type = (scope.metadata[sourceType] && scope.metadata[sourceType].type) || (QObject._knownComponents[sourceType] && QObject._knownComponents[sourceType]._type);
@@ -80,14 +99,14 @@ module.exports = (function () {
                 } else {
                     return false;
                 }
-            };
+            }
 
             if (prop.type === 'Variant')
                 return JSON.stringify(prop.value);
 
             var known = QObject._knownComponents[prop.type];
 
-            if (known && known.prototype instanceof AbstractComponent) {
+            if (known && known.prototype instanceof QObject) {
                 if (prop.value && checkType(prop.value, prop.type)) {
                     return 'QObject._knownComponents[\'' + prop.value + '\']';
                 } else {
@@ -95,7 +114,7 @@ module.exports = (function () {
                 }
             }
 
-            var val = this.dataExtractor(prop);
+            var val = this.dataExtractor(prop, cls);
 
             return val;
         },
@@ -244,15 +263,27 @@ module.exports = (function () {
         },
 
         isNameOfProp: function (name, metadata) {
-            var prop;
-            if (!metadata || !metadata._prop)
-                throw new Error('Corrupted metadata for `' + name + '`');
+            var prop, tmp;
+            if (!metadata || !metadata._prop) {
+                if (metadata.public) { // it is shadow
+                    if (metadata.public[name])
+                        return metadata.public[name];
+                    else
+                        return false;
+                } else
+                    throw new Error('Corrupted metadata for `' + name + '`');
+            }
             prop = metadata._prop;
 
             if (prop[name])
-                return prop[name].prototype;
+                return prop[name];
             if (prop['default'])
-                return prop['default'].prototype;
+                return prop['default'];
+            if (prop['_unknownProperty']) {
+                tmp = prop['_unknownProperty'](name);
+                if(tmp)
+                    return tmp;
+            }
             return false;
         },
 
@@ -280,31 +311,17 @@ module.exports = (function () {
             /*fn = this._functionTransform(fn);
             fn = {"var1":"cf.cardData.name"," fn ":"JSON.stringify(var1);"};*/
             //console.log(this.functionWaterfall(fn))
-            var env;
+            var env, cache = {};
             for (var cName in pipe.vars) {
-                if (pipe.vars.hasOwnProperty(cName)) {
-                    for (var fullName in pipe.vars[cName]) {
-                        if (pipe.vars[cName].hasOwnProperty(fullName)) {
+                for (var fullName in pipe.vars[cName]) {
 
-                            var pipeVar = pipe.vars[cName][fullName];
-                            var source;// = '\'' + fullName + '\'';
-                            console.log(cName);
-                            if (cName == 'this') {
-                                source = 'this.id + \'.' + pipeVar.property.name + '\'';
-                            } else if ((env = this.isNameOfEnv(cName, cls.metadata)) || (env = this.isNameOfProp(cName, cls.metadata))) {//(def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
-                                if (env.type in primitives) {
-                                    source = 'self.id + \'.' + fullName + '\'';
-                                } else {
-                                    if (fullName.match(/\.value$/))
-                                        source = '\'' + fullName + '\'';//'[\'' + fullName + '\', \'value\']';
-                                    else
-                                        source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
-                                }
-
-                            } else {
-                                source = '\'' + fullName + '\'';
-                            }
-
+                    var pipeVars = pipe.vars[cName][fullName];
+                    for (var i = 0, _i = pipeVars.length; i < _i; i++) {
+                        var pipeVar = pipeVars[i];
+                        //var source;// = '\'' + fullName + '\'';
+                        var source = tools.getVarAccessor(pipeVar, cls, scope);
+                        if (!cache[source]) {
+                            cache[source] = true;
                             pipeSources.push(source);
 
                             var mArg = fullName.replace(/\./g, '');
@@ -326,46 +343,143 @@ module.exports = (function () {
                 '\tfunction (' + mutatorArgs.join(',') + ') {\n' +
                 '\t\treturn ' + fn + '\n' +
                 '\t});';
-
-            return 'eventManager.registerPipe(new Base.Pipes.MutatingPipe([\n' +
-                '\t\t' +
-                pipeSources.map(function (item) {
-                    console.log(item);
-                    return item;
-                }).join(',') +
-                '\n\t], {\n' +
-                '\t\tcomponent: ' + childId + '.id, property: \'' + targetProperty + '\'\n' +
-                '\t}).addMutator(function (' + mutatorArgs.join(',') + ') {\n' +
-                '\t\treturn ' + fn + '\n' +
-                '\t}));';
-
-
-            /*return (this.functionWaterfall(fn, pipe, item, scope,cls, prop, place)+
-                '.after(function(val){eventManager.s([\''+
-                (item.name||item.tmpName)+'\',\''+ prop.name +'\'], val)});');*/
         },
+        getVarInfo: function (stack, metadata, child) {
+            var i, _i, out = [], node, env, selfFlag = false, context = false,
+                envFlag, propFlag, valueFlag = false, thisFlag = false, lastEnv, lastName,
 
-        functionNet: function () {
-            var getValue = function (s) {
-                if (typeof s === 'string') {
-                    return s
-                } else {
-                    var fn = s[' fn '], i, m = 0, vars = [], varNames = [], varsHash = {};
-                    for (i in s)
-                        if (i !== ' fn ') {
-                            vars[m] = getValue(s[i]);
-                            varNames[m] = i;
-                            varsHash[i] = m++;
-                        }
-                    //console.log(vars, varNames)
-                    //console.log(new Function(varNames.join(','),'return '+fn).toString())
-                    return vars
+                name;
+            for (i = 0, _i = stack.length; i < _i; i++) {
+
+                envFlag = propFlag = false;
+
+                node = stack[i];
+                if (node.type === 'Literal')
+                    name = node.value;
+                else
+                    name = node.name;
+
+                if (!env || env.type !== 'Variant') {
+                    if (node.type === 'ThisExpression') {
+                        env = child;
+                        thisFlag = true;
+                    } else {
+                        env = this.isNameOfEnv(name, metadata);
+                        if (env)
+                            envFlag = true;
+                    }
+
+                    if (env && i === 0 && env.type in primitives) { // first token is from `self`
+                        selfFlag = true;
+                    }
+
+                    if (!env) {
+                        env = this.isNameOfProp(name, metadata);
+
+                        if (env)
+                            propFlag = true;
+                    }
+
+                    if (!env) {
+                        if (lastEnv) {
+                            console.log(out);
+                            throw new Error('Can not resolve `' + name + '` from `' + lastName + '` <' + lastEnv.type + '>');
+                        } else
+                            throw new Error('Unknown variable `' + name + '`');
+                    }
                 }
-
-
+                if (env.type in primitives) {
+                    metadata = shadow[env.type];
+                    if (context === false) {
+                        context = i;
+                        // we need to keep context
+                        if (env.type === 'Function')
+                            context--;
+                    }
+                    //if(i < _i - 1)
+                    //    throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
+                } else {
+                    metadata = shadow[env.type];
+                }
+                out.push({ name: name, env: envFlag, prop: propFlag, node: node, e: env });
+                lastEnv = env;
+                lastName = name;
             }
-            getValue(s);
+            if (!(env.type in primitives || env.type === 'Variant')) {
+                valueFlag = true;
+            }
+            if (out[0].prop)
+                selfFlag = true;
+
+            return {
+                varParts: out,
+                self: selfFlag,
+                context: context,
+                valueFlag: valueFlag,
+                thisFlag: thisFlag
+            };
         },
+        getVarAccessor: function (tree, cls, scope) {
+            var pointer = tree, stack = [],
+                metadata = cls.metadata,
+                info;
+            if (pointer.object) {
+
+                while (pointer.object) {
+                    stack.push(pointer.property);
+                    pointer = pointer.object;
+                }
+                stack.push(pointer);
+                stack = stack.reverse();
+            } else {
+                stack.push(pointer);
+            }
+
+            info = tools.getVarInfo(stack, metadata);
+            if (info.valueFlag)
+                info.varParts.push({ name: 'value' });
+            return (info.self ? 'self.id+\'.' : '\'') + info.varParts.map(function (el) { return el.name; }).join('.') + '\'';
+            /*console.log(env, out)
+
+            if (cName === 'this') {
+                source = 'this.id + \'.' + pipeVar.property.name + '\'';
+            } else if ((env = this.isNameOfEnv(cName, cls.metadata)) || (env = this.isNameOfProp(cName, cls.metadata))) {//(def.public && (cName in def.public)) || (def.private && (cName in def.private)) || cName === 'value') {
+                if (env.type in primitives) {
+                    source = 'self.id + \'.' + fullName + '\'';
+                } else {
+                    if (fullName.match(/\.value$/))
+                        source = '\'' + fullName + '\'';//'[\'' + fullName + '\', \'value\']';
+                    else
+                        source = '\'' + fullName + '.value\'';//'[\'' + fullName + '\', \'value\']';
+                }
+            } else {
+                source = '\'' + fullName + '\'';
+            }
+            return source;*/
+        },
+        /*
+                functionNet: function () {
+                    var getValue = function (s) {
+                        if (typeof s === 'string') {
+                            return s
+                        } else {
+                            var fn = s[' fn '], i, m = 0, vars = [], varNames = [], varsHash = {};
+                            for (i in s)
+                                if (i !== ' fn ') {
+                                    vars[m] = getValue(s[i]);
+                                    varNames[m] = i;
+                                    varsHash[i] = m++;
+                                }
+                            //console.log(vars, varNames)
+                            //console.log(new Function(varNames.join(','),'return '+fn).toString())
+                            return vars
+                        }
+        
+        
+                    }
+                    getValue(s);
+                },
+                */
         compilePipe: {
             raw: function (val) {
                 return val.map(function (item) {
@@ -384,115 +498,10 @@ module.exports = (function () {
             }
         },
         builder: {
-            events: function (item, cls) {
+            events: function (item, cls, child) {
                 var name = (item.name || item.tmpName);
-                var out = [], i, _i, events, event, fn,
-                    meta = cls.metadata,
-                    transformFnGet = function (node, stack, scope) {
-                        var list = stack.slice().reverse(),
-                            first = list[0];
-                        var env = tools.isNameOfEnv(first.name, meta),
-                            who;
-                        if (env.type in primitives) {
-                            who = ASTtransformer.craft.Identifier('self')
-                        } else {
-                            who = list.shift();
-                        }
-                        return {
-                            'type': 'CallExpression',
-                            'callee': {
-                                'type': 'MemberExpression',
-                                'computed': false,
-                                'object': who,
-                                'property': {
-                                    'type': 'Identifier',
-                                    'name': 'get'
-                                }
-                            },
-                            'arguments': [
-                                {
-                                    'type': 'ArrayExpression',
-                                    'elements': list.length ? list.map(function (item) {
-                                        if (item.computed) {
-                                            return scope.doTransform.call(scope.me, item, scope.options);
-                                        } else {
-                                            var out = {
-                                                'type': 'Literal',
-                                                'value': item.name,
-                                                'raw': '\'' + item.name + '\''
-                                            };
-                                            if ('_id' in item)
-                                                out._id = item._id;
+                var out = [], i, _i, events, event;
 
-                                            return out;
-                                        }
-                                    }) : [{
-                                        'type': 'Literal',
-                                        'value': 'value',
-                                        'raw': '\'value\''
-                                    }]
-                                }
-                            ]
-                        };
-                    },
-                    transformFnSet = function (node, stack, scope) {
-                        var list = stack.slice().reverse(),
-                            first = list[0];
-                        var env = tools.isNameOfEnv(first.name, meta),
-                            who;
-                        if (env.type in primitives) {
-                            who = ASTtransformer.craft.Identifier('self')
-                        } else {
-                            who = list.shift();
-                        }
-                        return {
-                            'type': 'CallExpression',
-                            'callee': {
-                                'type': 'MemberExpression',
-                                'computed': false,
-                                'object': who,
-                                'property': {
-                                    'type': 'Identifier',
-                                    'name': 'set'
-                                }
-                            },
-                            'arguments': [
-                                {
-                                    'type': 'ArrayExpression',
-                                    'elements':
-                                    list.length ? list.map(function (item) {
-                                        if (item.computed) {
-                                            return scope.doTransform.call(scope.me, item, scope.options);
-                                        } else {
-                                            var out = {
-                                                'type': 'Literal',
-                                                'value': item.name,
-                                                'raw': '\'' + item.name + '\''
-                                            };
-                                            if ('_id' in item)
-                                                out._id = item._id;
-
-                                            return out;
-                                        }
-                                    }) : [{
-                                        'type': 'Literal',
-                                        'value': 'value',
-                                        'raw': '\'value\''
-                                    }]
-
-
-                                },
-                                node.right
-                            ]
-
-                        };
-
-                    },
-                    options = {
-                        variableTransformerSet: transformFnSet,
-                        variableTransformerGet: transformFnGet
-                    },
-                    transformer = new ASTtransformer();
                 //out += name+'._subscribeList = [];\n';
                 //out += '\t\tthis._subscr = function(){\n';
 
@@ -500,8 +509,9 @@ module.exports = (function () {
                 events = item.events;
                 for (i = 0, _i = events.length; i < _i; i++) {
                     event = events[i];
-                    fn = transformer.transform(event.fn.ast, event.fn.vars, options);
-                    out.push(name + '.on(\'' + event.events + '\',function(' + event.args.join(',') + '){\n' + fn + '\n}, ' + name + ');');
+
+                    var fnBody = tools.functionTransform(event, cls.metadata, child);
+                    out.push((name || 'this') + '.on(\'' + event.events + '\',' + fnBody + ', ' + (name || 'this') + ');');
                 }
 
                 //out += '\t\t\tthis._subscribeList.push(this.removableOn(\'' + evt.events + '\', function(' + evt.args.join(',') + '){\n' + evt.fn + '\n}, this));\n';
@@ -509,6 +519,134 @@ module.exports = (function () {
                 //out += '\t\tthis._subscr();\n';
                 return out;
             }
+
+        },
+        functionTransform: function (fnObj, meta, child) {
+            var transformFnGet = function (node, stack, scope, parent) {
+                var list = stack.slice().reverse(),
+                    varParts,
+
+                    info = tools.getVarInfo(list, meta, child),
+                    firstToken = info.varParts[0],
+                    who;
+
+                if (info.self) {
+                    who = ASTtransformer.craft.Identifier('self');
+                } else {
+                    info.context--;
+                    info.varParts.shift();
+
+                    who = ASTtransformer.craft.Identifier(firstToken.name);
+
+                }
+
+                var beforeContext = [], afterContext = [], i, _i, item,
+                    varItem;
+                varParts = info.varParts;
+
+                // need to keep context
+                if (info.context === false)
+                    info.context = info.varParts.length - 1;
+
+                for (i = 0, _i = varParts.length; i < _i; i++) {
+                    item = varParts[i];
+
+                    if (item.computed) {
+                        varItem = scope.doTransform.call(scope.me, item.node, scope.options);
+                    } else {
+                        varItem = {
+                            'type': 'Literal',
+                            'value': item.name,
+                            'raw': '\'' + item.name + '\''
+                        };
+                        if ('_id' in item)
+                            varItem._id = item._id;
+                    }
+
+                    if (i <= info.context)
+                        beforeContext.push(varItem);
+                    else
+                        afterContext.push(item.node);
+                }
+
+                var c = ASTtransformer.craft, // craft short link
+                    out;//
+                if (beforeContext.length)
+                    out = c.CallExpression(who, 'get', beforeContext);
+                else
+                    out = who;
+
+                if (info.valueFlag)
+                    afterContext.push(c.Literal('value'));
+
+
+                for (i = 0, _i = afterContext.length; i < _i; i++)
+                    out = c.MemberExpression(out, afterContext[i]);
+
+                return out;
+
+            },
+                transformFnSet = function (node, stack, scope) {
+                    var list = stack.slice().reverse(),
+                        first = list[0];
+                    var env = tools.isNameOfEnv(first.name, meta),
+                        who;
+                    if (env.type in primitives) {
+                        who = ASTtransformer.craft.Identifier('self');
+                    } else {
+                        who = list.shift();
+                    }
+                    return {
+                        'type': 'CallExpression',
+                        'callee': {
+                            'type': 'MemberExpression',
+                            'computed': false,
+                            'object': who,
+                            'property': {
+                                'type': 'Identifier',
+                                'name': 'set'
+                            }
+                        },
+                        'arguments': [
+                            {
+                                'type': 'ArrayExpression',
+                                'elements':
+                                list.length ? list.map(function (item) {
+                                    if (item.computed) {
+                                        return scope.doTransform.call(scope.me, item, scope.options);
+                                    } else {
+                                        var out = {
+                                            'type': 'Literal',
+                                            'value': item.name,
+                                            'raw': '\'' + item.name + '\''
+                                        };
+                                        if ('_id' in item)
+                                            out._id = item._id;
+
+                                        return out;
+                                    }
+                                }) : [{
+                                    'type': 'Literal',
+                                    'value': 'value',
+                                    'raw': '\'value\''
+                                }]
+
+
+                            },
+                            node.right
+                        ]
+
+                    };
+
+                },
+                options = {
+                    variableTransformerSet: transformFnSet,
+                    variableTransformerGet: transformFnGet
+                },
+                transformer = new ASTtransformer(),
+                fn = fnObj.fn;
+            fn = transformer.transform(fn.ast, fn.vars, options);
+            return 'function(' + fnObj.args.join(',') + '){\n' + fn + '\n}';
         },
         indent: function (number, data) {
             if (!number)
