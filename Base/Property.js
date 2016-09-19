@@ -9,6 +9,7 @@ module.exports = (function () {
     //var QObject = require('./QObject');
     var ObservableSequence = require('observable-sequence');
     var dequeue = require('z-lib-structure-dequeue');
+    var QObject = void 0;
 
     var dataTypes = {
         Boolean: {
@@ -84,6 +85,7 @@ module.exports = (function () {
      * @param defaultValue
      */
     var Property = function (type, metadata, cfg, defaultValue) {
+        QObject = QObject || require('./QObject');
         this.metadata = metadata || {};
         cfg = cfg || {};
 
@@ -93,8 +95,8 @@ module.exports = (function () {
         var dataType = dataTypes[type];
 
         /** if type is in known classes */
-        //if (!dataType && QObject._knownComponents[type])
-        //    dataType = dataTypes[type] = Property.generate.typed(type, QObject._knownComponents[type]);
+        if (!dataType && QObject._knownComponents[type])
+            dataType = dataTypes[type] = Property.generate.typed(type, QObject._knownComponents[type]);
 
         if (!dataType)
             dataType = dataTypes.Variant;
@@ -129,7 +131,7 @@ module.exports = (function () {
         set: function (obj, key, value) {
             key = this.proxyFor || key;
             var oldValue = obj._data[key],
-                proxy = obj._prop.__proxy[key],
+                proxy = obj.__proxy[key],
                 prop = obj._prop[this.proxyFor] || this,
                 flags;
 
@@ -194,6 +196,7 @@ module.exports = (function () {
                 set: function (key, value, old, e) {
                     if (!(value instanceof cls || (value && value.prototype && value.prototype instanceof cls)))
                         return e.cancel();
+                    return e;
                 },
                 get: function (key, value) {
                     return value;
