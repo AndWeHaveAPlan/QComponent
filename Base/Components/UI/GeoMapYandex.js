@@ -40,34 +40,27 @@ module.exports = UIComponent.extend('GeoMapYandex', {
       console.log('GeoMapYandex _renderEl');
       var self = this;
 
-      // function action() {
-        self.mapApi = ymaps;
-        self.ymap = new ymaps.Map(self.id, {
-            center: [55.76, 37.64],
-            zoom: self.get('zoom'),
-            controls: ['zoomControl', 'searchControl']
-        });
+      self.mapApi = ymaps;
+      var center = self.get('center');
 
-        self.pins = new ymaps.GeoObjectCollection(null, {
-            preset: 'islands#blueCircleDotIconWithCaption'
-        });
-        self.home = new ymaps.GeoObjectCollection(null, {
-            preset: 'islands#redCircleDotIconWithCaption'
-        });
+      console.log("GeoMapYandex center", center);
+      self.ymap = new ymaps.Map(self.id, {
+          center: center,
+          zoom: self.get('zoom'),
+          controls: ['zoomControl', 'searchControl']
+      });
 
-        self._createHome();
-        self._createPins();
+      self.pins = new ymaps.GeoObjectCollection(null, {
+          preset: 'islands#blueCircleDotIconWithCaption'
+      });
+      self.home = new ymaps.GeoObjectCollection(null, {
+          preset: 'islands#redCircleDotIconWithCaption'
+      });
 
-        self.ymap.geoObjects.add(self.pins).add(self.home);
-      // }
+      self._createHome();
+      self._createPins();
 
-      // // main logic
-      // if(this.get('ready')) {
-      //   action();
-      // } else {
-      //   this._onloadActions.push(action);
-      // }
-
+      self.ymap.geoObjects.add(self.pins).add(self.home);
     },
 
     makeRoute:function(from, to) {
@@ -195,7 +188,7 @@ module.exports = UIComponent.extend('GeoMapYandex', {
 
         center: new Property('Array', {description: 'Map viewport center position'}, {
             get: function (key, value) {
-              if(this.mapApi) {
+              if(this.mapApi && this.ymap) {
                 return this.ymap.getCenter();
               }
               else return value;
@@ -205,6 +198,6 @@ module.exports = UIComponent.extend('GeoMapYandex', {
                 this.ymap.setCenter(value);
               }
             },
-        }, []),
+        }, [55.76, 37.64]),
     }
 });

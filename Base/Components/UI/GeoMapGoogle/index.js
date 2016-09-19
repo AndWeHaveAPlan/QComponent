@@ -58,9 +58,10 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     // Uncaught TypeError: Cannot read property 'offsetWidth' of null
 
     var elem = document.getElementById(self.id);
+    var center = self.get('center');
     //
     self.gmap = new google.maps.Map(elem, {
-      center: arrToLanLng([55.76, 37.64]),
+      center: arrToLanLng(center),
       zoom: self.get('zoom'),
 
       // TODO
@@ -347,10 +348,10 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         set: function (key, value) {
           if(this.mapApi && this.gmap) {
             var center = arrToLanLng(value);
-            // 
+            //
             this.gmap.setCenter(center);
           }
         },
-    }, []),
+    }, [55.76, 37.64]),
   }
 });

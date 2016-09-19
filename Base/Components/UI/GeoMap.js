@@ -30,10 +30,21 @@ module.exports = UIComponent.extend('GeoMap', {
       var self = this;
 
       // remove previous map
-      if(this.myMap) this.el.removeChild(this.myMap.el);
+      var savedProps = {};
+      if(this.myMap) {
+        console.log('get savedProps');
+
+        savedProps = {
+          zoom: this.myMap.get('zoom'),
+          pins: this.myMap.get('pins'),
+          home: this.myMap.get('home'),
+          center: this.myMap.get('center'),
+        };
+        this.el.removeChild(this.myMap.el);
+      }
 
       // create and append new map
-      self.myMap = self._createMap(mapType);
+      self.myMap = self._createMap(mapType, savedProps);
       self.el.appendChild(self.myMap.el);
       // self._ownComponents.push(self.myMap);
 
@@ -53,23 +64,17 @@ module.exports = UIComponent.extend('GeoMap', {
       );
     },
 
-    _createMap: function(type) {
-      console.log('_createMap, type = '+ type);
+    _createMap: function(type, savedProps) {
+      console.log('_createMap, type/savedProps = '+ type, savedProps);
 
       var mapProps = {
         height: '100%',
-        width: '100%'
+        width: '100%',
+        zoom: savedProps.zoom || this.get('zoom'),
+        pins: savedProps.pins || this.get('pins'),
+        home: savedProps.home || this.get('home'),
+        center: savedProps.center || this.get('center'),
       };
-
-      // Get some using props
-      var zoom = this.get('zoom');
-      var pins = this.get('pins');
-      var home = this.get('home');
-
-      // And use them as child map props
-      if(zoom) mapProps.zoom = zoom;
-      if(pins) mapProps.pins = pins;
-      if(home) mapProps.home = home;
 
       // console.log('_createMap, mapProps = ', mapProps);
 
@@ -138,7 +143,7 @@ module.exports = UIComponent.extend('GeoMap', {
         get: function(key, value) {
           console.log('geomap get '+ key, value);
           //
-          if(this.myMap) return this.myMap.get(key, value);
+          if(this.myMap) return this.myMap.get(key);
         },
         set: function(key, value) {
           console.log('geomap set '+ key, value);
@@ -150,7 +155,7 @@ module.exports = UIComponent.extend('GeoMap', {
         get: function(key, value) {
           console.log('geomap get '+ key, value);
           //
-          if(this.myMap) return this.myMap.get(key, value);
+          if(this.myMap) return this.myMap.get(key);
         },
         set: function(key, value) {}
       }, []),
@@ -163,7 +168,16 @@ module.exports = UIComponent.extend('GeoMap', {
           self.set('ready', false);
           self._remakeMapByType(value);
         }
-      }, 'yandex')
+      }, 'yandex'),
       // }, 'google')
+      center: new Property('Array', {description: 'Map viewport center position'}, {
+          get: function (key, value) {
+            if(this.myMap) return this.myMap.get(key);
+            else return value;
+          },
+          set: function (key, value) {
+            if(this.myMap) return this.myMap.set(key, value);
+          },
+      }, [55.76, 37.64]),
     }
 });
