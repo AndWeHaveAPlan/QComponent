@@ -6,7 +6,8 @@ module.exports = (function () {
     var observable = require('z-observable'),
         MulticastDelegate = require('./MulticastDelegate'),
         Property = require('./Property'),
-        uuid = require('tiny-uuid');
+        uuid = require('tiny-uuid'),
+        loggingNS = {};
 
     var components = {},
         mixins = {},
@@ -234,6 +235,7 @@ module.exports = (function () {
         },
         mixin: function (name, cfg) {
             mixins[name] = cfg;
+            cfg._type = name;
         },
 
         /**
@@ -244,12 +246,20 @@ module.exports = (function () {
          */
         _mixing: function (cfg, mixin/* base */) {
 
+            var mixinInit = [];
             if (prototype.isArray(mixin)) {
                 mixin.push(cfg);
                 return mixin.reduce(function (base, mixin) {
                     var name = mixin;
-                    if (typeof mixin === 'string')
+                    if (typeof mixin === 'string') {
+                        if(mixins[mixin]){
+                            if(mixins[mixin]._mixinsInit && mixins[mixin]._mixinsInit.length)
+                                mixinInit = mixinInit.concat(mixins[mixin]._mixinsInit);
+
+                            mixins[mixin]._init && mixinInit.push(mixins[mixin]._init);
+                        }
                         mixin = components[mixin] || mixins[mixin];
+                    }
 
                     if (!mixin)
                         throw new Error('Unknows mixin `' + name + '`');
@@ -285,6 +295,7 @@ module.exports = (function () {
                     proto._prop[i] = new Property(props[props[i].proxyFor].prototype.type, {}, { proxyFor: props[i].proxyFor });
                 }
             }
+            proto._mixinsInit = mixinInit;
 
             return proto;
         },
@@ -305,6 +316,11 @@ module.exports = (function () {
          */
         _afterInit: function () {
             this._init();
+            if(this._mixinsInit){
+                for(var i = 0, mixins = this._mixinsInit, _i = mixins.length; i < _i; i++){
+                    mixins[i].call(this);
+                }
+            }
         },
 
         /**
@@ -349,6 +365,49 @@ module.exports = (function () {
                 }
             }
             delete cfg._prop;
+        },
+        
+        each: function(el, callback){
+            var i, _i, out;
+
+            if( el === null || el === void 0 )
+                return false;
+
+            if( QObject.isArray( el ) ){
+                for( i = 0, _i = el.length; i < _i; i++ ){
+                    out = callback.call( el[i], el[i], i );
+                    if( out !== void 0 ) // breakable
+                        return out;
+                }
+            }else{
+                for( i in el )
+                    if( el.hasOwnProperty( i ) ){
+                        out = callback.call( el[i], i, el[i] );
+                        if( out !== void 0 ) // breakable
+                            return out;
+                    }
+
+            }
+        },
+        emptyFn: function(){},
+        getProperty: function( prop ){
+            return function(a){
+                return a[ prop ];
+            };
+        },
+        logging: function (ns, val) {
+            loggingNS[ns] = val === void 0 ? true : val;
+        },
+        console: function(ns){
+            var out = {};
+            for(var i in console)
+                out[i] = (function(fnName){
+                    return function(){
+                        if(loggingNS[ns])
+                            return console[fnName].apply(console, arguments);
+                    }
+                })(i);
+            return out;
         }
     };
 
