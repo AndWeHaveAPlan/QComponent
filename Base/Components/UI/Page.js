@@ -7,11 +7,13 @@ var UIComponent = require('../UIComponent'),
     Property = require('../../Property');
 
 module.exports = UIComponent.extend('Page', {
+    mixin: 'tabCycle',
     createEl: function () {
         this.el = QObject.document.createElement('div');
     },
     load: function () {
         QObject.document.body.appendChild(this.el);
+        this.fire('loaded');
     },
     _prop: {
         title: new Property('String', { description: 'Page Title' }, {
@@ -31,6 +33,6 @@ module.exports = UIComponent.extend('Page', {
     function (cfg) {
         cfg = cfg || {};
         cfg.height = cfg.height || '100%';
-        cfg.height = cfg.width || '100%';
-        UIComponent.apply(this, arguments);
+        cfg.width = cfg.width || '100%';
+        UIComponent.call(this, cfg);
     });

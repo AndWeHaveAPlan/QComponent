@@ -14,26 +14,36 @@ module.exports = {
         UIComponent: require('./Base/Components/UIComponent'),
         ContentContainer: require('./Base/Components/ContentContainer'),
         mixins: {
-            focusable: require('./Base/Mixins/focusable')
+            focusable: require('./Base/Mixins/focusable'),
+            tabCycle: require('./Base/Mixins/tabCycle')
         },
-        Workflow:{
+        Workflow: {
             Scenario: require('./Base/Workflow/Scenario'),
             Selector: require('./Base/Workflow/Selector'),
             Sequence: require('./Base/Workflow/Sequence')
         },
+        Common: {
+            UIEventManager: require('./Base/Common/UIEventManager')
+        },
         UI: {
+
             Fields: {
                 Base: require('./Base/Components/UI/Field/Base')
             },
             Primitives: require('./Base/Components/UI/Primitives'),
+            Label: require('./Base/Components/UI/Label'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
+            RadioButton: require('./Base/Components/UI/RadioButton'),
+            RadioButtonGroup: require('./Base/Components/UI/RadioButtonGroup'),
             TextBox: require('./Base/Components/UI/TextBox'),
             NumberBox: require('./Base/Components/UI/NumberBox'),
             MaskedInput: require('./Base/Components/UI/MaskedInput'),
             ListBox: require('./Base/Components/UI/ListBox'),
             WrapPanel: require('./Base/Components/UI/WrapPanel'),
             HBox: require('./Base/Components/UI/HBox'),
+            Button: require('./Base/Components/UI/Button'),
             NumberKeyboard: require('./Base/Components/UI/NumberKeyboard'),
+            ItemTemplate: require('./Base/Components/UI/ItemTemplate'),
             Slider: require('./Base/Components/UI/Slider'),
             Page: require('./Base/Components/UI/Page'),
             VBox: require('./Base/Components/UI/VBox'),
@@ -51,7 +61,7 @@ module.exports = {
             Timer: require('./Base/Components/Logical/Timer'),
             Random: require('./Base/Components/Logical/Random'),
             Title: require('./Base/Components/Logical/Title'),
-            HTTPRequest: require('./Base/Components/Logical/HTTPRequest')
+            AJAX: require('./Base/Components/Logical/AJAX')
         }
     },
     EventManager: require('./Base/EventManager'),

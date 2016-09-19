@@ -17,6 +17,8 @@ module.exports = InputField.extend('MaskedInput', {
     },
     _unmask: function (str, selRange) {
 
+        selRange = selRange || { selStart: 0, selEnd: 0 };
+
         var beforeSelStart = 0;
         var beforeSelEnd = 0;
 
@@ -27,21 +29,25 @@ module.exports = InputField.extend('MaskedInput', {
                 str = str.replace(new RegExp(mask[i]), '');
 
                 // fix selection
-                if (i < selRange.selStart) {
-                    beforeSelStart += 1;
-                    beforeSelEnd += 1;
-                } else if (i < selRange.selEnd) {
-                    beforeSelEnd += 1;
+                if (selRange) {
+                    if (i < selRange.selStart) {
+                        beforeSelStart += 1;
+                        beforeSelEnd += 1;
+                    } else if (i < selRange.selEnd) {
+                        beforeSelEnd += 1;
+                    }
                 }
             }
         }
-
-        selRange.selStart -= beforeSelStart;
-        selRange.selEnd -= beforeSelEnd;
+        if (selRange) {
+            selRange.selStart -= beforeSelStart;
+            selRange.selEnd -= beforeSelEnd;
+        }
 
         return str;
     },
     _enmask: function (str, selRange) {
+        selRange = selRange || { selStart: 0, selEnd: 0 };
         var mask = this._data.mask;
         if (!mask) return str;
 
@@ -57,7 +63,7 @@ module.exports = InputField.extend('MaskedInput', {
                 ret += mask[i];
                 count++;
 
-                // fix selection
+
                 if (i <= selRange.selStart) {
                     selRange.selStart += 1;
                     selRange.selEnd += 1;
@@ -65,18 +71,21 @@ module.exports = InputField.extend('MaskedInput', {
                     selRange.selEnd += 1;
                 }
 
+
             } else {
                 if (this._sChars[mask[i]].test(str[i - count])) {
                     ret += str[i - count];
                 } else {
                     count--;
                     //fix selection
+
                     if (i < selRange.selStart) {
                         beforeSelStart -= 1;
                         beforeSelEnd -= 1;
                     } else if (i < selRange.selEnd) {
                         beforeSelEnd -= 1;
                     }
+
                 }
             }
         }
@@ -87,21 +96,23 @@ module.exports = InputField.extend('MaskedInput', {
         return ret;
     },
     _startChange: function (newVal, selRange) {
-        this.set('value', this._unmask(newVal, selRange));
+        var umasked = this._unmask(newVal, selRange);
+        this.set('value', umasked);
         return selRange;
     },
     _updateValue: function (newVal, selRange) {
+        this.set('pureText', newVal);
         this.set('value', this._enmask(newVal, selRange));
         return selRange;
     },
     _prop: {
-        text: new Property('String', {}, {
+        pureText: new Property('String', {}, {
             get: Property.defaultGetter,
             set: function (name, value) {
-                var masked = this._enmask(value);
-                this.set(['maskedText', masked]);
-                this.el.value = masked;
-                this.el.setAttribute('value', masked);
+                //var masked = this._enmask(value);
+                //this.set(['maskedText', masked]);
+                //this.el.value = masked;
+                //this.el.setAttribute('value', masked);
             }
         }, ''),
         maskedText: Property.generate.proxy('value'),

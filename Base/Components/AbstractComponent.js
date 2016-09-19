@@ -46,6 +46,9 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
      * @returns {} 
      */
     createDependency: function (from, to, func) {
+        //to = this.id + '.' + to;
+        //from = this.id + '.' + from;
+
         if (func) {
             this._eventManager.registerPipe(new MutatingPipe(from, to).addMutator(func));
         } else {

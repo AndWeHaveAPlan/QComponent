@@ -1,7 +1,7 @@
 def Page main
     title: Карта туриста
-    width:100%
-    height:100%
+    //width:100%
+    //height:100%
 
     HBox// hbox
         flexDefinition: 293* 1* 400
@@ -47,7 +47,7 @@ def Page main
                 type: button
                 enabled: {{ gm.ready }}
                 .click: ()=>{
-                    gm.makeRoute(gm.get('home'),gm.get('pins.0.coords'));
+                    gm.makeRoute(gm.home,gm.pins[0].coords);
                 }
             ListBox:
                 overflow: auto

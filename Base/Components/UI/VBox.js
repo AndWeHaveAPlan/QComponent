@@ -10,26 +10,28 @@ module.exports = FlexSizeComponent.extend('VBox', {
     updateLayout: function () {
         var self = this;
         var children = this.el.childNodes;
-        var fDef = this._flexDefinition || {parts: [], starCount: 0, flexLength: 0, fixLength: 0};
 
-        setTimeout(function () {
+        clearTimeout(this.updateTimeout);
+        this.updateTimeout = setTimeout(function () {
+            var fDef = self._flexDefinition || { parts: [], starCount: 0, flexLength: 0, fixLength: 0 };
+            var starCount = fDef.starCount;
+            if (fDef.parts.length === 0)
+                starCount = children.length;
+
             var freeHeight = 100 - 100 * (fDef.fixLength / self.el.clientHeight);
-            var startUndef=-1;
+
             for (var i = 0, length = children.length; i < length; i++) {
                 var fPart = fDef.parts[i];
-                var height = freeHeight / (fDef.starCount > 0 ? fDef.starCount : 1) + '%';
+                var height = freeHeight / starCount + '%';
                 if (fPart) {
                     if (fPart.flex && fPart.part > 0) // 25*
                         height = freeHeight * (fPart.part / fDef.flexLength) + '%';
                     if (!fPart.flex) { // 25
                         height = fPart.part + 'px';
                     }
-                }  else {
-                if (startUndef < 0)
-                    startUndef = i;
-                    height = freeHeight / (children.length - startUndef) + '%';
-            }
-
+                } else {
+                    height = freeHeight / starCount + '%';
+                }
                 children[i].style.height = height;
             }
         }, 0);
@@ -40,7 +42,9 @@ module.exports = FlexSizeComponent.extend('VBox', {
         this._children.push(div);
 
         div.el.style.position = 'relative';
-        div.el.style.height = '100%';
+        div.el.style.width = '100%';
         div.el.style.overflow = 'hidden';
+
+        this.updateLayout();
     }
 });
