@@ -69,7 +69,7 @@ module.exports = (function() {
                 var prop = _knownComponents[className].prototype._prop[propertyName];
                 els[className].public[propertyName] = {
                     name: propertyName,
-                    type: prop.prototype.type,
+                    type: prop.type,
                     value: ''
                 };
             }
