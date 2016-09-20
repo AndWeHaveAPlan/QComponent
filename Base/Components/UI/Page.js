@@ -30,7 +30,10 @@ module.exports = UIComponent.extend('Page', {
                 return document.title;
             }
         }, ''),
-        value: new Property('Variant'),
+        dataContext: new Property('Variant', {}, {
+            get: Property.defaultGetter,
+            set: Property.defaultSetter
+        }, {}),
         /**
         *  @type Scenario
         */
