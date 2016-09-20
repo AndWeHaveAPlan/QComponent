@@ -5,7 +5,7 @@
 var UIComponent = require('../UIComponent');
 var Property = require('../../Property');
 
-module.exports = UIComponent.extend('video', {
+module.exports = UIComponent.extend('Video', {
     play: function () {
       this.el.play();
     },
@@ -13,11 +13,21 @@ module.exports = UIComponent.extend('video', {
       this.el.pause();
     },
     createEl: function () {
+      var self = this;
       this.el = UIComponent.document.createElement('video');
 
       this.sourceEl = UIComponent.document.createElement('source');
       this.sourceEl.type = 'video/mp4';
       this.el.appendChild(this.sourceEl);
+
+      this.el.addEventListener('timeupdate', function (event) {
+        self.set('time', self.el.currentTime);
+        self.fire('time', this);
+      });
+      this.el.addEventListener('durationchange', function (event) {
+        self.set('duration', self.el.duration);
+        self.fire('duration', this);
+      });
     },
     _prop: {
       width: new Property('Number', { }, {
@@ -44,6 +54,14 @@ module.exports = UIComponent.extend('video', {
         },
         set: function (name, value, oldValue, e) {
           this.el.currentTime = value;
+        }
+      }),
+      duration: new Property('Number', { }, {
+        get: function () {
+          return this.el.duration;
+        },
+        set: function (name, value, oldValue, e) {
+          //
         }
       }),
       volume: new Property('Number', { description: 'Current volume' }, {
