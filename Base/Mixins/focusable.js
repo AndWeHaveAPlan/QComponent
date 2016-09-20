@@ -15,9 +15,6 @@ module.exports = (function () {
     QObject.mixin('focusable', {
         focusable: true,
         _init: function(){
-            this.on('addToParent', function(){
-                debugger;
-            })
 
             return;
             var item,
