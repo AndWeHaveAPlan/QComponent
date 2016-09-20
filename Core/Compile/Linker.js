@@ -9,7 +9,8 @@ module.exports = (function() {
         shadow = require('../Shadow'),
         path = require('path'),
         observable = require('z-observable'),
-        tools = require('./tools');
+        tools = require('./tools'),
+        cTools = require('./CompileTools');
 
     
 
@@ -238,6 +239,30 @@ module.exports = (function() {
                     shadow[type].public[name] :
                     (shadow[type].type && this.isProperty(name, shadow[type].type, shadow)));
             },
+            renderSource: function(fileName, info){
+                var source = this.sources[fileName],
+                    tokens = source.tokens,
+                    i, _i, out = [], padding = 2, line, maxL;
+
+                i = Math.max(info.row - padding-1, 0);
+                _i = Math.min(info.row + padding, tokens.length);
+                maxL = (Math.log10(source.tokens[_i-1].row)+1)|0;
+
+                for(; i < _i; i++){
+                    var cToken = source.tokens[i];
+                    line = '';
+                    for (var j = 0; j < cToken.items.length; j++) {
+                        var cItem = cToken.items[j];
+                        line+=cItem.pureData;
+
+                    }
+                    out.push(cToken.row +': '+ cTools.pad(maxL-(cToken.row+'').length) + new Array((cToken.col|0)+1).join(' ') +line);
+                    if(cToken.row === info.row)
+                        out.push(cTools.pad(info.col+maxL+2)+'^---- linker was scared here ----');
+                }
+                return out.join('\n');
+
+            },
             extractSub: function (sub, localShadow, name, fileName, childrenHolder, defines) {
                 var children = sub.children,
                     i, _i, child, kw = {}, kws = {}, j,
@@ -314,21 +339,22 @@ module.exports = (function() {
                                 localShadow[info.type] = shadow[info.type];
                                 //console.log('!!', child.type);
                             } else if (!isProperty){
-                                var suggestions = [{name: child.type, type: childrenHolder.type}];
-                                var holderType = childrenHolder.type, lastHolderType = child.type,
-                                    holder = childrenHolder;
+                                var listOfParents = [];
+                                var holderType = childrenHolder.type, holder;
 
                                 while(holderType){
+                                    listOfParents.push(holderType);
 
-                                    holder = localShadow[holderType] || shadow[holderType];
+                                    holder = shadow[holderType] || localShadow[holderType];
                                     if(holder) {
-                                        holderType = holder.type;
+                                        holderType = holder._type;
                                     }
-                                    suggestions.push({name: lastHolderType, type: holderType});
-                                    lastHolderType = holderType;
                                 }
-                                throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')\n' +
-                                    'Suggestions:\n'+ suggestions.map(function(item){ return '\tdefine property `' + child.type + '` in '+ item.name +' <'+item.type+'>';}).join('\n'));
+
+                                throw new Error('Unknown class `' + child.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')\n\n' +
+                                    'Source:\n'+ cTools.indent(1, this.renderSource(fileName, child))+'\n\n'+
+                                    'Suggestions:\n'+ listOfParents.map(function(item){ return '\tdefine property `' + child.type +
+                                        '` in class <'+item+'>';}).join('\n')+'\n\nTraceback:\n');
                             }
                         }
 

@@ -15,8 +15,14 @@ module.exports = (function () {
     QObject.mixin('focusable', {
         focusable: true,
         _init: function(){
+            this.on('addToParent', function(){
+                debugger;
+            })
+
+            return;
             var item,
                 tabIndex = this.get('tabIndex')|0, i;
+
             for(i = list.length - 1; i >= 0; i--){
                 item = list[i];
                 if((item.get('tabIndex')|0) <= tabIndex)
