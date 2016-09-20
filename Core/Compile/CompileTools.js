@@ -26,13 +26,19 @@ module.exports = (function () {
         },
         text: function (token) {
             return token.pureData;
+        },
+        comment: function(){
+            return '';
         }
     },
         typedExtractors = {
             'Function': function (token, type, cls) {
                 var t = shadow.QObject.eventParser(type.item, type.item.children);
                 return tools.functionTransform(t, cls.metadata);
-            }
+            }/*,
+            'Number': function(token, type, cls){
+                return 5;
+            }*/
         },
         extractor = function (token, prop, cls) {
             var extractor;
@@ -67,7 +73,8 @@ module.exports = (function () {
             if (typeof val === 'string') {
                 out = extractor({ type: 'text', pureData: val }, prop, cls);
             } else {
-                if (type === 'Function')
+
+                if (type === 'Function') // TODO this is the place where typed extractors should leave and throw errors
                     out = extractor(val[0], prop, cls);
                 else
                     out = val.map(function (item) {
@@ -648,6 +655,9 @@ module.exports = (function () {
             fn = transformer.transform(fn.ast, fn.vars, options);
             return 'function(' + fnObj.args.join(',') + '){\n' + fn + '\n}';
         },
+        pad: function(number, symbol){
+            return new Array(number+1).join(symbol||' ');
+        }, 
         indent: function (number, data) {
             if (!number)
                 return data;

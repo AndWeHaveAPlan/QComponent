@@ -57,7 +57,8 @@ module.exports = (function() {
                         value: tools.detox(tools.trim(splitted[1]), true)
                     };
                 },
-                public:{}
+                public:{},
+                _type: _knownComponents[className]._prototype
             };
             
             if(els[className])
