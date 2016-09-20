@@ -279,6 +279,11 @@ module.exports = (
             this.el.setAttribute('qId', this.id);
             this.el.setAttribute('qType', this._type);
             //}
+
+            this.on('*', function (name) { // TODO bubblable
+                if(name === 'tab')
+                this.parent && this.parent.fire.apply(this.parent, arguments);
+            });
         });
 
         return UIComponent;
