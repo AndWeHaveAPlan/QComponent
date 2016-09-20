@@ -21,31 +21,15 @@ module.exports = UIComponent.extend('Video', {
       this.el.appendChild(this.sourceEl);
 
       this.el.addEventListener('timeupdate', function (event) {
+        self.updating = true;
         self.set('time', self.el.currentTime);
-        self.fire('time', this);
+        self.updating = false;
       });
       this.el.addEventListener('durationchange', function (event) {
         self.set('duration', self.el.duration);
-        self.fire('duration', this);
       });
     },
     _prop: {
-      width: new Property('Number', { }, {
-        get: function () {
-          return this.el.offsetWidth;
-        },
-        set: function (name, value, oldValue, e) {
-          this.el.style.width = value + 'px';
-        }
-      }),
-      height: new Property('Number', { }, {
-        get: function () {
-          return this.el.offsetHeight;
-        },
-        set: function (name, value, oldValue, e) {
-          this.el.style.height = value + 'px';
-        }
-      }),
       pause: new Property('Function'),
       play: new Property('Function'),
       time: new Property('Number', { description: 'Current playback position' }, {
@@ -53,17 +37,11 @@ module.exports = UIComponent.extend('Video', {
           return this.el.currentTime;
         },
         set: function (name, value, oldValue, e) {
-          this.el.currentTime = value;
+          if(!this.updating)
+            this.el.currentTime = value;
         }
       }),
-      duration: new Property('Number', { }, {
-        get: function () {
-          return this.el.duration;
-        },
-        set: function (name, value, oldValue, e) {
-          //
-        }
-      }),
+      duration: new Property('Number', { }),
       volume: new Property('Number', { description: 'Current volume' }, {
         get: function () {
           return this.el.volume;
