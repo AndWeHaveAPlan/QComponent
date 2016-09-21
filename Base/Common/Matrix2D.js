@@ -1,17 +1,20 @@
 /**
  * @class 
  */
-var Matrix2D = function () {
-    this.m = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+var Matrix2D = function (initial) {
+    if (initial)
+        this.m = initial;
+    else
+        this.m = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 };
 
 
-Matrix2D.prototype= {
+Matrix2D.prototype = {
     /**
      * @param {Matrix2D} matrix
      * @returns {Matrix2D}
      */
-    multiply: function(matrix) {
+    multiply: function (matrix) {
         var m1 = this.m;
         var m2 = matrix.m;
         var mRet = [[], [], []];
@@ -33,10 +36,23 @@ Matrix2D.prototype= {
     /**
      * @returns {String} CSS formated matrix 
      */
-    toStyleString: function() {
+    toStyleString: function () {
         return 'matrix(' +
             [this.m[0][0], this.m[0][1], this.m[1][0], this.m[1][1], this.m[2][0], this.m[2][1]].join(',') +
             ')';
+    },
+    fromStyleString: function (styleString) {
+        if (!styleString)
+            return new Matrix2D();
+
+        var cut = styleString.substring(7, styleString.length - 2);
+        var parts = cut.split(', ');
+        return new Matrix2D();
+        return 'matrix(' +
+            [this.m[0][0], this.m[0][1], this.m[1][0], this.m[1][1], this.m[2][0], this.m[2][1]].join(',') +
+            ')';
+
+
     }
 }
 

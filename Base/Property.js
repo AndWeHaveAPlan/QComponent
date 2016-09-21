@@ -85,6 +85,24 @@ module.exports = (function () {
      * @param defaultValue
      */
     var Property = function (type, metadata, cfg, defaultValue) {
+
+
+        /*if (cfg.get !== false) {
+            if (cfg.get)
+                metadata.get = cfg.get;
+            else
+                metadata.get = Property.defaultGetter;
+        }
+
+        if (cfg.set !== false) {
+            if (cfg.set)
+                metadata.set = cfg.set;
+            else
+                metadata.set = Property.defaultSetter;
+        }*/
+
+
+
         QObject = QObject || require('./QObject');
         this.metadata = metadata || {};
         cfg = cfg || {};
