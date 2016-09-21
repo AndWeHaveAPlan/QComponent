@@ -159,7 +159,7 @@ module.exports = (function () {
                 flags;
 
 
-            if ((value !== oldValue) || this.firstSet) {
+            if ((value !== oldValue) || !obj._propReady) {
                 this.firstSet = false;
                 flags = new SetterFlags();
                 obj._data[key] = value;
