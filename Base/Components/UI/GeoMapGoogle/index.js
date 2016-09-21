@@ -89,9 +89,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         var center = self.gmap.getCenter();
         var centerArr = [center.lat(), center.lng()];
         //
-        self._handlingCenterEvent = true;
         self.set('center', centerArr);
-        self._handlingCenterEvent = false;
       };
     });
   },
@@ -367,7 +365,10 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
           if(this.mapApi && this.gmap) {
             var center = arrToLanLng(value);
             //
-            this.gmap.setCenter(center);
+            this._handlingCenterEvent = true;
+
+            this.ymap.setCenter(value);
+            this._handlingCenterEvent = false;
           }
         },
     }, [55.76, 37.64]),
