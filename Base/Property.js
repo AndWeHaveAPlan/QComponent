@@ -84,31 +84,23 @@ module.exports = (function () {
      * @param cfg
      * @param defaultValue
      */
-    var Property = function (type, metadata, cfg, defaultValue) {
+    var Property = function (type, cfg) {// metadata, cfg, defaultValue) {
 
+        cfg = cfg || {};
+        type = type || 'Variant';
 
-        /*if (cfg.get !== false) {
-            if (cfg.get)
-                metadata.get = cfg.get;
-            else
-                metadata.get = Property.defaultGetter;
+        if (arguments.length > 2) {
+            var arg2 = arguments[2] || {};
+            cfg.get = arg2.get || Property.defaultGetter;
+            cfg.set = arg2.set || Property.defaultSetter;
         }
 
-        if (cfg.set !== false) {
-            if (cfg.set)
-                metadata.set = cfg.set;
-            else
-                metadata.set = Property.defaultSetter;
-        }*/
-
-
+        if (arguments.length > 3) {
+            cfg.defaultValue = arguments[3];
+        }
 
         QObject = QObject || require('./QObject');
-        this.metadata = metadata || {};
-        cfg = cfg || {};
-
-        if ('set' in this.metadata || 'get' in this.metadata)
-            throw new Error('do not put get/set to metadata');
+        this.metadata = { description: cfg.description };
 
         var dataType = dataTypes[type];
 
@@ -122,25 +114,38 @@ module.exports = (function () {
         this.proxyFor = this.metadata.proxyFor = cfg.proxyFor;
         this.type = this.metadata.type = type;
 
-        if (arguments.length > 3) {
+        if ('defaultValue' in cfg) {
             this.setDefault = true;
-            this.metadata.defaultValue = defaultValue;
+            this.metadata.defaultValue = cfg.defaultValue;
         } else {
             this.setDefault = false;
         }
 
-        if (!('set' in cfg) && !('get' in cfg)) {
-            this._set = dataType.set;
-            this._get = dataType.get;
+        if (!cfg.get) {
+            if (cfg.get !== false)
+                this._get = dataType.get;
         } else {
-            this._set = cfg.set;
             this._get = cfg.get;
         }
+
+        if (!cfg.set) {
+            if (cfg.set !== false)
+                this._set = dataType.set;
+        } else {
+            this._set = cfg.set;
+        }
+
 
         this.firstSet = true;
     };
 
     Property.prototype = {
+        _ctor2: function (type, cfg) {
+
+        },
+        _ctor4: function (type, cfg) {
+
+        },
         /**
          * 
          * @param {} value 
