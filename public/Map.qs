@@ -111,6 +111,8 @@ def Page main
                 enabled: {{ gm.ready }}
                 .click: ()=>{
                     var home = gm.get('home');
+                    console.log('Показать меня, from', home);
+                    console.log('Показать меня, to', gm.get('center'));
                     gm.set('center', home);
                 }
             input: Вывести мое положение
@@ -120,8 +122,8 @@ def Page main
                 type: button
                 enabled: {{ gm.ready }}
                 .click: ()=>{
-                    var home = gm.get('center');
-                    console.log('My position', home);
+                    var center = gm.get('center');
+                    console.log('Вывести мое положение', center);
                 }
             ListBox:
                 overflow: auto

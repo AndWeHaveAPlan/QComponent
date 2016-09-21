@@ -82,10 +82,29 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     self._createPins();
 
     self.gmap.addListener('dragend', function() {
-      var center = self.get('center');
-      self.set('center', center);
+      // var center = self.get('center');
+      // self.set('center', center);
+
+      if(!self._handlingCenterEvent) {
+        var center = self.gmap.getCenter();
+        var centerArr = [center.lat(), center.lng()];
+        //
+        self._handlingCenterEvent = true;
+        self.set('center', centerArr);
+        self._handlingCenterEvent = false;
+      };
     });
   },
+
+  // get: function (key, value) {
+  //   console.log('gmap get '+ key, value);
+  //   if(this.mapApi && this.gmap) {
+  //     var center = this.gmap.getCenter();
+  //     //
+  //     return [center.lat(), center.lng()];
+  //   }
+  //   else return value;
+  // },
 
   _makeSearchBox: function(map) {
     console.log('GeoMapGoogle _makeSearchBox');
@@ -342,15 +361,9 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
       set: function() {}
     }, []),
     center: new Property('Array', {description: 'Map viewport center position'}, {
-        get: function (key, value) {
-          if(this.mapApi && this.gmap) {
-            var center = this.gmap.getCenter();
-            //
-            return [center.lat(), center.lng()];
-          }
-          else return value;
-        },
+        get: Property.defaultGetter,
         set: function (key, value) {
+          console.log('gmap set '+ key, value);
           if(this.mapApi && this.gmap) {
             var center = arrToLanLng(value);
             //

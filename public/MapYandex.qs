@@ -100,8 +100,8 @@ def Page main
                 type: button
                 enabled: {{ gm.ready }}
                 .click: ()=>{
-                    var home = gm.get('center');
-                    console.log('My position', home);
+                    var center = gm.get('center');
+                    console.log('My position', center);
                 }
             ListBox:
                 overflow: auto

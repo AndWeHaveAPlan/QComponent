@@ -62,6 +62,10 @@ module.exports = UIComponent.extend('GeoMap', {
         {component: self.myMap.id, property: "moveList"},
         {component: self.id,       property: "moveList"}
       );
+      self.localEventManager.createSimplePipe(
+        {component: self.myMap.id, property: "center"},
+        {component: self.id,       property: "center"}
+      );
     },
 
     _createMap: function(type, savedProps) {
@@ -171,12 +175,22 @@ module.exports = UIComponent.extend('GeoMap', {
       }, 'yandex'),
       // }, 'google')
       center: new Property('Array', {description: 'Map viewport center position'}, {
-          get: function (key, value) {
-            if(this.myMap) return this.myMap.get(key);
-            else return value;
-          },
+          // get: function (key, value) {
+          //   console.log('geomap get '+ key, value);
+          //   if(this.myMap) return this.myMap.get(key);
+          //   else return value;
+          // },
+          get: Property.defaultGetter,
           set: function (key, value) {
-            if(this.myMap) return this.myMap.set(key, value);
+            // console.log('geomap set '+ key, value);
+            // if(this.myMap) return this.myMap.set(key, value);
+            if(this.myMap) {
+              console.log('geomap set this.myMap = true');
+              //
+              return this.myMap.set(key, value);
+            } else {
+              console.log('geomap set this.myMap = false');
+            }
           },
       }, [55.76, 37.64]),
     }
