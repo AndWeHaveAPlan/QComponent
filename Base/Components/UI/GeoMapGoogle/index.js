@@ -367,7 +367,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
             //
             this._handlingCenterEvent = true;
 
-            this.ymap.setCenter(value);
+            this.gmap.setCenter(center);
             this._handlingCenterEvent = false;
           }
         },

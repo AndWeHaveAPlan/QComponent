@@ -66,6 +66,10 @@ module.exports = UIComponent.extend('GeoMap', {
         {component: self.myMap.id, property: "center"},
         {component: self.id,       property: "center"}
       );
+      // self.localEventManager.createSimplePipe(
+      //   {component: self.id,       property: "center"},
+      //   {component: self.myMap.id, property: "center"}
+      // );
     },
 
     _createMap: function(type, savedProps) {
@@ -183,13 +187,16 @@ module.exports = UIComponent.extend('GeoMap', {
           get: Property.defaultGetter,
           set: function (key, value) {
             // console.log('geomap set '+ key, value);
+            var thisCenter = this.get('center');
             // if(this.myMap) return this.myMap.set(key, value);
             if(this.myMap) {
-              console.log('geomap set this.myMap = true');
+
+              console.log('geomap set true', value, thisCenter);
               //
-              return this.myMap.set(key, value);
+              this.myMap.set(key, value);
+
             } else {
-              console.log('geomap set this.myMap = false');
+              console.log('geomap set false', value, thisCenter);
             }
           },
       }, [55.76, 37.64]),
