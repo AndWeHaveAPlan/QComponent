@@ -9,6 +9,9 @@ module.exports = UIComponent.extend('Video', {
     play: function () {
       this.el.play();
     },
+    stop: function () {
+        this.el.pause();
+    },
     pause: function () {
       this.el.pause();
     },
@@ -16,9 +19,9 @@ module.exports = UIComponent.extend('Video', {
       var self = this;
       this.el = UIComponent.document.createElement('video');
 
-      this.sourceEl = UIComponent.document.createElement('source');
-      this.sourceEl.type = 'video/mp4';
-      this.el.appendChild(this.sourceEl);
+      //this.sourceEl = UIComponent.document.createElement('source');
+      //this.sourceEl.type = 'video/mp4';
+      //this.el.appendChild(this.sourceEl);
 
       this.el.addEventListener('timeupdate', function (event) {
         self.updating = true;
@@ -32,6 +35,7 @@ module.exports = UIComponent.extend('Video', {
     _prop: {
       pause: new Property('Function'),
       play: new Property('Function'),
+      stop: new Property('Function'),
       time: new Property('Number', { description: 'Current playback position' }, {
         get: function () {
           return this.el.currentTime;
@@ -95,11 +99,18 @@ module.exports = UIComponent.extend('Video', {
           }
         }
       }),
-      autoplay: new Property('Boolean'),
+      autoplay: new Property('Boolean',
+      {
+          set: function(name, value) {
+              if (value)
+                  this.play();
+          }
+      }),
       value: new Property('String', { description: 'URL of the video' }, {
         get: Property.defaultGetter,
         set: function (name, value, oldValue, e) {
-          this.sourceEl.src = value;
+          this.stop();
+          this.el.src = value;
 
           if (this.get('autoplay')) {
             this.play();
