@@ -62,8 +62,13 @@ module.exports = UIComponent.extend('GeoMapYandex', {
       self.ymap.geoObjects.add(self.pins).add(self.home);
 
       self.ymap.events.add('boundschange', function() {
-        var center = self.get('center');
-        self.set('center', center);
+        if(!self._handlingCenterEvent) {
+          var center = self.ymap.getCenter();
+          //
+          self._handlingCenterEvent = true;
+          self.set('center', center);
+          self._handlingCenterEvent = false;
+        };
       });
     },
 
@@ -191,13 +196,9 @@ module.exports = UIComponent.extend('GeoMapYandex', {
         },[]),
 
         center: new Property('Array', {description: 'Map viewport center position'}, {
-            get: function (key, value) {
-              if(this.mapApi && this.ymap) {
-                return this.ymap.getCenter();
-              }
-              else return value;
-            },
+            get: Property.defaultGetter,
             set: function (key, value) {
+              console.log('ymap set '+ key, value);
               if(this.mapApi) {
                 this.ymap.setCenter(value);
               }
