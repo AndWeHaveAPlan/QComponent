@@ -16,6 +16,7 @@ module.exports = (function () {
         },
 
         _prop: {
+            generate: new Property('Function'),
             from: new Property('String', {description: 'Inclusive lower bound'}, {
                 set: function (name, value) {
 

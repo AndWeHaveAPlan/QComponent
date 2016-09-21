@@ -49,6 +49,7 @@ module.exports = {
             VBox: require('./Base/Components/UI/VBox'),
             Image: require('./Base/Components/UI/Image'),
             GeoMap: require('./Base/Components/UI/GeoMap'),
+            Video: require('./Base/Components/UI/Video'),
             CardForm: require('./Base/Components/UI/CardForm'),
             DOMTools: require('./Base/Common/UI/DOMTools'),
             If: require('./Base/Components/UI/If')

@@ -55,9 +55,8 @@ module.exports = (function () {
     var tools = {
         getTmpName: getTmpName,
         getPropertyType: function (propList, prop) {
-            var type = propList._prop &&
-                propList._prop[prop] &&
-                propList._prop[prop].prototype;
+            var type = propList._prop && propList._prop[prop];
+            //&& propList._prop[prop].prototype;
             return type ? type.type : false;
         },
         dataExtractor: function (prop, cls) {
@@ -268,8 +267,14 @@ module.exports = (function () {
                 if (metadata.public) { // it is shadow
                     if (metadata.public[name])
                         return metadata.public[name];
-                    else
-                        return false;
+                    else {
+                        if (metadata.private) {
+                            if (metadata.private[name])
+                                return metadata.private[name];
+                            else
+                                return false;
+                        }
+                    }
                 } else
                     throw new Error('Corrupted metadata for `' + name + '`');
             }
@@ -281,7 +286,7 @@ module.exports = (function () {
                 return prop['default'];
             if (prop['_unknownProperty']) {
                 tmp = prop['_unknownProperty'](name);
-                if(tmp)
+                if (tmp)
                     return tmp;
             }
             return false;
@@ -375,6 +380,9 @@ module.exports = (function () {
 
                     if (!env) {
                         env = this.isNameOfProp(name, metadata);
+
+                        if (!env)
+                            env = this.isNameOfProp(name, shadow[metadata.type]);
 
                         if (env)
                             propFlag = true;
@@ -571,14 +579,20 @@ module.exports = (function () {
 
                 var c = ASTtransformer.craft, // craft short link
                     out;//
+                if (info.valueFlag)
+                    if (!afterContext.length) {
+                        beforeContext.push(c.Literal('value')); 
+                    } else {
+                        afterContext.push(c.Literal('value')); // TODO
+                    }
+
                 if (beforeContext.length)
                     out = c.CallExpression(who, 'get', beforeContext);
                 else
                     out = who;
 
-                if (info.valueFlag)
-                    afterContext.push(c.Literal('value'));
-
+                /*if (info.valueFlag)
+                    afterContext.push(c.Literal('value')); // TODO*/
 
                 for (i = 0, _i = afterContext.length; i < _i; i++)
                     out = c.MemberExpression(out, afterContext[i]);

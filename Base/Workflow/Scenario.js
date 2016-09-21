@@ -19,7 +19,9 @@ var Scenario = AbstractComponent.extend('Scenario', {
             {
                 get: Property.defaultGetter,
                 set: Property.defaultSetter
-            }, null)
+            }, null),
+        next: new Property('Function'),
+        back: new Property('Function')
     },
     load: function () {
         this.next();
@@ -57,12 +59,28 @@ var Scenario = AbstractComponent.extend('Scenario', {
         }
     },
     _setPage: function (page) {
+        var self = this;
         page.set('scenario', this);
         this.set('currentPage', page);
+
+        page.on('next', function () {
+            var pValue = page.get('value');
+            if (pValue) {
+                for (var key in pValue) {
+                    if (pValue.hasOwnProperty(key)) {
+                        self.set(key, pValue.key);
+                    }
+                }
+            }
+            self.next();
+        });
+
+        page.on('back', function () {
+            self.back();
+        });
+
         QObject.document.body.innerHTML = '';
         QObject.document.body.appendChild(page.el);
-
-        //p.on('finish', this.processSequence(sequence));
     }
 }, function (cfg) {
     var self = this;
