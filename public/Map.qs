@@ -111,8 +111,8 @@ def Page main
                 enabled: {{ gm.ready }}
                 .click: ()=>{
                     var home = gm.get('home');
-                    console.log('Показать меня, from', home);
-                    console.log('Показать меня, to', gm.get('center'));
+                    console.log('Показать меня, from', gm.get('center'));
+                    console.log('Показать меня, to', home);
                     gm.set('center', home);
                 }
             input: Вывести мое положение
