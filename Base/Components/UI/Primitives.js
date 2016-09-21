@@ -56,6 +56,8 @@ exports['textNode'] = exports['HtmlPrimitive'].extend('textNode', {
     }
 }); */
 
+
+
 /**
  *
  */
@@ -186,12 +188,38 @@ exports['img'] = exports['HtmlPrimitive'].extend('img', {
         src: Property.generate.attributeProperty('src')
     }
 });
+exports['iframe'] = exports['HtmlPrimitive'].extend('iframe', {
+    createEl: function () {
+        this.el = UIComponent.document.createElement('iframe');
+    },
+    _prop: {
+        src: new Property('String', {}, {set: function(key, val){
+            var attrs = this.el.attributes;
+            var el = UIComponent.document.createElement('iframe');
 
+            for(var i in attrs)
+                el.setAttribute(attrs[i].na, attrs[i].value);
+
+            this.el.parentNode.replaceChild(el, this.el);
+            this.el = el;
+            if(el.contentWindow===null)
+                return;
+
+
+
+            var doc = el.contentWindow.document;
+            doc.open();
+            doc.write(val);
+            doc.close();
+
+        },get: Property.defaultGetter})
+    }
+});
 /**
  *
  */
 ('b,big,br,button,canvas,center,div,dl,dt,em,' +
-'font,form,frame,h1,h2,h3,h4,h5,h6,i,iframe,' +
+'font,form,frame,h1,h2,h3,h4,h5,h6,i,' +
 'label,li,ol,option,p,pre,span,sub,sup,' +
 'table,tbody,td,th,thead,tr,u,ul,header,marquee')
     .split(',')

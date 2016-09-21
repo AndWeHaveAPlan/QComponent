@@ -92,7 +92,7 @@ module.exports = (
             },
 
             _prop: (function () {
-                var out = ('left,right,top,bottom,opacity,height,width,float,border,border-left,border-right,border-top,border-bottom,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,border-top-right-radius,border-bottom-right-radius,font-family,font-size'
+                var out = ('opacity,text-transform,left,right,top,bottom,height,width,float,border,border-left,border-right,border-top,border-bottom,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,border-top-right-radius,border-bottom-right-radius,font-family,font-size'
                     .split(',')
                     .reduce(function (store, key) {
                         store[key] = Property.generate.cssProperty('Element`s css property ' + key);
@@ -150,12 +150,13 @@ module.exports = (
                     },
                     get: Property.defaultGetter
                 }, 'true');
-                out.rotation = new Property('Number', { description: 'Component rotation (angle, in degrees)' }, {
+                out.rotation = new Property('Number', {
+                    description: 'Component rotation (angle, in degrees)',
                     set: function (key, val, oldValue) {
                         var m = Matrix2D.createRotation((val / 180) * Math.PI);
-                        this.el.style.transform = m.toStyleString();
-                    },
-                    get: Property.defaultGetter
+                        this.el._transformMatrix = m;
+                        this.el.style.transform = 'rotate(' + val + 'deg)';
+                    }
                 });
                 out.translation = new Property('Array', { description: 'Component translation ([x,y] in "pixels")' }, {
                     set: function (key, val, oldValue) {
@@ -283,7 +284,6 @@ module.exports = (
             this.el.setAttribute('qId', this.id);
             this.el.setAttribute('qType', this._type);
             //}
-
         });
 
         return UIComponent;

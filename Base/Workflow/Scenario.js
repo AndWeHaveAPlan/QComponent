@@ -12,15 +12,17 @@ var Scenario = AbstractComponent.extend('Scenario', {
     _prop: {
         value: new Property('Scenario', {},
             {
-                get: function (name, value) {
-                    return this;
-                }
+                get: Property.defaultGetter,
+                set: Property.defaultSetter
             }, null),
         currentPage: new Property('Page', {},
             {
                 get: Property.defaultGetter,
-                set: function () { }
-            }, null)
+                set: Property.defaultSetter
+            }, null),
+        next: new Property('Function'),
+        back: new Property('Function'),
+        dataContext: new Property('Variant')
     },
     load: function () {
         this.next();
@@ -44,6 +46,7 @@ var Scenario = AbstractComponent.extend('Scenario', {
     back: function () {
         var sequence = (this.sequences[0]);
         if (sequence.canGoBack()) {
+
             var sel = sequence.back();
             if (sel instanceof Selector) {
 
@@ -58,17 +61,36 @@ var Scenario = AbstractComponent.extend('Scenario', {
         }
     },
     _setPage: function (page) {
+        var self = this;
         page.set('scenario', this);
+        page.set('dataContext', this.dataContext);
         this.set('currentPage', page);
+
+        page.on('next', function () {
+            var pValue = page.get('dataContext');
+            if (pValue) {
+                for (var key in pValue) {
+                    if (pValue.hasOwnProperty(key)) {
+                        self.set(key, pValue[key]);
+                        self.dataContext[key] = pValue[key];
+                    }
+                }
+            }
+            self.next();
+        });
+
+        page.on('back', function () {
+            self.back();
+        });
+
         QObject.document.body.innerHTML = '';
         QObject.document.body.appendChild(page.el);
-
-        //p.on('finish', this.processSequence(sequence));
     }
 }, function (cfg) {
     var self = this;
     AbstractComponent.call(this, cfg);
     this.sequences = [];
+    this.dataContext = {};
 
     this._ownComponents.on('add', function (child) {
         if (child instanceof Sequence)

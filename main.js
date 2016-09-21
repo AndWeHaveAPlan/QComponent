@@ -37,60 +37,74 @@ function serveStatic(path) {
 }
 
 var server = http.createServer(function (req, res) {
-    var reqUrl = url.parse(req.url, true);
+
 
     if (req.method==='POST') {
+        var body = '';
         req.on('data',function(chunk){
-            console.log(chunk.toString());
+            body += chunk;
         });
+        req.on('end', function () {
+            console.log(body)
+            doIt(req, res, body, 'compile.qs');
+        });
+        return;
     }
+    doIt(req, res);
 
-    try {
 
-        var path = 'public/' + reqUrl.pathname.substring(1);
+});
+var doIt = function(req, res, source, path){
 
-        if (path.indexOf('css') !== -1 || path.indexOf('js') !== -1) {
-            return res.end(serveStatic(path));
-        }
+    var reqUrl = url.parse(req.url, true);
+    if(!source)
+        try {
 
-        var s = fsExists(path);
-        if (s && !s.isDirectory()) {
-            var source = fs.readFileSync(path) + '';
-        } else {
-            var entries = fs.readdirSync(path);
+            path = 'public/' + reqUrl.pathname.substring(1);
 
-            var out = [];
+            if (path.indexOf('css') !== -1 || path.indexOf('js') !== -1) {
+                return res.end(serveStatic(path));
+            }
 
-            for (var i = 0; i < entries.length; i++) {
-                var cEntry = entries[i];
-                var stat = fs.statSync(Path.join(path, cEntry));
-                if (!stat.isDirectory() && cEntry.indexOf('.qs') !== -1) {
-                    out.push({key: cEntry.toLowerCase(), html:'<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>'});
+            var s = fsExists(path);
+            if (s && !s.isDirectory()) {
+                source = fs.readFileSync(path) + '';
+            } else {
+                var entries = fs.readdirSync(path);
+
+                var out = [];
+
+                for (var i = 0; i < entries.length; i++) {
+                    var cEntry = entries[i];
+                    var stat = fs.statSync(Path.join(path, cEntry));
+                    if (!stat.isDirectory() && cEntry.indexOf('.qs') !== -1) {
+                        out.push({key: cEntry.toLowerCase(), html:'<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>'});
+                    }
                 }
+
+                return res.end(header +
+                    out
+                        .sort(function(a,b){return a.key>b.key?1:a.key<b.key?-1:0;})
+                        .map(function(el){return el.html;})
+                        .join('\n') +
+                    footer);
             }
 
-            return res.end(header +
-                out
-                    .sort(function(a,b){return a.key>b.key?1:a.key<b.key?-1:0;})
-                    .map(function(el){return el.html;})
-                    .join('\n') +
-                footer);
+
+            if (path.indexOf('.qs') === -1)
+                return res.end(source);
+
+
+            console.log('file exists. it`s qs!');
+        }catch(e){
+            return res.end('No file (' + path + ')');
         }
-
-
-        if (path.indexOf('.qs') === -1)
-            return res.end(source);
-
-        var p = new Core.Compile.Linker({
-            mapping: {
-                id: 'id',
-                code: 'code'
-            }
-        });
-        console.log('file exists. it`s qs!');
-    }catch(e){
-        return res.end('No file (' + path + ')');
-    }
+    var p = new Core.Compile.Linker({
+        mapping: {
+            id: 'id',
+            code: 'code'
+        }
+    });
     try{
         var obj = p.add({
             id: path,
@@ -173,9 +187,7 @@ var server = http.createServer(function (req, res) {
     } catch (e) {
         return res.end(e.stack);
     }
-
-
-});
+};
 
 var port = 8001;
 server.listen(port, '0.0.0.0', function (err) {

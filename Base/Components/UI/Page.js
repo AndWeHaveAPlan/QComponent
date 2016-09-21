@@ -15,6 +15,12 @@ module.exports = UIComponent.extend('Page', {
         QObject.document.body.appendChild(this.el);
         this.fire('loaded');
     },
+    next: function () {
+        this.fire('next');
+    },
+    back: function () {
+        this.fire('back');
+    },
     _prop: {
         title: new Property('String', { description: 'Page Title' }, {
             set: function (name, value) {
@@ -24,10 +30,16 @@ module.exports = UIComponent.extend('Page', {
                 return document.title;
             }
         }, ''),
+        dataContext: new Property('Variant', {}, {
+            get: Property.defaultGetter,
+            set: Property.defaultSetter
+        }, {}),
         /**
         *  @type Scenario
         */
-        scenario: new Property('Scenario')
+        scenario: new Property('Scenario'),
+        next: new Property('Function'),
+        back: new Property('Function')
     }
 },
     function (cfg) {
