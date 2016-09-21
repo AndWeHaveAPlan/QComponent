@@ -153,7 +153,8 @@ module.exports = (
                 out.rotation = new Property('Number', { description: 'Component rotation (angle, in degrees)' }, {
                     set: function (key, val, oldValue) {
                         var m = Matrix2D.createRotation((val / 180) * Math.PI);
-                        this.el.style.transform = m.toStyleString();
+                        this.el._transformMatrix = m;
+                        this.el.style.transform = 'rotate(' + val + 'deg)';
                     },
                     get: Property.defaultGetter
                 });
