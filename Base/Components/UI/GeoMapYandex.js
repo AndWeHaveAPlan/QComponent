@@ -59,8 +59,12 @@ module.exports = UIComponent.extend('GeoMapYandex', {
 
       self._createHome();
       self._createPins();
-
       self.ymap.geoObjects.add(self.pins).add(self.home);
+
+      self.ymap.events.add('boundschange', function() {
+        var center = self.get('center');
+        self.set('center', center);
+      });
     },
 
     makeRoute:function(from, to) {

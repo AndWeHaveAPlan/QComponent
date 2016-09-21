@@ -80,6 +80,11 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
     self._createHome();
     self._createPins();
+
+    self.gmap.addListener('dragend', function() {
+      var center = self.get('center');
+      self.set('center', center);
+    });
   },
 
   _makeSearchBox: function(map) {
