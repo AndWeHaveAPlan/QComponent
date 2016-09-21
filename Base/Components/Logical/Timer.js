@@ -44,6 +44,7 @@ module.exports = (function () {
         },
 
         _prop: {
+            start: new Property('Function'),
             enabled: new Property('Boolean', {description: 'start date'}, {
                 set: function (name, value) {
                     if (value) {
