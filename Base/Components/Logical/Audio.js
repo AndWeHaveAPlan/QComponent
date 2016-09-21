@@ -18,7 +18,7 @@ module.exports = LogicalComponent.extend('Audio', {
         time: new Property('Number', {}, {
             set: function (key, val) {
                 this.audio.currentTime = val;
-            },
+            }, 
             get: function () {
                 return this.audio.currentTime;
             }

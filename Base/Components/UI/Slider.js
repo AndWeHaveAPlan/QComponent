@@ -18,9 +18,9 @@ module.exports = UIComponent.extend('Slider', {
         ('back, actual, drag').split(', ').forEach(function (name) {
             el.appendChild(els[name] = doc.createElement('div'));
         });
-        var height = 24,
-            pad = 6,
-            padInner = 4;
+        var height = 12,
+            pad = 3,
+            padInner = 2;
 
         this.apply(el.style, {
             position: 'relative',
@@ -33,29 +33,41 @@ module.exports = UIComponent.extend('Slider', {
             left: pad+'px',
             right: pad+'px',
             top: pad+'px',
-            position: 'absolute'
-        });
-        this.apply(els.drag.style, {
-            width: height +'px',
-            height: height +'px',
-            background: '#777',
-            left: '50%',
-            'margin-left': ((-height/2)|0)+'px',
             position: 'absolute',
-            cursor: 'pointer'
+            transition: 'all 0.05s'
         });
         this.apply(els.actual.style, {
             width: '50%',
             height: height - padInner*2+'px',
             margin: padInner+ 'px',
-            background: '#a91815',
-            position: 'absolute'
+            background: '#e60000',
+            position: 'absolute',
+            transition: 'all 0.05s'
         });
-        els.drag.addEventListener('mouseover', function(){
-            els.drag.style.background = '#000';
+        this.apply(els.drag.style, {
+            width: '0px',
+            height: '0px',
+            'margin-left': '0px',
+            'margin-top': (height/2)+'px',
+            background: els.actual.style.background,
+            left: '50%',
+            position: 'absolute',
+            cursor: 'pointer',
+            'border-radius': height/2+'px',
+            transition: 'all 0.05s'
         });
-        els.drag.addEventListener('mouseout', function(){
-            els.drag.style.background = '#777';
+        this.el.addEventListener('mouseover', function(){
+            els.drag.style.width = height +'px';
+            els.drag.style.height = height +'px';
+            els.drag.style['margin-top']  = '0px';
+            els.drag.style['margin-left']  = -(height/4)+'px';
+        });
+        this.el.addEventListener('mouseout', function(){
+            els.drag.style.width = '0px';
+            els.drag.style.height = '0px';
+            els.drag.style['margin-top']  = (height/2)+'px';
+            els.drag.style['margin-left']  = '0px';
+
         });
         var n  = 0;
         var move = function(e){
@@ -111,7 +123,7 @@ module.exports = UIComponent.extend('Slider', {
             //self.setVal(val);
             window.addEventListener('mousemove', move);
             window.addEventListener('mouseup', up);
-            els.drag.style.background = '#000';
+            els.drag.style.background = els.actual.style.background;
             e.preventDefault();
             e.stopPropagation();
         });
@@ -122,7 +134,7 @@ module.exports = UIComponent.extend('Slider', {
 
             window.addEventListener('mousemove', move);
             window.addEventListener('mouseup', up);
-            els.drag.style.background = '#000';
+            els.drag.style.background = els.actual.style.background;
             e.preventDefault();
             e.stopPropagation();
         });
@@ -196,6 +208,7 @@ module.exports = UIComponent.extend('Slider', {
         fillColor: new Property('String', {}, {
             set: function(key, val){
                 this.els.actual.style.background = val;
+                this.els.drag.style.background = val;
             },
             get: Property.defaultGetter
         })
