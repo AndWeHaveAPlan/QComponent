@@ -62,7 +62,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
                     return this;
                 }
             }),
-        selectionColor: new Property('String', { description: 'Selection color (css notation)' }, null, '#3b99fc'), //qiwi color
+        selectionColor: new Property('String', { description: 'Selection color (css notation)' }, null, '#ffa834'), //qiwi color
         selectedIndex: new Property('Number', { description: 'Index of current selected item' }, {
             set: function (name, val, oldVal) {
                 if (val < 0) return;
