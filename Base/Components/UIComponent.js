@@ -234,6 +234,9 @@ module.exports = (
                     }
                     child.renderTo = insertInto;
                 }
+
+                this.bubble('childAdded', {child: child});
+                
             },
 
             /**
@@ -248,6 +251,7 @@ module.exports = (
                     this.el.removeChild(child.el);
                 }
                 child.renderTo = null;
+                this.bubble('childRemoved', {child: child});
             },
 
             /**
@@ -280,10 +284,6 @@ module.exports = (
             this.el.setAttribute('qType', this._type);
             //}
 
-            this.on('*', function (name) { // TODO bubblable
-                if(name === 'tab')
-                this.parent && this.parent.fire.apply(this.parent, arguments);
-            });
         });
 
         return UIComponent;

@@ -143,6 +143,23 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     },
     findOne: function (matcher) {
         return this.find(matcher)[0];
+    },
+    bubble: function(type, bubble){
+        if(typeof type === 'string') {
+            bubble = bubble || {};
+            bubble.type = type;
+            bubble.me = bubble.me || this;
+            bubble.relays = [];
+        }else{
+            bubble = type;
+        }
+
+        if(this.fire('_bubbleProtocol', bubble) !== false) {
+            if (bubble.stopped !== false && this.parent && this.parent.bubble) {
+                bubble.relays.push(this.parent);
+                this.parent.bubble(bubble);
+            }
+        }
     }
 }, function (cfg) {
     QObject.call(this, cfg);
