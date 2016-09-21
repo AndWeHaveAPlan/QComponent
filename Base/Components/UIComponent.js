@@ -92,7 +92,7 @@ module.exports = (
             },
 
             _prop: (function () {
-                var out = ('left,right,top,bottom,height,width,opacity,float,border,border-left,border-right,border-top,border-bottom,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,border-top-right-radius,border-bottom-right-radius,font-family,font-size'
+                var out = ('text-transform,left,right,top,bottom,height,width,opacity,float,border,border-left,border-right,border-top,border-bottom,overflow,margin,background,color,padding,transform-origin,transition,position,border-radius,border-top-right-radius,border-bottom-right-radius,font-family,font-size'
                     .split(',')
                     .reduce(function (store, key) {
                         store[key] = Property.generate.cssProperty('Element`s css property ' + key);

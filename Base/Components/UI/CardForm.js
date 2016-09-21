@@ -131,7 +131,11 @@ module.exports = UIComponent.extend('CardForm', {
             'left': '140px',
             'width': '53px',
             'font-family': 'monospace',
-            'font-size': '16px'
+            'font-size': '16px',
+            'validator': function (text) { //return false;
+                var parts = text.split('/');
+                return parts[0] <= 12 && parts[0] >= 1;
+            }
         });
         frontForm.addChild(validDate);
         this._eventManager.registerComponent(validDate);
@@ -146,7 +150,7 @@ module.exports = UIComponent.extend('CardForm', {
         });
         frontForm.addChild(tmp);
 
-        var cardholderName = new TextBox({
+        var cardholderName = new MaskedInput({
             id: 'cardholderName',
             'placeholder': 'CARDHOLDER NAME',
             'border': '1px solid #ccc',
@@ -155,7 +159,9 @@ module.exports = UIComponent.extend('CardForm', {
             'left': '20px',
             'width': '200px',
             'font-family': 'monospace',
-            'font-size': '14px'
+            'font-size': '14px',
+            'text-transform': 'uppercase',
+            'mask': 'iiiiiiiiiiiiiiiiiiiii'
         });
         frontForm.addChild(cardholderName);
         this._eventManager.registerComponent(cardholderName);
