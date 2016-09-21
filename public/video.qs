@@ -4,7 +4,6 @@ def Page main
     value: 'http://vjs.zencdn.net/v/oceans.mp4'
     controls: false
 
-
   Slider s1: {{video.time}}
     from: 0
     to: {{video.duration}}
