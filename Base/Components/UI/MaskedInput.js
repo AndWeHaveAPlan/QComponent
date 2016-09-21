@@ -22,29 +22,32 @@ module.exports = InputField.extend('MaskedInput', {
         var beforeSelStart = 0;
         var beforeSelEnd = 0;
 
+        var newStr = '';
+
         var mask = this._data.mask;
         if (!mask) return str;
         for (var i = 0; i < mask.length; i++) {
             if (!this._sChars[mask[i]]) {
-                str = str.replace(new RegExp(mask[i]), '');
-
+                //str = str.replace(mask[i], '');
+                newStr += '';// mask[i];
                 // fix selection
-                if (selRange) {
-                    if (i < selRange.selStart) {
-                        beforeSelStart += 1;
-                        beforeSelEnd += 1;
-                    } else if (i < selRange.selEnd) {
-                        beforeSelEnd += 1;
-                    }
+
+                if (i < selRange.selStart) {
+                    beforeSelStart += 1;
+                    beforeSelEnd += 1;
+                } else if (i < selRange.selEnd) {
+                    beforeSelEnd += 1;
                 }
+
+            } else {
+                newStr += str[i] ? str[i] : '';
             }
         }
-        if (selRange) {
-            selRange.selStart -= beforeSelStart;
-            selRange.selEnd -= beforeSelEnd;
-        }
 
-        return str;
+        selRange.selStart -= beforeSelStart;
+        selRange.selEnd -= beforeSelEnd;
+
+        return newStr;
     },
     _enmask: function (str, selRange) {
         selRange = selRange || { selStart: 0, selEnd: 0 };
