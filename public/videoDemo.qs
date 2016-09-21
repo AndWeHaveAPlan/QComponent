@@ -14,7 +14,7 @@ def Page videoPlayerPage
 		
 		VBox
 		    height: 100%
-		    flexDefinition: * 50px
+		    flexDefinition: * 30px 30px
 			Video video
 				background: black
 				width: 100%
@@ -22,17 +22,22 @@ def Page videoPlayerPage
 				value: {{videoList.selectedItem.url}}
 				controls: false
 				autoplay: true
+				time: {{progressSlider}}
 			div
 				Label: Time left {{video.time|0}}
 					float: left
 				Label: Time to the end {{(video.duration-video.time)|0}}
 					float: right
+			Slider progressSlider: {{video.time}}
+				from: 0
+				to: {{video.duration}}
 
 		ListBox videoList
 			itemSource: [
-				{name:'webm', url:'http://clips.vorwaerts-gmbh.de/VfE.webm'},
-				{name:'mp4', url:'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4'},
-				{name:'ogg/ogv', url:'http://clips.vorwaerts-gmbh.de/VfE.ogv'}
+				{name:'Rabbit webm', url:'http://clips.vorwaerts-gmbh.de/VfE.webm'},
+				{name:'Rabbit mp4', url:'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4'},
+				{name:'Rabbit ogg/ogv', url:'http://clips.vorwaerts-gmbh.de/VfE.ogv'},
+				{name:'Toy story', url:'http://www.html5videoplayer.net/videos/toystory.mp4'}
 				]
 			itemTemplate:
 				div: {{name}}
