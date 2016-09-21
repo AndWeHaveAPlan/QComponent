@@ -65,9 +65,7 @@ module.exports = UIComponent.extend('GeoMapYandex', {
         if(!self._handlingCenterEvent) {
           var center = self.ymap.getCenter();
           //
-          self._handlingCenterEvent = true;
           self.set('center', center);
-          self._handlingCenterEvent = false;
         };
       });
     },
@@ -199,8 +197,12 @@ module.exports = UIComponent.extend('GeoMapYandex', {
             get: Property.defaultGetter,
             set: function (key, value) {
               console.log('ymap set '+ key, value);
+
               if(this.mapApi) {
+                this._handlingCenterEvent = true;
+
                 this.ymap.setCenter(value);
+                this._handlingCenterEvent = false;
               }
             },
         }, [55.76, 37.64]),
