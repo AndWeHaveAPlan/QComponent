@@ -10,12 +10,13 @@ var InputField = require('./InputField');
 module.exports = InputField.extend('MaskedInput', {
     _sChars: {
         'd': /[0-9]/,
-        'c': /[a-z]/,
-        'C': /[A-Z]/,
-        'i': /[a-zA-Z]/,
+        'c': /[a-z ]/,
+        'C': /[A-Z ]/,
+        'i': /[a-zA-Z ]/,
         '*': /./
     },
     _unmask: function (str, selRange) {
+        if (!str) return '';
 
         selRange = selRange || { selStart: 0, selEnd: 0 };
 
@@ -104,18 +105,16 @@ module.exports = InputField.extend('MaskedInput', {
         return selRange;
     },
     _updateValue: function (newVal, selRange) {
-        this.set('pureText', newVal);
-        this.set('value', this._enmask(newVal, selRange));
+        var masked = this._enmask(newVal, selRange);
+        this.set('value', masked);
+        this.set('pureText', masked);
         return selRange;
     },
     _prop: {
         pureText: new Property('String', {}, {
             get: Property.defaultGetter,
-            set: function (name, value) {
-                //var masked = this._enmask(value);
-                //this.set(['maskedText', masked]);
-                //this.el.value = masked;
-                //this.el.setAttribute('value', masked);
+            set: function (name, value, oldValue, e) {
+                e.value(this._unmask(value));
             }
         }, ''),
         maskedText: Property.generate.proxy('value'),
