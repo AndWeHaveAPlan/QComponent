@@ -150,13 +150,13 @@ module.exports = (
                     },
                     get: Property.defaultGetter
                 }, 'true');
-                out.rotation = new Property('Number', { description: 'Component rotation (angle, in degrees)' }, {
+                out.rotation = new Property('Number', {
+                    description: 'Component rotation (angle, in degrees)',
                     set: function (key, val, oldValue) {
                         var m = Matrix2D.createRotation((val / 180) * Math.PI);
                         this.el._transformMatrix = m;
                         this.el.style.transform = 'rotate(' + val + 'deg)';
-                    },
-                    get: Property.defaultGetter
+                    }
                 });
                 out.translation = new Property('Array', { description: 'Component translation ([x,y] in "pixels")' }, {
                     set: function (key, val, oldValue) {
