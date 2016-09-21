@@ -73,8 +73,10 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     self.directionsService = new google.maps.DirectionsService;
     self.directionsDisplay = new google.maps.DirectionsRenderer({
       // draggable: true,
-      map: self.gmap
+      map: self.gmap,
+      preserveViewport: true
     });
+    // directionsDisplay.setOptions({ preserveViewport: true });
 
     self._makeSearchBox(self.gmap);
 
@@ -260,6 +262,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
         origin: arrToLanLng(from),
         destination: arrToLanLng(to),
         travelMode: google.maps.TravelMode.TRANSIT,
+        // provideRouteAlternatives: true, // DOESNT work
         optimizeWaypoints: true
       }, function(response, status) {
         if (status === google.maps.DirectionsStatus.OK) {
