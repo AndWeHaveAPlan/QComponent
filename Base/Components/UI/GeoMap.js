@@ -1,162 +1,204 @@
 /**
- * Created by ravenor on 13.07.16.
+ * Created by nikita on 30.09.16.
  */
 
 var Property = require('../../Property');
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
+// var QObject = require('../../QObject');
+var GeoMapGoogle = require('./GeoMapGoogle');
+var GeoMapYandex = require('./GeoMapYandex');
+var MutatingPipe = require('../../Pipes/MutatingPipe');
+var EventManager = require('../../EventManager')
 
 module.exports = UIComponent.extend('GeoMap', {
     createEl: function () {
         var self = this;
 
-        this.el = UIComponent.document.createElement('div');
-        this.el.id = this.id;
+        // UIComponent.prototype.createEl.call(this);
+        self.el = UIComponent.document.createElement('div');
+        self.el.id = self.id;
 
-        var script = UIComponent.document.createElement("script");
-        script.src = 'https://api-maps.yandex.ru/2.1/?lang=en_US';
-        UIComponent.document.head.appendChild(script);
-
-        script.onload = function () {
-            ymaps.ready(function () {
-                self.mapApi = ymaps;
-                self.ymap = new ymaps.Map(self.id, {
-                    center: [55.76, 37.64],
-                    zoom: self.get('zoom'),
-                    controls: ['zoomControl', 'searchControl']
-                });
-                self.pinns = new ymaps.GeoObjectCollection(null, {
-                    preset: 'islands#blueCircleDotIconWithCaption'
-                });
-                self.home = new ymaps.GeoObjectCollection(null, {
-                    preset: 'islands#redCircleDotIconWithCaption'
-                });
-
-                var home = self._data.home;
-                if (home)
-                    self.home.add(
-                        new ymaps.Placemark(home, {
-                            iconCaption: 'You are here'
-                        })
-                    );
-
-                var pins = self._data.pins;
-                if (pins)
-                    for (var i = 0; i < pins.length; i++) {
-                        var p = pins[i];
-                        p && self.pinns.add(new ymaps.Placemark(p.coords, {
-                            iconCaption: p.name
-                        }));
-                    }
-
-                self.ymap.geoObjects.add(self.pinns).add(self.home);
-
-                self.set('ready', true);
-            });
-        };
+        self._remakeMapByType(self.get('type'));
     },
 
-    makeRoute:function(from, to) {
-        if (!this.mapApi) return;
+    makeRoute: function(from, to) {
+      if(this.myMap) this.myMap.makeRoute(from, to);
+    },
 
-        var self = this;
+    _remakeMapByType: function(mapType) {
+      var self = this;
 
-        self.ymap.geoObjects.remove(self.route);
+      // remove previous map
+      var savedProps = {};
+      if(this.myMap) {
+        console.log('get savedProps');
 
-        self.mapApi.route(
-            [from, to],
-            {routingMode: 'masstransit', multiRoute: true}
-        ).done(function (route) {
-                //self.mapApi.route({referencePoints:[from,to],params:{routingMode: 'masstransit'}}).then(function(route){
-                self.route = route;
-                self.ymap.geoObjects.add(self.route);
+        savedProps = {
+          zoom: this.myMap.get('zoom'),
+          pins: this.myMap.get('pins'),
+          home: this.myMap.get('home'),
+          center: this.myMap.get('center'),
+        };
+        this.el.removeChild(this.myMap.el);
+      }
 
-                function foo(){
-                    var way, segments, moveList = [], tempRoute = route.getActiveRoute();
+      // create and append new map
+      self.myMap = self._createMap(mapType, savedProps);
+      self.el.appendChild(self.myMap.el);
+      // self._ownComponents.push(self.myMap);
 
-                    for (var i = 0; i < tempRoute.getPaths().getLength(); i++) {
-                        way = tempRoute.getPaths().get(i);
-                        segments = way.getSegments();
-                        for (var j = 0; j < segments.getLength(); j++) {
-                            var segment = segments.get(j);
-                            moveList.push(segment.properties.get('text'));
-                        }
-                    }
-                    self.set('moveList', moveList);
-                }
+      // Make pipe to connect 'ready' and child 'ready' props
+      self.localEventManager = new EventManager(self);
+      self.localEventManager.registerComponent(self);
+      self.localEventManager.registerComponent(self.myMap);
+      self.localEventManager.releaseThePipes();
 
-                route.events.add('activeroutechange',foo);
-                foo();
-            });
+      self.localEventManager.createSimplePipe(
+        {component: self.myMap.id, property: "ready"},
+        {component: self.id,       property: "ready"}
+      );
+      self.localEventManager.createSimplePipe(
+        {component: self.myMap.id, property: "moveList"},
+        {component: self.id,       property: "moveList"}
+      );
+      self.localEventManager.createSimplePipe(
+        {component: self.myMap.id, property: "center"},
+        {component: self.id,       property: "center"}
+      );
+      // self.localEventManager.createSimplePipe(
+      //   {component: self.id,       property: "center"},
+      //   {component: self.myMap.id, property: "center"}
+      // );
+    },
+
+    _createMap: function(type, savedProps) {
+      console.log('_createMap, type/savedProps = '+ type, savedProps);
+
+      var mapProps = {
+        height: '100%',
+        width: '100%',
+        zoom: savedProps.zoom || this.get('zoom'),
+        pins: savedProps.pins || this.get('pins'),
+        home: savedProps.home || this.get('home'),
+        center: savedProps.center || this.get('center'),
+      };
+
+      // console.log('_createMap, mapProps = ', mapProps);
+
+      var MapComponent;
+      //
+      if(type === 'yandex') {
+        MapComponent = GeoMapYandex;
+      } else if(type === 'google') {
+        MapComponent = GeoMapGoogle;
+      }
+
+      if(MapComponent) {
+        return new MapComponent(mapProps);
+      } else {
+        console.error('GeoMap._createMap can\'t handle "'+ type +'" type');
+      }
     },
 
     _prop: {
-        makeRoute: new Property('Function'),
-        ready: new Property('Boolean', {description: 'True if YMap api ready'}, {
-            get: Property.defaultGetter,
-            set: function (key, value) {
-            }
-        }, false),
-        zoom: new Property('Number', {description: 'Map zoom level (setZoom for ymap)'}, {
-            get: Property.defaultGetter,
-            set: function (key, value) {
-                if (value > 18)
-                    value = 18;
-                if (value < 0)
-                    value = 0;
+      ready: new Property('Boolean', {
+          description: 'True if GeoMap api ready'
+        }, {
+          get: function(key, value) {
+            console.log('geomap '+key+' get', value);
+            //
+            // if(this.myMap) return this.myMap.get(key, value);
+            return value
+          },
+          set: function(key, value) {
+            console.log('geomap '+key+' set', value);
+          }
+        }, false
+      ),
 
-                if (this.ymap)
-                    this.ymap.setZoom(value, {duration: 1000});
-
-                return value;
-            }
-        }, 11),
-        pins: new Property('Array', {description: 'Mark on map'}, {
-            get: Property.defaultGetter,
-            set: function (key, value) {
-                if (this.mapApi) {
-                    this.pinns.removeAll();
-                    for (var i = 0; i < value.length; i++) {
-                        var p=value[i];
-                        this.pinns.add(
-                            new ymaps.Placemark(p.coords, {
-                                iconCaption: p.name
-                            })
-                        );
-                    }
-                }
-            }
-        }),
-        home: new Property('Array', {description: 'You are here point'}, {
-            get: Property.defaultGetter,
-            set: function (key, value) {
-                if (this.mapApi)
-                    ymaps.ready(function () {
-                        this.home.removeAll();
-                        this.home.add(
-                            new ymaps.Placemark(value, {
-                                iconCaption: 'You are here'
-                            })
-                        );
-                    });
-            }
-        }),
-        moveList: new Property('Array',{},{
-            get: Property.defaultGetter,
-            set: function(){}
-        },[])
-    },
-    addChild: function (child) {
-        var div = new Primitive.div();
-        div.addChild(child);
-        this._children.push(div);
-
-        var children = this.el.childNodes;
-        var count = children.length;
-        for (var i = 0, length = children.length; i < length; i++) {
-            children[i].style.height = 100 / count + '%';
-            children[i].style.position = 'relative';
-            children[i].style.width = '100%';
+      zoom: new Property('Number', {
+          description: 'Map zoom level'
+        }, {
+          get: function(key, value) {
+            console.log('geomap get '+ key, value);
+            //
+            if(this.myMap) return this.myMap.get(key, value);
+          },
+          set: function(key, value) {
+            console.log('geomap set '+ key, value);
+            //
+            if(this.myMap) this.myMap.set(key, value);
+          }
+        }// , 11
+      ),
+      pins: new Property('Array', {
+          description: 'Markers on map'
+        }, {
+          get: function(key, value) {
+            console.log('geomap get '+ key, value);
+            //
+            if(this.myMap) return this.myMap.get(key, value);
+          },
+          set: function(key, value) {
+            console.log('geomap set '+ key, value);
+            //
+            if(this.myMap) this.myMap.set(key, value);
+          }
         }
+      ),
+      home: new Property('Array', {description: 'You are here point'}, {
+        get: function(key, value) {
+          console.log('geomap get '+ key, value);
+          //
+          if(this.myMap) return this.myMap.get(key);
+        },
+        set: function(key, value) {
+          console.log('geomap set '+ key, value);
+          //
+          if(this.myMap) this.myMap.set(key, value);
+        }
+      }),
+      moveList: new Property('Array', {}, {
+        get: function(key, value) {
+          console.log('geomap get '+ key, value);
+          //
+          if(this.myMap) return this.myMap.get(key);
+        },
+        set: function(key, value) {}
+      }, []),
+      type: new Property('String', {}, {
+        get: Property.defaultGetter,
+        set: function(key, value) {
+          console.log('geomap set '+ key, value);
+          var self = this;
+
+          self.set('ready', false);
+          self._remakeMapByType(value);
+        }
+      }, 'yandex'),
+      // }, 'google')
+      center: new Property('Array', {description: 'Map viewport center position'}, {
+          // get: function (key, value) {
+          //   console.log('geomap get '+ key, value);
+          //   if(this.myMap) return this.myMap.get(key);
+          //   else return value;
+          // },
+          get: Property.defaultGetter,
+          set: function (key, value) {
+            // console.log('geomap set '+ key, value);
+            var thisCenter = this.get('center');
+            // if(this.myMap) return this.myMap.set(key, value);
+            if(this.myMap) {
+
+              console.log('geomap set true', value, thisCenter);
+              //
+              this.myMap.set(key, value);
+
+            } else {
+              console.log('geomap set false', value, thisCenter);
+            }
+          },
+      }, [55.76, 37.64]),
     }
 });
