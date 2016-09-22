@@ -242,23 +242,32 @@ module.exports = (function() {
             renderSource: function(fileName, info){
                 var source = this.sources[fileName],
                     tokens = source.tokens,
-                    i, _i, out = [], padding = 2, line, maxL;
+                    i, _i, out = [], padding = 2, line, lines, maxL,
+                    j, _j, currentRow;
 
                 i = Math.max(info.row - padding-1, 0);
-                _i = Math.min(info.row + padding, tokens.length);
-                maxL = (Math.log10(source.tokens[_i-1].row)+1)|0;
+                _i = info.row + padding;
+                maxL = (Math.log10(_i-1)+1)|0;
 
-                for(; i < _i; i++){
-                    var cToken = source.tokens[i];
+                var from = cTools.findIndexBefore(source.tokens, i, 'row'),
+                    to = cTools.findIndexBefore(source.tokens, _i, 'row');
+
+                for(from; from < to; from++){
+                    var cToken = source.tokens[from];
                     line = '';
-                    for (var j = 0; j < cToken.items.length; j++) {
+                    for (j = 0; j < cToken.items.length; j++) {
                         var cItem = cToken.items[j];
-                        line+=cItem.pureData;
-
+                        line+=cItem.data;
                     }
-                    out.push(cToken.row +': '+ cTools.pad(maxL-(cToken.row+'').length) + new Array((cToken.col|0)+1).join(' ') +line);
-                    if(cToken.row === info.row)
-                        out.push(cTools.pad(info.col+maxL+2)+'^---- linker was scared here ----');
+                    lines = line.split('\n');
+                    for (j = 0, _j = lines.length; j < _j; j++) {
+                        currentRow = cToken.row + j;
+                        if(currentRow >= i && currentRow <= _i) {
+                            out.push(currentRow + ': ' + cTools.pad(maxL - (currentRow + '').length) + lines[j]);
+                            if (currentRow === info.row)
+                                out.push(cTools.pad(info.col + maxL + 2) + '^---- linker was scared here ----');
+                        }
+                    }
                 }
                 return out.join('\n');
 
