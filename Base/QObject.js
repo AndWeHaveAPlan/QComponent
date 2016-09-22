@@ -258,6 +258,7 @@ module.exports = (function () {
         _mixing: function (cfg, mixin/* base */) {
 
             var mixinInit = [];
+
             if (prototype.isArray(mixin)) {
                 mixin.push(cfg);
                 return mixin.reduce(function (base, mixin) {
@@ -271,7 +272,6 @@ module.exports = (function () {
                         }
                         mixin = components[mixin] || mixins[mixin];
                     }
-
                     if (!mixin)
                         throw new Error('Unknows mixin `' + name + '`');
 
@@ -468,10 +468,13 @@ module.exports = (function () {
             mixins = [];
         }
         mixins.unshift(original.prototype);
+
+        cfg._type = name;
         Cmp.prototype = prototype._mixing(cfg, mixins);
         Cmp.prototype.constructor = Cmp;
 
         Cmp._type = Cmp.prototype._type = name;
+        Cmp._prototype = Cmp.prototype._prototype = this._type;
         Cmp.extend = QObject.extend;
         Cmp.document = QObject.document;
 

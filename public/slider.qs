@@ -1,13 +1,14 @@
 def Page main
+    opacity: {{opacity}}
     background: rgba({{s1|0}},{{s2.value}},{{s3}},1)
     VBox
         //skew: {{[s2.value*0.003,-s2.value*0.003]}}
         Slider s1: 50
-            from: 0
+            from: 11//фуфя /* dawd */ aa
             to: 255
             fillColor: rgb({{s1.value|0}}, 0, 0)
 
-        span: Red: {{s1}}
+        Label: Red: {{s1}}
 
         Slider s2: 100
             from: -255
@@ -15,7 +16,7 @@ def Page main
             step: 1
             fillColor: rgb(0, {{s2}}, 0)
 
-        span: Green: {{s2}}
+        Label: Green: {{s2}}
 
         Slider s3:200
             from: 0
@@ -23,18 +24,13 @@ def Page main
             step: 5
             fillColor: rgb(0, 0, {{s3}})
 
-        Slider a: 10
-            from: -20
-            to: 20
+        Label: Blue: {{s3}}
 
-        Slider b: 10
-            from: -20
-            to: 20
+        Slider opacity: 1
+            from: 0
+            to: 1
 
-        Label: {{a/b+Math.sqrt(s2)}}
-
-        span: Blue: {{s3}}
-
+        Label: Page opacity: {{opacity}}
 
         input: 8
           type: number

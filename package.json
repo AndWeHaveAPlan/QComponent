@@ -18,7 +18,8 @@
     "z-lib-structure-dequeue": "*",
     "tiny-uuid": "*",
     "esprima": "*",
-    "escodegen": "*"
+    "escodegen": "*",
+    "querystring": "*"
   },
   "devDependencies": {
     "chai": "*",
