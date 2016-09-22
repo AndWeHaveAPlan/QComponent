@@ -3,13 +3,10 @@
  */
 
 var Property = require('../../Property');
-var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
-// var QObject = require('../../QObject');
 var GeoMapGoogle = require('./GeoMapGoogle');
 var GeoMapYandex = require('./GeoMapYandex');
-var MutatingPipe = require('../../Pipes/MutatingPipe');
-var EventManager = require('../../EventManager')
+var EventManager = require('../../EventManager');
 
 module.exports = UIComponent.extend('GeoMap', {
     createEl: function () {
@@ -38,7 +35,7 @@ module.exports = UIComponent.extend('GeoMap', {
           zoom: this.myMap.get('zoom'),
           pins: this.myMap.get('pins'),
           home: this.myMap.get('home'),
-          center: this.myMap.get('center'),
+          center: this.myMap.get('center')
         };
         this.el.removeChild(this.myMap.el);
       }
@@ -81,7 +78,7 @@ module.exports = UIComponent.extend('GeoMap', {
         zoom: savedProps.zoom || this.get('zoom'),
         pins: savedProps.pins || this.get('pins'),
         home: savedProps.home || this.get('home'),
-        center: savedProps.center || this.get('center'),
+        center: savedProps.center || this.get('center')
       };
 
       // console.log('_createMap, mapProps = ', mapProps);
@@ -95,9 +92,10 @@ module.exports = UIComponent.extend('GeoMap', {
       }
 
       if(MapComponent) {
+        // ReSharper disable once InvokedExpressionMaybeNonFunction
         return new MapComponent(mapProps);
       } else {
-        console.error('GeoMap._createMap can\'t handle "'+ type +'" type');
+        return console.error('GeoMap._createMap can\'t handle "'+ type +'" type');
       }
     },
 
@@ -107,9 +105,7 @@ module.exports = UIComponent.extend('GeoMap', {
         }, {
           get: function(key, value) {
             console.log('geomap '+key+' get', value);
-            //
-            // if(this.myMap) return this.myMap.get(key, value);
-            return value
+              return value;
           },
           set: function(key, value) {
             console.log('geomap '+key+' set', value);
@@ -162,7 +158,6 @@ module.exports = UIComponent.extend('GeoMap', {
       moveList: new Property('Array', {}, {
         get: function(key, value) {
           console.log('geomap get '+ key, value);
-          //
           if(this.myMap) return this.myMap.get(key);
         },
         set: function(key, value) {}
@@ -177,28 +172,17 @@ module.exports = UIComponent.extend('GeoMap', {
           self._remakeMapByType(value);
         }
       }, 'yandex'),
-      // }, 'google')
       center: new Property('Array', {description: 'Map viewport center position'}, {
-          // get: function (key, value) {
-          //   console.log('geomap get '+ key, value);
-          //   if(this.myMap) return this.myMap.get(key);
-          //   else return value;
-          // },
           get: Property.defaultGetter,
           set: function (key, value) {
-            // console.log('geomap set '+ key, value);
             var thisCenter = this.get('center');
-            // if(this.myMap) return this.myMap.set(key, value);
             if(this.myMap) {
-
               console.log('geomap set true', value, thisCenter);
-              //
               this.myMap.set(key, value);
-
             } else {
               console.log('geomap set false', value, thisCenter);
             }
-          },
-      }, [55.76, 37.64]),
+          }
+      }, [55.76, 37.64])
     }
 });
