@@ -247,6 +247,7 @@ module.exports = (function () {
         mixin: function (name, cfg) {
             mixins[name] = cfg;
             cfg._type = name;
+            return cfg;
         },
 
         /**

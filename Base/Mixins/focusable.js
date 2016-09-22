@@ -12,12 +12,12 @@ module.exports = (function () {
         tabCycle = require('./tabCycle');
     QObject.logging('focusable');
 
-    QObject.mixin('focusable', {
+    return QObject.mixin('focusable', {
         focusable: true,
         _init: function(){
 
             return;
-            var item,
+            /*var item,
                 tabIndex = this.get('tabIndex')|0, i;
 
             for(i = list.length - 1; i >= 0; i--){
@@ -39,7 +39,7 @@ module.exports = (function () {
                 this.bubble('focus');
                 console.log('focused', this.id);
             });
-            console.log(list.map(QObject.getProperty('id')));
+            console.log(list.map(QObject.getProperty('id')));*/
         },
         blur: function () {
             if( !this._data.focused || this.fire('tryBlur') === false )
