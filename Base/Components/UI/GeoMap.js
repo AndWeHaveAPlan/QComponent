@@ -15,8 +15,6 @@ module.exports = UIComponent.extend('GeoMap', {
         // UIComponent.prototype.createEl.call(this);
         self.el = UIComponent.document.createElement('div');
         self.el.id = self.id;
-
-        self._remakeMapByType(self.get('type'));
     },
 
     makeRoute: function(from, to) {

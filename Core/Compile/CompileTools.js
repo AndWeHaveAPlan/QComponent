@@ -280,6 +280,9 @@ module.exports = (function () {
             }
             prop = metadata._prop;
 
+            if (!prop)
+                return false;
+
             if (prop[name])
                 return prop[name];
             if (prop['default'])
@@ -581,7 +584,7 @@ module.exports = (function () {
                     out;//
                 if (info.valueFlag)
                     if (!afterContext.length) {
-                        beforeContext.push(c.Literal('value')); 
+                        beforeContext.push(c.Literal('value'));
                     } else {
                         afterContext.push(c.Literal('value')); // TODO
                     }
