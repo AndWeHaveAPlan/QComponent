@@ -683,6 +683,27 @@ module.exports = (function () {
                 });
             else
                 return this.indent(number, data.split('\n')).join('\n');
+        },
+        /**
+         * Binary search
+         * @param arr - array of elements
+         * @param val - value
+         * @param key - key that contains value
+         * @returns {number|*}
+         */
+        findIndexBefore: function( arr, val, key ){
+            var l1 = 0,
+                delta = arr.length,
+                floor = Math.floor,
+                place;
+            while( delta > 1 ){
+                delta = delta / 2;
+                if( arr[floor(l1 + delta)][key] <= val ){
+                    l1 += delta;
+                }
+            }
+            place = floor(l1+delta)-1;
+            return place;
         }
     };
     return tools;
