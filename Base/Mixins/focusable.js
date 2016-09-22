@@ -15,8 +15,11 @@ module.exports = (function () {
     QObject.mixin('focusable', {
         focusable: true,
         _init: function(){
+
+            return;
             var item,
                 tabIndex = this.get('tabIndex')|0, i;
+
             for(i = list.length - 1; i >= 0; i--){
                 item = list[i];
                 if((item.get('tabIndex')|0) <= tabIndex)
@@ -33,6 +36,7 @@ module.exports = (function () {
 
             });
             this.on('focus', function (direction) {
+                this.bubble('focus');
                 console.log('focused', this.id);
             });
             console.log(list.map(QObject.getProperty('id')));
@@ -114,7 +118,7 @@ module.exports = (function () {
                 this.listen.keyboard.on({
                     'tab': function(e){
                         this.blur();
-                        this.fire( 'tab', e.shiftKey ? -1 : 1 );
+                        this.bubble( 'tab', {direction: e.shiftKey ? -1 : 1});
                         e.stopPropagation();
                         e.preventDefault();
                     }
@@ -155,7 +159,7 @@ module.exports = (function () {
                 js.util.Dom.addListener(this.blurEl,'keydown', function(e){
                     var code = js.util.Keyboard.getCode(e);
                     if( code === js.util.Dom.keyCode.tab ){
-                        this.fire('tab', e.shiftKey ? -1 : 1 );
+                        this.bubble( 'tab', {direction: e.shiftKey ? -1 : 1});
                     }else if( code === js.util.Dom.keyCode.enter || code === js.util.Dom.keyCode.space ){
 
                         this.fire((code === js.util.Dom.keyCode.enter ? 'enter' : 'space') + 'Key', e);
