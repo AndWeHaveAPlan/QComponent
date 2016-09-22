@@ -9,7 +9,7 @@ def Page main
         height: 100%
         width: 100%
 
-        GeoMap gm:
+        GeoMapYandex gm:
             zoom: 11
             home: [55.794425,37.587836]
             pins: {{[list.selectedItem]}}
@@ -83,26 +83,6 @@ def Page main
                     var newZoom = gm.get('zoom') - 1;
                     gm.set('zoom', newZoom);
                 }
-            input: Карты yandex
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    console.log('Карты yandex');
-                    gm.set('type', 'yandex');
-                }
-            input: Карты google
-                margin: 12px
-                padding: 12px
-                width: 376px
-                type: button
-                enabled: {{ gm.ready }}
-                .click: ()=>{
-                    console.log('Карты google');
-                    gm.set('type', 'google');
-                }
             input: Показать меня
                 margin: 12px
                 padding: 12px
@@ -111,8 +91,6 @@ def Page main
                 enabled: {{ gm.ready }}
                 .click: ()=>{
                     var home = gm.get('home');
-                    console.log('Показать меня, from', gm.get('center'));
-                    console.log('Показать меня, to', home);
                     gm.set('center', home);
                 }
             input: Вывести мое положение
@@ -123,7 +101,7 @@ def Page main
                 enabled: {{ gm.ready }}
                 .click: ()=>{
                     var center = gm.get('center');
-                    console.log('Вывести мое положение', center);
+                    console.log('My position', center);
                 }
             ListBox:
                 overflow: auto
