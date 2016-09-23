@@ -7,7 +7,7 @@ var Property = require('../../Property');
 var RadioButton = require('./RadioButton');
 
 var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
-    _setChecked: function (rb) {
+    /*_setChecked: function (rb) {
         var radioButtons = this._radioButtons;
         for (var key in radioButtons) {
             if (radioButtons.hasOwnProperty(key)) {
@@ -16,15 +16,31 @@ var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
             }
         }
         this.set('value', rb.get('value'));
-    },
+    },*/
     addRadioButton: function (rb) {
         var self = this;
-        if (self._radioButtons[rb.id]) return;
-        self._radioButtons[rb.id] = rb;
-        if (rb.get('checked'))
-            self._setChecked(rb);
+        var currentValue = this._data.value;
+        var rbValue = rb.get('value');
+
+        if (self._radioButtons[rb.id] && self._radioButtons[rb.id].value === rbValue) return;
+
+        self._radioButtons[rb.id] = {
+            radioButton: rb,
+            value: rbValue
+        };
+
+        if (currentValue) {
+            if (rbValue === currentValue)
+                rb.set('checked', true);
+            else
+                rb.set('checked', false);
+        } else {
+            if (rb.get('checked'))
+                self.set('value', rbValue);
+        }
+
         rb.on('checked', function () {
-            self._setChecked(rb);
+            self.set('value', rbValue);
         });
     },
     _onChildAdd: function (child) {
@@ -35,7 +51,21 @@ var RadioButtonGroup = UIComponent.extend('RadioButtonGroup', {
         }
     },
     _prop: {
-        value: new Property('String')
+        value: new Property('String', { description: 'Represent value of currently selected RadioButton in this group' },
+            {
+                get: Property.defaultGetter,
+                set: function (name, value, oldValue, e) {
+                    var radioButtons = this._radioButtons;
+                    for (var key in radioButtons) {
+                        if (radioButtons.hasOwnProperty(key)) {
+                            if (radioButtons[key].value !== value)
+                                radioButtons[key].radioButton.set('checked', false);
+                            else
+                                radioButtons[key].radioButton.set('checked', true);
+                        }
+                    }
+                }
+            })
     }
 },
     function (cfg) {

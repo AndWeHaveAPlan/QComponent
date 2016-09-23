@@ -22,10 +22,18 @@ var RadioButton = UIComponent.extend('RadioButton', {
         this.label = labelEl;
         this.input = inputEl;
 
-        this.el.addEventListener('click', function (event) {
-            self.set('checked', true);
-            self.fire('checked', this);
-        });
+        this.el.addEventListener('click',
+            function (event) {
+                //  event.preventDefault();
+                //   event.stopPropagation();
+                //setTimeout(function () {
+                self.set('checked', true);
+                //},
+                //    100
+                //);
+
+                return false;
+            });
     },
     _prop: {
         caption: new Property('String', { description: 'Text near the radio button' },
@@ -39,7 +47,13 @@ var RadioButton = UIComponent.extend('RadioButton', {
             {
                 get: Property.defaultGetter,
                 set: function (name, value, oldValue, e) {
-                    this.input.checked = value;
+                    if (value) {
+                        if (!oldValue)
+                            this.fire('checked', this);
+                        this.input.checked = true;
+                    } else {
+                        this.input.checked = void 0;
+                    }
                 }
             }, false),
         group: new Property('RadioButtonGroup', {},

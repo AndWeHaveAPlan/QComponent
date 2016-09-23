@@ -21,7 +21,8 @@ var Scenario = AbstractComponent.extend('Scenario', {
                 set: Property.defaultSetter
             }, null),
         next: new Property('Function'),
-        back: new Property('Function')
+        back: new Property('Function'),
+        dataContext: new Property('Variant')
     },
     load: function () {
         this.next();
@@ -45,6 +46,7 @@ var Scenario = AbstractComponent.extend('Scenario', {
     back: function () {
         var sequence = (this.sequences[0]);
         if (sequence.canGoBack()) {
+
             var sel = sequence.back();
             if (sel instanceof Selector) {
 
@@ -61,14 +63,16 @@ var Scenario = AbstractComponent.extend('Scenario', {
     _setPage: function (page) {
         var self = this;
         page.set('scenario', this);
+        page.set('dataContext', this.dataContext);
         this.set('currentPage', page);
 
         page.on('next', function () {
-            var pValue = page.get('value');
+            var pValue = page.get('dataContext');
             if (pValue) {
                 for (var key in pValue) {
                     if (pValue.hasOwnProperty(key)) {
-                        self.set(key, pValue.key);
+                        self.set(key, pValue[key]);
+                        self.dataContext[key] = pValue[key];
                     }
                 }
             }
@@ -86,6 +90,7 @@ var Scenario = AbstractComponent.extend('Scenario', {
     var self = this;
     AbstractComponent.call(this, cfg);
     this.sequences = [];
+    this.dataContext = {};
 
     this._ownComponents.on('add', function (child) {
         if (child instanceof Sequence)
