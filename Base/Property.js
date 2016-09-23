@@ -84,13 +84,23 @@ module.exports = (function () {
      * @param cfg
      * @param defaultValue
      */
-    var Property = function (type, metadata, cfg, defaultValue) {
-        QObject = QObject || require('./QObject');
-        this.metadata = metadata || {};
-        cfg = cfg || {};
+    var Property = function (type, cfg) {// metadata, cfg, defaultValue) {
 
-        if ('set' in this.metadata || 'get' in this.metadata)
-            throw new Error('do not put get/set to metadata');
+        cfg = cfg || {};
+        type = type || 'Variant';
+
+        if (arguments.length > 2) {
+            var arg2 = arguments[2] || {};
+            cfg.get = arg2.get || Property.defaultGetter;
+            cfg.set = arg2.set || Property.defaultSetter;
+        }
+
+        if (arguments.length > 3) {
+            cfg.defaultValue = arguments[3];
+        }
+
+        QObject = QObject || require('./QObject');
+        this.metadata = { description: cfg.description };
 
         var dataType = dataTypes[type];
 
@@ -104,25 +114,38 @@ module.exports = (function () {
         this.proxyFor = this.metadata.proxyFor = cfg.proxyFor;
         this.type = this.metadata.type = type;
 
-        if (arguments.length > 3) {
+        if ('defaultValue' in cfg) {
             this.setDefault = true;
-            this.metadata.defaultValue = defaultValue;
+            this.metadata.defaultValue = cfg.defaultValue;
         } else {
             this.setDefault = false;
         }
 
-        if (!('set' in cfg) && !('get' in cfg)) {
-            this._set = dataType.set;
-            this._get = dataType.get;
+        if (!cfg.get) {
+            if (cfg.get !== false)
+                this._get = dataType.get;
         } else {
-            this._set = cfg.set;
             this._get = cfg.get;
         }
+
+        if (!cfg.set) {
+            if (cfg.set !== false)
+                this._set = dataType.set;
+        } else {
+            this._set = cfg.set;
+        }
+
 
         this.firstSet = true;
     };
 
     Property.prototype = {
+        _ctor2: function (type, cfg) {
+
+        },
+        _ctor4: function (type, cfg) {
+
+        },
         /**
          * 
          * @param {} value 
@@ -136,7 +159,7 @@ module.exports = (function () {
                 flags;
 
 
-            if ((value !== oldValue) || this.firstSet) {
+            if ((value !== oldValue) || !obj._propReady) {
                 this.firstSet = false;
                 flags = new SetterFlags();
                 obj._data[key] = value;
@@ -190,6 +213,25 @@ module.exports = (function () {
     Property.generate = {
         proxy: function (proxyFor) {
             return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property' }, { proxyFor: proxyFor });
+        },
+        number: function (value, metadataAndCfg) {
+            // TODO
+            // bind this to setter and getter
+
+            var defaultSetter = function () {};
+            var defaultGetter = dataTypes.Variant.get;
+            var defaultDescription = "Default number description";
+            //
+            var metacfg = metadataAndCfg || {};
+
+            var set = metacfg.set || defaultSetter;
+            var get = metacfg.get || defaultGetter;
+            var description = metacfg.description || defaultDescription;
+
+            return new Property('Number',
+                {description: description},
+                {set: set, get: get}
+            );
         },
         typed: function (name, cls) {
             return {

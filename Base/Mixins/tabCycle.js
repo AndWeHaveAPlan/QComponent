@@ -17,13 +17,24 @@ module.exports = (function () {
     return QObject.mixin('tabCycle', {
         _init: function () {
             this.tabCycleList = [];
+            this.on('_bubbleProtocol', function(cfg){
+                if(cfg.type === 'tab'){
+                    debugger;
 
+                    return false;
+                }
+                console.log(cfg);
+            });
+            this.on('tab', function(a,b){
+                debugger;
+                console.log(a,b)
+            });
         },
         addTabbableItem: function (item) {
             this.tabElementList.push(item);
         },
         removeTabbableItem: function (item) {
-
+            
         }
     });
 })();

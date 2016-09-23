@@ -7,7 +7,7 @@ var tools = module.exports = (function() {
         return text.replace(/^\s+/, '');
     };
     var variableExtractor = require('./VariableExtractor'),
-        QObject = require('../../Base').QObject;
+        QObject = require('../../Base').QObject
     
     return {
         removeFirstWord: function (item, word) {
