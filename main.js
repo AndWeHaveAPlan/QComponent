@@ -37,8 +37,6 @@ function serveStatic(path) {
 }
 
 var server = http.createServer(function (req, res) {
-
-
     if (req.method==='POST') {
         var body = '';
         req.on('data',function(chunk){
@@ -51,8 +49,6 @@ var server = http.createServer(function (req, res) {
         return;
     }
     doIt(req, res);
-
-
 });
 var doIt = function(req, res, source, path){
 

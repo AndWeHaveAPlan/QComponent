@@ -140,6 +140,12 @@ module.exports = (function() {
                         defines[info.name] = info;
                         item.type = info.type;
                         defineCheck[info.name] = true;
+
+                        if(!info.name)
+                            throw new Error('Class extending from `' + info.type + '` need to have a name  (' + source.id + ':' + item.row + ':' + item.col + ')\n'+
+                                'Source:\n'+ cTools.indent(1, this.renderSource(source.id, item))+'\n\n');
+
+
                     }
                 }
 
@@ -222,6 +228,8 @@ module.exports = (function() {
 
                     }
                 }
+
+                for(var i in localShadow)if(!localShadow[i].defined)console.log('und', i)
                 return localShadow;
 
                 /*console.log(depend);
@@ -249,7 +257,7 @@ module.exports = (function() {
                 _i = info.row + padding;
                 maxL = (Math.log10(_i-1)+1)|0;
 
-                var from = cTools.findIndexBefore(source.tokens, i, 'row'),
+                var from = Math.max(0, cTools.findIndexBefore(source.tokens, i, 'row')),
                     to = cTools.findIndexBefore(source.tokens, _i, 'row');
 
                 for(from; from < to; from++){
@@ -288,7 +296,7 @@ module.exports = (function() {
                     kw[i] = QObject.arrayToObject(KEYWORDS[i]);
                     this.apply(kws, kw[i]);
                 }
-
+              if(children)
                 for(i = 0, _i = children.length; i < _i; i++){
                     child = children[i];
 
@@ -310,6 +318,14 @@ module.exports = (function() {
                     if(isEvent) {
                         (childrenHolder.events || (childrenHolder.events = [])).push(info);
                     }else{
+
+                        if(info.type.match(cTools.variableNameRegex) === null)
+                            throw new Error('Unexaptable type `' + info.type + '` (' + fileName + ':' + child.row + ':' + child.col + ')\n'+
+                                'Source:\n'+ cTools.indent(1, this.renderSource(fileName, child))+'\n\n');
+
+                        if(info.name && info.name.match(cTools.variableNameRegex) === null)
+                            throw new Error('Unexaptable name `' + info.name + '` (' + fileName + ':' + child.row + ':' + child.col + ')\n'+
+                                'Source:\n'+ cTools.indent(1, this.renderSource(fileName, child))+'\n\n');
 
                         /** isProperty contains
                          * false: if property can not be find in class metadata

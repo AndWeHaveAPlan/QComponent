@@ -15,7 +15,9 @@ module.exports = (function () {
     QObject.mixin('focusable', {
         focusable: true,
         _init: function(){
-
+            this.on('tab', function (direction) {
+                this.bubble('tab');
+            });
             return;
             var item,
                 tabIndex = this.get('tabIndex')|0, i;

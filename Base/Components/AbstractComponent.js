@@ -104,7 +104,7 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     },
 
     _afterInit: function () {
-        this._init();
+        QObject.prototype._afterInit.call(this);
         this._eventManager.releaseThePipes();
     },
 
