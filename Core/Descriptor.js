@@ -58,7 +58,7 @@ module.exports.makeBase = function (base, level) {
 
     for (var c in base) {
         if (base.hasOwnProperty(c)) {
-            if (base[c]._type) {
+            if (base[c] instanceof QObject) {
                 var mName = c;
                 if (mName in QObject._knownComponents) {
                     html += '<a href="/describe/' + mName + '" style="' + getMargin(level) + '; display: block;"><h3>' + mName + '</h3></a>';
@@ -86,7 +86,7 @@ module.exports.describeComponent = function (name) {
     //Inheritance Hierarchy
     html += '<h2 style="padding-left: 24px">Inheritance Hierarchy</h2>';
     html += getClassStructure(name).reverse().map(function (cls, b) {
-        return '<div style="' + getMargin(b+2) + '" >⬑&nbsp;<a href="/describe/' + cls + '">' + cls + '</a></div>';
+        return '<div style="' + getMargin(b + 2) + '" >⬑&nbsp;<a href="/describe/' + cls + '">' + cls + '</a></div>';
     }).join('');
 
     //Public properties
@@ -99,7 +99,7 @@ module.exports.describeComponent = function (name) {
                 html += '<div style="margin-bottom: 6px;">';
                 html += '<h3  class="highlight" style="padding-left: 48px">' + p + ': <span class="cls">' + prop.type + '<span></h3>';
                 if (prop.metadata.description)
-                html += '<span style="padding-left: 48px">' + prop.metadata.description + '</span>';
+                    html += '<span style="padding-left: 48px">' + prop.metadata.description + '</span>';
                 html += '</div></br>';
             }
         }

@@ -9,7 +9,7 @@ var TextMarker = require('./TextMarker');
 var charByNumber = require('./charByNumber');
 var arrToLanLng = require('./arrToLanLng');
 var minMax = require('./minMax');
-var loadScript = require('./loadScript')
+var loadScript = require('./loadScript');
 // require('./MapLabel');
 
 function getApiByKey(apiKey) {
@@ -135,7 +135,7 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
     var markers = [];
     // Listen for the event fired when the user selects a prediction and retrieve
     // more details for that place.
-    searchBox.addListener('places_changed', function() {
+    searchBox.addListener('places_changed', function () {
       var places = searchBox.getPlaces();
 
       if (places.length == 0) {
@@ -314,24 +314,25 @@ module.exports = UIComponent.extend('GeoMapGoogle', {
 
     value: new Property.generate.proxy('ready'),
 
-    zoom: new Property('Number', {
-        description: 'Map zoom level (setZoom for gmap)'
-      }, {
-        get: function(key, value) {
-          // console.log('get', this);
-          if(this.mapApi && this.gmap)
-            return this.gmap.getZoom();
-          else return value;
-        },
-        set: function(key, value) {
-          // console.log('set', this);
-          if (this.mapApi && this.gmap) {
-            var zoomFixed = minMax(value, 0, 18);
-            this.gmap.setZoom(zoomFixed);
-            return zoomFixed;
-          }
+    zoom: new Property('Number',
+        {
+            description: 'Map zoom level (setZoom for gmap)',
+            get: function(key, value) {
+                // console.log('get', this);
+                if (this.mapApi && this.gmap)
+                    return this.gmap.getZoom();
+                else return value;
+            },
+            set: function(key, value) {
+                // console.log('set', this);
+                if (this.mapApi && this.gmap) {
+                    var zoomFixed = minMax(value, 0, 18);
+                    this.gmap.setZoom(zoomFixed);
+                    return zoomFixed;
+                }
+            },
+            defaultValue: 11
         }
-      }, 11
     ),
 
     pins: new Property('Array', {
