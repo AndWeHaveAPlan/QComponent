@@ -9,25 +9,33 @@ def Page page3
 	Button: next
 	    .click: ()-> next()		
 
+def Page errPage
+	width: 100%
+	height: 100%
+	background: #fff
+	h1: Error
+
+	Button: back
+	    .click: ()-> back()
+
 def Page page0
 	width: 100%
 	height: 100%
-	public Scenario scenario
-	public Variant value: {}
 
 	background: #ccc
 	h1: Page 0
 
 	Button: back
 	    .click: ()-> back()		
-	Button: next
-	    //value.insuranceType=type;
-	    .click: ()-> next()		
+	Button: next	    
+	    .click: ()->
+		    self.dataContext.insuranceType=type;
+		    next();
+		      
 
-	RadioButtonGroup type: {{value.insuranceType}}
+	RadioButtonGroup type: {{dataContext.insuranceType}}
 	   RadioButton: osago
 	       caption: osago
-		   checked: true
 	   RadioButton: casco
 	       caption: casco
 
@@ -67,9 +75,15 @@ def Scenario main
 	Sequence
 		Selector
 			page: page0
+
 		Selector: insuranceType=='osago'
 			page: page1
+
 		Selector: insuranceType=='casco'
 			page: page2
+
+		Selector: !insuranceType
+			page: errPage
+
 		Selector
 			page: page3

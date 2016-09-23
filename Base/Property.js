@@ -233,7 +233,7 @@ module.exports = (function () {
                             this.el[attr] = val;
                         }
 
-                        this.el[attr] = val;
+                        //this.el[attr] = val;
                     },
                     get: function (key, value) {
                         return value;
