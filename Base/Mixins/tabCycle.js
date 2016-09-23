@@ -18,15 +18,14 @@ module.exports = (function () {
         _init: function () {
             this.tabCycleList = [];
             this.on('_bubbleProtocol', function(cfg){
+                console.log(cfg, cfg.me.id);
                 if(cfg.type === 'tab'){
-                    debugger;
 
                     return false;
                 }
-                console.log(cfg);
+
             });
             this.on('tab', function(a,b){
-                debugger;
                 console.log(a,b)
             });
         },

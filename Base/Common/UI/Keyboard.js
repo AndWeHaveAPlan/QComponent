@@ -22,8 +22,8 @@ module.exports = (function () {
             this.layer.keydown = function(e){
                 var what = map[e.which];
                 if(what)
-                    return what.call(_self.layer.owner,e);
-            }
+                    return what.call(_self.layer.owner, e);
+            };
 
         }
     };

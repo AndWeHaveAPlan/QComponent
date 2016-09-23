@@ -1,3 +1,5 @@
+def gugu mat
+def Page gugu
 def Page main
     height:100%
     Title: ajax test
@@ -34,4 +36,6 @@ def Page main
     TextBox postInput: Test POST data        
     input: Send
         type: button
-        .click: () -> ajax3.send(postInput)
+        .click: () ->
+            ajax3.send(postInput)
+

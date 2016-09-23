@@ -255,9 +255,8 @@ module.exports = (function () {
          * @param {} mixin 
          * @returns {} 
          */
-        _mixing: function (cfg, mixin/* base */) {
-
-            var mixinInit = [];
+        _mixing: function (cfg, mixin, mixinInit/* base */) {
+            mixinInit = mixinInit || [];
 
             if (prototype.isArray(mixin)) {
                 mixin.push(cfg);
@@ -268,14 +267,20 @@ module.exports = (function () {
                             if (mixins[mixin]._mixinsInit && mixins[mixin]._mixinsInit.length)
                                 mixinInit = mixinInit.concat(mixins[mixin]._mixinsInit);
 
-                            mixins[mixin]._init && mixinInit.push(mixins[mixin]._init);
+                            if(mixins[mixin]._init){
+                                mixinInit.push(mixins[mixin]._init);
+                            }
                         }
                         mixin = components[mixin] || mixins[mixin];
+                    }else{
+                        if (mixin._mixinsInit && mixin._mixinsInit.length)
+                            mixinInit = mixinInit.concat(mixin._mixinsInit);
                     }
+                    
                     if (!mixin)
                         throw new Error('Unknows mixin `' + name + '`');
 
-                    return prototype._mixing(mixin, base);
+                    return prototype._mixing(mixin, base, mixinInit);
                 });
             }
             var base = mixin;
@@ -460,7 +465,14 @@ module.exports = (function () {
         mixins.unshift(original.prototype);
 
         cfg._type = name;
-        Cmp.prototype = prototype._mixing(cfg, mixins);
+
+        var _mixinsInit = [];
+        Cmp.prototype = prototype._mixing(cfg, mixins, _mixinsInit);
+        if(_mixinsInit.length) {
+            Cmp.prototype._mixinsInit = _mixinsInit;
+        }
+
+
         Cmp.prototype.constructor = Cmp;
 
         Cmp._type = Cmp.prototype._type = name;
