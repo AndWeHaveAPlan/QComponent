@@ -71,25 +71,25 @@ module.exports = UIComponent.extend('Slider', {
         });
         var n  = 0;
         var move = function(e){
-            var perc = ( e.pageX - info.mainOffset.left)/info.width, pos,
-                step = info.step-0, from = info.from-0, to = info.to-0, delta = to-from;
+                var perc = ( e.pageX - info.mainOffset.left)/info.width, pos,
+                    step = info.step-0, from = info.from-0, to = info.to-0, delta = to-from;
 
-            perc<0 && (perc = 0);
-            perc>1 && (perc = 1);
+                perc<0 && (perc = 0);
+                perc>1 && (perc = 1);
 
-            if(step)
-                pos = Math.round(delta*perc/step)*step;
-            else
-                pos = delta*perc;
+                if(step)
+                    pos = Math.round(delta*perc/step)*step;
+                else
+                    pos = delta*perc;
 
-            perc = pos/delta*100;
+                perc = pos/delta*100;
 
-            els.drag.style.left = perc +'%';
-            els.actual.style.width = perc +'%';
+                els.drag.style.left = perc +'%';
+                els.actual.style.width = perc +'%';
 
-            self.set('value', pos+from);
+                self.set('value', pos+from);
                 n++;
-            //if(n==20)debugger;
+                //if(n==20)debugger;
             },
             up = function () {
                 window.removeEventListener('mouseup', up);
@@ -105,15 +105,15 @@ module.exports = UIComponent.extend('Slider', {
             var step = info.step-0, from = info.from, to = info.to-0, delta = to-from;
 
             /*val<from && (val = from);
-            val>to && (val = to);
+             val>to && (val = to);
 
-            if(step)
-                val = Math.round(val/step)*step;
+             if(step)
+             val = Math.round(val/step)*step;
 
-            perc = (val-from)/delta*100;
+             perc = (val-from)/delta*100;
 
-            els.drag.style.left = perc +'%';
-            els.actual.style.width = perc +'%';*/
+             els.drag.style.left = perc +'%';
+             els.actual.style.width = perc +'%';*/
 
             console.log("ololo", e.offsetX, info.width, info.to, e.offsetX / (info.width / info.to), info);
             //this.setVal(e.offsetX);
