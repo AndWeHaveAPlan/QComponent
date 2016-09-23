@@ -26,13 +26,19 @@ module.exports = (function () {
         },
         text: function (token) {
             return token.pureData;
+        },
+        comment: function(){
+            return '';
         }
     },
         typedExtractors = {
             'Function': function (token, type, cls) {
                 var t = shadow.QObject.eventParser(type.item, type.item.children);
                 return tools.functionTransform(t, cls.metadata);
-            }
+            }/*,
+            'Number': function(token, type, cls){
+                return 5;
+            }*/
         },
         extractor = function (token, prop, cls) {
             var extractor;
@@ -66,7 +72,8 @@ module.exports = (function () {
             if (typeof val === 'string') {
                 out = extractor({ type: 'text', pureData: val }, prop, cls);
             } else {
-                if (type === 'Function')
+
+                if (type === 'Function') // TODO this is the place where typed extractors should leave and throw errors
                     out = extractor(val[0], prop, cls);
                 else
                     out = val.map(function (item) {
@@ -279,6 +286,9 @@ module.exports = (function () {
                     throw new Error('Corrupted metadata for `' + name + '`');
             }
             prop = metadata._prop;
+
+            if (!prop)
+                return false;
 
             if (prop[name])
                 return prop[name];
@@ -581,7 +591,7 @@ module.exports = (function () {
                     out;//
                 if (info.valueFlag)
                     if (!afterContext.length) {
-                        beforeContext.push(c.Literal('value')); 
+                        beforeContext.push(c.Literal('value'));
                     } else {
                         afterContext.push(c.Literal('value')); // TODO
                     }
@@ -662,6 +672,9 @@ module.exports = (function () {
             fn = transformer.transform(fn.ast, fn.vars, options);
             return 'function(' + fnObj.args.join(',') + '){\n' + fn + '\n}';
         },
+        pad: function(number, symbol){
+            return new Array(number+1).join(symbol||' ');
+        }, 
         indent: function (number, data) {
             if (!number)
                 return data;
@@ -673,6 +686,27 @@ module.exports = (function () {
                 });
             else
                 return this.indent(number, data.split('\n')).join('\n');
+        },
+        /**
+         * Binary search
+         * @param arr - array of elements
+         * @param val - value
+         * @param key - key that contains value
+         * @returns {number|*}
+         */
+        findIndexBefore: function( arr, val, key ){
+            var l1 = 0,
+                delta = arr.length,
+                floor = Math.floor,
+                place;
+            while( delta > 1 ){
+                delta = delta / 2;
+                if( arr[floor(l1 + delta)][key] <= val ){
+                    l1 += delta;
+                }
+            }
+            place = floor(l1+delta)-1;
+            return place;
         }
     };
     return tools;

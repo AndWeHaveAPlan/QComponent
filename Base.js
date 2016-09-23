@@ -48,6 +48,8 @@ module.exports = {
             Page: require('./Base/Components/UI/Page'),
             VBox: require('./Base/Components/UI/VBox'),
             Image: require('./Base/Components/UI/Image'),
+            GeoMapYandex: require('./Base/Components/UI/GeoMapYandex'),
+            GeoMapGoogle: require('./Base/Components/UI/GeoMapGoogle'),
             GeoMap: require('./Base/Components/UI/GeoMap'),
             Video: require('./Base/Components/UI/Video'),
             CardForm: require('./Base/Components/UI/CardForm'),
