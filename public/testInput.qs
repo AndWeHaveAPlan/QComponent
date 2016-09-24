@@ -6,4 +6,6 @@ def Page main
 
       TestInput i3: 345
 
-  Label: {{i1}}
+  Label: {{i1}},{{i2}},{{i3}}
+
+  div: {{ActiveElement}}
