@@ -41,11 +41,14 @@ module.exports = (function () {
             return true;
         },
         focus: function (direction) {
+            
             if (this.fire('tryFocus') === false || (this.disabled === true || this.enabled === false) )
                 return false;
 
             if (!this._data.focused)
                 this.focusValue = this.get('value');
+            else
+                return;
             this.set('focused', true);
             this._bindListeners();
             this.innerFocus();

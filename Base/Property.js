@@ -248,12 +248,16 @@ module.exports = (function () {
                 { description: attr },
                 {
                     set: function (key, val) {
+                        
                         if (!val) {
                             this.el.removeAttribute(attr);
                             delete this.el[attr];
                         } else {
-                            this.el.setAttribute(attr, val);
-                            this.el[attr] = val;
+                            if(this.el.getAttribute(attr) !== val)
+                                this.el.setAttribute(attr, val);
+
+                            if(this.el[attr] !== val)
+                                this.el[attr] = val;
                         }
 
                         //this.el[attr] = val;
