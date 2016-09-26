@@ -4,6 +4,10 @@
     border: none;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
 }
 
 body {
@@ -29,7 +33,8 @@ input {
 
 h1, h2, h3, h4, h5 {
     font-weight: 100;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
+    margin-top: 12px;
 }
 
 .clearfix {

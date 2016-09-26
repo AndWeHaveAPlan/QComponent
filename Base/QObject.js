@@ -247,6 +247,7 @@ module.exports = (function () {
         mixin: function (name, cfg) {
             mixins[name] = cfg;
             cfg._type = name;
+            return cfg;
         },
 
         /**
@@ -445,6 +446,16 @@ module.exports = (function () {
                 if (this.constructor === Cmp)
                     this._afterInit();
             };
+
+
+        var props = cfg._prop = cfg._prop || {};
+        for (var key in cfg) {
+            if (cfg.hasOwnProperty(key)) {
+                if (cfg[key] instanceof Function && key[0] !== '_' && !(key in props)) {
+                    props[key] = new Property('Function');
+                }
+            }
+        }
 
         /** constructor of new component */
         Cmp = constructor ||

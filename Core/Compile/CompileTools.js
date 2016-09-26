@@ -591,7 +591,7 @@ module.exports = (function () {
                     out;//
                 if (info.valueFlag)
                     if (!afterContext.length) {
-                        beforeContext.push(c.Literal('value')); 
+                        beforeContext.push(c.Literal('value'));
                     } else {
                         afterContext.push(c.Literal('value')); // TODO
                     }
