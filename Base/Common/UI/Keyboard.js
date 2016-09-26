@@ -15,15 +15,19 @@ module.exports = (function () {
     KB.prototype = {
         on: function(cfg){
             var i, keyCode = DOM.keyCode, map = {},
+                elseFns = {},
                 _self = this;
-            
+
             for(i in cfg){
                 map[keyCode[i]] = cfg[i];
             }
             this.layer.keydown = function(e){
                 var what = map[e.which];
+
                 if(what)
                     return what.call(_self.layer.owner, e);
+
+                e.preventDefault();
             };
 
         }

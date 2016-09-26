@@ -12,3 +12,5 @@ def Page main
   Label: {{i1}},{{i2}},{{i3}}
 
   TestInput: {{ActiveElement}}
+
+  Keyboard
