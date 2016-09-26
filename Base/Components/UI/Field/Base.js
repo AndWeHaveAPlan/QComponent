@@ -24,10 +24,14 @@ var TestInput = BaseInput.extend('TestInput', {
         //this.focus();
         this.el.addEventListener('mousedown', function(e){
             _self.focus();
-            e.preventDefault();
+            //e.preventDefault();
             e.stopPropagation();
         });
-        'change,mouseup,keydown,keypress,keyup,dragend'.split(',').forEach(function(eventName){
+        this.el.addEventListener('click', function(e){
+            //e.preventDefault();
+            e.stopPropagation();
+        });
+        'change,mouseup,keydown,keypress,keyup,dragend,drop,dragexit'.split(',').forEach(function(eventName){
             el.addEventListener(eventName, changeFn);
         });
         
