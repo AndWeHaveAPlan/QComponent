@@ -31,6 +31,7 @@ module.exports = {
                 Base: require('./Base/Components/UI/Field/Base')
             },
             Primitives: require('./Base/Components/UI/Primitives'),
+            Keyboard: require('./Base/Components/UI/Keyboard'),
             Label: require('./Base/Components/UI/Label'),
             Checkbox: require('./Base/Components/UI/Checkbox'),
             RadioButton: require('./Base/Components/UI/RadioButton'),

@@ -77,7 +77,7 @@ module.exports = (function () {
             this.listen = {
                 windowBlur: DOMTools.addRemovableListener(window, 'blur', blurFn),
                 windowClick: DOMTools.addRemovableListener(document, 'click', blurFn),
-                layer: UIEventManager.getLayer({owner: this}),
+                layer: UIEventManager.getLayer({owner: this})
             };
 
             this.listen.keyboard = new Keyboard(this.listen.layer);
@@ -114,6 +114,8 @@ module.exports = (function () {
                     }
                 });
             }
+            this.listen.keyboard
+
         },
         _unbindListeners: function () {
             var listen = this[ arguments[0] || 'listen' ];
