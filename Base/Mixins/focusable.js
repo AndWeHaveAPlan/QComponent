@@ -38,6 +38,8 @@ module.exports = (function () {
             if( this.focusValue !== this.value )
                 this.fire( 'changed', this.get('value') );
 
+            this.bubble('blur');
+
             return true;
         },
         focus: function (direction) {

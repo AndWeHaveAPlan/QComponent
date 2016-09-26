@@ -16,7 +16,8 @@ module.exports = (function () {
 
     return QObject.mixin('tabCycle', {
         _init: function () {
-            var _self = this;
+            var _self = this,
+                lastActive;
             
             this.tabCycleList = [];
             
@@ -37,7 +38,12 @@ module.exports = (function () {
                     }
                     return false;
                 }else if(cfg.type === 'focus'){
-                    _self.set('ActiveElement', cfg.me);
+                    if(lastActive !== cfg.me) {
+                        if(lastActive)
+                            lastActive.blur();
+                        lastActive = cfg.me;
+                        _self.set('ActiveElement', cfg.me);
+                    }
                 }
 
             });

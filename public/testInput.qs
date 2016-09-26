@@ -6,6 +6,9 @@ def Page main
 
       TestInput i3: 345
 
+      TestInput: 456
+      TestInput: 567
+
   Label: {{i1}},{{i2}},{{i3}}
 
-  div: {{ActiveElement}}
+  TestInput: {{ActiveElement}}

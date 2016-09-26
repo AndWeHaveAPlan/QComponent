@@ -27,6 +27,10 @@ var TestInput = BaseInput.extend('TestInput', {
             //e.preventDefault();
             e.stopPropagation();
         });
+        this.el.addEventListener('click', function(e){
+            //e.preventDefault();
+            e.stopPropagation();
+        });
         'change,mouseup,keydown,keypress,keyup,dragend,drop,dragexit'.split(',').forEach(function(eventName){
             el.addEventListener(eventName, changeFn);
         });
