@@ -421,6 +421,43 @@ module.exports = (function () {
                     };
                 })(i);
             return out;
+        },
+        sort: {
+            number: function (a,b) {
+                return b-a;
+            },
+            /**
+             * Sort with guaranteed order. javascript sort shuffle elements order if value is the same
+             * @param arr
+             * @param propName {String or Function}
+             * @param fn
+             * @returns {Array.<T>}
+             */
+            guaranteed: function( arr, propName, fn ){
+                var hash = {},
+                    sortedHash = [],
+                    i, _i, item,
+                    prop,
+                    sortFn = fn || QObject.sort.number;
+
+                if(typeof propName === 'string')
+                    propName = QObject.getProperty(propName);
+
+                for( i = 0, _i = arr.length; i < _i; i++ ){
+                    item = arr[ i ];
+                    prop = propName(item);
+                    (hash[ prop ] || (hash[ prop ] = [])).push( item );
+                }
+
+                for( i in hash )
+                    hash.hasOwnProperty( i ) && sortedHash.push( i );
+
+                sortedHash.sort( sortFn );
+
+                return Array.prototype.concat.apply( [], sortedHash.map( function( key ){
+                    return hash[ key ];
+                }));
+            }
         }
     };
 

@@ -18,30 +18,12 @@ module.exports = (function () {
             this.on('tab', function (direction) {
                 this.bubble('tab');
             });
-            return;
-            /*var item,
-                tabIndex = this.get('tabIndex')|0, i;
-
-            for(i = list.length - 1; i >= 0; i--){
-                item = list[i];
-                if((item.get('tabIndex')|0) <= tabIndex)
-                    break;
-            }
-            i++;
-            list.splice(i,0,this);
-            this.on('tab', function (direction) {
-                var i = list.indexOf(this),
-                    next = ((i + direction)+list.length) % list.length;
-                console.log('tab from', this.id);
-                console.log('call focus on', list[next].id);
-                list[next].focus();
-
+            this.on('_spreadProtocol', function (cfg) {
+                if(cfg.type === 'focusable'){
+                    cfg.items.push(this);
+                    return this;
+                } 
             });
-            this.on('focus', function (direction) {
-                this.bubble('focus');
-                console.log('focused', this.id);
-            });
-            console.log(list.map(QObject.getProperty('id')));*/
         },
         blur: function () {
             if( !this._data.focused || this.fire('tryBlur') === false )
@@ -56,18 +38,24 @@ module.exports = (function () {
             if( this.focusValue !== this.value )
                 this.fire( 'changed', this.get('value') );
 
+            this.bubble('blur');
+
             return true;
         },
         focus: function (direction) {
+            
             if (this.fire('tryFocus') === false || (this.disabled === true || this.enabled === false) )
                 return false;
 
             if (!this._data.focused)
                 this.focusValue = this.get('value');
+            else
+                return;
             this.set('focused', true);
             this._bindListeners();
             this.innerFocus();
             this.fire('focus');
+            this.bubble('focus');
 
             return direction;
         },
