@@ -5,7 +5,8 @@ var http = require('http'), url = require('url'), fs = require('fs'),
     Core = require('./Core'),
     debug = process.env.debug || true,
     Path = require('path'),
-    querystring = require('querystring');
+    querystring = require('querystring'),
+    descriptor = require('./Core/Descriptor');
 
 var header = '<!DOCTYPE HTML>' +
     '<html><head>' +
@@ -14,9 +15,16 @@ var header = '<!DOCTYPE HTML>' +
     '<script>module = {};</script>' +
 
     '<script src="bundle.js"></script>' +
-    //script src="bundle3.js"></script>' +
     '<link rel="stylesheet" type="text/css" href="qstyle.css">' +
     '<link rel="stylesheet" type="text/css" href="highlight.css">' +
+    '</head><body>';
+var headerLight =
+    '<!DOCTYPE HTML>' +
+    '<html><head>' +
+    '<meta charset="utf-8">' +
+    '<meta name="referrer" content="no-referrer">' +
+    '<link rel="stylesheet" type="text/css" href="/qstyle.css">' +
+    '<link rel="stylesheet" type="text/css" href="/highlight.css">' +
     '</head><body>';
 var footer = '</body></html>';
 
@@ -37,9 +45,11 @@ function serveStatic(path) {
 }
 
 var server = http.createServer(function (req, res) {
-    if (req.method==='POST') {
+
+
+    if (req.method === 'POST') {
         var body = '';
-        req.on('data',function(chunk){
+        req.on('data', function (chunk) {
             body += chunk;
         });
         req.on('end', function () {
@@ -48,12 +58,25 @@ var server = http.createServer(function (req, res) {
         });
         return;
     }
+
+    if (req.url.indexOf('/describe') === 0) {
+
+        var parts = req.url.split('/');
+
+        if (parts.length > 2)
+            return res.end(headerLight + descriptor.describeComponent(parts[2]) + footer);
+        else
+            return res.end(headerLight + descriptor.makeBase() + footer);
+    }
+
     doIt(req, res);
 });
-var doIt = function(req, res, source, path){
+
+
+var doIt = function (req, res, source, path) {
 
     var reqUrl = url.parse(req.url, true);
-    if(!source)
+    if (!source)
         try {
 
             path = 'public/' + reqUrl.pathname.substring(1);
@@ -74,14 +97,14 @@ var doIt = function(req, res, source, path){
                     var cEntry = entries[i];
                     var stat = fs.statSync(Path.join(path, cEntry));
                     if (!stat.isDirectory() && cEntry.indexOf('.qs') !== -1) {
-                        out.push({key: cEntry.toLowerCase(), html:'<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>'});
+                        out.push({ key: cEntry.toLowerCase(), html: '<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>' });
                     }
                 }
 
                 return res.end(header +
                     out
-                        .sort(function(a,b){return a.key>b.key?1:a.key<b.key?-1:0;})
-                        .map(function(el){return el.html;})
+                        .sort(function (a, b) { return a.key > b.key ? 1 : a.key < b.key ? -1 : 0; })
+                        .map(function (el) { return el.html; })
                         .join('\n') +
                     footer);
             }
@@ -92,7 +115,7 @@ var doIt = function(req, res, source, path){
 
 
             console.log('file exists. it`s qs!');
-        }catch(e){
+        } catch (e) {
             return res.end('No file (' + path + ')');
         }
     var p = new Core.Compile.Linker({
@@ -101,7 +124,7 @@ var doIt = function(req, res, source, path){
             code: 'code'
         }
     });
-    try{
+    try {
         var obj = p.add({
             id: path,
             code: source
@@ -172,12 +195,12 @@ var doIt = function(req, res, source, path){
                     lines = source.split('\n');
 
                 return res.end(header + '<span class="highlight">' + lines.map(function (i) {
-                        return new Array((lines.length + '').length + 1 - (x + '').length).join('0') + x++ + '&nbsp;' + i;
-                    }).join('\n') + '</span><script src="highlight.js"></script></body></html>');
+                    return new Array((lines.length + '').length + 1 - (x + '').length).join('0') + x++ + '&nbsp;' + i;
+                }).join('\n') + '</span><script src="highlight.js"></script></body></html>');
             }
 
         } catch (e) {
-            if(debug)throw e;
+            if (debug) throw e;
             return res.end(e.message);
         }
     } catch (e) {

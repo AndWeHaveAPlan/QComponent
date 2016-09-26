@@ -214,6 +214,25 @@ module.exports = (function () {
         proxy: function (proxyFor) {
             return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property' }, { proxyFor: proxyFor });
         },
+        number: function (value, metadataAndCfg) {
+            // TODO
+            // bind this to setter and getter
+
+            var defaultSetter = function () {};
+            var defaultGetter = dataTypes.Variant.get;
+            var defaultDescription = "Default number description";
+            //
+            var metacfg = metadataAndCfg || {};
+
+            var set = metacfg.set || defaultSetter;
+            var get = metacfg.get || defaultGetter;
+            var description = metacfg.description || defaultDescription;
+
+            return new Property('Number',
+                {description: description},
+                {set: set, get: get}
+            );
+        },
         typed: function (name, cls) {
             return {
                 set: function (key, value, old, e) {

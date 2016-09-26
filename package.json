@@ -1,5 +1,5 @@
 {
-  "name": "Quokka",
+  "name": "quokka",
   "version": "0.0.1",
   "description": "",
   "main": "Base.js",
@@ -13,7 +13,6 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "nvm": "*",
-    "z-observable": "*",
     "observable-sequence": "*",
     "z-lib-structure-dqIndex": "*",
     "z-lib-structure-dequeue": "*",

@@ -16,6 +16,7 @@ module.exports = (function () {
         on: function(cfg){
             var i, keyCode = DOM.keyCode, map = {},
                 _self = this;
+            
             for(i in cfg){
                 map[keyCode[i]] = cfg[i];
             }
