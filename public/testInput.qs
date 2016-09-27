@@ -10,7 +10,7 @@ def Page main
       TestInput: 567
 
   Label: {{i1}},{{i2}},{{i3}}
-
+  br
   TestInput: {{ActiveElement}}
 
   Keyboard
