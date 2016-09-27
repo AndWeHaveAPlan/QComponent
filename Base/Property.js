@@ -207,9 +207,11 @@ module.exports = (function () {
 
 
 
+
     /**
      * 
      */
+    var setList = [];
     Property.generate = {
         proxy: function (proxyFor) {
             return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property' }, { proxyFor: proxyFor });
@@ -246,16 +248,42 @@ module.exports = (function () {
             };
         },
         cssProperty: function (text) {
+            var withAnimfationFrame = false,
+                w;
+            if(typeof window === 'undefined'){
+                withAnimfationFrame = false;
+            }else{
+                w = window;
+            }
+
+            var doSet = function () {
+                var data, val, i, _i;
+                for(i = 0, _i = setList.length; i < _i; i++){
+                    data = setList[i];
+                    if (val = data.val) {
+                        data.el.style[data.key] = val;
+                    } else {
+                        data.el.style.removeProperty(data.key);
+                    }
+                }
+                setList = [];
+            };
+
             return new Property('String',
                 { description: text },
                 {
-                    set: function (key, val) {
+                    set: withAnimfationFrame ? function (key, val) {
+                        w.requestAnimationFrame(doSet);
+                        setList.push({key: key, el: this.el, val: val});
+
+                    } : function (key, val) {
                         if (val) {
                             this.el.style[key] = val;
                         } else {
                             this.el.style.removeProperty(key);
                         }
                     },
+
                     get: function (key, value) {
                         return value;
                     }
@@ -267,12 +295,16 @@ module.exports = (function () {
                 { description: attr },
                 {
                     set: function (key, val) {
+
                         if (!val) {
                             this.el.removeAttribute(attr);
                             delete this.el[attr];
                         } else {
-                            this.el.setAttribute(attr, val);
-                            this.el[attr] = val;
+                            if(this.el.getAttribute(attr) !== val)
+                                this.el.setAttribute(attr, val);
+
+                            if(this.el[attr] !== val)
+                                this.el[attr] = val;
                         }
 
                         //this.el[attr] = val;
