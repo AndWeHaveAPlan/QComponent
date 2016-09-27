@@ -104,7 +104,7 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     },
 
     _afterInit: function () {
-        this._init();
+        QObject.prototype._afterInit.call(this);
         this._eventManager.releaseThePipes();
     },
 
@@ -145,6 +145,11 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
     findOne: function (matcher) {
         return this.find(matcher)[0];
     },
+    /**
+     * event protocol that go through all parents until stopped or root
+     * @param type
+     * @param bubble
+     */
     bubble: function(type, bubble){
         if(typeof type === 'string') {
             bubble = bubble || {};
@@ -161,6 +166,43 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
                 this.parent.bubble(bubble);
             }
         }
+    },
+    /**
+     * event protocol that go down through all children until stopped
+     */
+    spread: function(type, spread, out){
+        var i, _i, children, subResult;
+        out = out || [];
+        if(typeof type === 'string') {
+            spread = spread || {};
+            spread.type = type;
+            spread.me = spread.me || this;
+            spread.relays = [];
+        }else{
+            out = spread;
+            spread = type;
+        }
+
+        if(this.fire('_spreadProtocol', spread) !== false) {
+            if (spread.stopped !== false) {
+                spread = Object.create(spread);
+                spread.relays = spread.relays.slice();
+                spread.relays.push(this.parent);
+                children = this._children;
+                for(i = 0, _i = children.length; i < _i; i++) {
+                    subResult = children.get(i).spread(spread, out);
+                    if(subResult.length)
+                        out = out.concat(subResult).push(children.get(i));
+                }
+                children = this._ownComponents;
+                for(i = 0, _i = children.length; i < _i; i++) {
+                    subResult = children.get(i).spread(spread, out);
+                    if(subResult.length)
+                        out = out.concat(subResult).push(children.get(i));
+                }
+            }
+        }
+        return out;
     }
 }, function (cfg) {
     QObject.call(this, cfg);

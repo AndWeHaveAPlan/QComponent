@@ -4,8 +4,6 @@ module.exports = (function () {
     var Property = require('../../Property');
 
     var Gate = LogicalComponent.extend('Branch', {
-
-
         _prop: {
             input: new Property('Variant', {description: 'start date'}, {
                 set: function (name, value) {

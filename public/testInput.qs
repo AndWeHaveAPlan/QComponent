@@ -6,4 +6,11 @@ def Page main
 
       TestInput i3: 345
 
-  Label: {{i1}}
+      TestInput: 456
+      TestInput: 567
+
+  Label: {{i1}},{{i2}},{{i3}}
+
+  TestInput: {{ActiveElement}}
+
+  Keyboard

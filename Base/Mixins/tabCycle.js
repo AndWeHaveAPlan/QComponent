@@ -16,18 +16,36 @@ module.exports = (function () {
 
     return QObject.mixin('tabCycle', {
         _init: function () {
+            var _self = this,
+                lastActive;
+            
             this.tabCycleList = [];
+            
             this.on('_bubbleProtocol', function(cfg){
+                console.log(cfg, cfg.me.id);
                 if(cfg.type === 'tab'){
-                    debugger;
+                    // one of possible solutions
+                    var list = [];
+                    _self.spread('focusable', {items: list});
+                    list = QObject.sort.guaranteed(list, function (item) {
+                        return item._data.tabIndex;
+                    });
+                    var i = list.indexOf(cfg.me),
+                        next = ((i + cfg.direction)+list.length) % list.length;
 
+                    if(list[next].focus()!==false){
+                        //_self.set('ActiveElement', list[next]);
+                    }
                     return false;
+                }else if(cfg.type === 'focus'){
+                    if(lastActive !== cfg.me) {
+                        if(lastActive)
+                            lastActive.blur();
+                        lastActive = cfg.me;
+                        _self.set('ActiveElement', cfg.me);
+                    }
                 }
-                console.log(cfg);
-            });
-            this.on('tab', function(a,b){
-                debugger;
-                console.log(a,b)
+
             });
         },
         addTabbableItem: function (item) {
@@ -35,6 +53,9 @@ module.exports = (function () {
         },
         removeTabbableItem: function (item) {
             
+        },
+        _prop: {
+            ActiveElement: new Property('input')
         }
     });
 })();

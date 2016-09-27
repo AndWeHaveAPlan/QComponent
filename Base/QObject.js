@@ -256,9 +256,8 @@ module.exports = (function () {
          * @param {} mixin 
          * @returns {} 
          */
-        _mixing: function (cfg, mixin/* base */) {
-
-            var mixinInit = [];
+        _mixing: function (cfg, mixin, mixinInit/* base */) {
+            mixinInit = mixinInit || [];
 
             if (prototype.isArray(mixin)) {
                 mixin.push(cfg);
@@ -269,14 +268,20 @@ module.exports = (function () {
                             if (mixins[mixin]._mixinsInit && mixins[mixin]._mixinsInit.length)
                                 mixinInit = mixinInit.concat(mixins[mixin]._mixinsInit);
 
-                            mixins[mixin]._init && mixinInit.push(mixins[mixin]._init);
+                            if(mixins[mixin]._init){
+                                mixinInit.push(mixins[mixin]._init);
+                            }
                         }
                         mixin = components[mixin] || mixins[mixin];
+                    }else{
+                        if (mixin._mixinsInit && mixin._mixinsInit.length)
+                            mixinInit = mixinInit.concat(mixin._mixinsInit);
                     }
+                    
                     if (!mixin)
                         throw new Error('Unknows mixin `' + name + '`');
 
-                    return prototype._mixing(mixin, base);
+                    return prototype._mixing(mixin, base, mixinInit);
                 });
             }
             var base = mixin;
@@ -416,6 +421,43 @@ module.exports = (function () {
                     };
                 })(i);
             return out;
+        },
+        sort: {
+            number: function (a,b) {
+                return b-a;
+            },
+            /**
+             * Sort with guaranteed order. javascript sort shuffle elements order if value is the same
+             * @param arr
+             * @param propName {String or Function}
+             * @param fn
+             * @returns {Array.<T>}
+             */
+            guaranteed: function( arr, propName, fn ){
+                var hash = {},
+                    sortedHash = [],
+                    i, _i, item,
+                    prop,
+                    sortFn = fn || QObject.sort.number;
+
+                if(typeof propName === 'string')
+                    propName = QObject.getProperty(propName);
+
+                for( i = 0, _i = arr.length; i < _i; i++ ){
+                    item = arr[ i ];
+                    prop = propName(item);
+                    (hash[ prop ] || (hash[ prop ] = [])).push( item );
+                }
+
+                for( i in hash )
+                    hash.hasOwnProperty( i ) && sortedHash.push( i );
+
+                sortedHash.sort( sortFn );
+
+                return Array.prototype.concat.apply( [], sortedHash.map( function( key ){
+                    return hash[ key ];
+                }));
+            }
         }
     };
 
@@ -471,7 +513,14 @@ module.exports = (function () {
         mixins.unshift(original.prototype);
 
         cfg._type = name;
-        Cmp.prototype = prototype._mixing(cfg, mixins);
+
+        var _mixinsInit = [];
+        Cmp.prototype = prototype._mixing(cfg, mixins, _mixinsInit);
+        if(_mixinsInit.length) {
+            Cmp.prototype._mixinsInit = _mixinsInit;
+        }
+
+
         Cmp.prototype.constructor = Cmp;
 
         Cmp._type = Cmp.prototype._type = name;
