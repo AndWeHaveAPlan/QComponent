@@ -114,7 +114,7 @@ module.exports = (function () {
                     }
                 });
             }
-            this.listen.keyboard
+            this.listen.keyboard.defaultSubscriber(this.el);
 
         },
         _unbindListeners: function () {

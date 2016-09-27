@@ -21,6 +21,7 @@ var TestInput = BaseInput.extend('TestInput', {
             changeFn = function () {
                 setTimeout(fn, 0);
             };
+        
         //this.focus();
         this.el.addEventListener('mousedown', function(e){
             _self.focus();
@@ -34,6 +35,7 @@ var TestInput = BaseInput.extend('TestInput', {
         'change,mouseup,keydown,keypress,keyup,dragend,drop,dragexit'.split(',').forEach(function(eventName){
             el.addEventListener(eventName, changeFn);
         });
+        
         
         //this.el.value = this.get('value');
     },
