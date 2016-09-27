@@ -54,7 +54,9 @@ module.exports = {
             Video: require('./Base/Components/UI/Video'),
             CardForm: require('./Base/Components/UI/CardForm'),
             DOMTools: require('./Base/Common/UI/DOMTools'),
-            If: require('./Base/Components/UI/If')
+            If: require('./Base/Components/UI/If'),
+            Tab: require('./Base/Components/UI/Tab'),
+            TabControl: require('./Base/Components/UI/TabControl')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {
