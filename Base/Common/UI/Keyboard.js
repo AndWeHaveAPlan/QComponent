@@ -27,7 +27,7 @@ module.exports = (function () {
                 if(what)
                     return what.call(_self.layer.owner, e);
 
-                e.preventDefault();
+                //e.preventDefault();
             };
 
         }
