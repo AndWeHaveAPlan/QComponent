@@ -34,10 +34,10 @@ def Page videoPlayerPage
 
 		ListBox videoList
 			itemSource: [
-				{name:'Rabbit webm', url:'http://clips.vorwaerts-gmbh.de/VfE.webm'},
-				{name:'Rabbit mp4', url:'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4'},
-				{name:'Rabbit ogg/ogv', url:'http://clips.vorwaerts-gmbh.de/VfE.ogv'},
-				{name:'Toy story', url:'http://www.html5videoplayer.net/videos/toystory.mp4'}
+				{name:'C2C - Delta', url:'https://cs1-33v4.vk-cdn.net/p24/501f8f17cb3cc8.mp3'},
+				{name:'M.O.O.N – Dust', url:'https://psv4.vk.me/c521400/u108637942/audios/2dbb6fd9350e.mp3'},
+				{name:'Sun Araw - Deep Cover', url:'https://cs1-37v4.vk-cdn.net/p8/95035e0089035c.mp3'},
+				{name:'Cyriak – No more memory', url:'https://psv4.vk.me/c1703/u13507985/audios/e012abdfe14b.mp3'}
 				]
 			itemTemplate:
 				div: {{name}}
