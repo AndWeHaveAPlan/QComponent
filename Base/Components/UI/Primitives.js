@@ -198,7 +198,7 @@ exports['iframe'] = exports['HtmlPrimitive'].extend('iframe', {
             var el = UIComponent.document.createElement('iframe');
 
             for(var i in attrs)
-                el.setAttribute(attrs[i].na, attrs[i].value);
+                el.setAttribute(attrs[i].name, attrs[i].value);
 
             this.el.parentNode.replaceChild(el, this.el);
             this.el = el;

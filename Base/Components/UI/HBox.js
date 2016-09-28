@@ -42,6 +42,7 @@ module.exports = FlexSizeComponent.extend('HBox', {
                 children[i].style.width = width;
             }
         }, 0);
+        FlexSizeComponent.prototype.updateLayout.call(this);
     },
     addChild: function (child) {
         var div = new Primitive.div();

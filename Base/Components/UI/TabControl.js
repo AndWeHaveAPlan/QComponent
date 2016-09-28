@@ -78,6 +78,7 @@ module.exports = UIComponent.extend('TabControl', {
 
             presenterEl.innerHTML = '';
             presenterEl.appendChild(self._tabs[selItem].el);
+            self._tabs[selItem].updateLayout();
         });
 
         var presenter = new Primitive.div({
