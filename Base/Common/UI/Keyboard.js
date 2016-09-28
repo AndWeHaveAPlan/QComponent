@@ -8,6 +8,54 @@
 module.exports = (function () {
     'use strict';
     var DOM = require('./DOMTools');
+    var KeyboardEvent = function(e){
+        this._originalEvent = e;
+        this.which = e.which;
+        this.key = e.key;
+        this.shift = e.shiftKey;
+        this.meta = e.keyCode === 91 || //meta/win/command/super
+            e.keyCode === 18 || e.metaKey;
+
+        this.ctrl = e.ctrlKey; //ctrl
+        this.code = e.keyCode;
+    };
+    KeyboardEvent.prototype = {
+        which: null,
+        key: null,
+        shift: false,
+        meta: false,
+        ctrl: false,
+        cancel: function(){
+            this._originalEvent.preventDefault();
+            this._originalEvent.stopPropagation();
+        },
+        keys: {
+            backspace: 8,
+            comma: 188,
+            'delete': 46,
+            'del': 46,
+            down: 40,
+            end: 35,
+            enter: 13,
+            escape: 27,
+            home: 36,
+            left: 37,
+            numpad_add: 107,
+            numpad_decimal: 110,
+            numpad_divide: 111,
+            numpad_enter: 108,
+            numpad_multiply: 106,
+            numpad_subtract: 109,
+            page_down: 34,
+            page_up: 33,
+            period: 190,
+            right: 39,
+            space: 32,
+            tab: 9,
+            up: 38,
+            any: -1
+        }
+    };
 
     var KB = function (layer) {
         this.layer = layer;
@@ -23,21 +71,67 @@ module.exports = (function () {
                 map[keyCode[i]] = cfg[i];
             }
             this.layer.keydown = function(e){
-                var what = map[e.which], result;
+                var wE = new KeyboardEvent(e),
+                    what = map[wE.which], result;
 
                 if(what) {
-                    result = what.call(_self.layer.owner, e);
-                    if(result !== false)
+                    result = what.call(_self.layer.owner, wE);
+                    if(result !== false) {
+                        wE.cancel();
                         return result;
+                    }
                 }
-                _self.elseFns.keydown && _self.elseFns.keydown(e);
+                _self.elseFns.keydown && _self.elseFns.keydown(wE);
 
-                e.preventDefault();
+
+            };
+            this.layer.keyup = function(e){
+                _self.elseFns.keyup && _self.elseFns.keyup(new KeyboardEvent(e));
+            };
+            this.layer.keypress = function(e){
+                _self.elseFns.keypress && _self.elseFns.keypress(new KeyboardEvent(e));
             };
         },
-        defaultSubscriber: function(element){
+        defaultSubscriber: function(who){
             this.elseFns.keydown = function(e){
-                element.value+= e.key;
+                var todo = {}, i, cancel;
+                if(e.ctrl){
+                    if (e.key === e.keys.backspace)
+                        todo._removeWords = -1;
+
+                    if (e.key === e.keys.delete)
+                        todo._removeWords = 1;
+
+                    if(e.key === e.keys.left)
+                        todo._moveCursorWords = -1;
+
+                    if(e.key === e.keys.right)
+                        todo._moveCursorWords = 1;
+
+                }else{
+                    if (e.key === e.keys.backspace)
+                        todo._removeChars = -1;
+
+                    if (e.key === e.keys.delete)
+                        todo._removeChars = 1;
+
+                    if(e.key === e.keys.left)
+                        todo._moveCursorChars = -1;
+
+                    if(e.key === e.keys.right)
+                        todo._moveCursorChars = 1;
+
+                }
+                for(i in todo) {
+                    who[i](todo[i]);
+                    cancel = true;
+                }
+                if(cancel)
+                    e.cancel();
+
+            };
+            this.elseFns.keypress = function(e){
+                who._addKey(e);
             };
         }
     };
