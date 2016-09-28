@@ -7,57 +7,54 @@ var Property = require('../../Property');
 
 module.exports = LogicalComponent.extend('Audio', {
     play: function () {
-        this.el.play();
+        this.audio.play();
     },
     stop: function () {
-        this.el.pause();
+        this.audio.pause();
     },
     pause: function () {
-        this.el.pause();
-    },
-    createEl: function () {
-
+        this.audio.pause();
     },
     _prop: {
         pause: new Property('Function'),
         play: new Property('Function'),
         time: new Property('Number', { description: 'Current playback position' }, {
             get: function () {
-                return this.el.currentTime;
+                return this.audio.currentTime;
             },
             set: function (name, value, oldValue, e) {
-                if(!this.updating)
-                    this.el.currentTime = value;
+                if (!this.updating)
+                    this.audio.currentTime = value;
             }
         }),
-        duration: new Property('Number', { }),
+        duration: new Property('Number', {}),
         volume: new Property('Number', { description: 'Current volume' }, {
             get: function () {
-                return this.el.volume;
+                return this.audio.volume;
             },
             set: function (name, value, oldValue, e) {
-                this.el.volume = value;
+                this.audio.volume = value;
             }
         }),
-        controls: new Property('Boolean', { }, {
+        controls: new Property('Boolean', {}, {
             get: function () {
-                return this.el.controls;
+                return this.audio.controls;
             },
             set: function (name, value, oldValue, e) {
-                this.el.controls = value;
+                this.audio.controls = value;
             }
         }),
-        muted: new Property('Boolean', { }, {
+        muted: new Property('Boolean', {}, {
             get: function () {
-                return this.el.muted;
+                return this.audio.muted;
             },
             set: function (name, value, oldValue, e) {
-                this.el.muted = value;
+                this.audio.muted = value;
             }
         }),
         autoplay: new Property('Boolean',
             {
-                set: function(name, value) {
+                set: function (name, value) {
                     if (value)
                         this.play();
                 }
@@ -66,7 +63,7 @@ module.exports = LogicalComponent.extend('Audio', {
             get: Property.defaultGetter,
             set: function (name, value, oldValue, e) {
                 this.stop();
-                this.el.src = value;
+                this.audio.src = value;
 
                 if (this.get('autoplay')) {
                     this.play();
@@ -76,15 +73,17 @@ module.exports = LogicalComponent.extend('Audio', {
     }
 }, function () {
     LogicalComponent.apply(this, arguments);
-    this.el = this.audio = LogicalComponent.document.createElement('video');
+    this.audio = LogicalComponent.document.createElement('video');
+
     var self = this;
 
-    this.el.addEventListener('timeupdate', function (event) {
+    this.audio.addEventListener('timeupdate', function (event) {
         self.updating = true;
-        self.set('time', self.el.currentTime);
+        self.set('time', self.audio.currentTime);
         self.updating = false;
     });
-    this.el.addEventListener('durationchange', function (event) {
-        self.set('duration', self.el.duration);
+
+    this.audio.addEventListener('durationchange', function (event) {
+        self.set('duration', self.audio.duration);
     });
 });

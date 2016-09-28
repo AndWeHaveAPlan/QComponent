@@ -84,7 +84,7 @@ module.exports = (function () {
                 '}}, function(){',
                 '    ' + metadataItem._type + '.apply(this, arguments);',
                 '    var tmp, eventManager = this._eventManager, mutatingPipe, parent=this, self=this;',
-                metadataItem.events ? tools.builder.events(metadataItem, _self) : '',
+                metadataItem.events ? tools.builder.events(metadataItem, _self).join('\n') : '',
                 '',
                 out,
                 this.makePublic(metadataItem.public, metadataItem, scope),
