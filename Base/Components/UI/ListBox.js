@@ -31,19 +31,6 @@ module.exports = ContainerComponent.extend('ListBox', {
     _prop: {
         orientation: new Property('String',
             {
-                set: function (name, value) {
-                    var iterator = this._children.iterator(), item;
-                    while (item = iterator.next()) {
-                        var childNode = item.el;
-                        if (value === 'vertical') {
-                            childNode.style.clear = 'both';
-                            childNode.style.float = 'none';
-                        } else if (value === 'horizontal') {
-                            childNode.style.clear = 'none';
-                            childNode.style.float = 'left';
-                        }
-                    }
-                },
                 defaultValue: 'vertical'
             })
     }

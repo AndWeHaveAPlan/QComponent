@@ -57,7 +57,8 @@ module.exports = {
             DOMTools: require('./Base/Common/UI/DOMTools'),
             If: require('./Base/Components/UI/If'),
             Tab: require('./Base/Components/UI/Tab'),
-            TabControl: require('./Base/Components/UI/TabControl')
+            TabControl: require('./Base/Components/UI/TabControl'),
+            Grid: require('./Base/Components/UI/Grid')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {

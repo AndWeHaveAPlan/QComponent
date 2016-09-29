@@ -33,16 +33,14 @@ module.exports = UIComponent.extend('Slider', {
             left: pad+'px',
             right: pad+'px',
             top: pad+'px',
-            position: 'absolute',
-            transition: 'all 0.05s'
+            position: 'absolute'
         });
         this.apply(els.actual.style, {
             width: '50%',
             height: height - padInner*2+'px',
             margin: padInner+ 'px',
             background: '#e60000',
-            position: 'absolute',
-            transition: 'all 0.05s'
+            position: 'absolute'
         });
         this.apply(els.drag.style, {
             width: '0px',
@@ -53,8 +51,7 @@ module.exports = UIComponent.extend('Slider', {
             left: '50%',
             position: 'absolute',
             cursor: 'pointer',
-            'border-radius': height/2+'px',
-            transition: 'all 0.05s'
+            'border-radius': height/2+'px'
         });
         this.el.addEventListener('mouseover', function(){
             els.drag.style.width = height +'px';
