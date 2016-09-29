@@ -55,7 +55,10 @@ module.exports = {
             Video: require('./Base/Components/UI/Video'),
             CardForm: require('./Base/Components/UI/CardForm'),
             DOMTools: require('./Base/Common/UI/DOMTools'),
-            If: require('./Base/Components/UI/If')
+            If: require('./Base/Components/UI/If'),
+            Tab: require('./Base/Components/UI/Tab'),
+            TabControl: require('./Base/Components/UI/TabControl'),
+            Grid: require('./Base/Components/UI/Grid')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {
@@ -65,7 +68,8 @@ module.exports = {
             Timer: require('./Base/Components/Logical/Timer'),
             Random: require('./Base/Components/Logical/Random'),
             Title: require('./Base/Components/Logical/Title'),
-            AJAX: require('./Base/Components/Logical/AJAX')
+            AJAX: require('./Base/Components/Logical/AJAX'),
+            Audio: require('./Base/Components/Logical/Audio')
         }
     },
     EventManager: require('./Base/EventManager'),

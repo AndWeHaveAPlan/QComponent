@@ -103,6 +103,10 @@ module.exports = (function(){
                 return listener(e, name, pressCountCounter);
             }
         };
+    
+    QObject.mixin('simulator', {
+        _simulate: fireEvent
+    });
     var UIEventManager = function(){};
     UIEventManager.prototype = {
         /*_kbWrappers: {

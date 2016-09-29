@@ -55,7 +55,7 @@ module.exports = (function () {
             
         },
         _prop: {
-            ActiveElement: new Property('input')
+            ActiveElement: new Property('UIComponent')
         }
     });
 })();

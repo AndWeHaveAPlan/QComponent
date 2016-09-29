@@ -87,7 +87,7 @@ var doIt = function (req, res, source, path) {
 
             var s = fsExists(path);
             if (s && !s.isDirectory()) {
-                source = fs.readFileSync(path) + '';
+                source = fs.readFileSync(path, 'binary');
             } else {
                 var entries = fs.readdirSync(path);
 
@@ -111,8 +111,8 @@ var doIt = function (req, res, source, path) {
 
 
             if (path.indexOf('.qs') === -1)
-                return res.end(source);
-
+                return res.end(source, 'binary');
+            source = fs.readFileSync(path) + '';
 
             console.log('file exists. it`s qs!');
         } catch (e) {

@@ -23,74 +23,83 @@ var layouts = {
         '{"symbol":" ", "width": 10}|&larr;|&darr;|&rarr;'
     ]
 };
-
+var deJSON = function(text){
+    var is = true, out;
+    try{
+        out = JSON.parse(text);
+    }catch(e){
+        is = false;
+    }
+    return is && out;
+};
 module.exports = UIComponent.extend('Keyboard', {
+    mixin: 'simulator',
     createEl: function () {
         var me = this;
         this.el = UIComponent.document.createElement('div');
-        this.el.style.width = '200px';
+        this.el.style.width = '900px';
         this.el.style.overflow = 'hidden';
         this.el.style.margin='12px auto';
 
-        function createButton(n) {
+        function createButton(cfg) {
             var self = this;
-            var el = document.createElement('input');
+            var el = document.createElement('span');
             el.type = 'button';
-            el.style.height = '50px';
-            el.value = n;
-            el.style.float = 'left';
+            el.innerHTML = cfg.text;
             el.style.background='#ffa834';
             el.style.color='#fff';
             el.style.border='1px solid #fff';
+            el.style.padding = '0.1em '+0.5*cfg.width+'em';
+            el.style.lineHeight = '1.2em';
+            el.style.fontSize = '2em';
+            el.style.height = '1em';
+            el.style.cursor = 'pointer';
 
 
             el.addEventListener('click', function (event) {
-                var ae = UIComponent.document.activeElement;
-                var val = el.value;
-
-                if (ae.type === 'text') {
-
-                    if (val == '<<') {
-                        var oldVal = ae.value;
-                        ae.value = oldVal.substr(0, oldVal.length - 1);
-                    } else {
-                        ae.value += val;
-                    }
-                    ae.dispatchEvent(new Event('change'));
-
-                }
-
-                me.fire('key', val);
-            });
-
-            el.addEventListener('change', function (event) {
-                el.value = n;
                 event.preventDefault();
-                event.stopPropagation();
+                me._simulate('keypress', {
+                    keyCode: cfg.text.charCodeAt(0),
+                    key: cfg.text.substr(0),
+                    preventDefault: function(){},
+                    stopPropagation: function(){}
+                });
             });
 
             return el;
         }
 
-        this.el.appendChild(createButton(7));
-        this.el.appendChild(createButton(8));
-        this.el.appendChild(createButton(9));
-        this.el.appendChild(createButton(4));
-        this.el.appendChild(createButton(5));
-        this.el.appendChild(createButton(6));
-        this.el.appendChild(createButton(1));
-        this.el.appendChild(createButton(2));
-        this.el.appendChild(createButton(3));
-        this.el.appendChild(createButton(0));
-        this.el.appendChild(createButton('<<'));
-
         var fragment = UIComponent.document.createDocumentFragment();
 
         layouts['ru'].forEach(function(row){
-            var div = UIComponent.document.createElement('div');
-            row.split('|')
-            div.appendChild(createButton(7));
+            var div = UIComponent.document.createElement('center'),
+                buttons = [],
+                splitted = row.split('|'), i, _i = splitted.length, piece,
+                btnInfo;
+            for(i = 0;i < _i; i++){
+                btnInfo = false;
+                piece = splitted[i];
+                if(piece.indexOf('{') === 0 && piece.indexOf('}') === piece.length-1){
+                    // MayBe JSON
+                    btnInfo = deJSON(piece)
+                }
+                if(btnInfo !== false){
+                    buttons.push(btnInfo);
+                }else{
+                    buttons = buttons.concat(piece.split('').map(function(item){
+                        return {text: item, width: 1};
+                    }));
+                }
+            }
+
+            buttons.map(createButton).forEach(function(el){
+                div.appendChild(el);
+            });
+            var clearBoth = UIComponent.document.createElement('div');
+            clearBoth.style = 'clear:both;';
+            div.appendChild(clearBoth);
             fragment.appendChild(div);
         });
+        this.el.appendChild(fragment);
     }
 });

@@ -74,6 +74,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
                     children[val].style.background = this._data['selectionColor'];
 
                 this.set('selectedItem', this.get('itemSource').get(val));
+                this.fire('selectionChanged');
             },
             get: Property.defaultGetter
         }, -1),

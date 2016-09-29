@@ -27,6 +27,23 @@ module.exports = (
 
             renderTo: null,
 
+            updateLayout: function () {
+
+
+
+                var iterator = this._children.iterator(), item;
+                while (item = iterator.next()) {
+                    if (item instanceof UIComponent)
+                        item.updateLayout();
+                }
+
+                iterator = this._ownComponents.iterator();
+                while (item = iterator.next()) {
+                    if (item instanceof UIComponent)
+                        item.updateLayout();
+                }
+            },
+
             createEl: function () {
                 var self = this;
                 if (!this.el) {
@@ -236,8 +253,9 @@ module.exports = (
                     child.renderTo = insertInto;
                 }
 
-                this.bubble('childAdded', {child: child});
-                
+                child.updateLayout();
+                this.bubble('childAdded', { child: child });
+
             },
 
             /**
@@ -252,7 +270,7 @@ module.exports = (
                     this.el.removeChild(child.el);
                 }
                 child.renderTo = null;
-                this.bubble('childRemoved', {child: child});
+                this.bubble('childRemoved', { child: child });
             },
 
             /**
@@ -280,10 +298,8 @@ module.exports = (
             this._contentContainer = void (0);
             this._transformMatrix = Matrix2D.createEmpty();
             this._initChildren();
-            //if (this.el && this.el.setAttribute) {
             this.el.setAttribute('qId', this.id);
             this.el.setAttribute('qType', this._type);
-            //}
         });
 
         return UIComponent;

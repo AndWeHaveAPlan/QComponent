@@ -14,7 +14,7 @@ var Primitives = require('./Primitives');
 })*/
 module.exports = UIComponent.extend('ItemTemplate', {
     _prop: {
-        value: new Property('String', {description: 'text content'}, {
+        value: new Property('String', { description: 'text content' }, {
             set: function (name, val) {
                 if (!this.textNode) {
                     this.textNode = UIComponent.document.createTextNode('');
@@ -26,6 +26,4 @@ module.exports = UIComponent.extend('ItemTemplate', {
         }),
         'default': new Property('Variant')
     }
-}, function (cfg) {
-    UIComponent.call(this, cfg);
 });
