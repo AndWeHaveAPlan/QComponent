@@ -9,6 +9,21 @@
 var Primitive = require('./Primitives');
 var UIComponent = require('../UIComponent');
 
+var layouts = {
+    'ru': [
+        'йцукенгшщзхъ|{"text":"backspace"}',
+        'фывапролджэ|{"text":"delete"}',
+        '{"text":"shift"}|ячсмитьбю.,|{"text":"shift"}|{"text":"&uarr;"}',
+        '{"text":" ", "width": 10}|{"text":"&larr;"}|{"text":"&darr;"}|{"text":"&rarr;"}'
+    ],
+    'RU': [
+        'ЙЦУКЕНГШЩЗХЪ|backspace',
+        'ФЫВАПРОЛДЖЭ|delete',
+        'shift|ЯЧСМИТЬБЮ.,|shift|&uarr;',
+        '{"symbol":" ", "width": 10}|&larr;|&darr;|&rarr;'
+    ]
+};
+
 module.exports = UIComponent.extend('Keyboard', {
     createEl: function () {
         var me = this;
@@ -69,5 +84,13 @@ module.exports = UIComponent.extend('Keyboard', {
         this.el.appendChild(createButton(0));
         this.el.appendChild(createButton('<<'));
 
+        var fragment = UIComponent.document.createDocumentFragment();
+
+        layouts['ru'].forEach(function(row){
+            var div = UIComponent.document.createElement('div');
+            row.split('|')
+            div.appendChild(createButton(7));
+            fragment.appendChild(div);
+        });
     }
 });
