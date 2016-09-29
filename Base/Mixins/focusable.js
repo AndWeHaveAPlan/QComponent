@@ -92,8 +92,7 @@ module.exports = (function () {
                         else
                             this.blur();
 
-                        e.preventDefault();
-                        e.stopPropagation();
+                        e.cancel();
                     }
                 },
                 'enter': function( e ){
@@ -108,14 +107,46 @@ module.exports = (function () {
                 this.listen.keyboard.on({
                     'tab': function(e){
                         this.blur();
-                        this.bubble( 'tab', {direction: e.shiftKey ? -1 : 1});
-                        e.stopPropagation();
-                        e.preventDefault();
+                        this.bubble( 'tab', {direction: e.shift ? -1 : 1});
+                        e.cancel();
                     }
                 });
             }
-            this.listen.keyboard
+            this.listen.keyboard.defaultSubscriber(this);
 
+        },
+        _addKey: function(e){
+            this.el.value+= e.key;
+            e.cancel();
+        },
+        _getSelection: function(){
+            return {
+                selStart: this.el.selectionStart,
+                selEnd: this.el.selectionEnd
+            };
+        },
+        _setSelection: function(start, end){
+            this.el.setSelectionRange(start, end);
+        },
+        _removeChars: function(count){
+            var selRange = this._getSelection(),
+                valueString = this.get('value'),
+                delta;
+            valueString = valueString.substring(0,
+                    (selRange.selEnd == selRange.selStart) ? selRange.selStart +(count<0?count:0) : selRange.selStart) +
+                    valueString.substring(selRange.selEnd+(count>0?count:0));
+            this.set('value', valueString);
+            if (selRange.selEnd === selRange.selStart){
+                delta = count;
+            }
+            this._setSelection(selRange.selStart + Math.min(delta,0), selRange.selStart + Math.min(delta,0));
+
+        },
+        _moveCursorChars: function(count){
+            var selRange = this._getSelection();
+            selRange.selStart+=count;
+            selRange.selEnd+=count;
+            this._setSelection(selRange.selStart, selRange.selEnd);
         },
         _unbindListeners: function () {
             var listen = this[ arguments[0] || 'listen' ];
@@ -151,7 +182,7 @@ module.exports = (function () {
                 js.util.Dom.addListener(this.blurEl,'keydown', function(e){
                     var code = js.util.Keyboard.getCode(e);
                     if( code === js.util.Dom.keyCode.tab ){
-                        this.bubble( 'tab', {direction: e.shiftKey ? -1 : 1});
+                        this.bubble( 'tab', {direction: e.shift ? -1 : 1});
                     }else if( code === js.util.Dom.keyCode.enter || code === js.util.Dom.keyCode.space ){
 
                         this.fire((code === js.util.Dom.keyCode.enter ? 'enter' : 'space') + 'Key', e);
