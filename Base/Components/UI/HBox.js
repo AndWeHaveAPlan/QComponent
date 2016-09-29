@@ -7,6 +7,13 @@ var UIComponent = require('../UIComponent');
 var FlexSizeComponent = require('./FlexSizeComponent');
 
 module.exports = FlexSizeComponent.extend('HBox', {
+    _createEl: function () {
+        FlexSizeComponent.prototype._createEl.apply(this, arguments);
+        var self = this;
+        this.el.addEventListener('resize', function () {
+            self.updateLayout();
+        });
+    },
     updateLayout: function () {
         var self = this;
         var children = this.el.childNodes;
@@ -35,6 +42,7 @@ module.exports = FlexSizeComponent.extend('HBox', {
                 children[i].style.width = width;
             }
         }, 0);
+        FlexSizeComponent.prototype.updateLayout.call(this);
     },
     addChild: function (child) {
         var div = new Primitive.div();

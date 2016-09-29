@@ -35,6 +35,7 @@ module.exports = FlexSizeComponent.extend('VBox', {
                 children[i].style.height = height;
             }
         }, 0);
+        FlexSizeComponent.prototype.updateLayout.call(this);
     },
     addChild: function (child) {
         var div = new Primitive.div();

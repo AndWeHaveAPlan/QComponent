@@ -224,8 +224,6 @@ module.exports = (function() {
                         //console.log('do', i);
 
                         this.extractSub(defines[i].item, localShadow, i, defines[i].id, localShadow[i], defines);
-
-
                     }
                 }
 

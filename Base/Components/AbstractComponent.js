@@ -227,11 +227,7 @@ var AbstractComponent = QObject.extend('AbstractComponent', {
      */
     this._children = new ObservableSequence(new DQIndex('id'));
     this._children.on('add', this._onChildAdd.bind(this));
-    var mnu = this;
-    this._children.on('remove', function (c) {
-        mnu._onChildRemove.call(mnu, c)
-
-    });
+    this._children.on('remove', this._onChildRemove.bind(this));
 
     /**
      * Event. Fires with any changes made with get(...)
