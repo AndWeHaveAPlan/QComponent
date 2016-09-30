@@ -10,7 +10,7 @@ module.exports = (function () {
     var DOM = require('./DOMTools');
     var KeyboardEvent = function(e){
         this._originalEvent = e;
-        this.which = e.which;
+        this.code = this.which = e.which || e.keyCode || 0;;
         this.key = e.key;
         this.keyCode = e.keyCode;
         this.shift = e.shiftKey;
@@ -18,19 +18,8 @@ module.exports = (function () {
             e.keyCode === 18 || e.metaKey;
 
         this.ctrl = e.ctrlKey; //ctrl
-        this.code = e.keyCode;
-    };
-    KeyboardEvent.prototype = {
-        which: null,
-        key: null,
-        shift: false,
-        meta: false,
-        ctrl: false,
-        cancel: function(){
-            this._originalEvent.preventDefault();
-            this._originalEvent.stopPropagation();
-        },
-        keys: {
+    },
+        keys = {
             backspace: 8,
             comma: 188,
             'delete': 46,
@@ -55,14 +44,25 @@ module.exports = (function () {
             tab: 9,
             up: 38,
             any: -1
-        }
+        };
+    KeyboardEvent.prototype = {
+        which: null,
+        key: null,
+        shift: false,
+        meta: false,
+        ctrl: false,
+        cancel: function(){
+            this._originalEvent.preventDefault();
+            this._originalEvent.stopPropagation();
+        },
+        keys: keys
     };
 
     var KB = function (layer) {
         this.layer = layer;
         this.elseFns = {};
     };
-
+    KB.keys = keys;
     KB.prototype = {
         on: function(cfg){
             var i, keyCode = DOM.keyCode, map = {},
