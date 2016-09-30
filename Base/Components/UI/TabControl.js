@@ -13,29 +13,31 @@ var Property = require('../../Property');
 var ItemTemplate = require('./ItemTemplate');
 
 module.exports = UIComponent.extend('TabControl', {
-    _prop: {
-        itemWidth: new Property('String', { description: 'Single item width' }, null, 'auto'),
-        headerTemplate: new Property('ItemTemplate', { description: 'Visual presentation of items' }, {
-            set: function (name, val) {
-                this._headersList.set('itemTemplate', val);
-            },
-            get: Property.defaultGetter
-        }, ItemTemplate)
-    },
-    _onChildAdd: function (child) {
-        child.parent = this;
-        if (child instanceof Tab) {
-            var header = child.get('value');
-            this._tabs[header] = child;
-            this._headersList.get('itemSource').push(header);
+        _prop: {
+            itemWidth: new Property('String', {description: 'Single item width'}, null, 'auto'),
+            headerTemplate: new Property('ItemTemplate', {
+                set: function(name,value) {
+                    this._headersList.set('itemTemplate', value);
+                },
+                description: 'Visual presentation of items',
+                defaultValue: ItemTemplate
+            })
+
+        },
+        _onChildAdd: function (child) {
+            child.parent = this;
+            if (child instanceof Tab) {
+                var header = child.get('value');
+                this._tabs[header] = child;
+                this._headersList.get('itemSource').push(header);
+            }
+            this.bubble('childAdded', {child: child});
+        },
+        _onChildRemove: function (child) {
+            child.parent = null;
+            this.bubble('childRemoved', {child: child});
         }
-        this.bubble('childAdded', { child: child });
     },
-    _onChildRemove: function (child) {
-        child.parent = null;
-        this.bubble('childRemoved', { child: child });
-    }
-},
     function (cfg) {
         UIComponent.apply(this, arguments);
 
@@ -53,21 +55,14 @@ module.exports = UIComponent.extend('TabControl', {
         var headersList = new ListBox({
             orientation: 'horizontal',
             height: '100%',
-            width: '100%',
-            itemTemplate: ItemTemplate.extend('ItemTemplate' + this.id, {}, function (cfg) {
+            width: '100%'
+            /*itemTemplate: ItemTemplate.extend('ItemTemplateqweqwe' + this.id, {}, function (cfg) {
                 cfg = cfg || {};
                 cfg.padding = '12px';
                 ItemTemplate.call(this, cfg);
                 //this.set('padding','12px');
-            })
+            })*/
         });
-
-        headersList.set('itemTemplate', ItemTemplate.extend('ItemTemplate' + this.id, {}, function (cfg) {
-            cfg = cfg || {};
-            cfg.padding = '12px';
-            ItemTemplate.call(this, cfg);
-            //this.set('padding','12px');
-        }));
         this._vbox.addChild(headersList);
         this._headersList = headersList;
 
