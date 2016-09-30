@@ -40,3 +40,19 @@ h1, h2, h3, h4, h5 {
 .clearfix {
     clear: both !important;
 }
+._Q_KB_Button {
+    background: #ffa834;
+    color: #fff;
+    border: solid 1px #fff;
+    line-height: 35px;
+    font-size: 2em;
+    cursor: pointer;
+    display: inline-block;
+    height: 45px;
+    transition: background 0.3s;
+    border-radius: 17px;
+    text-shadow: 0.5px -1px #9c502c;
+}
+._Q_KB_Button.down {
+    background: #ff582d;
+}
