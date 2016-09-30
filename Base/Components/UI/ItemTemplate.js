@@ -10,11 +10,11 @@ var Primitives = require('./Primitives');
  *
  */
 /*Property.defineType('ItemTemplate', {
-    get: Property.defaultGetter
-})*/
+ get: Property.defaultGetter
+ })*/
 module.exports = UIComponent.extend('ItemTemplate', {
     _prop: {
-        value: new Property('String', { description: 'text content' }, {
+        value: new Property('String', {description: 'text content'}, {
             set: function (name, val) {
                 if (!this.textNode) {
                     this.textNode = UIComponent.document.createTextNode('');
@@ -26,4 +26,8 @@ module.exports = UIComponent.extend('ItemTemplate', {
         }),
         'default': new Property('Variant')
     }
+}, function (cfg) {
+    cfg = cfg || {};
+    cfg.padding = cfg.padding || '6px';
+    UIComponent.call(this, cfg);
 });
