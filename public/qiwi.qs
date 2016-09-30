@@ -1,12 +1,12 @@
 def UIComponent TextBox
-    public String text: {{ i1.value }}
+    String text: {{ i1.value }}
     input i1: {{value}}
        type: text
        width: 100%
 
 def UIComponent Button
-    public Boolean click: {{i1.click}}
-    public Boolean enabled: false
+    Boolean click: {{i1.click}}
+    Boolean enabled: false
     input i1: {{value}}
        enabled: {{enabled}}
        type: submit
@@ -14,7 +14,7 @@ def UIComponent Button
        height: 30
 
 def Page main
-    public Boolean currentScreen: {{ b1.click?'s2':void 0 }}
+    Boolean currentScreen: {{ b1.click?'s2':void 0 }}
     div s1:
         width: 200px
         visibility: {{currentScreen || currentScreen=='s1'?'collapsed':'visible'}}

@@ -254,7 +254,8 @@ module.exports = (
                     child.renderTo = insertInto;
                 }
 
-                child.updateLayout();
+                if(child instanceof UIComponent)
+                    child.updateLayout();
                 this.bubble('childAdded', { child: child });
 
             },
