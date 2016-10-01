@@ -13,7 +13,16 @@ module.exports = (function() {
             throw new Error({type: 'Arguments parsing error', data: item});
         return true;
     },
-        functionBody = {'->': true, '=>': true};
+        functionBody = {'->': true, '=>': true},
+        recursiveConcat = function(holder, items){
+            var i, _i;
+            for( i = 0, _i = items.length; i < _i; i++){
+                holder.push(items[i].pureLine);
+                if(items[i].children && items[i].children.length)
+                    recursiveConcat(holder, items[i].children)
+            }
+            return holder;
+        };
 
     return {
         /*using: ['Date', 'Number'],
@@ -107,12 +116,10 @@ module.exports = (function() {
                 })
                 .join('')
             ];
-            if(sub)
-                fn = fn.concat(
-                    sub.map(function (item) {
-                        return item.pureLine;
-                    })
-                );
+            if(sub){
+                recursiveConcat(fn, sub);
+            }
+
             fn = fn.join('\n');
             
             var parsed = VariableExtractor.parse(fn);

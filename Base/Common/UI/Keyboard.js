@@ -16,6 +16,7 @@ module.exports = (function () {
         this.shift = e.shiftKey;
         this.meta = e.keyCode === 91 || //meta/win/command/super
             e.keyCode === 18 || e.metaKey;
+        this.symbol = keyHash[e.keyCode] || e.key;
 
         this.ctrl = e.ctrlKey; //ctrl
     },
@@ -44,7 +45,11 @@ module.exports = (function () {
             tab: 9,
             up: 38,
             any: -1
-        };
+        },
+        keyHash = {}, i;
+    for(i in keys)
+        keyHash[keys[i]] = i;
+
     KeyboardEvent.prototype = {
         which: null,
         key: null,
@@ -72,25 +77,34 @@ module.exports = (function () {
                 map[keyCode[i]] = cfg[i];
             }
             this.layer.keydown = function(e){
-                var wE = new KeyboardEvent(e),
-                    what = map[wE.which], result;
+                var wrappedEvent = new KeyboardEvent(e),
+                    what = map[wrappedEvent.which], result;
 
                 if(what) {
-                    result = what.call(_self.layer.owner, wE);
+                    result = what.call(_self.layer.owner, wrappedEvent);
                     if(result !== false) {
-                        wE.cancel();
+                        wrappedEvent.cancel();
                         return result;
                     }
                 }
-                _self.elseFns.keydown && _self.elseFns.keydown(wE);
+                if(_self.layer.owner.fire('key', wrappedEvent.symbol, wrappedEvent) === false)
+                    wrappedEvent.cancel();
+                else
+                    _self.elseFns.keydown && _self.elseFns.keydown(wrappedEvent);
 
 
             };
             this.layer.keyup = function(e){
-                _self.elseFns.keyup && _self.elseFns.keyup(new KeyboardEvent(e));
+                var wrappedEvent = new KeyboardEvent(e);
+                //if(_self.layer.owner.fire('key', wrappedEvent.symbol, wrappedEvent) !== false)
+                _self.elseFns.keyup && _self.elseFns.keyup(wrappedEvent);
             };
             this.layer.keypress = function(e){
-                _self.elseFns.keypress && _self.elseFns.keypress(new KeyboardEvent(e));
+                var wrappedEvent = new KeyboardEvent(e);
+                if(_self.layer.owner.fire('key', wrappedEvent.symbol, wrappedEvent) === false)
+                    wrappedEvent.cancel();
+                else
+                    _self.elseFns.keypress && _self.elseFns.keypress(wrappedEvent);
             };
         },
         defaultSubscriber: function(who){
