@@ -49,10 +49,12 @@ h1, h2, h3, h4, h5 {
     cursor: pointer;
     display: inline-block;
     height: 45px;
-    transition: background 0.3s;
+    transition: background, text-shadow, box-shadow 0.3s;
     border-radius: 17px;
     text-shadow: 0.5px -1px #9c502c;
 }
 ._Q_KB_Button.down {
     background: #ff582d;
+    text-shadow: -0.5px 1px #9c502c;
+    box-shadow: inset 0 0px 5px 0 #743a21;
 }
