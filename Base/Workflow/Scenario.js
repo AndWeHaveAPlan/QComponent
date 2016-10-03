@@ -24,6 +24,13 @@ var Scenario = AbstractComponent.extend('Scenario', {
         back: new Property('Function'),
         dataContext: new Property('Variant')
     },
+    _afterInit: function () {
+        AbstractComponent.prototype._afterInit.call(this);
+        for (var prop in this._prop) {
+            if (this._prop.hasOwnProperty(prop))
+                this.dataContext[prop] = this._data[prop];
+        }
+    },
     load: function () {
         this.next();
     },

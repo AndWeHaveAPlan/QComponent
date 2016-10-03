@@ -40,6 +40,9 @@ def Page videoPlayerPage
 				{name:'Cyriak – No more memory', url:'https://psv4.vk.me/c1703/u13507985/audios/e012abdfe14b.mp3'}
 				]
 			itemTemplate:
+			    Slider: 10
+			      from: 0
+			      to: 22
 				div: {{name}}
 					padding: 12px
 

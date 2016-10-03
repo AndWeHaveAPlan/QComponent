@@ -271,7 +271,7 @@ module.exports = (function () {
         isNameOfProp: function (name, metadata) {
             var prop, tmp;
             if (!metadata || !metadata._prop) {
-                if (metadata.public) { // it is shadow
+                if (metadata && metadata.public) { // it is shadow
                     if (metadata.public[name])
                         return metadata.public[name];
                     else {
@@ -282,8 +282,12 @@ module.exports = (function () {
                                 return false;
                         }
                     }
-                } else
-                    throw new Error('Corrupted metadata for `' + name + '`');
+                } else {
+                    if(metadata && ('metadata' in metadata))
+                        return this.isNameOfProp(name, metadata.metadata);
+                    else
+                        throw new Error('Corrupted metadata for `' + name + '`');
+                }
             }
             prop = metadata._prop;
             
@@ -612,14 +616,25 @@ module.exports = (function () {
             },
                 transformFnSet = function (node, stack, scope) {
                     var list = stack.slice().reverse(),
-                        first = list[0];
-                    var env = tools.isNameOfEnv(first.name, meta),
+                        varParts,
+
+                        info = tools.getVarInfo(list, meta, child),
+                        firstToken = info.varParts[0],
                         who;
-                    if (env.type in primitives) {
+
+                    //    first = list[0];
+                    // var env = tools.isNameOfEnv(first.name, meta),
+                    //     who;
+                    if (info.self) {
                         who = ASTtransformer.craft.Identifier('self');
                     } else {
-                        who = list.shift();
+                        info.context--;
+                        info.varParts.shift();
+                        who = ASTtransformer.craft.Identifier(firstToken.name);
                     }
+                    if (info.valueFlag)
+                        list.push({name: 'value'})
+
                     return {
                         'type': 'CallExpression',
                         'callee': {
@@ -635,7 +650,7 @@ module.exports = (function () {
                             {
                                 'type': 'ArrayExpression',
                                 'elements':
-                                list.length ? list.map(function (item) {
+                                list.map(function (item) {
                                     if (item.computed) {
                                         return scope.doTransform.call(scope.me, item, scope.options);
                                     } else {
@@ -649,13 +664,7 @@ module.exports = (function () {
 
                                         return out;
                                     }
-                                }) : [{
-                                    'type': 'Literal',
-                                    'value': 'value',
-                                    'raw': '\'value\''
-                                }]
-
-
+                                })
                             },
                             node.right
                         ]
