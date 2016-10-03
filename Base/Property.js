@@ -93,6 +93,7 @@ module.exports = (function () {
             var arg2 = arguments[2] || {};
             cfg.get = arg2.get || Property.defaultGetter;
             cfg.set = arg2.set || Property.defaultSetter;
+            cfg.proxyFor = arg2.proxyFor;
         }
 
         if (arguments.length > 3) {
@@ -214,7 +215,7 @@ module.exports = (function () {
     var setList = [];
     Property.generate = {
         proxy: function (proxyFor) {
-            return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property' }, { proxyFor: proxyFor });
+            return new Property('Variant', { description: 'Proxy for ' + proxyFor + ' property', proxyFor: proxyFor });
         },
         number: function (value, metadataAndCfg) {
             // TODO

@@ -20,7 +20,8 @@
     "esprima": "*",
     "escodegen": "*",
     "querystring": "*",
-    "deep-property": "~1.1.0"
+    "z-observable": "*",
+    "deep-property": "*"
   },
   "devDependencies": {
     "chai": "*",

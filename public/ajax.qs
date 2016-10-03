@@ -1,5 +1,3 @@
-def gugu mat
-def Page gugu
 def Page main
     height:100%
     Title: ajax test

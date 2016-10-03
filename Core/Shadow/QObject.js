@@ -14,12 +14,21 @@ module.exports = (function() {
         return true;
     },
         functionBody = {'->': true, '=>': true},
+        extractFunctionData = function(item){
+            if(item.type === 'comment') {
+                return item.info === void 0 ? item.data + '\n' : item.data;
+            }else if(item.type === 'quote') {
+                return item.data;
+            }else {
+                return item.pureData;
+            }
+        },
         recursiveConcat = function(holder, items){
             var i, _i;
             for( i = 0, _i = items.length; i < _i; i++){
-                holder.push(items[i].pureLine);
+                holder.push(extractFunctionData(items[i].pureLine));
                 if(items[i].children && items[i].children.length)
-                    recursiveConcat(holder, items[i].children)
+                    recursiveConcat(holder, items[i].children);
             }
             return holder;
         };
@@ -109,11 +118,7 @@ module.exports = (function() {
                 }
             }
             fn = [
-                rest.map(function(item){
-                    if(item.type === 'comment')
-                        return item.info === void 0 ? item.data+ '\n': item.data;
-                    return item.pureData;
-                })
+                rest.map(extractFunctionData)
                 .join('')
             ];
             if(sub){
