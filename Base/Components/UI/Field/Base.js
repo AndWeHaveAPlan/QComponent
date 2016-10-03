@@ -11,7 +11,6 @@ var BaseInput = UIComponent.extend('BaseInput', {
 });
 
 var TestInput = BaseInput.extend('TestInput', {
-    mixin: 'focusable',
     createEl: function () {
         var _self = this,
             el = this.el = UIComponent.document.createElement('input'),
