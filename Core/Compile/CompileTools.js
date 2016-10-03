@@ -612,9 +612,15 @@ module.exports = (function () {
             },
                 transformFnSet = function (node, stack, scope) {
                     var list = stack.slice().reverse(),
-                        first = list[0];
-                    var env = tools.isNameOfEnv(first.name, meta),
+                        varParts,
+
+                        info = tools.getVarInfo(list, meta, child),
+                        firstToken = info.varParts[0],
                         who;
+
+                    //    first = list[0];
+                    // var env = tools.isNameOfEnv(first.name, meta),
+                    //     who;
                     if (env.type in primitives) {
                         who = ASTtransformer.craft.Identifier('self');
                     } else {
