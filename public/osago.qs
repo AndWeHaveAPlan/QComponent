@@ -69,7 +69,7 @@ def Page page2
 
 def Scenario main
 	public String phone: null
-	public String insuranceType: 'osago'
+	public String insuranceType: 'casco'
 	public String paymentData: null
 
 	Sequence
@@ -82,7 +82,7 @@ def Scenario main
 		Selector: insuranceType=='casco'
 			page: page2
 
-		Selector: !insuranceType
+		Selector: insuranceType!=='osago' && insuranceType!=='casco'
 			page: errPage
 
 		Selector
