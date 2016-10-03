@@ -103,6 +103,8 @@ module.exports = (function() {
                 rest.map(function(item){
                     if(item.type === 'comment')
                         return item.info === void 0 ? item.data+ '\n': item.data;
+                    if(item.type === 'quote')
+                        return item.data;
                     return item.pureData;
                 })
                 .join('')
@@ -110,7 +112,11 @@ module.exports = (function() {
             if(sub)
                 fn = fn.concat(
                     sub.map(function (item) {
-                        return item.pureLine;
+                        if(item.type === 'comment')
+                            return item.info === void 0 ? item.data+ '\n': item.data;
+                        if(item.type === 'quote')
+                            return item.data;
+                        return item.pureData;
                     })
                 );
             fn = fn.join('\n');

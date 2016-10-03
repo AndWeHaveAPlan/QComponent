@@ -251,7 +251,7 @@ def Page q6
             dataContext.count = dataContext.count + rbg;
             next();
 
-    //span: count = {{dataContext.count}}
+    span: count = {{dataContext.count}}
 
 def Page r1
     width: 100%

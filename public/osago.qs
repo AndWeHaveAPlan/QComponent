@@ -26,7 +26,7 @@ def Page page0
 	h1: Page 0
 
 	Button: back
-	    .click: ()-> back()		
+	    .click: ()-> back()
 	Button: next	    
 	    .click: ()->
 		    self.dataContext.insuranceType=type;
