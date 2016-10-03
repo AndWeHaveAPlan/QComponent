@@ -10,26 +10,16 @@ module.exports = (function () {
     var DOM = require('./DOMTools');
     var KeyboardEvent = function(e){
         this._originalEvent = e;
-        this.which = e.which;
+        this.code = this.which = e.which || e.keyCode || 0;;
         this.key = e.key;
+        this.keyCode = e.keyCode;
         this.shift = e.shiftKey;
         this.meta = e.keyCode === 91 || //meta/win/command/super
             e.keyCode === 18 || e.metaKey;
 
         this.ctrl = e.ctrlKey; //ctrl
-        this.code = e.keyCode;
-    };
-    KeyboardEvent.prototype = {
-        which: null,
-        key: null,
-        shift: false,
-        meta: false,
-        ctrl: false,
-        cancel: function(){
-            this._originalEvent.preventDefault();
-            this._originalEvent.stopPropagation();
-        },
-        keys: {
+    },
+        keys = {
             backspace: 8,
             comma: 188,
             'delete': 46,
@@ -54,14 +44,25 @@ module.exports = (function () {
             tab: 9,
             up: 38,
             any: -1
-        }
+        };
+    KeyboardEvent.prototype = {
+        which: null,
+        key: null,
+        shift: false,
+        meta: false,
+        ctrl: false,
+        cancel: function(){
+            this._originalEvent.preventDefault();
+            this._originalEvent.stopPropagation();
+        },
+        keys: keys
     };
 
     var KB = function (layer) {
         this.layer = layer;
         this.elseFns = {};
     };
-
+    KB.keys = keys;
     KB.prototype = {
         on: function(cfg){
             var i, keyCode = DOM.keyCode, map = {},
@@ -94,34 +95,23 @@ module.exports = (function () {
         },
         defaultSubscriber: function(who){
             this.elseFns.keydown = function(e){
-                var todo = {}, i, cancel;
+                var todo = {}, i, cancel, scope = 'Chars';
                 if(e.ctrl){
-                    if (e.key === e.keys.backspace)
-                        todo._removeWords = -1;
-
-                    if (e.key === e.keys.delete)
-                        todo._removeWords = 1;
-
-                    if(e.key === e.keys.left)
-                        todo._moveCursorWords = -1;
-
-                    if(e.key === e.keys.right)
-                        todo._moveCursorWords = 1;
-
-                }else{
-                    if (e.key === e.keys.backspace)
-                        todo._removeChars = -1;
-
-                    if (e.key === e.keys.delete)
-                        todo._removeChars = 1;
-
-                    if(e.key === e.keys.left)
-                        todo._moveCursorChars = -1;
-
-                    if(e.key === e.keys.right)
-                        todo._moveCursorChars = 1;
-
+                    scope = 'Words';
                 }
+
+                if (e.keyCode === e.keys.backspace)
+                    todo['_remove'+ scope] = -1;
+
+                if (e.keyCode === e.keys.delete)
+                    todo['_remove'+ scope] = 1;
+
+                if(e.keyCode === e.keys.left)
+                    todo['_moveCursor'+ scope] = -1;
+
+                if(e.keyCode === e.keys.right)
+                    todo['_moveCursor'+ scope] = 1;
+
                 for(i in todo) {
                     who[i](todo[i]);
                     cancel = true;
