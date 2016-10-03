@@ -1,4 +1,5 @@
 def Page main
+	scroll: vertical
     div
       height: {{s2.value*50}}px
       width: {{s2.value*50}}px
