@@ -1,7 +1,7 @@
 def Page main
     opacity: {{opacity}}
     background: rgba({{s1|0}},{{s2.value}},{{s3}},1)
-    VBox
+    VBox ljadw
         //skew: {{[s2.value*0.003,-s2.value*0.003]}}
         Slider s1: 50
             from: 11//фуфя /* dawd */ aa

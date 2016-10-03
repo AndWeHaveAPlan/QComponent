@@ -96,8 +96,10 @@ module.exports = (function () {
             //if (child.name)
                 cfgInit.push('id: \'' + name + '\'');
 
-            if (child.events)
+            if (child.events){
+                tools
                 events = tools.builder.events(child, this.cls, child);
+            }
 
             var addToParent = '';
             if (this.nesting > 0) {

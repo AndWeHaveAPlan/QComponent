@@ -621,11 +621,16 @@ module.exports = (function () {
                     //    first = list[0];
                     // var env = tools.isNameOfEnv(first.name, meta),
                     //     who;
-                    if (env.type in primitives) {
+                    if (info.self) {
                         who = ASTtransformer.craft.Identifier('self');
                     } else {
-                        who = list.shift();
+                        info.context--;
+                        info.varParts.shift();
+                        who = ASTtransformer.craft.Identifier(firstToken.name);
                     }
+                    if (info.valueFlag)
+                        list.push({name: 'value'})
+
                     return {
                         'type': 'CallExpression',
                         'callee': {
@@ -641,7 +646,7 @@ module.exports = (function () {
                             {
                                 'type': 'ArrayExpression',
                                 'elements':
-                                list.length ? list.map(function (item) {
+                                list.map(function (item) {
                                     if (item.computed) {
                                         return scope.doTransform.call(scope.me, item, scope.options);
                                     } else {
@@ -655,13 +660,7 @@ module.exports = (function () {
 
                                         return out;
                                     }
-                                }) : [{
-                                    'type': 'Literal',
-                                    'value': 'value',
-                                    'raw': '\'value\''
-                                }]
-
-
+                                })
                             },
                             node.right
                         ]
