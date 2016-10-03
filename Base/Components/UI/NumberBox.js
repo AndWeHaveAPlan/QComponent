@@ -28,11 +28,7 @@ function isModifierCombo(event) {
 module.exports = UIComponent.extend('NumberBox', {
     _prop: {
         value: Property.generate.proxy('number'),
-        number: new Property('Number', {}, {
-            get: Property.defaultGetter,
-            set: function (name, value) {
-            }
-        }, 0),
+        number: new Property('Number', {}, { defaultValue: 0 }),
         placeholder: Property.generate.attributeProperty('placeholder')
     }
 }, function (cfg) {
@@ -132,7 +128,7 @@ module.exports = UIComponent.extend('NumberBox', {
         self.set('number', parseFloat(valueString) | 0);
     });
 
-    var pipe = new MutatingPipe(['number'], {
+    var pipe = new MutatingPipe([this.id+'.number'], {
         component: 'numberField',
         property: 'value'
     });
