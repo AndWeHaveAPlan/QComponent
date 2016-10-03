@@ -20,12 +20,6 @@ module.exports = (function(){
             '{"text":"Next", "value": "tab"}|фывапролджэ|{"text":"delete"}',
             '{"text":"shift"}|ячсмитьбю.,|{"text":"shift"}',
             '{"text":"&nbsp;", "value": " ", "width": 14}|{"text":"&larr;", "value": "left"}|{"text":"&rarr;", "value": "right"}'
-        ],
-        'RU': [
-            'ЙЦУКЕНГШЩЗХЪ|backspace',
-            'ФЫВАПРОЛДЖЭ|delete',
-            'shift|ЯЧСМИТЬБЮ.,|shift|&uarr;',
-            '{"symbol":" ", "width": 21}|&larr;|&darr;|&rarr;'
         ]
     };
     var deJSON = function(text){
