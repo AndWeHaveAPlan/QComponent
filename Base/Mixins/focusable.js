@@ -116,7 +116,12 @@ module.exports = (function () {
 
         },
         _addKey: function(e){
-            this.el.value+= e.key;
+            var selRange = this._getSelection(),
+                val = this.get('value');
+            val = val.substr(0,selRange.selStart)+ e.key +val.substr(selRange.selEnd);
+            this.set('value', val);
+            selRange.selStart++;
+            this._setSelection(selRange.selStart, selRange.selStart);
             e.cancel();
         },
         _getSelection: function(){
@@ -129,13 +134,14 @@ module.exports = (function () {
             this.el.setSelectionRange(start, end);
         },
         _removeChars: function(count){
+
             var selRange = this._getSelection(),
-                valueString = this.get('value'),
+                val = this.get('value'),
                 delta;
-            valueString = valueString.substring(0,
+            val = val.substring(0,
                     (selRange.selEnd == selRange.selStart) ? selRange.selStart +(count<0?count:0) : selRange.selStart) +
-                    valueString.substring(selRange.selEnd+(count>0?count:0));
-            this.set('value', valueString);
+                    val.substring(selRange.selEnd+(count>0?count:0));
+            this.set('value', val);
             if (selRange.selEnd === selRange.selStart){
                 delta = count;
             }

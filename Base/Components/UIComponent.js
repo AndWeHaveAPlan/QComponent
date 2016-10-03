@@ -134,6 +134,7 @@ module.exports = (
                                 this.el.style.overflowX = 'auto';
                                 this.el.style.overflowY = 'auto';
                                 break;
+
                         }
                     },
                     get: Property.defaultGetter
