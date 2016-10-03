@@ -46,7 +46,7 @@ module.exports = UIComponent.extend('Video', {
         }
       }),
       duration: new Property('Number', { }),
-      volume: new Property('Number', { description: 'Current volume' }, {
+      volume: new Property('Number', { description: 'Current volume',
         get: function () {
           return this.el.volume;
         },

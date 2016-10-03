@@ -528,7 +528,7 @@ module.exports = (function () {
                 for (i = 0, _i = events.length; i < _i; i++) {
                     event = events[i];
 
-                    var fnBody = tools.functionTransform(event, cls.metadata, child);
+                    var fnBody = tools.functionTransform(event, /*cls.metadata*/cls, child);
                     out.push((name || 'this') + '.on(\'' + event.events + '\',' + fnBody + ', ' + (name || 'this') + ');');
                 }
 

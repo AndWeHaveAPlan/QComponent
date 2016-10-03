@@ -34,7 +34,7 @@ def Page videoPlayerPage
 
 		ListBox videoList
 			itemSource: [
-				{name:'C2C - Delta', url:'https://cs1-50v4.vk-cdn.net/p7/a59fa82f3de7bf.mp3 '},
+				{name:'C2C - Delta', url:'https://cs1-50v4.vk-cdn.net/p7/a59fa82f3de7bf.mp3'},
 				{name:'M.O.O.N – Dust', url:'http://vjs.zencdn.net/v/oceans.mp4'},
 				{name:'Sun Araw - Deep Cover', url:'https://cs1-37v4.vk-cdn.net/p8/95035e0089035c.mp3'},
 				{name:'Cyriak – No more memory', url:'https://psv4.vk.me/c1703/u13507985/audios/e012abdfe14b.mp3'}
