@@ -271,7 +271,7 @@ module.exports = (function () {
         isNameOfProp: function (name, metadata) {
             var prop, tmp;
             if (!metadata || !metadata._prop) {
-                if (metadata && metadata.public) { // it is shadow
+                if (metadata.public) { // it is shadow
                     if (metadata.public[name])
                         return metadata.public[name];
                     else {
@@ -282,13 +282,9 @@ module.exports = (function () {
                                 return false;
                         }
                     }
-                } else {
-                    if(metadata && ('metadata' in metadata))
-                        return this.isNameOfProp(name, metadata.metadata);
-                    else
+                } else
                         throw new Error('Corrupted metadata for `' + name + '`');
                 }
-            }
             prop = metadata._prop;
             
             if(!prop)
@@ -532,7 +528,7 @@ module.exports = (function () {
                 for (i = 0, _i = events.length; i < _i; i++) {
                     event = events[i];
 
-                    var fnBody = tools.functionTransform(event, /*cls.metadata*/cls, child);
+                    var fnBody = tools.functionTransform(event, cls.metadata/*cls*/, child);
                     out.push((name || 'this') + '.on(\'' + event.events + '\',' + fnBody + ', ' + (name || 'this') + ');');
                 }
 
