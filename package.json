@@ -19,7 +19,9 @@
     "tiny-uuid": "*",
     "esprima": "*",
     "escodegen": "*",
-    "querystring": "*"
+    "querystring": "*",
+    "z-observable": "*",
+    "deep-property": "*"
   },
   "devDependencies": {
     "chai": "*",
