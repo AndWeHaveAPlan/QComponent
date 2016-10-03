@@ -54,12 +54,13 @@ def Page main
 				width: 376px
 				type: button
 				enabled: {{ gm.ready }}
-				.click: ()=>{
+				.click: ()->{
 					var from = gm.home;
 					var to = gm.pins[0].coords;
 
 					if(to) { gm.makeRoute(from, to); }
-				}
+					}
+				
 			input: Увеличить
 				margin: 12px
 				padding: 12px
@@ -86,18 +87,18 @@ def Page main
 				width: 376px
 				type: button
 				enabled: {{ gm.ready }}
-				.click: ()=>{
-					gm.type = 'yandex';
-				}
+				.click: ()=>
+					gm.type = 'yandex'									
+				
 			input: Карты google
 				margin: 12px
 				padding: 12px
 				width: 376px
 				type: button
 				enabled: {{ gm.ready }}
-				.click: ()=>{
-					gm.type = 'google';
-				}
+				.click: ()=>
+					gm.type = 'google'
+				
 			input: Показать меня
 				margin: 12px
 				padding: 12px
