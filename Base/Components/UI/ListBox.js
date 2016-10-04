@@ -13,16 +13,23 @@ module.exports = ContainerComponent.extend('ListBox', {
         this.el.style.overflowX = 'hidden';
         this.el.style.overflowY = 'auto';
     },
-    _handleChildren: function (childComp, index) {
-        var self = this;
+    _formathild: function (childComp) {
         var childNode = childComp.el;
         childNode.style.position = 'relative';
 
         if (this._data.orientation === 'horizontal') {
             childNode.style.float = 'left';
-        } else {
+            childNode.style.clear = 'none';
+        }
+        if (this._data.orientation === 'vertical') {
+            childNode.style.float = 'none';
             childNode.style.clear = 'both';
         }
+    },
+    _handleChildren: function (childComp, index) {
+        var self = this;
+        this._formathild(childComp);
+        var childNode = childComp.el;
 
         childNode.addEventListener('click', function () {
             self.set('selectedIndex', index);
@@ -31,6 +38,13 @@ module.exports = ContainerComponent.extend('ListBox', {
     _prop: {
         orientation: new Property('String',
             {
+                set: function (name, value) {
+                    var iterator = this._children.iterator(), item;
+
+                    while (item = iterator.next()) {
+                        this._formathild(item);
+                    }
+                },
                 defaultValue: 'vertical'
             })
     }

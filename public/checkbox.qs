@@ -12,8 +12,8 @@ def UIComponent TextBox
      value: {{text}}
 
 
-def UIComponent main
-   String valueProxy: {{value}}
+def Page main
+   String value: 12345
    String href: "http://google.com"
    TextBox:
        text: {{value}}
@@ -22,10 +22,10 @@ def UIComponent main
    HBox hbox:
        a:
            value: {{value}}
-           href: {{href}}
+           href: {{123}}
        a:
            value: {{value}}
-           href: {{href}}
+           href: {{456}}
    div d1:
        Checkbox c2:
            checked: {{value}}

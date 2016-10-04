@@ -23,6 +23,20 @@ module.exports = UIComponent.extend('ContainerComponent', {
         var newComp = this._wrapItem(item);
         this._handleChildren(newComp, index);
         this._children.splice(index, 0, newComp);
+
+        if (index === this.get('selectedIndex')) {
+
+            var children = this.el.childNodes;
+
+            var nextItem = children[index + 1];
+            var currentItem = children[index];
+
+            if (nextItem) nextItem.style.background = 'none';
+            if (currentItem) currentItem.style.background = this._data['selectionColor'];
+
+            this.set('selectedItem', this.get('itemSource').get(index));
+            this.fire('selectionChanged');
+        }
     },
     /**
      * 
@@ -79,8 +93,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
             get: Property.defaultGetter
         }, -1),
         selectedItem: new Property('Variant', { description: 'Index of current selected item' }, {
-            set: Property.defaultSetter,
-            get: Property.defaultGetter
+            set: false,
         }, {}),
         itemSource: new Property('Array', { description: 'Index of current selected item' }, {
             set: function (name, value, old, e) {
