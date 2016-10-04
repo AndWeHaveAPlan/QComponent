@@ -13,6 +13,7 @@ module.exports = UIComponent.extend('Page', {
     },
     load: function () {
         QObject.document.body.appendChild(this.el);
+        this.updateLayout();
         this.fire('loaded');
     },
     next: function () {

@@ -95,6 +95,9 @@ def Page main
 	TabControl tc
 		height: 100%
 		width: 100%
+		headerTemplate
+			div: {{value}}:{{active}}
+				background: #333;
 
 		Tab t1: Tab1
 			videoPlayerPage1
@@ -104,3 +107,4 @@ def Page main
 			h1: t2
 		Tab: Tab4
 			page1
+		tabsPosition: {{tc.selectedIndex==0?'left':'top'}}
