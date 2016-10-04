@@ -25,7 +25,7 @@ def Page main
            href: {{123}}
        a:
            value: {{value}}
-           href: {{456}}
+           href: {{href}}
    div d1:
        Checkbox c2:
            checked: {{value}}

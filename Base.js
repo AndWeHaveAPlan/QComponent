@@ -58,7 +58,8 @@ module.exports = {
             If: require('./Base/Components/UI/If'),
             Tab: require('./Base/Components/UI/Tab'),
             TabControl: require('./Base/Components/UI/TabControl'),
-            Grid: require('./Base/Components/UI/Grid')
+            Grid: require('./Base/Components/UI/Grid'),
+            ProgressBar: require('./Base/Components/UI/ProgressBar')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {
