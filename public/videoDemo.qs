@@ -1,4 +1,4 @@
-﻿def Page firstPage
+﻿﻿def Page firstPage
 	 center
 		 h1: Video component demo
 		 br
