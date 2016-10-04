@@ -8,6 +8,7 @@
 		indeterminate: true
 	br
 	ProgressBar pb1
+		rotation: {{-sl1/100*180}}
 		progress: {{sl1}}
 	Slider sl1: 50
 		width: 150px
