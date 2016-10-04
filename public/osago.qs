@@ -42,7 +42,6 @@ def Page page0
 def Page page1
 	width: 100%
 	height: 100%
-	public Scenario scenario
 
 	background: #fcc
 	h1: OSAGO
@@ -74,16 +73,32 @@ def Scenario main
 
 	Sequence
 		Selector
-			page: page0
+			scene: page0
 
 		Selector: insuranceType=='osago'
-			page: page1
+			scene: page1
 
 		Selector: insuranceType=='casco'
-			page: page2
+			scene: page2
 
 		Selector: insuranceType!=='osago' && insuranceType!=='casco'
-			page: errPage
+			scene: errPage
 
 		Selector
-			page: page3
+			scene: page3
+
+	Sequence
+		Selector
+			scene: page0
+
+		Selector: insuranceType=='osago'
+			scene: page1
+
+		Selector: insuranceType=='casco'
+			scene: page2
+
+		Selector: insuranceType!=='osago' && insuranceType!=='casco'
+			scene: errPage
+
+		Selector
+			scene: page3

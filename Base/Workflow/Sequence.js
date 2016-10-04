@@ -5,17 +5,24 @@
 var AbstractComponent = require('../Components/AbstractComponent');
 
 module.exports = AbstractComponent.extend('Sequence', {
+    fromEnd: function () {
+        this.cursor = this._ownComponents.length;
+        return this;
+    },
+    fromStart: function () {
+        this.cursor = -1;
+        return this;
+    },
     canGoNext: function () {
         return (this.cursor + 1) < this._ownComponents.length;
 
     },
     canGoBack: function () {
         return (this.cursor - 1) >= 0;
-
     },
     next: function () {
         if (!this.canGoNext()) {
-            return void(0);
+            return void (0);
         }
 
         this.cursor += 1;
@@ -28,7 +35,7 @@ module.exports = AbstractComponent.extend('Sequence', {
     },
     back: function () {
         if (!this.canGoBack()) {
-            return void(0);
+            return void (0);
         }
 
         this.cursor -= 1;
