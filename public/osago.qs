@@ -1,3 +1,4 @@
+
 def Page page3
 	width: 100%
 	height: 100%
@@ -29,7 +30,7 @@ def Page page0
 	    .click: ()-> back()
 	Button: next	    
 	    .click: ()->
-		    self.dataContext.insuranceType=type;
+		    dataContext.insuranceType=type;
 		    next();
 		      
 

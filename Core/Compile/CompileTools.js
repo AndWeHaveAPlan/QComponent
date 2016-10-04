@@ -34,7 +34,7 @@ module.exports = (function () {
         typedExtractors = {
             'Function': function (token, type, cls) {
                 var t = shadow.QObject.eventParser(type.item, type.item.children);
-                return tools.functionTransform(t, cls.metadata);
+                return tools.functionTransform(t, cls);
             }/*,
             'Number': function(token, type, cls){
                 return 5;
@@ -116,7 +116,7 @@ module.exports = (function () {
                 if (prop.value && checkType(prop.value, prop.type)) {
                     return 'QObject._knownComponents[\'' + prop.value + '\']';
                 } else {
-                    return scope.cls(prop).compile(true).join('\n');
+                    return cls.subcls(prop).compile(true).join('\n');
                 }
             }
 
@@ -359,7 +359,8 @@ module.exports = (function () {
                 '\t\treturn ' + fn + '\n' +
                 '\t});';
         },
-        getVarInfo: function (stack, metadata, child) {
+        getVarInfo: function (stack, cls, child) {
+            var metadata = cls.root.metadata;
             var i, _i, out = [], node, env, selfFlag = false, context = false,
                 envFlag, propFlag, valueFlag = false, thisFlag = false, lastEnv, lastName,
 
@@ -379,6 +380,7 @@ module.exports = (function () {
                         env = child;
                         thisFlag = true;
                     } else {
+
                         env = this.isNameOfEnv(name, metadata);
                         if (env)
                             envFlag = true;
@@ -453,7 +455,7 @@ module.exports = (function () {
                 stack.push(pointer);
             }
 
-            info = tools.getVarInfo(stack, metadata);
+            info = tools.getVarInfo(stack, cls);
             if (info.valueFlag)
                 info.varParts.push({ name: 'value' });
             return (info.self ? 'self.id+\'.' : '\'') + info.varParts.map(function (el) { return el.name; }).join('.') + '\'';
@@ -528,7 +530,7 @@ module.exports = (function () {
                 for (i = 0, _i = events.length; i < _i; i++) {
                     event = events[i];
 
-                    var fnBody = tools.functionTransform(event, cls.metadata/*cls*/, child);
+                    var fnBody = tools.functionTransform(event, cls, child);
                     out.push((name || 'this') + '.on(\'' + event.events + '\',' + fnBody + ', ' + (name || 'this') + ');');
                 }
 
@@ -539,12 +541,14 @@ module.exports = (function () {
             }
 
         },
-        functionTransform: function (fnObj, meta, child) {
+        functionTransform: function (fnObj, cls, child) {
+            var meta = cls.metadata;
             var transformFnGet = function (node, stack, scope, parent) {
+                var c0 = cls;
                 var list = stack.slice().reverse(),
                     varParts,
 
-                    info = tools.getVarInfo(list, meta, child),
+                    info = tools.getVarInfo(list, cls, child),
                     firstToken = info.varParts[0],
                     who;
 
@@ -611,10 +615,11 @@ module.exports = (function () {
 
             },
                 transformFnSet = function (node, stack, scope) {
+                    var c0 = cls;
                     var list = stack.slice().reverse(),
                         varParts,
 
-                        info = tools.getVarInfo(list, meta, child),
+                        info = tools.getVarInfo(list, cls, child),
                         firstToken = info.varParts[0],
                         who;
 
@@ -626,10 +631,10 @@ module.exports = (function () {
                     } else {
                         info.context--;
                         info.varParts.shift();
-                        who = ASTtransformer.craft.Identifier(firstToken.name);
+                        who = info.thisFlag ? ASTtransformer.craft.This() : ASTtransformer.craft.Identifier(firstToken.name);
                     }
                     if (info.valueFlag)
-                        list.push({name: 'value'})
+                        info.varParts.push({name: 'value'})
 
                     return {
                         'type': 'CallExpression',
@@ -646,21 +651,21 @@ module.exports = (function () {
                             {
                                 'type': 'ArrayExpression',
                                 'elements':
-                                list.map(function (item) {
-                                    if (item.computed) {
-                                        return scope.doTransform.call(scope.me, item, scope.options);
-                                    } else {
-                                        var out = {
-                                            'type': 'Literal',
-                                            'value': item.name,
-                                            'raw': '\'' + item.name + '\''
-                                        };
-                                        if ('_id' in item)
-                                            out._id = item._id;
-
-                                        return out;
-                                    }
-                                })
+                                    info.varParts.map(function (item) {
+                                        if (item.computed) {
+                                            return scope.doTransform.call(scope.me, item, scope.options);
+                                        } else {
+                                            var out = {
+                                                'type': 'Literal',
+                                                'value': item.name,
+                                                'raw': '\'' + item.name + '\''
+                                            };
+                                            if ('_id' in item)
+                                                out._id = item._id;
+    
+                                            return out;
+                                        }
+                                    })
                             },
                             node.right
                         ]

@@ -8,24 +8,32 @@
 
 module.exports = (function () {
     'use strict';
-    var QObject = require('../../Base/QObject');
-    var CompilationChild = require('./CompileChild');
+    var QObject = require('../../Base/QObject'),
+        console = QObject.console('compile');
+    QObject.logging('compile');
     var CompileClass = require('./CompileClass');
     var CompileScope = function(cfg){
         this.children = [];
         this.classes = [];
         this.vars = {_known: 'QObject._knownComponents', cls: void 0, out: '{}'};
-        QObject.apply(this, cfg);        
+        QObject.apply(this, cfg);
+        console.log('new compile scope');
     };
     
     CompileScope.prototype = {
-        child: function(cfg){
-            var child = new CompilationChild(cfg, this);
-            this.children.push(child);
-            return child;
-        },
-        cls: function(name){
-            var cls = new CompileClass(typeof name === 'object' ? name : {type: name || 'this'}, this);
+        cls: function(cfg){
+            if(typeof cfg !== 'object') {
+                console.log('compiling class named '+cfg);
+                cfg = {type: cfg || 'this'};
+            }else{
+                console.log('compiling class named '+cfg.name);
+            }
+            
+            cfg.console = console;
+            cfg.parentClass = this;
+            var cls = new CompileClass(cfg, this);
+            cls.root = cls;
+            
             this.classes.push(cls);
             return cls;
         }

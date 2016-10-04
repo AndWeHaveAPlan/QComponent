@@ -310,6 +310,15 @@ module.exports = (function () {
             a[i] = b[i];
         return a;
     };
+    var applyArrayRespective = function(a, b){
+        for(var i in b) {
+            if(Array.isArray(a[i]) && Array.isArray(b[i]))
+                a[i] = a[i].slice().concat(b[i]);
+            else
+                a[i] = b[i];
+        }
+        return a;
+    };
     var getUnDefined = function(obj, collector){
         var i, used = obj.used, undef = {};
         collector = Object.create(collector || {});
@@ -327,24 +336,25 @@ module.exports = (function () {
         });
         return undef;
     };
-    var getFullUnDefined = function (obj, collector) {
+    var getFullUnDefined = function (obj, collector, undef) {
         var deepUsed = obj.deepUsed;
         /*console.log(deepUsed);
         console.log(obj.used);`
         console.log(Object.keys(obj.declared))*/
 
-        var i, undef = {};
+        var i;
+        undef = undef || {};
         collector = Object.create(collector || {});
         apply(collector, obj.declared);
         for(i in deepUsed)
             if(deepUsed.hasOwnProperty(i)){
                 if(!(i in collector)){
-                    apply(undef[i] || (undef[i] = {}),deepUsed[i]);
+                    applyArrayRespective(undef[i] || (undef[i] = {}),deepUsed[i]);
                 }
             }
 
         obj.subScopes.forEach(function(scope){
-            apply(undef, getFullUnDefined(scope, collector));
+            getFullUnDefined(scope, collector, undef);
         });
         for(i in undef){
             if(extractor.knownVars[i])

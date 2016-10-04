@@ -418,6 +418,11 @@ module.exports = (function(){
                 'value': name,
                 'raw': '\''+name+'\''
             };
+        },
+        This: function(){
+            return {
+                'type': 'ThisExpression'
+            };
         }
     };
     return ASTtransformer;

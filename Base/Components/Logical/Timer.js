@@ -22,13 +22,13 @@ module.exports = (function () {
             var int = this.get('interval');
             var t = this._tick(this);
             this._intervalObj = setInterval(t, int);
-            this.set('enabled', true);
+            !this._data.enabled && this.set('enabled', true);
         },
 
         stop: function () {
             if (this._intervalObj)
                 clearInterval(this._intervalObj);
-            this.set('enabled', false);
+            this._data.enabled && this.set('enabled', false);
         },
 
         _intervalObj: void(0),

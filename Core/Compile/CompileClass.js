@@ -11,11 +11,14 @@ module.exports = (function () {
     
     var QObject = require('../../Base/QObject');
     var tools = require('./CompileTools'),
-        uuid = require('tiny-uuid');
+        uuid = require('tiny-uuid'),
+        CompilationChild = require('./CompileChild');
     
     var CompileClass = function(cfg, scope){
         this.scope = scope;
         this.props = [];
+        this.childItems = [];
+        this.subClasses = [];
         QObject.apply(this, cfg);
         var type = this.type;
         var metadata = this.scope.metadata[type];
@@ -36,6 +39,23 @@ module.exports = (function () {
             metadata.type = metadata._type = metadata._type || metadata.type;
     };
     CompileClass.prototype = {
+        subcls: function(cfg){
+            if(typeof cfg !== 'object')
+                cfg = {type: cfg || 'this'}
+
+            cfg.root = this.root || this;
+            cfg.parentClass = this;
+            var cls = new CompileClass(cfg, this);
+            this.subClasses.push(cls);
+            return cls;
+        },
+        child: function(cfg){
+            cfg.root = this.root || this;
+            cfg.parentClass = this;
+            var child = new CompilationChild(cfg, this);
+            this.childItems.push(child);
+            return child;
+        },
         compile: function (inline) {
 
             var vars = this.vars,
@@ -44,7 +64,8 @@ module.exports = (function () {
 
             var metadataItem = this.metadata,
                 source,
-                _self = this;
+                _self = this,
+                children;
 
             inline = !!inline;
 
@@ -52,7 +73,7 @@ module.exports = (function () {
                 this.type = name = metadataItem._type + uuid();
             }
 
-            this.scope.vars[metadataItem._type] = '_known[\'' + metadataItem._type + '\']';
+            this.root.scope.vars[metadataItem._type] = '_known[\'' + metadataItem._type + '\']';
 
             this._knownVars = [];
             for (var key in metadataItem.private) {
@@ -67,9 +88,9 @@ module.exports = (function () {
             var props = [
                 {name: 'value', value: 'new Base.Property("Variant")'}
             ];
-
-            var compiledChildren = this.children || metadataItem.children ? (this.children || metadataItem.children).map(function (el) {
-                return scope.child({cls: _self, child: el, parent: _self});//el, item, props, vars, 0);
+            children = this.children || metadataItem.children;
+            var compiledChildren = children ? children.map(function (el) {
+                return _self.child({cls: _self, child: el, parent: _self});//el, item, props, vars, 0);
             }) : '//no children\n';
 
             Array.isArray(compiledChildren) && (compiledChildren = compiledChildren.map(function(item){

@@ -51,7 +51,7 @@ module.exports = (function () {
             /** compile subchildren */
             if (child.children) {
                 compiledChildren = child.children.map(function (item) {
-                    return _self.scope.child({
+                    return _self.parentClass.child({
                         cls: _self.cls,
                         parent: _self,
                         child: item,
@@ -97,7 +97,7 @@ module.exports = (function () {
                 cfgInit.push('id: \'' + name + '\'');
 
             if (child.events){
-                tools
+                //tools
                 events = tools.builder.events(child, this.cls, child);
             }
 

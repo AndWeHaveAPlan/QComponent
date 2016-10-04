@@ -1,10 +1,6 @@
-UIComponent Button
-  public {String} value
-  button.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect: {{value}}
-    public {Boolean} disabled: {{disabled}}
-    disable: () -> disabled = true
-    enable: () -> disabled = false
-    .click: (e)->
-       @fire('click', e)
-    .mousedown: (e)->
-       @fire('mousedown', e)
+def Page main
+    Number clickCount:1
+    Button b: Button1
+        .click: ()-> {
+            this.value = "Button"+(clickCount++);
+        }
