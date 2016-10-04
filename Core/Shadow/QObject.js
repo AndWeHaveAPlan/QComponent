@@ -26,7 +26,7 @@ module.exports = (function() {
         recursiveConcat = function(holder, items){
             var i, _i;
             for( i = 0, _i = items.length; i < _i; i++){
-                holder.push(extractFunctionData(items[i].pureLine));
+                holder.push(items[i].items.map(extractFunctionData).join(''));
                 if(items[i].children && items[i].children.length)
                     recursiveConcat(holder, items[i].children);
             }
