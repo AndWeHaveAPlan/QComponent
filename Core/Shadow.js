@@ -15,7 +15,11 @@ module.exports = (function() {
             UIComponent: require('./Shadow/UIComponent'),
             HTMLComponent: require('./Shadow/HTMLComponent'),
             Selector: require('./Shadow/Selector'),
-            String: {},
+            String: {
+                _prop: {
+                    length: new Property('Number')
+                }
+            },
             Boolean: {},
             Variant: {},
             Array: {

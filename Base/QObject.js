@@ -377,6 +377,9 @@ module.exports = (function () {
                         ? proxy[property.proxyFor].push(p)
                         : proxy[property.proxyFor] = [p];
                 }
+                /*if (property.type == 'Function' && !(p in this)) {
+                    this.prototype[p] = function () { this.get(p).apply(this.arguments) };
+                }*/
             }
 
             delete cfg._prop;

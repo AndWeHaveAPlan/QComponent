@@ -68,6 +68,16 @@ module.exports = (function () {
                 {name: 'value', value: 'new Base.Property("Variant")'}
             ];
 
+            for (var p in this.metadata.private)
+                if (this.metadata.private.hasOwnProperty(p)) {
+                    console.log('p')
+                    console.log(p)
+                    if (this.metadata.private[p].type === 'Function') {
+                        props.push({ name: p, value: 'new Base.Property("Function")' });
+                    }
+                }
+            
+
             var compiledChildren = this.children || metadataItem.children ? (this.children || metadataItem.children).map(function (el) {
                 return scope.child({cls: _self, child: el, parent: _self});//el, item, props, vars, 0);
             }) : '//no children\n';
