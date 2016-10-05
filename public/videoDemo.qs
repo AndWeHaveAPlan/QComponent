@@ -46,7 +46,6 @@ def Page videoPlayerPage
 				div: {{name}}
 					padding: 12px
 
-
 def Scenario main
 
 	Sequence

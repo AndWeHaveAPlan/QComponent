@@ -1,31 +1,21 @@
-def UIComponent Checkbox
-   public Boolean checked: {{value}}
+def UIComponent Checkbox2
+   public Boolean checked: {{i1.value?'true':'false'}}
    div:
-       input i1:
+       input i1: {{checked}}
            type: checkbox
-           checked: {{checked?'checked':void 0}}
 
-def UIComponent TextBox
+def UIComponent TextBox2
    public String text: {{value}}
    input i1:
      type: text
      value: {{text}}
 
 
-def UIComponent main
-   String valueProxy: {{value}}
-   String href: "http://google.com"
-   TextBox:
-       text: {{value}}
-   Checkbox c1:
-       checked: {{value}}
-   HBox hbox:
-       a:
-           value: {{value}}
-           href: {{href}}
-       a:
-           value: {{value}}
-           href: {{href}}
+def Page main
+
+   TextBox2:
+       text: {{c1.checked}}
+   Checkbox2 c1
    div d1:
-       Checkbox c2:
-           checked: {{value}}
+       Checkbox2 c2:
+           checked: {{c1.checked}}

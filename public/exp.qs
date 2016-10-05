@@ -23,6 +23,9 @@ def Page main
                     check = !check
                 }
 		Tab: all sorts of shit
-			salad
+		    VBox
+			    salad
+			    salad
+			    span: o
 		Tab: script
 			scen

@@ -12,8 +12,8 @@
 			Grid
 				rows: 4
 				columns: 4
-				width:1
-				height:100%
+				width:4
+				height:4
 				top: {{top}}
 				left: {{left}}
 

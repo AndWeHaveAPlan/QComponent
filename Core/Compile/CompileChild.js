@@ -38,7 +38,7 @@ module.exports = (function () {
 
 
             /** get outer knowledge about this child type from compiling metadata */
-            propList = this.scope.metadata[type];
+            propList = this.root.scope.metadata[type];
 
             if (!propList) { /** it is not in compiling classes */
                 propList = QObject._knownComponents[type]; /** maybe it is in SDK components */

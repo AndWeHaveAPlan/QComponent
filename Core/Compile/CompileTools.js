@@ -360,9 +360,12 @@ module.exports = (function () {
                 '\t});';
         },
         getVarInfo: function (stack, cls, child) {
-            var metadata = cls.root.metadata;
+            var metadata = cls.metadata;
             var i, _i, out = [], node, env, selfFlag = false, context = false,
                 envFlag, propFlag, valueFlag = false, thisFlag = false, lastEnv, lastName,
+
+                firstTry = true,
+
 
                 name;
             for (i = 0, _i = stack.length; i < _i; i++) {
@@ -376,6 +379,7 @@ module.exports = (function () {
                     name = node.name;
 
                 if (!env || env.type !== 'Variant') {
+
                     if (node.type === 'ThisExpression') {
                         env = child;
                         thisFlag = true;
@@ -401,6 +405,16 @@ module.exports = (function () {
                     }
 
                     if (!env) {
+                        if(firstTry){
+                            // on first search we can try to find prop in root parent info
+                            metadata = cls.root.metadata;
+                            if(metadata){
+                                i--;
+                                firstTry = false;
+                                continue;
+                            }
+
+                        }
                         if (lastEnv) {
                             console.log(out);
                             throw new Error('Can not resolve `' + name + '` from `' + lastName + '` <' + lastEnv.type + '>');
@@ -420,10 +434,15 @@ module.exports = (function () {
                     //    throw new Error('Can not get `'+ stack[i+1].name +'` of primitive value `'+node.name+'` <'+env.type+'>')
                 } else {
                     metadata = shadow[env.type];
+                    if(!metadata)
+                        metadata = cls.root.scope.metadata[env.type];
+                    if(!metadata)
+                        debugger;
                 }
                 out.push({ name: name, env: envFlag, prop: propFlag, node: node, e: env });
                 lastEnv = env;
                 lastName = name;
+                firstTry = false;
             }
             if (!(env.type in primitives || env.type === 'Variant')) {
                 valueFlag = true;
