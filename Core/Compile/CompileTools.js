@@ -454,6 +454,7 @@ module.exports = (function () {
                 stack.push(pointer);
             }
 
+
             info = tools.getVarInfo(stack, metadata);
             if (info.valueFlag)
                 info.varParts.push({ name: 'value' });

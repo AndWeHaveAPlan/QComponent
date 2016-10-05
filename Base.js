@@ -70,7 +70,8 @@ module.exports = {
             Random: require('./Base/Components/Logical/Random'),
             Title: require('./Base/Components/Logical/Title'),
             AJAX: require('./Base/Components/Logical/AJAX'),
-            Audio: require('./Base/Components/Logical/Audio')
+            Audio: require('./Base/Components/Logical/Audio'),
+            FileSystem: require('./Base/Components/Logical/FileSystem')
         }
     },
     EventManager: require('./Base/EventManager'),

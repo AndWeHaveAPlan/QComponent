@@ -382,7 +382,8 @@ module.exports = (function () {
             parseInt: 1,
             parseFloat: 1,
             JSON: 1,
-            encodeURI: 1
+            encodeURI: 1,
+            document: 1
         }
     };
     return extractor;

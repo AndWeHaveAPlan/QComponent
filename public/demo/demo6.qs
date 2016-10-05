@@ -1,59 +1,13 @@
 ﻿def Page DebugPage
-	Button: back
-	    .click: ()-> back()
 	span: {{JSON.stringify(dataContext)}}
 
 def Page StartPage
-	VBox
-		height: 100%
-		width: 100%
-		center
-			Button: Files
-				.click: ()->
-					self.dataContext.path='files'
-					next()
-		center
-			Button: Payment
-				.click: ()->
-					self.dataContext.path='topup'
-					next()
-		center
-			Button: Playground
-
-def Page FilesPage
-
-	FileSystem fs
-		path: '/'
-
 	Button: back
 	    .click: ()-> back()
+	Button: next
+	    .click: ()-> next()
 
 	h1: StartPage
-
-	WrapPanel
-		scroll: vertical
-		height: 600px
-		width: 100%
-		itemSource: {{fs.result}}
-		itemTemplate:
-			div
-				width: 100px				
-				Image: {{type=='directory'?'https://cdn4.iconfinder.com/data/icons/ionicons/512/icon-folder-128.png':'http://www.iconsdb.com/icons/preview/black/text-file-xxl.png'}}
-					width: 100px
-					height: 100px
-					stretch: uniform
-				center: {{name}}
-				Button: '{}'
-					position: absolute
-					top: 3px
-					right: 3px
-					.click: (e)->
-						document.location.href=document.location.origin+'/'+name+'?highlight=true';
-						e.stopPropagation()
-
-		.selectionChanged: (item)->
-			document.location.pathname= fs.path+'/'+item.name;
-		
 
 def Page OpSelectPage	
 	String opsos: {{wp.selectedItem.opsos}}
@@ -166,7 +120,7 @@ def Page TopUpPage
 				next()	
 
 
-def Scenario TopUpScenario
+def Scenario main
 	public String opsos: ''
 	public String number: ''
 	public Number money: 0
@@ -187,16 +141,4 @@ def Scenario TopUpScenario
 		Selector: 
 			scene: DebugPage
 
-
-def Scenario main
-	public String path: 'topup'
-
-	Sequence
-		Selector:
-			scene: StartPage
-
-		Selector: path=='topup'
-			scene: TopUpScenario
-
-		Selector: path=='files'
-			scene: FilesPage
+		

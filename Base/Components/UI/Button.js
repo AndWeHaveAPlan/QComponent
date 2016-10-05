@@ -13,13 +13,13 @@ module.exports = UIComponent.extend('Button', {
         this.el = UIComponent.document.createElement('input');
         this.el.setAttribute('type', 'button');
         this.el.addEventListener('click', function (event) {
-            self.fire('click');
+            self.fire('click', event);
         });
     },
     hide: function () {
         this.set('visibility', 'hidden');
     },
-    show: function (){
+    show: function () {
         this.set('visibility', 'visible');
     },
     _prop: {

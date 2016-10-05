@@ -35,7 +35,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
             if (currentItem) currentItem.style.background = this._data['selectionColor'];
 
             this.set('selectedItem', this.get('itemSource').get(index));
-            this.fire('selectionChanged');
+            this.fire('selectionChanged', this.get('itemSource').get(index));
         }
     },
     /**
@@ -88,7 +88,7 @@ module.exports = UIComponent.extend('ContainerComponent', {
                     children[val].style.background = this._data['selectionColor'];
 
                 this.set('selectedItem', this.get('itemSource').get(val));
-                this.fire('selectionChanged');
+                this.fire('selectionChanged', this.get('itemSource').get(val));
             },
             get: Property.defaultGetter
         }, -1),
