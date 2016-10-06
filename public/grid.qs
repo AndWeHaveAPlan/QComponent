@@ -41,8 +41,6 @@
 					width: 1
 					left:1
 					top:2
-
-					
 		div
 			TextBox top: 1
 			TextBox left: 1

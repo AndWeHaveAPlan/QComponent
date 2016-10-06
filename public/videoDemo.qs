@@ -47,7 +47,6 @@ def Page videoPlayerPage
 					padding: 12px
 
 def Scenario main
-
 	Sequence
 		Selector
 			page: firstPage
