@@ -15,9 +15,8 @@ module.exports = AbstractComponent.extend('Selector', {
             set: Property.defaultSetter
         }, true),
 
-        page: new Property('Page', {}, {
-            get: Property.defaultGetter,
-            set: Property.defaultSetter
-        }, Page)
+        scene: new Property('AbstractComponent', {
+            defaultValue: Page
+        })
     }
 });

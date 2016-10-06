@@ -42,7 +42,7 @@ var TestInput = BaseInput.extend('TestInput', {
         this.el.focus();
     },
     _prop: {
-        value: Property.generate.attributeProperty('value')
+        value: Property.generate.attributeProperty('value')        
     }
 });
 

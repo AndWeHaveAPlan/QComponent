@@ -221,7 +221,7 @@ module.exports = (function () {
             // TODO
             // bind this to setter and getter
 
-            var defaultSetter = function () {};
+            var defaultSetter = function () { };
             var defaultGetter = dataTypes.Variant.get;
             var defaultDescription = "Default number description";
             //
@@ -232,8 +232,8 @@ module.exports = (function () {
             var description = metacfg.description || defaultDescription;
 
             return new Property('Number',
-                {description: description},
-                {set: set, get: get}
+                { description: description },
+                { set: set, get: get }
             );
         },
         typed: function (name, cls) {
@@ -251,15 +251,15 @@ module.exports = (function () {
         cssProperty: function (text) {
             var withAnimfationFrame = false,
                 w;
-            if(typeof window === 'undefined'){
+            if (typeof window === 'undefined') {
                 withAnimfationFrame = false;
-            }else{
+            } else {
                 w = window;
             }
 
             var doSet = function () {
                 var data, val, i, _i;
-                for(i = 0, _i = setList.length; i < _i; i++){
+                for (i = 0, _i = setList.length; i < _i; i++) {
                     data = setList[i];
                     if (val = data.val) {
                         data.el.style[data.key] = val;
@@ -275,10 +275,10 @@ module.exports = (function () {
                 {
                     set: withAnimfationFrame ? function (key, val) {
                         w.requestAnimationFrame(doSet);
-                        setList.push({key: key, el: this.el, val: val});
+                        setList.push({ key: key, el: this.el, val: val });
 
                     } : function (key, val) {
-                        if (val) {
+                        if (val !== void 0) {
                             this.el.style[key] = val;
                         } else {
                             this.el.style.removeProperty(key);
@@ -301,10 +301,10 @@ module.exports = (function () {
                             this.el.removeAttribute(attr);
                             delete this.el[attr];
                         } else {
-                            if(this.el.getAttribute(attr) !== val)
+                            if (this.el.getAttribute(attr) !== val)
                                 this.el.setAttribute(attr, val);
 
-                            if(this.el[attr] !== val)
+                            if (this.el[attr] !== val)
                                 this.el[attr] = val;
                         }
 

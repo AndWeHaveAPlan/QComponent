@@ -93,20 +93,39 @@ var doIt = function (req, res, source, path) {
 
                 var out = [];
 
-                for (var i = 0; i < entries.length; i++) {
-                    var cEntry = entries[i];
-                    var stat = fs.statSync(Path.join(path, cEntry));
-                    if (!stat.isDirectory() && cEntry.indexOf('.qs') !== -1) {
-                        out.push({ key: cEntry.toLowerCase(), html: '<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>' });
-                    }
-                }
+                var json = reqUrl.query.json;
 
-                return res.end(header +
-                    out
-                        .sort(function (a, b) { return a.key > b.key ? 1 : a.key < b.key ? -1 : 0; })
-                        .map(function (el) { return el.html; })
-                        .join('\n') +
-                    footer);
+                if (json) {
+
+                    for (var i = 0; i < entries.length; i++) {
+                        var cEntry = entries[i];
+                        var stat = fs.statSync(Path.join(path, cEntry));
+
+                        out.push({
+                            name: cEntry,
+                            type: stat.isDirectory() ? 'directory' : 'file'
+                        })
+                    }
+
+                    res.end(JSON.stringify(out));
+
+                } else {
+
+                    for (var i = 0; i < entries.length; i++) {
+                        var cEntry = entries[i];
+                        var stat = fs.statSync(Path.join(path, cEntry));
+                        if (!stat.isDirectory() && cEntry.indexOf('.qs') !== -1) {
+                            out.push({ key: cEntry.toLowerCase(), html: '<div style="clear: both;"><a style="display: block; float: left; width: 200px;" href="/' + cEntry + '">' + cEntry + '</a><a style="float: left; display: block; width: 650px;" href="/' + cEntry + '?highlight=true">View code</a></div>' });
+                        }
+                    }
+
+                    return res.end(header +
+                        out
+                            .sort(function (a, b) { return a.key > b.key ? 1 : a.key < b.key ? -1 : 0; })
+                            .map(function (el) { return el.html; })
+                            .join('\n') +
+                        footer);
+                }
             }
 
 

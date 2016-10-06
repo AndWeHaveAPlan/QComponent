@@ -1,4 +1,4 @@
-def Page imagesPage
+﻿def Page imagesPage
 
 	input imgSrc: http://www.planwallpaper.com/static/images/butterfly-wallpaper.jpeg
 		width: 100%

@@ -58,7 +58,8 @@ module.exports = {
             If: require('./Base/Components/UI/If'),
             Tab: require('./Base/Components/UI/Tab'),
             TabControl: require('./Base/Components/UI/TabControl'),
-            Grid: require('./Base/Components/UI/Grid')
+            Grid: require('./Base/Components/UI/Grid'),
+            ProgressBar: require('./Base/Components/UI/ProgressBar')
         },
         Factory: require('./Base/Components/Factory'),
         Logical: {
@@ -69,7 +70,8 @@ module.exports = {
             Random: require('./Base/Components/Logical/Random'),
             Title: require('./Base/Components/Logical/Title'),
             AJAX: require('./Base/Components/Logical/AJAX'),
-            Audio: require('./Base/Components/Logical/Audio')
+            Audio: require('./Base/Components/Logical/Audio'),
+            FileSystem: require('./Base/Components/Logical/FileSystem')
         }
     },
     EventManager: require('./Base/EventManager'),

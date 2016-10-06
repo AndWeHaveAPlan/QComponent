@@ -28,7 +28,7 @@ body {
 
 input {
     font-size: 17px;
-    text-transform: inherit
+    text-transform: inherit;
 }
 
 h1, h2, h3, h4, h5 {
@@ -37,20 +37,32 @@ h1, h2, h3, h4, h5 {
     margin-top: 12px;
 }
 
+input[type="button"] {
+    padding: 14px 26px;
+    background: #2744ae;
+    color: white;
+    border-radius: 5px;
+}
+
+input[type="button"]:disabled {
+    background: #bbb;
+}
+
 .clearfix {
     clear: both !important;
 }
+
 ._Q_KB_Button {
     background: #ffa834;
     color: #fff;
     border: solid 1px #fff;
-    line-height: 35px;
+    line-height: 22px;
     font-size: 2em;
     cursor: pointer;
     display: inline-block;
     height: 45px;
     transition: background, text-shadow, box-shadow 0.3s;
-    border-radius: 17px;
+    border-radius: 5px;
     text-shadow: 0.5px -1px #9c502c;
 }
 ._Q_KB_Button.down {

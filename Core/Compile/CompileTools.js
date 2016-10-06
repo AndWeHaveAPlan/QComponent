@@ -97,10 +97,11 @@ module.exports = (function () {
         propertyGetter: function (prop, scope, vars, cls) {
 
             function checkType(sourceType, targetType) {
-                var type = (scope.metadata[sourceType] && scope.metadata[sourceType].type) || (QObject._knownComponents[sourceType] && QObject._knownComponents[sourceType]._type);
+                var type = (scope.metadata[sourceType] && scope.metadata[sourceType].type) || (QObject._knownComponents[sourceType] && QObject._knownComponents[sourceType]._prototype);
                 if (type && targetType === type) {
                     return true;
                 } else if (type !== 'QObject' && type !== void (0)) {
+                    console.log(type, targetType);
                     return checkType(type, targetType);
                 } else {
                     return false;
@@ -384,7 +385,6 @@ module.exports = (function () {
                         env = child;
                         thisFlag = true;
                     } else {
-
                         env = this.isNameOfEnv(name, metadata);
                         if (env)
                             envFlag = true;

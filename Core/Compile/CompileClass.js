@@ -21,7 +21,9 @@ module.exports = (function () {
         this.subClasses = [];
         QObject.apply(this, cfg);
         var type = this.type;
-        var metadata = this.scope.metadata[type];
+        if(!this.root)
+            this.root = this;
+        var metadata = scope.metadata[type];
 
         if (!metadata) { /** it is not in compiling classes */
             metadata = QObject._knownComponents[type]; /** maybe it is in SDK components */
@@ -45,14 +47,14 @@ module.exports = (function () {
 
             cfg.root = this.root || this;
             cfg.parentClass = this;
-            var cls = new CompileClass(cfg, this);
+            var cls = new CompileClass(cfg, this.root.scope);
             this.subClasses.push(cls);
             return cls;
         },
         child: function(cfg){
             cfg.root = this.root || this;
             cfg.parentClass = this;
-            var child = new CompilationChild(cfg, this);
+            var child = new CompilationChild(cfg, this.root.scope);
             this.childItems.push(child);
             return child;
         },
@@ -70,6 +72,9 @@ module.exports = (function () {
             inline = !!inline;
 
             if (inline) {
+                if(!metadataItem) {
+                    throw new Error(this.name + ' <'+ name +'> has no metadata');
+                }
                 this.type = name = metadataItem._type + uuid();
             }
 
@@ -86,8 +91,18 @@ module.exports = (function () {
             var out = '';
 
             var props = [
-                {name: 'value', value: 'new Base.Property("Variant")'}
+                //{name: 'value', value: 'new Base.Property("Variant")'}
             ];
+
+            for (var p in this.metadata.private)
+                if (this.metadata.private.hasOwnProperty(p)) {
+                    console.log('p')
+                    console.log(p)
+                    if (this.metadata.private[p].type === 'Function') {
+                        props.push({ name: p, value: 'new Base.Property("Function")' });
+                    }
+                }
+            
             children = this.children || metadataItem.children;
             var compiledChildren = children ? children.map(function (el) {
                 return _self.child({cls: _self, child: el, parent: _self});//el, item, props, vars, 0);

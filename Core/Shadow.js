@@ -12,10 +12,15 @@ module.exports = (function() {
         els = {
             QObject: require('./Shadow/QObject'),
             AbstractComponent: require('./Shadow/AbstractComponent'),
+            scene: {_prop: {}},
             UIComponent: require('./Shadow/UIComponent'),
             HTMLComponent: require('./Shadow/HTMLComponent'),
             Selector: require('./Shadow/Selector'),
-            String: {},
+            String: {
+                _prop: {
+                    length: new Property('Number')
+                }
+            },
             Boolean: {},
             Variant: {},
             Array: {

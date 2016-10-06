@@ -11,8 +11,11 @@ module.exports = UIComponent.extend('Page', {
     createEl: function () {
         this.el = QObject.document.createElement('div');
     },
-    load: function () {
-        QObject.document.body.appendChild(this.el);
+    load: function (parent) {
+        if (!parent) {
+            QObject.document.body.appendChild(this.el);
+        }
+        this.updateLayout();
         this.fire('loaded');
     },
     next: function () {
@@ -34,10 +37,6 @@ module.exports = UIComponent.extend('Page', {
             get: Property.defaultGetter,
             set: Property.defaultSetter
         }, {}),
-        /**
-        *  @type Scenario
-        */
-        scenario: new Property('Scenario'),
         next: new Property('Function'),
         back: new Property('Function')
     }

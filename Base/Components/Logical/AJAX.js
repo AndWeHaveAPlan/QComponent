@@ -18,7 +18,7 @@ module.exports = (function () {
                     self.fire('error');
                 } else {
                     self.set('result', xhr.responseText);
-                    self.fire('complete');
+                    self.fire('complete', xhr.responseText);
                 }
             };
 

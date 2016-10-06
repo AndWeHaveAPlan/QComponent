@@ -29,6 +29,7 @@ function isModifierCombo(event) {
  * @Abstract
  */
 module.exports = UIComponent.extend('InputField', {
+    mixin: 'focusable',
     _startChange: function (newVal, selRange) {
     },
     _updateValue: function (newVal, selRange) {
@@ -54,7 +55,10 @@ module.exports = UIComponent.extend('InputField', {
         validator: new Property('Function', {}, {}, function () { return true; }),
         placeholder: Property.generate.attributeProperty('placeholder'),
         input: new Property('input')
-    }
+    },
+    innerFocus: function () {
+        this.input.el.focus();
+    },
 }, function (cfg) {
     UIComponent.call(this, cfg);
     var self = this;
